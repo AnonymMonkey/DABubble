@@ -1,80 +1,55 @@
-.login {
+.landing-page {
+  position: relative;
+
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 40px;
+  justify-content: center;
 
-  width: 40%;
+  width: 100vw;
+  height: 100vh;
 
-  text-align: center;
+  .logo {
+    position: absolute;
+    top: 75px;
+    left: 75px;
+    display: flex;
+    align-items: center;
+    gap: var(--gap-16);
 
-  padding: 50px;
+    img:first-child {
+      height: 70px;
+    }
 
-  background-color: var(--text-color);
-  border-radius: 30px;
-
-  box-shadow: 0px 2px 10px 0px #00000014;
-
-  h1 {
-    color: var(--purple1-purple-color);
-  }
-
-  p {
-    color: var(--black-color);
-  }
-
-  mat-form-field {
-    width: 100%;
-    background-color: var(--bg-color);
-
-    ::ng-deep .mat-mdc-form-field-subscript-wrapper,
-    ::ng-deep .mat-mdc-form-field-bottom-align {
-      display: none !important;
+    img:last-child {
+      height: 24px;
     }
   }
 
-  input {
-    width: 100%;
-    border: 1px solid var(--light-purple-color);
-    border-radius: 100px;
-    background-color: var(--bg-color);
-    color: var(--grey-color);
-    padding: var(--padding-16);
-  }
-
-  .cutline {
-    height: 1px;
-    width: 100%;
-    background-color: var(--bg-color);
+  .register {
+    position: absolute;
+    top: 75px;
+    right: 75px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    text-align: end;
 
-    p {
-      background-color: var(--text-color);
-      padding: var(--padding-16);
-    }
-  }
-
-  .google {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    border-radius: 100px;
-    background-color: var(--bg-color);
-    padding: var(--padding-16);
     gap: var(--gap-20);
   }
 
-  .buttons {
+  .info-links {
+    position: absolute;
+    bottom: 58px;
     width: 100%;
+
     display: flex;
     justify-content: center;
-    gap: var(--gap-30);
+    gap: var(--gap-20);
   }
 }
 
-mat-icon {
-  color: var(--grey-color);
+app-login-dialog {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
