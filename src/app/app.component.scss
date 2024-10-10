@@ -1,6 +1,10 @@
 .landing-page {
   position: relative;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   width: 100vw;
   height: 100vh;
   background-color: var(--bg-color);
@@ -44,9 +48,9 @@
   }
 }
 
-.link {
-  font-family: var(--font-figtree);
-  color: var(--purple2-purple-color);
-
-  text-decoration: none;
+app-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }

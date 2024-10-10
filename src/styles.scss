@@ -9,6 +9,7 @@
   --black-color: #000000;
   --error-color: #ed1e79;
   --online-color: #92c83e;
+  --transparent-color: rgba(255, 255, 255, 0);
 
   --padding-16: 16px;
   --padding-20: 20px;
@@ -26,6 +27,7 @@
   --gap-10: 10px;
   --gap-16: 16px;
   --gap-20: 20px;
+  --gap-30: 20px;
 }
 
 * {
@@ -37,11 +39,66 @@
 
 body {
   font-family: var(--font-nunito);
+  color: var(--text-color);
   font-size: 18px;
 }
 
 .d-none {
   display: none !important;
+}
+
+.link {
+  font-family: var(--font-figtree);
+  color: var(--purple2-purple-color);
+
+  text-decoration: none;
+}
+
+button {
+  text-wrap: nowrap !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+
+  border-radius: 100px !important;
+}
+
+.button-primary {
+  background-color: var(--purple1-purple-color) !important;
+
+  &:hover {
+    background-color: var(--purple2-purple-color) !important;
+  }
+
+  &:active {
+    background-color: var(--purple1-purple-color) !important;
+  }
+
+  &:disabled {
+    background-color: var(--grey-color) !important;
+  }
+}
+
+.button-secondary {
+  background-color: var(--transparent-color) !important;
+  color: var(--purple1-purple-color) !important;
+
+  border: 1px solid var(--purple2-purple-color) !important;
+
+  &:hover {
+    background-color: var(--purple3-purple-color) !important;
+    color: var(--text-color) !important;
+  }
+
+  &:active {
+    background-color: var(--purple1-purple-color) !important;
+    color: var(--text-color) !important;
+  }
+
+  &:disabled {
+    background-color: var(--transparent-color) !important;
+    border-color: var(--grey-color) !important;
+    color: var(--grey-color) !important;
+  }
 }
 
 /* FONTS */
