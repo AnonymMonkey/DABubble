@@ -5,8 +5,7 @@ import { MainMessageAreaComponent } from './main-message-area/main-message-area.
 @Component({
   selector: 'app-main',
   standalone: true,
-  imports: [HeaderComponent],
-  imports: [MainMessageAreaComponent],
+  imports: [HeaderComponent, MainMessageAreaComponent],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
 })
