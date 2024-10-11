@@ -37,6 +37,8 @@
       width: fit-content;
       padding: 10px 15px;
 
+      transition: var(--transition-100);
+
       &:hover {
         color: var(--purple1-color);
         font-weight: 500;

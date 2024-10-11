@@ -28,6 +28,8 @@
   --gap-16: 16px;
   --gap-20: 20px;
   --gap-30: 20px;
+
+  --transition-100: 100ms ease-in-out;
 }
 
 * {
@@ -75,6 +77,7 @@ button {
 
 .button-primary {
   background-color: var(--purple1-color) !important;
+  transition: var(--transition-100) !important;
 
   &:hover {
     background-color: var(--purple2-color) !important;
@@ -94,6 +97,8 @@ button {
   color: var(--purple1-color) !important;
 
   box-shadow: 0 0 0 1px var(--purple2-color) !important;
+
+  transition: var(--transition-100) !important;
 
   &:hover {
     background-color: var(--purple3-color) !important;
@@ -148,6 +153,7 @@ mat-icon {
     border-radius: 100px;
     outline: none;
     background-color: var(--transparent-color);
+    transition: var(--transition-100) !important;
 
     &::placeholder {
       color: var(--grey-color);

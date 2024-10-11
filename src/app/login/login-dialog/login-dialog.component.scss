@@ -25,6 +25,9 @@
 
   a {
     padding: 5px 15px;
+
+    transition: var(--transition-100);
+
     &:hover {
       background-color: var(--bg-color);
       border-radius: 100px;
@@ -55,6 +58,8 @@
     background-color: var(--bg-color);
     padding: var(--padding-16);
     gap: var(--gap-20);
+
+    transition: var(--transition-100);
 
     p {
       color: var(--purple1-color);
