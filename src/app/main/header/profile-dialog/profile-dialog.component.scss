@@ -1,4 +1,7 @@
 .card {
+  padding: var(--padding-32);
+  color: var(--black-color);
+  gap: var(--gap-20);
   mat-card-content {
     display: flex;
     flex-direction: column;
@@ -15,5 +18,20 @@
 .cdk-overlay-pane.mat-mdc-dialog-panel {
   position: absolute !important;
   top: 100px;
-  right: 40px;
+  right: 24px;
+}
+
+.profile-dialog-button {
+  font-size: var(--fontsize-32);
+  color: var(--black-color) !important;
+  outline: none !important;
+  padding: 12px 45px;
+  border: none !important;
+  box-shadow: none !important;
+
+  &:hover {
+    background-color: var(--light-purple-color) !important;
+    color: var(--purple1-color) !important;
+    cursor: pointer;
+  }
 }
