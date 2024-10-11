@@ -42,10 +42,10 @@ header {
       border-radius: 42px;
       border: none;
       &:hover {
-        outline: 1px solid var(--purple2-purple-color);
+        outline: 1px solid var(--purple2-color);
       }
       &:focus-visible {
-        outline: 1px solid var(--purple1-purple-color);
+        outline: 1px solid var(--purple1-color);
       }
     }
   }
