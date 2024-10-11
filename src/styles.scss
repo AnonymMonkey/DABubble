@@ -59,6 +59,7 @@ p {
 
 .link {
   font-family: var(--font-figtree);
+  font-weight: 400;
   color: var(--purple2-color);
 
   text-decoration: none;
@@ -174,7 +175,7 @@ mat-icon {
 
   input {
     &:hover {
-      box-shadow: 0 0 0 1px var(--purple3-color);
+      box-shadow: 0 0 0 1px var(--grey-color);
     }
 
     &:valid:not(:placeholder-shown):not(:focus) {
