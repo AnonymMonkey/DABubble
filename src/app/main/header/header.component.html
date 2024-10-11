@@ -4,14 +4,15 @@
     <img src="assets/img/logo_name.webp" alt="" />
   </div>
   <div class="search-field">
-    <mat-form-field appearance="outline">
-      <input matInput placeholder="Devspace durchsuchen" />
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
+    <input placeholder="Devspace durchsuchen" />
+    <mat-icon>search</mat-icon>
   </div>
-  <div class="profile">
+  <div class="profile" (click)="toggleDropdown()">
     <p>Frederik Beck</p>
-    <img src="./assets/img/frederik-beck.png" alt="" />
+    <div class="image-with-badge">
+      <img src="./assets/img/frederik-beck.png" alt="" />
+      <div class="badge"></div>
+    </div>
     <mat-icon>keyboard_arrow_down</mat-icon>
   </div>
 </header>

@@ -1,0 +1,19 @@
+.card {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 50px;
+  border-top-right-radius: 0;
+}
+
+.cdk-overlay-pane.mat-mdc-dialog-panel {
+  position: absolute !important;
+  top: 100px;
+  right: 40px;
+}
