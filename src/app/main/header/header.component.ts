@@ -11,4 +11,6 @@ import { MatInputModule } from '@angular/material/input';
   styleUrl: './header.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
-export class HeaderComponent {}
+export class HeaderComponent {
+  toggleDropdown() {}
+}
