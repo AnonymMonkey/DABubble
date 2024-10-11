@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { LoginDialogComponent } from './login-dialog/login-dialog.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [LoginDialogComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
