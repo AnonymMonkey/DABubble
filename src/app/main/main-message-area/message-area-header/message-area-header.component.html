@@ -4,6 +4,8 @@
       mat-button
       [matMenuTriggerFor]="chooseChannelMenu"
       class="button-channel-name"
+      [class.menu-opened]="isMenuOpened"
+      (click)="isMenuOpened = true"
     >
       <svg
         width="20"

@@ -1,0 +1,39 @@
+<section>
+  <div class="chat-history-daily-container-other-people">
+    <div class="date-container">
+      <div class="first-line"></div>
+      <div class="date">
+        <span>Dienstag, 14.Januar</span>
+      </div>
+      <div class="last-line"></div>
+    </div>
+    <mat-menu #menu="matMenu" xPosition="before" yPosition="above">
+      <button mat-menu-item>Item 1</button>
+      <button mat-menu-item>Item 2</button>
+    </mat-menu>
+    <div
+      mat-icon-button
+      [matMenuTriggerFor]="menu"
+      class="menu-button"
+    >
+      <div class="message-container">
+        <img
+          src="../../../../assets/img/Noah Braun.png"
+          alt="Profile Picture"
+        />
+        <div class="text-container">
+          <div class="name-and-time">
+            <span class="name">Noah Braun</span>
+            <span class="time">14:25 Uhr</span>
+          </div>
+          <span class="message">Welche Version ist aktuell von Angular?</span>
+          <div class="emoji-container d-none"></div>
+          <div class="thread">
+            <span>2 Antworten</span>
+            <span>Letzte Antwort 14:56 Uhr</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
