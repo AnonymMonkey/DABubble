@@ -73,13 +73,13 @@ header {
       }
 
       .badge {
-        height: 18px;
-        width: 18px;
+        height: 24%;
+        width: 24%;
         border-radius: 50%;
         border: 1px solid var(--text-color);
         background-color: var(--online-color);
         position: absolute;
-        bottom: 6px;
+        bottom: 10%;
         right: 0;
       }
     }
