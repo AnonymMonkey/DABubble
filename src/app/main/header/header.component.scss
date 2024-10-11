@@ -38,40 +38,6 @@ header {
     }
   }
 
-  .search-field {
-    .mdc-text-field--outlined {
-      .mdc-notched-outline {
-        .mdc-notched-outline__trailing {
-          border-top-left-radius: 0;
-          border-top-right-radius: 42px;
-          border-bottom-right-radius: 42px;
-          border-bottom-left-radius: 0;
-        }
-  
-        .mdc-notched-outline__leading {
-          border-top-left-radius: 42px;
-          border-top-right-radius: 0;
-          border-bottom-right-radius: 0;
-          border-bottom-left-radius: 42px;
-          width: 100px;
-        }
-      }
-  
-      &.mdc-text-field--outlined:not(.mdc-text-field--disabled) {
-        .mdc-notched-outline__leading, 
-        .mdc-notched-outline__notch, 
-        .mdc-notched-outline__trailing {
-          border-color: white;
-        }
-      }
-    }
-  }
-  
-  .mat-mdc-form-field-has-icon-suffix .mat-mdc-text-field-wrapper {
-    background-color: white;
-    border-radius: 42px;
-}
-  
   .profile {
     color: var(--black-color);
     display: flex;

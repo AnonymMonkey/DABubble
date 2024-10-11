@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,5 +10,6 @@ import { MatInputModule } from '@angular/material/input';
   imports: [MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule],
   templateUrl: './login-dialog.component.html',
   styleUrl: './login-dialog.component.scss',
+  encapsulation: ViewEncapsulation.None
 })
 export class LoginDialogComponent {}
