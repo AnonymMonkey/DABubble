@@ -6,4 +6,3 @@ export const routes: Routes = [
   { path: '', component: LoginComponent },
   { path: 'main', component: MainComponent },
 ];
-

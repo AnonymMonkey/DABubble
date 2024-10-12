@@ -25,25 +25,46 @@
     }
   }
 
-  .register {
+  .register,
+  .info-links {
     position: absolute;
+    display: flex;
+    gap: var(--gap-16);
+
+    a {
+      cursor: pointer;
+      text-align: center;
+      width: fit-content;
+      padding: 10px 15px;
+
+      transition: var(--transition-100);
+
+      &:hover {
+        color: var(--purple1-color);
+        font-weight: 500;
+        box-shadow: 0 0 0 1px var(--light-purple-color);
+        border-radius: 100px;
+      }
+    }
+  }
+
+  .register {
     top: 75px;
     right: 75px;
-    display: flex;
     flex-direction: column;
     text-align: end;
+    align-items: end;
 
-    gap: var(--gap-20);
+    p {
+      color: var(--black-color);
+    }
   }
 
   .info-links {
-    position: absolute;
-    bottom: 58px;
+    bottom: 2.5vh;
     width: 100%;
 
-    display: flex;
     justify-content: center;
-    gap: var(--gap-20);
   }
 }
 
