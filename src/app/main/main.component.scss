@@ -1,0 +1,55 @@
+.sidenav-button-container {
+  position: absolute;
+  left: -80px;
+  bottom: 30%;
+  rotate: -90deg;
+  width: 256px;
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 23px !important;
+    background-color: white !important;
+    color: var(--black-color) !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 30px !important;
+    border-bottom-left-radius: 30px !important;
+    border: none !important;
+    filter: drop-shadow(-4px 4px 7px rgba(0, 0, 0, 0.2));
+
+    &:hover {
+      filter: drop-shadow(-5px 5px 6px rgba(0, 0, 0, 0.2));
+      cursor: pointer;
+    }
+
+    &:hover p {
+      color: var(--purple3-color) !important;
+      cursor: pointer;
+    }
+
+    &:hover svg {
+      path {
+        stroke: var(--purple3-color) !important;
+        stroke-width: 3 !important;
+      }
+      rect {
+        stroke: var(--purple3-color) !important;
+        stroke-width: 3 !important;
+      }
+      cursor: pointer;
+    }
+
+    p {
+      font-size: var(--fontsize-20) !important;
+      font-weight: 500 !important;
+      width: 256px;
+      text-align: center;
+    }
+  }
+
+  svg {
+    rotate: 90deg;
+    margin-left: 20px;
+  }
+}
