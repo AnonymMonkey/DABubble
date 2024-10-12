@@ -25,7 +25,7 @@
     }
   }
 
-  .register,
+  .register-link,
   .info-links {
     position: absolute;
     display: flex;
@@ -48,7 +48,7 @@
     }
   }
 
-  .register {
+  .register-link {
     top: 75px;
     right: 75px;
     flex-direction: column;
@@ -68,7 +68,8 @@
   }
 }
 
-app-login-dialog {
+::ng-deep app-login,
+::ng-deep app-register {
   display: flex;
   align-items: center;
   justify-content: center;
