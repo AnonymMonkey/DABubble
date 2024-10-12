@@ -4,7 +4,6 @@ import { RegisterComponent } from './landing-page/register/register.component';
 import { ImprintComponent } from './shared/imprint/imprint.component';
 import { PrivacyPolicyComponent } from './shared/privacy-policy/privacy-policy.component';
 import { LoginComponent } from './landing-page/login/login.component';
-import { AppComponent } from './app.component';
 
 export const routes: Routes = [
   // Hier wird die Login-Seite geladen, die Child-Routes wie Login und Register enthält
