@@ -27,7 +27,7 @@ section {
     &:hover {
       cursor: pointer;
       background-color: var(--bg-color);
-      color: var(--purple3-purple-color);
+      color: var(--purple3-color);
     }
   }
 }
@@ -71,7 +71,7 @@ h2 {
   &:hover {
     cursor: pointer;
     background-color: var(--bg-color);
-    color: var(--purple3-purple-color);
+    color: var(--purple3-color);
   }
 }
 
@@ -95,7 +95,7 @@ h2 {
   &:hover {
     cursor: pointer;
     background-color: var(--bg-color);
-    color: var(--purple3-purple-color);
+    color: var(--purple3-color);
 
     span {
       transform: scale(1.02); 

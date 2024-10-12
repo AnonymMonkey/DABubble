@@ -1,7 +1,6 @@
 section {
   width: 100%;
   height: 100%;
-  margin-left: 22.5vw;
   align-items: flex-start;
   justify-content: flex-start;
   display: flex;
@@ -25,7 +24,7 @@ app-message-area-new-message {
 }
 
 .mat-card-container {
-  width: 80%;
+  width: 100%;
   height: 100%;
   background-color: var(--text-color);
   border-radius: 30px;
