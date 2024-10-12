@@ -4,8 +4,9 @@
       mat-button
       [matMenuTriggerFor]="chooseChannelMenu"
       class="button-channel-name"
-      [class.menu-opened]="isMenuOpened"
-      (click)="isMenuOpened = true"
+      [class.menu-opened]="isMenuOpened === 'choose-channel'"
+      (click)="isMenuOpened = 'choose-channel'"
+      #chooseChannelMenuTrigger="matMenuTrigger"
     >
       <svg
         width="20"
@@ -23,14 +24,17 @@
       Entwicklerteam
     <mat-icon>keyboard_arrow_down</mat-icon>
     </button>
-    <mat-menu #chooseChannelMenu="matMenu" xPosition="after">
+    <mat-menu #chooseChannelMenu="matMenu" xPosition="after" (closed)="isMenuOpened = ''">
       <app-channel-description></app-channel-description>
     </mat-menu>
   </div>
   <div class="channel-member">
     <button
+    [class.menu-opened]="isMenuOpened === 'member-list'"
+    (click)="isMenuOpened = 'member-list'"
       mat-button
       [matMenuTriggerFor]="memberListMenu"
+      #memberListMenuTrigger="matMenuTrigger"
       class="button-channel-member-list"
     >
       <img src="../../../../assets/img/Elias Neumann.png" alt="" />
@@ -38,13 +42,16 @@
       <img src="../../../../assets/img/frederik-beck.png" alt="" />
       <span>3</span>
     </button>
-    <mat-menu #memberListMenu="matMenu" xPosition="before">
-      
+    <mat-menu #memberListMenu="matMenu" xPosition="before" (closed)="isMenuOpened = ''">
+      <app-channel-members-list></app-channel-members-list>
     </mat-menu>
     <button
       mat-button
       [matMenuTriggerFor]="addMemberMenu"
+      #addMemberMenuTrigger="matMenuTrigger"
       class="button-channel-add-member"
+      [class.menu-opened]="isMenuOpened === 'add-member'"
+      (click)="isMenuOpened = 'add-member'"
     >
       <svg
         width="22"
@@ -59,9 +66,8 @@
         />
       </svg>
     </button>
-    <mat-menu #addMemberMenu="matMenu" xPosition="before">
-      <button mat-menu-item>Item 1</button>
-      <button mat-menu-item>Item 2</button>
+    <mat-menu #addMemberMenu="matMenu" xPosition="before" (closed)="isMenuOpened = ''">
+      <app-channel-new-member></app-channel-new-member>
     </mat-menu>
   </div>
 </mat-toolbar>

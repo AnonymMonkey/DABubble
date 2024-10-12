@@ -15,7 +15,7 @@
       </svg>
       Entwicklerteam
     </h2>
-    <mat-icon (click)="header.closeMenu()">close</mat-icon>
+    <mat-icon (click)="header.closeMenu('choose-channel')">close</mat-icon>
   </div>
   <div class="edit-channel-name-container">
     <div class="headline">
@@ -61,6 +61,6 @@
     </div>
   </div>
   <div class="leave-channel-container">
-    <button class="button-primary" (click)="header.closeMenu()"><span>Channel verlassen</span></button>
+    <button class="button-primary" (click)="header.closeMenu('choose-channel')"><span>Channel verlassen</span></button>
   </div>
 </section>
