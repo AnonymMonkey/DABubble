@@ -10,6 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -22,6 +23,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatCheckboxModule,
     ReactiveFormsModule,
     FormsModule,
+    RouterModule,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
