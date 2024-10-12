@@ -28,7 +28,11 @@
   </div>
 
   <div class="buttons">
-    <button mat-flat-button class="button-primary">Anmelden</button>
-    <button mat-flat-button class="button-secondary">Gäste-Login</button>
+    <button mat-flat-button class="button-primary" [routerLink]="['/main']">
+      Anmelden
+    </button>
+    <button mat-flat-button class="button-secondary" [routerLink]="['/main']">
+      Gäste-Login
+    </button>
   </div>
 </div>

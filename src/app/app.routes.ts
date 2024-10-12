@@ -7,7 +7,7 @@ import { LandingPageComponent } from './landing-page/landing-page.component';
 import { LoginComponent } from './landing-page/login/login.component';
 
 export const routes: Routes = [
-  // Hier wird die Login-Seite geladen, die Child-Routes wie Login-Dialog und Register enthält
+  // Hier wird die Login-Seite geladen, die Child-Routes wie Login und Register enthält
   {
     path: '',
     component: LandingPageComponent,

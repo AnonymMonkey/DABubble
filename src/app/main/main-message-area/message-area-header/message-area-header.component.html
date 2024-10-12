@@ -20,18 +20,22 @@
           fill="currentColor"
         />
       </svg>
-      <!-- <mat-icon>tag</mat-icon> -->
+      <mat-icon class="material-symbols-outline">tag</mat-icon>
       Entwicklerteam
-    <mat-icon>keyboard_arrow_down</mat-icon>
+      <mat-icon>keyboard_arrow_down</mat-icon>
     </button>
-    <mat-menu #chooseChannelMenu="matMenu" xPosition="after" (closed)="isMenuOpened = ''">
+    <mat-menu
+      #chooseChannelMenu="matMenu"
+      xPosition="after"
+      (closed)="isMenuOpened = ''"
+    >
       <app-channel-description></app-channel-description>
     </mat-menu>
   </div>
   <div class="channel-member">
     <button
-    [class.menu-opened]="isMenuOpened === 'member-list'"
-    (click)="isMenuOpened = 'member-list'"
+      [class.menu-opened]="isMenuOpened === 'member-list'"
+      (click)="isMenuOpened = 'member-list'"
       mat-button
       [matMenuTriggerFor]="memberListMenu"
       #memberListMenuTrigger="matMenuTrigger"
@@ -42,7 +46,11 @@
       <img src="../../../../assets/img/frederik-beck.png" alt="" />
       <span>3</span>
     </button>
-    <mat-menu #memberListMenu="matMenu" xPosition="before" (closed)="isMenuOpened = ''">
+    <mat-menu
+      #memberListMenu="matMenu"
+      xPosition="before"
+      (closed)="isMenuOpened = ''"
+    >
       <app-channel-members-list></app-channel-members-list>
     </mat-menu>
     <button
@@ -66,7 +74,11 @@
         />
       </svg>
     </button>
-    <mat-menu #addMemberMenu="matMenu" xPosition="before" (closed)="isMenuOpened = ''">
+    <mat-menu
+      #addMemberMenu="matMenu"
+      xPosition="before"
+      (closed)="isMenuOpened = ''"
+    >
       <app-channel-new-member></app-channel-new-member>
     </mat-menu>
   </div>
