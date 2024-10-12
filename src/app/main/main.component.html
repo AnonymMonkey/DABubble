@@ -1,7 +1,7 @@
 <app-header></app-header>
 
 <mat-drawer-container class="example-container" autosize>
-  <mat-drawer #drawer class="example-sidenav" mode="side">
+  <mat-drawer #drawer class="example-sidenav" mode="side" [opened]="true">
     <mat-toolbar class="sidenav-toolbar">
       <div class="toolbar-header">
         <img src="./assets/img/Workspace logo.png" alt="" />
@@ -11,36 +11,27 @@
         <mat-icon fontSet="material-symbols-outlined">edit_square</mat-icon>
       </button>
     </mat-toolbar>
+    <mat-expansion-panel
+      (opened)="panelOpenState.set(true)"
+      (closed)="panelOpenState.set(false)"
+      togglePosition="before"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title class="expansion-panel-title">
+          <mat-icon fontSet="material-symbols-outlined">workspaces</mat-icon>
+          Chanels</mat-panel-title
+        >
+      </mat-expansion-panel-header>
+      <p>I'm visible because I am open</p>
+    </mat-expansion-panel>
   </mat-drawer>
 </mat-drawer-container>
 <div class="sidenav-button-container">
   <button (click)="drawer.toggle()">
-    <p>Workspace-Menü schließen</p>
-
-    <svg
-      width="18"
-      height="19"
-      viewBox="0 0 18 19"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <p>Workspace-Menü {{ drawer.opened ? "schließen" : "öffnen" }}</p>
+    <mat-icon fontSet="material-symbols-outlined"
+      >left_panel_{{ drawer.opened ? "close" : "open" }}</mat-icon
     >
-      <rect
-        x="1"
-        y="1.5"
-        width="16"
-        height="16"
-        rx="1"
-        stroke="black"
-        stroke-width="2"
-      />
-      <path d="M6.71436 1.5V17.5" stroke="black" stroke-width="2" />
-      <path
-        d="M10.143 11.7857L12.0752 9.85354C12.2704 9.65828 12.2704 9.3417 12.0752 9.14644L10.143 7.21428"
-        stroke="black"
-        stroke-width="2"
-        stroke-linecap="round"
-      />
-    </svg>
   </button>
 </div>
 <!-- <app-main-message-area></app-main-message-area> -->

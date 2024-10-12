@@ -25,19 +25,7 @@
     }
 
     &:hover p {
-      color: var(--purple3-color) !important;
-      cursor: pointer;
-    }
-
-    &:hover svg {
-      path {
-        stroke: var(--purple3-color) !important;
-        stroke-width: 3 !important;
-      }
-      rect {
-        stroke: var(--purple3-color) !important;
-        stroke-width: 3 !important;
-      }
+      color: var(--purple1-color) !important;
       cursor: pointer;
     }
 
@@ -47,11 +35,14 @@
       width: 256px;
       text-align: center;
     }
-  }
 
-  svg {
-    rotate: 90deg;
-    margin-left: 20px;
+    mat-icon {
+      rotate: 90deg;
+    }
+
+    &:hover mat-icon {
+      color: var(--purple1-color) !important;
+    }
   }
 }
 
@@ -103,4 +94,22 @@
       background-color: var(--light-purple-color) !important;
     }
   }
+}
+
+.expansion-panel-title {
+  font-size: var(--fontsize-20);
+  font-weight: 700;
+
+  &:hover {
+    color: var(--purple1-color);
+  }
+}
+
+.mat-expansion-panel:not([class*="mat-elevation-z"]) {
+  box-shadow: none !important;
+}
+
+.mat-expansion-panel:not(.mat-expanded)
+  .mat-expansion-panel-header:not([aria-disabled="true"]):hover {
+  background: none;
 }
