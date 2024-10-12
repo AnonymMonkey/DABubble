@@ -31,7 +31,7 @@ h2 {
 
     &:hover {
       cursor: pointer;
-      color: var(--purple1-purple-color);
+      color: var(--purple1-color);
       background-color: var(--bg-color);
     }
   }
@@ -54,7 +54,7 @@ h2 {
   }
 
   button {
-    color: var(--purple3-purple-color) !important;
+    color: var(--purple3-color) !important;
     border: none;
     background-color: unset;
     font-size: 18px;
@@ -63,7 +63,7 @@ h2 {
     &:hover {
       cursor: pointer;
       font-weight: 600 !important;
-      color: var(--purple1-purple-color) !important;
+      color: var(--purple1-color) !important;
     }
   }
 }
@@ -106,7 +106,7 @@ h2 {
   }
 
   button {
-    color: var(--purple3-purple-color) !important;
+    color: var(--purple3-color) !important;
     border: none;
     background-color: unset;
     font-size: 18px;
@@ -115,7 +115,7 @@ h2 {
     &:hover {
       cursor: pointer;
       font-weight: 600 !important;
-      color: var(--purple1-purple-color) !important;
+      color: var(--purple1-color) !important;
     }
   }
 }
@@ -139,7 +139,7 @@ h2 {
   span:last-of-type {
     font-weight: 400 !important;
     font-size: 24px !important;
-    color: var(--purple3-purple-color) !important;
+    color: var(--purple3-color) !important;
   }
 }
 

@@ -93,7 +93,7 @@ section {
       background-color: var(--bg-color);
     }
     svg:hover {
-      fill: var(--purple3-purple-color);
+      fill: var(--purple3-color);
     }
   }
 }
@@ -168,7 +168,7 @@ img {
 
   &:hover {
     cursor: pointer;
-    color: var(--purple3-purple-color);
+    color: var(--purple3-color);
   }
 }
 
@@ -182,7 +182,7 @@ img {
 
 .message-own {
   border-radius: 30px 0px 30px 30px;
-  background-color: var(--purple2-purple-color); /* add this */
+  background-color: var(--purple2-color); /* add this */
   padding: 10px 20px;
   position: relative;
   display: flex;
@@ -195,7 +195,7 @@ img {
   align-items: center;
 
   span:first-of-type {
-    color: var(--purple3-purple-color);
+    color: var(--purple3-color);
 
     &:hover {
       font-weight: 700 !important;
@@ -215,7 +215,7 @@ img {
   justify-content: flex-end; /* add this */
 
   span:first-of-type {
-    color: var(--purple3-purple-color);
+    color: var(--purple3-color);
 
     &:hover {
       font-weight: 700 !important;
