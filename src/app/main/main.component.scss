@@ -1,9 +1,10 @@
 .sidenav-button-container {
-  position: absolute;
-  left: -80px;
+  position: fixed;
+  left: -102px;
   bottom: 30%;
   rotate: -90deg;
   width: 256px;
+  z-index: 1000;
   button {
     display: flex;
     justify-content: center;
@@ -52,4 +53,19 @@
     rotate: 90deg;
     margin-left: 20px;
   }
+}
+
+.example-container {
+  height: calc(100vh - 145px);
+  width: 366px;
+  background-color: unset;
+  z-index: 1;
+  border-radius: 30px;
+  margin-left: 15px;
+}
+
+.example-sidenav {
+  width: 102%;
+  color: black;
+  background-color: white;
 }

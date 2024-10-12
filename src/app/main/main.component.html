@@ -1,7 +1,12 @@
 <app-header></app-header>
 
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer class="example-sidenav" mode="side">
+    <p>Auto-resizing sidenav</p>
+  </mat-drawer>
+</mat-drawer-container>
 <div class="sidenav-button-container">
-  <button mat-raised-button>
+  <button type="button" mat-button (click)="drawer.toggle()">
     <p>Workspace-Menü schließen</p>
 
     <svg
@@ -30,4 +35,4 @@
     </svg>
   </button>
 </div>
-<app-main-message-area></app-main-message-area>
+<!-- <app-main-message-area></app-main-message-area> -->
