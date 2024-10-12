@@ -27,7 +27,7 @@ section {
       &:hover {
         cursor: pointer;
         background-color: var(--bg-color);
-        color: var(--purple3-purple-color);
+        color: var(--purple3-color);
       }
     }
   }
@@ -44,7 +44,7 @@ section {
     gap: 10px;
     width: 100%;
     justify-content: flex-start;
-    color: var(--purple2-purple-color);
+    color: var(--purple2-color);
 
     div {
       display: flex;
