@@ -66,6 +66,41 @@
 
 .example-sidenav {
   width: 102%;
+  padding: 32px;
   color: black;
   background-color: white;
+}
+
+.sidenav-toolbar {
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+
+  .toolbar-header {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-16);
+
+    span {
+      font-size: var(--fontsize-24);
+      font-weight: 700;
+      color: black;
+    }
+  }
+
+  .toolbar-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black !important;
+
+    &:hover {
+      color: var(--purple3-color) !important;
+      background-color: var(--light-purple-color2) !important;
+    }
+
+    &:active {
+      background-color: var(--light-purple-color) !important;
+    }
+  }
 }
