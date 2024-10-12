@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  selector: 'app-login-dialog',
+  selector: 'app-login',
   standalone: true,
   imports: [
     MatIconModule,
@@ -15,8 +15,8 @@ import { MatCardModule } from '@angular/material/card';
     MatInputModule,
     MatCardModule,
   ],
-  templateUrl: './login-dialog.component.html',
-  styleUrl: './login-dialog.component.scss',
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
-export class LoginDialogComponent {}
+export class LoginComponent {}

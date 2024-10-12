@@ -1,0 +1,18 @@
+<div class="landing-page">
+  <div class="logo">
+    <img src="assets/img/logo.webp" alt="" />
+    <img src="assets/img/logo_name.webp" alt="" />
+  </div>
+
+  <div class="register-link">
+    <p>Neu bei DABubble?</p>
+    <a class="link" [routerLink]="['/register']">Konto erstellen</a>
+  </div>
+
+  <router-outlet></router-outlet>
+
+  <div class="info-links">
+    <a class="link" [routerLink]="['/impressum']">Impressum</a>
+    <a class="link" [routerLink]="['/datenschutz']">Datenschutz</a>
+  </div>
+</div>
