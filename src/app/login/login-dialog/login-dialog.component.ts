@@ -17,6 +17,6 @@ import { MatCardModule } from '@angular/material/card';
   ],
   templateUrl: './login-dialog.component.html',
   styleUrl: './login-dialog.component.scss',
-  encapsulation: ViewEncapsulation.None,
+  encapsulation: ViewEncapsulation.None
 })
 export class LoginDialogComponent {}

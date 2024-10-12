@@ -1,17 +1,48 @@
 section {
-    width: 70vw;
-    height: 85svh;
-    margin-top: 10svh;
-    margin-left: 15vw;
-    align-items: flex-start;
-    justify-content: flex-start;
-    display: flex;
+  width: 100%;
+  height: 100%;
+  margin-left: 22.5vw;
+  align-items: flex-start;
+  justify-content: flex-start;
+  display: flex;
+}
+
+app-message-area-header {
+  width: 100%;
+  height: 10svh !important;
+  display: flex;
+}
+
+app-message-area-chat-history {
+  display: flex;
+  flex-grow: 1;
+}
+
+app-message-area-new-message {
+  width: 100%;
+  height: 10svh !important;
+  display: flex;
 }
 
 .mat-card-container {
-    width: 80%;
-    height: 100%;
-    background-color: var(--text-color);
-    border-radius: 30px;
-    box-shadow: 0px 2px 2px 0px #00000014;
+  width: 80%;
+  height: 100%;
+  background-color: var(--text-color);
+  border-radius: 30px;
+  box-shadow: 0px 2px 2px 0px #00000014;
+}
+
+mat-card-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mat-mdc-card-content {
+  padding: 0;
+
+  &:first-child,
+  &:last-child {
+    padding: 0;
+  }
 }
