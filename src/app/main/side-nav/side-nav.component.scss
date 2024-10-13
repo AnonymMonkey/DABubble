@@ -14,40 +14,47 @@
       color: black;
     }
   }
+}
+.toolbar-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black !important;
 
-  .toolbar-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: black !important;
+  &:hover {
+    color: var(--purple3-color) !important;
+    background-color: var(--light-purple-color2) !important;
+  }
 
-    &:hover {
-      color: var(--purple3-color) !important;
-      background-color: var(--light-purple-color2) !important;
-    }
-
-    &:active {
-      background-color: var(--light-purple-color) !important;
-    }
+  &:active {
+    background-color: var(--light-purple-color) !important;
   }
 }
 
 .toolbar-content-wrapper {
   margin-top: 10px;
   margin-bottom: 10px;
+
+  .mat-expansion-panel-header {
+    padding: 0;
+    padding-left: 24px;
+  }
+
   .expansion-panel-title {
     font-size: var(--fontsize-20);
     font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+
+    .title-wrapper {
+      display: flex;
+      align-items: center;
+      &:hover {
+        color: var(--purple1-color);
+      }
+    }
     .material-symbols-outlined {
       font-weight: 600;
-    }
-
-    &:hover {
-      color: var(--purple1-color);
-    }
-
-    &:active .material-symbols-outlined {
-      color: var(--purple1-color);
     }
   }
 
@@ -93,5 +100,30 @@
     &:hover {
       background-color: white !important;
     }
+  }
+
+  .name {
+    margin-left: 16px;
+  }
+}
+
+.image-with-badge {
+  cursor: pointer;
+  position: relative;
+  img {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+  }
+
+  .badge {
+    height: 28%;
+    width: 28%;
+    border-radius: 50%;
+    border: 3px solid var(--text-color);
+    background-color: var(--online-color);
+    position: absolute;
+    bottom: 8%;
+    right: 0;
   }
 }
