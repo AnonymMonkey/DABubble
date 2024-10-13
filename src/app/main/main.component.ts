@@ -4,8 +4,7 @@ import { MainMessageAreaComponent } from './main-message-area/main-message-area.
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { SideNavComponent } from './side-nav/side-nav.component';
 
 @Component({
   selector: 'app-main',
@@ -16,12 +15,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatIconModule,
     MatSidenavModule,
     MatButtonModule,
-    MatToolbarModule,
-    MatExpansionModule,
+    SideNavComponent,
   ],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
 })
-export class MainComponent {
-  readonly panelOpenState = signal(false);
-}
+export class MainComponent {}

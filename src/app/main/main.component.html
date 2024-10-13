@@ -2,28 +2,7 @@
 
 <mat-drawer-container class="example-container" autosize>
   <mat-drawer #drawer class="example-sidenav" mode="side" [opened]="true">
-    <mat-toolbar class="sidenav-toolbar">
-      <div class="toolbar-header">
-        <img src="./assets/img/Workspace logo.png" alt="" />
-        <span>Devspace</span>
-      </div>
-      <button mat-icon-button class="toolbar-icon">
-        <mat-icon fontSet="material-symbols-outlined">edit_square</mat-icon>
-      </button>
-    </mat-toolbar>
-    <mat-expansion-panel
-      (opened)="panelOpenState.set(true)"
-      (closed)="panelOpenState.set(false)"
-      togglePosition="before"
-    >
-      <mat-expansion-panel-header>
-        <mat-panel-title class="expansion-panel-title">
-          <mat-icon fontSet="material-symbols-outlined">workspaces</mat-icon>
-          Chanels</mat-panel-title
-        >
-      </mat-expansion-panel-header>
-      <p>I'm visible because I am open</p>
-    </mat-expansion-panel>
+    <app-side-nav></app-side-nav>
   </mat-drawer>
 </mat-drawer-container>
 <div class="sidenav-button-container">

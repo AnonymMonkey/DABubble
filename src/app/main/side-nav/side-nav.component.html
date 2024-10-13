@@ -1,1 +1,34 @@
-<p>side-nav works!</p>
+<mat-toolbar class="sidenav-toolbar">
+  <div class="toolbar-header">
+    <img src="./assets/img/Workspace logo.png" alt="" />
+    <span>Devspace</span>
+  </div>
+  <button mat-icon-button class="toolbar-icon">
+    <mat-icon class="material-symbols-outlined">edit_square</mat-icon>
+  </button>
+</mat-toolbar>
+<div class="toolbar-content-wrapper">
+  <mat-expansion-panel
+    (opened)="panelOpenState.set(true)"
+    (closed)="panelOpenState.set(false)"
+    togglePosition="before"
+    [expanded]="true"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title class="expansion-panel-title">
+        <mat-icon class="material-symbols-outlined">workspaces</mat-icon>
+        Chanels</mat-panel-title
+      >
+    </mat-expansion-panel-header>
+    <button class="button-secondary">
+      <mat-icon class="material-symbols-outlined">tag</mat-icon>Entwicklerteam
+    </button>
+    <button class="button-secondary">
+      <mat-icon class="material-symbols-outlined">tag</mat-icon>Office-team
+    </button>
+    <button class="button-secondary footer-button">
+      <mat-icon class="material-symbols-outlined">add_circle</mat-icon>Chanel
+      hinzufügen
+    </button>
+  </mat-expansion-panel>
+</div>

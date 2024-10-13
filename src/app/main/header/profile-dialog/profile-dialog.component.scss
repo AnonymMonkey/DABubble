@@ -30,7 +30,7 @@
   box-shadow: none !important;
 
   &:hover {
-    background-color: #eceefe !important;
+    background-color: var(--bg-color) !important;
     color: var(--purple1-color) !important;
     cursor: pointer;
   }
