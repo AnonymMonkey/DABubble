@@ -1,1 +1,55 @@
-<p>select-avatar works!</p>
+<div class="select-avatar">
+  <mat-card>
+    <div class="headline">
+      <mat-icon class="back-icon" [routerLink]="['/register']"
+        >arrow_back</mat-icon
+      >
+
+      <h1>Wähle deinen Avatar</h1>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-placeholder">
+        <mat-icon>person</mat-icon>
+        <img src="assets/img/profile/elias.webp" alt="" class="d-none" />
+      </div>
+      <h2>Max Mustermann</h2>
+    </div>
+    <div class="select-avatar-list">
+      <p>Aus der Liste wählen</p>
+      <div class="avatars">
+        <img src="assets/img/profile/elias.webp" alt="" />
+        <img src="assets/img/profile/elise.webp" alt="" />
+        <img src="assets/img/profile/frederik.webp" alt="" />
+        <img src="assets/img/profile/noah.webp" alt="" />
+        <img src="assets/img/profile/sofia.webp" alt="" />
+        <img src="assets/img/profile/steffen.webp" alt="" />
+      </div>
+      <div class="upload-avatar">
+        <p>eigenes Bild verwenden</p>
+        <button mat-flat-button class="button-secondary">
+          Datei hochladen
+        </button>
+      </div>
+    </div>
+    <div class="next-button">
+      <button
+        mat-flat-button
+        class="button-primary"
+        [routerLink]="['/select-avatar']"
+      >
+        Weiter
+      </button>
+    </div>
+  </mat-card>
+
+  <div class="logo">
+    <img src="assets/img/logo.webp" alt="" />
+    <img src="assets/img/logo_name.webp" alt="" />
+  </div>
+
+  <div class="info-links">
+    <a class="link" [routerLink]="['/impressum']">Impressum</a>
+    <a class="link" [routerLink]="['/datenschutz']">Datenschutz</a>
+  </div>
+</div>

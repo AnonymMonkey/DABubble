@@ -1,8 +1,10 @@
 <div class="register">
   <mat-card>
-    <mat-icon class="back-icon" [routerLink]="['/']">arrow_back</mat-icon>
+    <div class="headline">
+      <mat-icon class="back-icon" [routerLink]="['/']">arrow_back</mat-icon>
 
-    <h1>Konto erstellen</h1>
+      <h1>Konto erstellen</h1>
+    </div>
 
     <p>
       Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
@@ -49,9 +51,14 @@
         </p>
       </label>
     </div>
-
-    <div class="buttons">
-      <button mat-flat-button class="button-primary">Weiter</button>
+    <div class="next-button">
+      <button
+        mat-flat-button
+        class="button-primary"
+        [routerLink]="['/select-avatar']"
+      >
+        Weiter
+      </button>
     </div>
   </mat-card>
 

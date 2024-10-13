@@ -5,12 +5,16 @@ import { ImprintComponent } from './shared/imprint/imprint.component';
 import { PrivacyPolicyComponent } from './shared/privacy-policy/privacy-policy.component';
 import { LoginComponent } from './landing-page/login/login.component';
 import { AppComponent } from './app.component';
+import { SelectAvatarComponent } from './landing-page/register/select-avatar/select-avatar.component';
+import { ResetPasswordComponent } from './landing-page/login/reset-password/reset-password.component';
 
 export const routes: Routes = [
   // Hier wird die Login-Seite geladen, die Child-Routes wie Login und Register enthält
 
   { path: '', component: LoginComponent }, // Standardmäßig Login anzeigen
+  { path: 'reset-password', component: ResetPasswordComponent }, // Standardmäßig Login anzeigen
   { path: 'register', component: RegisterComponent }, // Route für Registrierung
+  { path: 'select-avatar', component: SelectAvatarComponent }, // Route für Avatar-Auswahl
 
   // Hauptkomponente nach Login (Main-Bereich der App)
   { path: 'main', component: MainComponent },
