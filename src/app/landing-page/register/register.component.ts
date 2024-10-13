@@ -10,6 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -24,9 +25,10 @@ import { RouterModule } from '@angular/router';
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
+    MatCardModule,
   ],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss',
+  styleUrls: ['./register.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
 export class RegisterComponent {}
