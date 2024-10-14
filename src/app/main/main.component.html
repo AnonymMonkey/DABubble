@@ -1,4 +1,22 @@
-<section>
-  <app-header></app-header>
+<app-header></app-header>
+
+<div class="sidenav-button-container">
+  <button (click)="drawer.toggle()">
+    <p>Workspace-Menü {{ drawer.opened ? "schließen" : "öffnen" }}</p>
+    <mat-icon fontSet="material-symbols-outlined"
+      >left_panel_{{ drawer.opened ? "close" : "open" }}</mat-icon
+    >
+  </button>
+</div>
+<section [ngStyle]="{ gap: drawer.opened ? '20px' : '0px' }">
+  <mat-drawer-container
+    class="example-container"
+    [ngStyle]="{ width: drawer.opened ? '366px' : '0px' }"
+    autosize
+  >
+    <mat-drawer #drawer class="example-sidenav" mode="side" [opened]="true">
+      <app-side-nav></app-side-nav>
+    </mat-drawer>
+  </mat-drawer-container>
   <app-main-message-area></app-main-message-area>
 </section>

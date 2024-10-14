@@ -1,12 +1,79 @@
-section {
+.sidenav-button-container {
+  position: fixed;
+  left: -102px;
+  bottom: 30%;
+  rotate: -90deg;
+  width: 256px;
+  z-index: 1000;
+  button {
     display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 23px !important;
+    background-color: white !important;
+    color: var(--black-color) !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 30px !important;
+    border-bottom-left-radius: 30px !important;
+    border: none !important;
+    filter: drop-shadow(-4px 4px 7px rgba(0, 0, 0, 0.2));
+
+    &:hover {
+      filter: drop-shadow(-5px 5px 6px rgba(0, 0, 0, 0.2));
+      cursor: pointer;
+    }
+
+    &:hover p {
+      color: var(--purple1-color) !important;
+      cursor: pointer;
+    }
+
+    p {
+      font-size: var(--fontsize-20) !important;
+      font-weight: 500 !important;
+      width: 256px;
+      text-align: center;
+    }
+
+    mat-icon {
+      rotate: 90deg;
+    }
+
+    &:hover mat-icon {
+      color: var(--purple1-color) !important;
+    }
+  }
+}
+
+.example-container {
+  height: calc(100vh - 145px);
+  background-color: unset;
+  z-index: 1;
+  border-radius: 30px;
+}
+
+.example-sidenav {
+  width: 102%;
+  padding: 24px;
+  color: black;
+  background-color: white;
+
+  ::ng-deep.mat-drawer-inner-container {
+    overflow: hidden !important;
+  }
+}
+section {
+  display: flex;
+  // flex-direction: column;
+  height: calc(100vh - 145px);
+  // height: 100%;
+  width: 100%;
+  // gap: 20px;
 }
 
 app-main-message-area {
-    display: flex;
-    flex-grow: 1;
+  display: flex;
+  flex-grow: 1;
+  // width: 100%;
 }
