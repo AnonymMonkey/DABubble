@@ -1,4 +1,4 @@
-<section>
+<section [ngClass]="{'padding-right-20': threadOpened === true}">
   <mat-card appearance="outlined" class="mat-card-container">
     <mat-card-content>
       <app-message-area-header></app-message-area-header>
@@ -8,16 +8,9 @@
   </mat-card>
 </section>
 <mat-sidenav-container class="example-container" *ngIf="shouldRun">
-  <mat-sidenav
-    #sidenav
-    mode="side"
-    [(opened)]="opened"
-    position="end"
-  >
+  <mat-sidenav #sidenav mode="side" [(opened)]="opened" position="end"
+    >
     <app-thread></app-thread>
   </mat-sidenav>
-
-  <mat-sidenav-content>
-   
-  </mat-sidenav-content>
+  <mat-sidenav-content> </mat-sidenav-content>
 </mat-sidenav-container>
