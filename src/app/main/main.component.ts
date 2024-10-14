@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { SideNavComponent } from './side-nav/side-nav.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-main',
@@ -16,6 +17,7 @@ import { SideNavComponent } from './side-nav/side-nav.component';
     MatSidenavModule,
     MatButtonModule,
     SideNavComponent,
+    CommonModule,
   ],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
