@@ -60,4 +60,8 @@
   padding: 32px;
   color: black;
   background-color: white;
+
+  ::ng-deep.mat-drawer-inner-container {
+    overflow: hidden !important;
+  }
 }

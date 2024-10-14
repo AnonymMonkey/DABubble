@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewEncapsulation } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +19,7 @@ import { CommonModule } from '@angular/common';
   ],
   templateUrl: './side-nav.component.html',
   styleUrl: './side-nav.component.scss',
+  encapsulation: ViewEncapsulation.None,
 })
 export class SideNavComponent {
   readonly panelOpenState = signal(false);
