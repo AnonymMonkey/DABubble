@@ -4,9 +4,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-login-dialog',
+  selector: 'app-login',
   standalone: true,
   imports: [
     MatIconModule,
@@ -14,9 +15,10 @@ import { MatCardModule } from '@angular/material/card';
     MatFormFieldModule,
     MatInputModule,
     MatCardModule,
+    RouterModule,
   ],
-  templateUrl: './login-dialog.component.html',
-  styleUrl: './login-dialog.component.scss',
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
-export class LoginDialogComponent {}
+export class LoginComponent {}

@@ -76,6 +76,16 @@ h5,
 h6,
 p {
   cursor: default;
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
+h1 {
+  font-size: var(--fontsize-46) !important;
+}
+
+h2 {
+  font-size: var(--fontsize-32) !important;
 }
 
 .d-none {
@@ -91,11 +101,15 @@ p {
 }
 
 button {
+  cursor: pointer !important;
   text-wrap: nowrap !important;
   font-weight: 700 !important;
   color: var(--text-color) !important;
 
   border-radius: 100px !important;
+  border-style: none !important;
+
+  padding: 12px 25px !important;
 }
 
 .button-primary {
@@ -144,8 +158,8 @@ mat-icon {
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
-  width: 40px !important;
-  height: 40px !important;
+  width: 40px;
+  height: 40px;
   color: var(--black-color);
   padding: 0 !important;
 }

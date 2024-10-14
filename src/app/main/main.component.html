@@ -1,16 +1,18 @@
-<app-header></app-header>
+<section>
+  <app-header></app-header>
 
-<mat-drawer-container class="example-container" autosize>
-  <mat-drawer #drawer class="example-sidenav" mode="side" [opened]="true">
-    <app-side-nav></app-side-nav>
-  </mat-drawer>
-</mat-drawer-container>
-<div class="sidenav-button-container">
-  <button (click)="drawer.toggle()">
-    <p>Workspace-Menü {{ drawer.opened ? "schließen" : "öffnen" }}</p>
-    <mat-icon fontSet="material-symbols-outlined"
-      >left_panel_{{ drawer.opened ? "close" : "open" }}</mat-icon
-    >
-  </button>
-</div>
-<!-- <app-main-message-area></app-main-message-area> -->
+  <mat-drawer-container class="example-container" autosize>
+    <mat-drawer #drawer class="example-sidenav" mode="side" [opened]="true">
+      <app-side-nav></app-side-nav>
+    </mat-drawer>
+  </mat-drawer-container>
+  <div class="sidenav-button-container">
+    <button (click)="drawer.toggle()">
+      <p>Workspace-Menü {{ drawer.opened ? "schließen" : "öffnen" }}</p>
+      <mat-icon fontSet="material-symbols-outlined"
+        >left_panel_{{ drawer.opened ? "close" : "open" }}</mat-icon
+      >
+    </button>
+  </div>
+  <app-main-message-area></app-main-message-area>
+</section>

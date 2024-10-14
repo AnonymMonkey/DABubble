@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .sidenav-button-container {
   position: fixed;
   left: -102px;
@@ -65,3 +66,17 @@
     overflow: hidden !important;
   }
 }
+=======
+section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    gap: 20px;
+}
+
+app-main-message-area {
+    display: flex;
+    flex-grow: 1;
+}
+>>>>>>> origin/main
