@@ -88,7 +88,7 @@
   </div>
 
   <!-- Example own Messages -->
-  <div class="chat-history-daily-container-own" >
+  <div class="chat-history-daily-container-own">
     <div class="date-container">
       <div class="first-line"></div>
       <div class="date">
@@ -169,10 +169,11 @@
         <span class="message-own">Welche Version ist aktuell von Angular?</span>
         <div class="emoji-container d-none"></div>
         <div class="thread-own">
-          <span>2 Antworten</span>
+          <span (click)="mainMessageArea.toggleSidenav()">2 Antworten</span>
           <span>Letzte Antwort 14:56 Uhr</span>
         </div>
       </div>
     </div>
   </div>
+  
 </section>

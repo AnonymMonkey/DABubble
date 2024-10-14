@@ -1,0 +1,51 @@
+.edit-channel-name-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid var(--light-purple-color);
+  border-radius: 20px;
+  min-height: 115px;
+
+  span:first-of-type {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  button {
+    color: var(--purple3-color) !important;
+    border: none;
+    background-color: unset;
+    font-size: 18px;
+    font-weight: 400 !important;
+
+    &:hover {
+      cursor: pointer;
+      font-weight: 600 !important;
+      color: var(--purple1-color) !important;
+    }
+  }
+}
+
+.headline {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.channel-name-in-edit {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  font-weight: 400 !important;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
