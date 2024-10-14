@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { HeaderComponent } from './header/header.component';
 import { MainMessageAreaComponent } from './main-message-area/main-message-area.component';
 import { MatIconModule } from '@angular/material/icon';

@@ -1,5 +1,7 @@
 .sidenav-toolbar {
   background-color: white;
+  height: unset !important;
+  box-shadow: none !important;
   display: flex;
   justify-content: space-between;
 
@@ -14,6 +16,7 @@
     }
   }
 }
+
 .toolbar-icon {
   display: flex;
   justify-content: center;
@@ -52,6 +55,8 @@
       .title-wrapper {
         display: flex;
         align-items: center;
+        gap: 8px;
+        justify-content: center;
         &:hover {
           color: var(--purple1-color);
         }
@@ -80,7 +85,9 @@
       outline: none;
       font-size: 18px;
       font-weight: 400 !important;
-      padding: 4px 20px;
+      padding: 4px 20px !important;
+      margin-bottom: 8px;
+      gap: 10px;
 
       &:hover {
         color: var(--purple1-color) !important;
@@ -103,10 +110,6 @@
       &:hover {
         background-color: white !important;
       }
-    }
-
-    .name {
-      margin-left: 16px;
     }
   }
 }
@@ -141,5 +144,8 @@
 .mat-toolbar-single-row {
   background-color: white !important;
   margin-bottom: 16px !important;
-  box-shadow: none !important;
+}
+
+button {
+  padding: unset !important;
 }
