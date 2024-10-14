@@ -2,80 +2,90 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 
-  width: 45%;
+  mat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
 
-  text-align: center;
+    max-width: 50%;
 
-  padding: 50px;
+    text-align: center;
 
-  background-color: var(--text-color);
-  border-radius: 30px;
+    padding: 50px;
 
-  box-shadow: 0px 2px 10px 0px #00000014;
+    background-color: var(--text-color);
+    border-radius: 30px;
 
-  h1 {
-    color: var(--purple1-color);
-  }
+    box-shadow: 0px 2px 10px 0px #00000014;
 
-  p {
-    color: var(--black-color);
-  }
+    h1 {
+      color: var(--purple1-color);
+    }
 
-  a {
-    padding: 5px 15px;
+    p {
+      color: var(--black-color);
+    }
 
-    transition: var(--transition-100);
+    a {
+      padding: 5px 15px;
 
-    &:hover {
-      background-color: var(--bg-color);
+      transition: var(--transition-100);
+
+      &:hover {
+        background-color: var(--bg-color);
+        border-radius: 100px;
+        color: var(--purple1-color);
+      }
+    }
+
+    .cutline {
+      height: 1px;
+      width: 100%;
+      background-color: var(--light-purple-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      p {
+        background-color: var(--text-color);
+        padding: var(--padding-16);
+      }
+    }
+
+    .google {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
       border-radius: 100px;
-      color: var(--purple1-color);
-    }
-  }
-
-  .cutline {
-    height: 1px;
-    width: 100%;
-    background-color: var(--light-purple-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    p {
-      background-color: var(--text-color);
+      background-color: var(--bg-color);
       padding: var(--padding-16);
-    }
-  }
+      gap: var(--gap-20);
 
-  .google {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    border-radius: 100px;
-    background-color: var(--bg-color);
-    padding: var(--padding-16);
-    gap: var(--gap-20);
+      transition: var(--transition-100);
 
-    transition: var(--transition-100);
+      p {
+        color: var(--purple1-color);
+      }
 
-    p {
-      color: var(--purple1-color);
+      &:hover {
+        font-weight: bold;
+        box-shadow: 0 0 0 1px var(--purple1-color);
+      }
     }
 
-    &:hover {
-      font-weight: bold;
-      box-shadow: 0 0 0 1px var(--purple1-color);
+    .buttons {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: var(--gap-30);
     }
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: var(--gap-30);
   }
 
   .logo {

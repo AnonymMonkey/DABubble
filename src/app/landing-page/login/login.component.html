@@ -1,40 +1,42 @@
 <div class="login">
-  <h1>Anmeldung</h1>
+  <mat-card>
+    <h1>Anmeldung</h1>
 
-  <p>
-    Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit
-    verwendest.
-  </p>
+    <p>
+      Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit
+      verwendest.
+    </p>
 
-  <div class="input-primary">
-    <input placeholder="beispielname&#64;email.com" />
-    <mat-icon>mail_outline</mat-icon>
-  </div>
+    <div class="input-primary">
+      <input placeholder="beispielname&#64;email.com" />
+      <mat-icon>mail_outline</mat-icon>
+    </div>
 
-  <div class="input-primary">
-    <input placeholder="Passwort" />
-    <mat-icon>lock_outline</mat-icon>
-  </div>
+    <div class="input-primary">
+      <input placeholder="Passwort" />
+      <mat-icon>lock_outline</mat-icon>
+    </div>
 
-  <a href="" class="link">Passwort vergessen?</a>
+    <a class="link" [routerLink]="['/reset-password']">Passwort vergessen?</a>
 
-  <div class="cutline">
-    <p>ODER</p>
-  </div>
+    <div class="cutline">
+      <p>ODER</p>
+    </div>
 
-  <div class="google">
-    <img src="assets/img/google.webp" alt="" />
-    <p>Anmelden mit Google</p>
-  </div>
+    <div class="google">
+      <img src="assets/img/google.webp" alt="" />
+      <p>Anmelden mit Google</p>
+    </div>
 
-  <div class="buttons">
-    <button mat-flat-button class="button-primary" [routerLink]="['/main']">
-      Anmelden
-    </button>
-    <button mat-flat-button class="button-secondary" [routerLink]="['/main']">
-      Gäste-Login
-    </button>
-  </div>
+    <div class="buttons">
+      <button mat-flat-button class="button-primary" [routerLink]="['/main']">
+        Anmelden
+      </button>
+      <button mat-flat-button class="button-secondary" [routerLink]="['/main']">
+        Gäste-Login
+      </button>
+    </div>
+  </mat-card>
 
   <div class="logo">
     <img src="assets/img/logo.webp" alt="" />

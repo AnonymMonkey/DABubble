@@ -1,36 +1,74 @@
 <div class="register">
-  <mat-icon class="back-icon" [routerLink]="['/']">arrow_back</mat-icon>
+  <mat-card>
+    <div class="headline">
+      <mat-icon class="back-icon" [routerLink]="['/']">arrow_back</mat-icon>
 
-  <h1>Konto erstellen</h1>
+      <h1>Konto erstellen</h1>
+    </div>
 
-  <p>
-    Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
-    DABubble-Konto.
-  </p>
+    <p>
+      Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
+      DABubble-Konto.
+    </p>
 
-  <div class="input-primary">
-    <mat-icon>mail_outline</mat-icon>
-    <input placeholder="beispielname&#64;email.com" />
+    <div class="input-primary">
+      <mat-icon>person_outline</mat-icon>
+      <input placeholder="Name und Nachname" />
+    </div>
+
+    <div class="input-primary">
+      <input placeholder="beispielname&#64;email.com" />
+      <mat-icon>mail_outline</mat-icon>
+    </div>
+
+    <div class="input-primary">
+      <input placeholder="Passwort" />
+      <mat-icon>lock_outline</mat-icon>
+    </div>
+
+    <div class="checkbox-wrapper-33">
+      <label class="checkbox">
+        <input class="checkbox__trigger visuallyhidden" type="checkbox" />
+        <span class="checkbox__symbol">
+          <svg
+            aria-hidden="true"
+            class="icon-checkbox"
+            width="28px"
+            height="28px"
+            viewBox="0 0 28 28"
+            version="1"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M4 14l8 7L24 7"></path>
+          </svg>
+        </span>
+        <p class="checkbox__textwrapper">
+          Ich stimme der
+          <a href="#" class="link" [routerLink]="['/datenschutz']"
+            >Datenschutzerklärung</a
+          >
+          zu.
+        </p>
+      </label>
+    </div>
+    <div class="next-button">
+      <button
+        mat-flat-button
+        class="button-primary"
+        [routerLink]="['/select-avatar']"
+      >
+        Weiter
+      </button>
+    </div>
+  </mat-card>
+
+  <div class="logo">
+    <img src="assets/img/logo.webp" alt="" />
+    <img src="assets/img/logo_name.webp" alt="" />
   </div>
 
-  <div class="input-primary">
-    <input placeholder="Passwort" />
-    <mat-icon>lock_outline</mat-icon>
-  </div>
-
-  <div class="input-primary">
-    <input placeholder="Passwort" />
-    <mat-icon>lock_outline</mat-icon>
-  </div>
-
-  <div class="checkbox-link-container">
-    <mat-checkbox></mat-checkbox>
-    <span>Ich stimme der</span>
-    <a href="" class="link">Datenschutzerklärung</a>
-    <span>zu.</span>
-  </div>
-
-  <div class="buttons">
-    <button mat-flat-button class="button-primary">Weiter</button>
+  <div class="info-links">
+    <a class="link" [routerLink]="['/impressum']">Impressum</a>
+    <a class="link" [routerLink]="['/datenschutz']">Datenschutz</a>
   </div>
 </div>

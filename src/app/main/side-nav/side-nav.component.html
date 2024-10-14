@@ -1,1 +1,122 @@
-<p>side-nav works!</p>
+<mat-toolbar class="sidenav-toolbar">
+  <div class="toolbar-header">
+    <img src="./assets/img/Workspace logo.png" alt="" />
+    <span>Devspace</span>
+  </div>
+  <button mat-icon-button class="toolbar-icon">
+    <mat-icon class="material-symbols-outlined">edit_square</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div class="toolbars">
+  <div class="toolbar-content-wrapper chanels">
+    <mat-expansion-panel
+      (opened)="panelOpenState.set(true)"
+      (closed)="panelOpenState.set(false)"
+      togglePosition="before"
+      [expanded]="true"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title class="expansion-panel-title">
+          <div class="title-wrapper">
+            <mat-icon class="material-symbols-outlined">workspaces</mat-icon>
+            Chanels
+          </div>
+          <button
+            mat-icon-button
+            class="toolbar-icon"
+            (click)="$event.stopPropagation()"
+          >
+            <mat-icon class="material-symbols-outlined">add</mat-icon>
+          </button>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <button class="button-secondary">
+        <mat-icon class="material-symbols-outlined">tag</mat-icon>Entwicklerteam
+      </button>
+      <button class="button-secondary">
+        <mat-icon class="material-symbols-outlined">tag</mat-icon>Office-team
+      </button>
+      <button class="button-secondary footer-button">
+        <mat-icon class="material-symbols-outlined">add_circle</mat-icon>Chanel
+        hinzufügen
+      </button>
+    </mat-expansion-panel>
+  </div>
+
+  <div class="toolbar-content-wrapper messages">
+    <mat-expansion-panel
+      (opened)="panelOpenState.set(true)"
+      (closed)="panelOpenState.set(false)"
+      togglePosition="before"
+      [expanded]="true"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title class="expansion-panel-title">
+          <div class="title-wrapper">
+            <mat-icon class="material-symbols-outlined"
+              >account_circle</mat-icon
+            >
+            Direktnachrichten
+          </div>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <button class="button-secondary">
+        <div class="image-with-badge">
+          <img src="./assets/img/profile/frederik.webp" alt="" />
+          <div class="badge"></div>
+        </div>
+        <p class="name">Frederick Beck (Du)</p>
+      </button>
+      <button class="button-secondary">
+        <div class="image-with-badge">
+          <img src="./assets/img/profile/sofia.webp" alt="" />
+          <div class="badge"></div>
+        </div>
+        <p class="name">Sofia Müller</p>
+      </button>
+      <button class="button-secondary">
+        <div class="image-with-badge">
+          <img src="./assets/img/profile/noah.webp" alt="" />
+          <div class="badge"></div>
+        </div>
+        <p class="name">Noah Braun</p>
+      </button>
+      <button class="button-secondary">
+        <div class="image-with-badge">
+          <img src="./assets/img/profile/elise.webp" alt="" />
+          <div class="badge"></div>
+        </div>
+        <p class="name">Elise Roth</p>
+      </button>
+      <button class="button-secondary">
+        <div class="image-with-badge">
+          <img src="./assets/img/profile/elias.webp" alt="" />
+          <div class="badge"></div>
+        </div>
+        <p class="name">Elias Neumann</p>
+      </button>
+      <button class="button-secondary">
+        <div class="image-with-badge">
+          <img src="./assets/img/profile/steffen.webp" alt="" />
+          <div class="badge"></div>
+        </div>
+        <p class="name">Steffen Hoffmann</p>
+      </button>
+      <button class="button-secondary">
+        <div class="image-with-badge">
+          <img src="./assets/img/profile/steffen.webp" alt="" />
+          <div class="badge"></div>
+        </div>
+        <p class="name">Steffen Hoffmann</p>
+      </button>
+      <button class="button-secondary">
+        <div class="image-with-badge">
+          <img src="./assets/img/profile/steffen.webp" alt="" />
+          <div class="badge"></div>
+        </div>
+        <p class="name">Steffen Hoffmann</p>
+      </button>
+    </mat-expansion-panel>
+  </div>
+</div>

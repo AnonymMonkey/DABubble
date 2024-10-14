@@ -8,7 +8,7 @@ import { MainMessageAreaComponent } from '../main-message-area.component';
 @Component({
   selector: 'app-message-area-chat-history',
   standalone: true,
-  imports: [MatIcon, NgClass, MatSidenavModule, NgFor, CommonModule, ThreadComponent, MainMessageAreaComponent],
+  imports: [MatIcon, NgClass, NgFor, MatSidenavModule, NgFor, CommonModule, ThreadComponent, MainMessageAreaComponent],
   templateUrl: './message-area-chat-history.component.html',
   styleUrls: ['./message-area-chat-history.component.scss'],
 })
