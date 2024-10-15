@@ -1,5 +1,29 @@
 <section>
     <app-thread-header></app-thread-header>
-    <p>message-history</p>
+    <section>
+        <div class="chat-history-daily-container-other-people">
+          <div class="date-container">
+            <div class="first-line"></div>
+            <div class="date">
+              <span>Dienstag, 14. Januar</span>
+            </div>
+            <div class="last-line"></div>
+          </div>
+          <app-other-message-template></app-other-message-template>
+        </div>
+      
+        <!-- Example own Messages -->
+        <div class="chat-history-daily-container-own">
+          <div class="date-container">
+            <div class="first-line"></div>
+            <div class="date">
+              <span>Heute</span>
+            </div>
+            <div class="last-line"></div>
+          </div>
+          <app-own-message-template></app-own-message-template>
+        </div>
+        
+      </section>
     <app-message-area-new-message></app-message-area-new-message>
 </section>
