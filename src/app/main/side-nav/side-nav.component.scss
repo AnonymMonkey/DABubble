@@ -5,6 +5,10 @@
   display: flex;
   justify-content: space-between;
 
+  button {
+    padding: unset !important;
+  }
+
   .toolbar-header {
     display: flex;
     align-items: center;
@@ -36,6 +40,9 @@
   height: 70vh;
   overflow-y: auto;
   overflow-x: hidden;
+  button {
+    padding: unset !important;
+  }
 
   .toolbar-content-wrapper {
     margin-top: 10px;
@@ -144,8 +151,4 @@
 .mat-toolbar-single-row {
   background-color: white !important;
   margin-bottom: 16px !important;
-}
-
-button {
-  padding: unset !important;
 }
