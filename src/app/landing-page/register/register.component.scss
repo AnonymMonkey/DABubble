@@ -49,61 +49,6 @@
       color: var(--black-color);
     }
 
-    .checkbox-link-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--black-color);
-
-      a {
-        padding: 5px 5px;
-        margin: 0 -5px;
-        transition: var(--transition-100);
-
-        &:hover {
-          background-color: var(--bg-color);
-          border-radius: 100px;
-          color: var(--purple1-color);
-        }
-      }
-    }
-
-    .cutline {
-      height: 1px;
-      width: 100%;
-      background-color: var(--light-purple-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      p {
-        background-color: var(--text-color);
-        padding: var(--padding-16);
-      }
-    }
-
-    .google {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      border-radius: 100px;
-      background-color: var(--bg-color);
-      padding: var(--padding-16);
-      gap: var(--gap-20);
-
-      transition: var(--transition-100);
-
-      p {
-        color: var(--purple1-color);
-      }
-
-      &:hover {
-        font-weight: bold;
-        box-shadow: 0 0 0 1px var(--purple1-color);
-      }
-    }
-
     .next-button {
       width: 100%;
       display: flex;
@@ -112,10 +57,10 @@
   }
 }
 
-.logo {
+.logo-container {
   position: absolute;
-  top: 50px;
-  left: 55px;
+  top: 75px;
+  left: 75px;
   display: flex;
   align-items: center;
   gap: var(--gap-16);
@@ -124,8 +69,12 @@
     height: 70px;
   }
 
-  img:last-child {
-    height: 24px;
+  .logo-name {
+    position: relative;
+    font-size: 34px;
+    color: var(--black-color);
+    font-weight: bold;
+    letter-spacing: -2px;
   }
 }
 
