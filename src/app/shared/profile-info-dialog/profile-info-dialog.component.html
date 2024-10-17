@@ -3,14 +3,13 @@
     <h3>Profil</h3>
     <mat-icon>close</mat-icon>
   </div>
-  <img
-    class="profile-image"
-    src="./../../../assets/img/profile/frederik.webp"
-    alt=""
-  />
+  <img class="profile-image" src="./assets/img/profile/frederik.webp" alt="" />
   <div class="profile-info-name">
     <div class="name-edit">
-      <h2>Frederik Beck</h2>
+      <h2>
+        {{ userDataService.userData.name }}
+        {{ userDataService.userData.lastName }}
+      </h2>
       <span>Bearbeiten</span>
     </div>
     <div class="activity-indicator">

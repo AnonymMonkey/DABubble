@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
-
-  constructor() { }
+  userData = {
+    id: 0,
+    name: 'Frederik',
+    lastName: 'Beck',
+  };
+  constructor() {}
 }
