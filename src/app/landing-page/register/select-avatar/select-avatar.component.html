@@ -1,50 +1,90 @@
 <div class="select-avatar">
   <mat-card>
     <div class="headline">
-      <mat-icon class="back-icon" [routerLink]="['/register']"
+      <mat-icon class="back-icon" (click)="navigateToRegister()"
         >arrow_back</mat-icon
       >
-
       <h1>Wähle deinen Avatar</h1>
     </div>
 
     <div class="avatar-container">
-      <div class="avatar-placeholder">
-        <mat-icon>person</mat-icon>
-        <img src="assets/img/profile/elias.webp" alt="" class="d-none" />
-      </div>
-      <h2>Max Mustermann</h2>
+      <!-- Wenn kein Avatar ausgewählt wurde, zeige den Platzhalter an -->
+      <ng-container *ngIf="!selectedAvatar; else avatarTemplate">
+        <div class="avatar-placeholder">
+          <mat-icon>person</mat-icon>
+          <!-- Icon wird angezeigt, wenn kein Avatar ausgewählt ist -->
+        </div>
+      </ng-container>
+
+      <!-- Falls ein Avatar ausgewählt wurde, zeige das Bild an -->
+      <ng-template #avatarTemplate>
+        <img
+          [src]="selectedAvatar"
+          alt="Ausgewählter Avatar"
+          class="selected-avatar"
+        />
+      </ng-template>
+
+      <!-- Benutzername, leer bis zur Auswahl -->
+      <h2>{{ displayName }}</h2>
     </div>
+
     <div class="select-avatar-list">
       <p>Aus der Liste wählen</p>
       <div class="avatars">
-        <img src="assets/img/profile/elias.webp" alt="" />
-        <img src="assets/img/profile/elise.webp" alt="" />
-        <img src="assets/img/profile/frederik.webp" alt="" />
-        <img src="assets/img/profile/noah.webp" alt="" />
-        <img src="assets/img/profile/sofia.webp" alt="" />
-        <img src="assets/img/profile/steffen.webp" alt="" />
+        <img
+          src="assets/img/profile/elias.webp"
+          alt="Avatar Elias"
+          (click)="selectAvatar('assets/img/profile/elias.webp')"
+        />
+        <img
+          src="assets/img/profile/elise.webp"
+          alt="Avatar Elise"
+          (click)="selectAvatar('assets/img/profile/elise.webp')"
+        />
+        <img
+          src="assets/img/profile/frederik.webp"
+          alt="Avatar Frederik"
+          (click)="selectAvatar('assets/img/profile/frederik.webp')"
+        />
+        <img
+          src="assets/img/profile/noah.webp"
+          alt="Avatar Noah"
+          (click)="selectAvatar('assets/img/profile/noah.webp')"
+        />
+        <img
+          src="assets/img/profile/sofia.webp"
+          alt="Avatar Sofia"
+          (click)="selectAvatar('assets/img/profile/sofia.webp')"
+        />
+        <img
+          src="assets/img/profile/steffen.webp"
+          alt="Avatar Steffen"
+          (click)="selectAvatar('assets/img/profile/steffen.webp')"
+        />
       </div>
       <div class="upload-avatar">
-        <p>eigenes Bild verwenden</p>
+        <p>Eigenes Bild verwenden</p>
         <button mat-flat-button class="button-secondary">
           Datei hochladen
         </button>
       </div>
     </div>
+
     <div class="next-button">
       <button
         mat-flat-button
         class="button-primary"
-        [routerLink]="['/select-avatar']"
+        (click)="completeRegistration()"
+        [disabled]="!selectedAvatar"
       >
-        Weiter
+        Konto erstellen
       </button>
     </div>
   </mat-card>
 
   <div class="logo-container">
-    <img src="assets/img/logo.webp" alt="" />
+    <img src="assets/img/logo.webp" alt="Logo" />
     <div class="logo-name">
       <span class="letter letter-1">D</span>
       <span class="letter letter-2">A</span>
@@ -58,7 +98,7 @@
   </div>
 
   <div class="info-links">
-    <a class="link" [routerLink]="['/impressum']">Impressum</a>
-    <a class="link" [routerLink]="['/datenschutz']">Datenschutz</a>
+    <a class="link" (click)="navigateToImprint()">Impressum</a>
+    <a class="link" (click)="navigateToPrivacyPolicy()">Datenschutz</a>
   </div>
 </div>
