@@ -21,4 +21,6 @@ import { RouterModule } from '@angular/router';
   styleUrl: './login.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
-export class LoginComponent {}
+export class LoginComponent {
+  
+}
