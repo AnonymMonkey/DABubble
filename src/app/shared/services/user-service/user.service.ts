@@ -4,10 +4,5 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class UserService {
-  userData = {
-    id: 0,
-    name: 'Frederik',
-    lastName: 'Beck',
-  };
   constructor() {}
 }

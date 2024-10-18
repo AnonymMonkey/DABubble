@@ -2,7 +2,7 @@ import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
-import { UserService } from '../services/user-service/user.service';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-profile-info-dialog',
@@ -13,5 +13,10 @@ import { UserService } from '../services/user-service/user.service';
   encapsulation: ViewEncapsulation.None,
 })
 export class ProfileInfoDialogComponent {
-  userDataService = inject(UserService);
+  readonly dialogRef = inject(MatDialogRef<ProfileInfoDialogComponent>);
+  constructor() {}
+
+  closeDialog() {
+    this.dialogRef.close();
+  }
 }
