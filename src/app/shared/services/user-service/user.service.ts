@@ -10,9 +10,6 @@ import { AuthService } from '../auth-service/auth.service';
   providedIn: 'root',
 })
 export class UserService {
-<<<<<<< HEAD
-  constructor() {}
-=======
   private firestore: Firestore = inject(Firestore); // Firestore für das Speichern der Benutzerdaten
   private database = getDatabase(); // Realtime Database für den Online-Status
   private tempUserData: Partial<UserData> = {}; // Temporäre Speicherung der Registrierungsdaten
@@ -131,5 +128,4 @@ export class UserService {
       });
     }
   }
->>>>>>> origin/main
 }
