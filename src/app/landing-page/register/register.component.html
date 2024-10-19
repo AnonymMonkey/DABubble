@@ -1,7 +1,9 @@
 <div class="register">
   <mat-card>
     <div class="headline">
-      <mat-icon class="back-icon" [routerLink]="['/']">arrow_back</mat-icon>
+      <mat-icon class="back-icon" (click)="navigateToLogin()"
+        >arrow_back</mat-icon
+      >
 
       <h1>Konto erstellen</h1>
     </div>
@@ -11,51 +13,131 @@
       DABubble-Konto.
     </p>
 
+    <!-- Name Eingabefeld -->
     <div class="input-primary">
       <mat-icon>person_outline</mat-icon>
-      <input placeholder="Name und Nachname" />
+      <input
+        [formControl]="displayNameControl"
+        placeholder="Name und Nachname"
+        [ngClass]="{
+          'input-error':
+            displayNameControl.invalid && displayNameControl.touched
+        }"
+      />
+      <div *ngIf="displayNameControl.touched" class="error-message">
+        <ng-container
+          *ngIf="displayNameControl.hasError('required'); else fullNameCheck"
+        >
+          Name ist erforderlich
+        </ng-container>
+        <ng-template #fullNameCheck>
+          <ng-container *ngIf="displayNameControl.hasError('fullName')">
+            Vor- und Nachname sind erforderlich
+          </ng-container>
+        </ng-template>
+      </div>
     </div>
 
+    <!-- E-Mail Eingabefeld -->
     <div class="input-primary">
-      <input placeholder="beispielname&#64;email.com" />
       <mat-icon>mail_outline</mat-icon>
+      <input
+        [formControl]="emailControl"
+        placeholder="beispielname&#64;email.com"
+        [ngClass]="{
+          'input-error': emailControl.invalid && emailControl.touched
+        }"
+      />
+      <div
+        *ngIf="emailControl.touched && emailControl.invalid"
+        class="error-message"
+      >
+        <ng-container
+          *ngIf="emailControl.hasError('required'); else emailInvalid"
+        >
+          E-Mail ist erforderlich
+        </ng-container>
+        <ng-template #emailInvalid>
+          <span>Ungültige E-Mail-Adresse</span>
+        </ng-template>
+      </div>
     </div>
 
+    <!-- Passwort Eingabefeld -->
     <div class="input-primary">
-      <input placeholder="Passwort" />
       <mat-icon>lock_outline</mat-icon>
+      <input
+        [formControl]="passwordControl"
+        placeholder="Passwort"
+        type="password"
+        [ngClass]="{
+          'input-error': passwordControl.invalid && passwordControl.touched
+        }"
+      />
+      <div *ngIf="passwordControl.touched" class="error-message">
+        <ng-container
+          *ngIf="passwordControl.hasError('required'); else minlengthCheck"
+        >
+          Passwort ist erforderlich
+        </ng-container>
+        <ng-template #minlengthCheck>
+          <ng-container
+            *ngIf="passwordControl.hasError('minlength'); else uppercaseCheck"
+          >
+            Mindestens 8 Zeichen
+          </ng-container>
+        </ng-template>
+        <ng-template #uppercaseCheck>
+          <ng-container *ngIf="!passwordHasUppercase; else lowercaseCheck">
+            Mindestens 1 Großbuchstabe
+          </ng-container>
+        </ng-template>
+        <ng-template #lowercaseCheck>
+          <ng-container *ngIf="!passwordHasLowercase; else numberCheck">
+            Mindestens 1 Kleinbuchstabe
+          </ng-container>
+        </ng-template>
+        <ng-template #numberCheck>
+          <ng-container *ngIf="!passwordHasNumber; else specialCharCheck">
+            Mindestens 1 Zahl
+          </ng-container>
+        </ng-template>
+        <ng-template #specialCharCheck>
+          <ng-container *ngIf="!passwordHasSpecialChar">
+            Mindestens 1 Sonderzeichen
+          </ng-container>
+        </ng-template>
+      </div>
     </div>
 
-    <div class="checkbox-wrapper-33">
-      <label class="checkbox">
-        <input class="checkbox__trigger visuallyhidden" type="checkbox" />
-        <span class="checkbox__symbol">
-          <svg
-            aria-hidden="true"
-            class="icon-checkbox"
-            width="28px"
-            height="28px"
-            viewBox="0 0 28 28"
-            version="1"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M4 14l8 7L24 7"></path>
-          </svg>
-        </span>
-        <p class="checkbox__textwrapper">
-          Ich stimme der
-          <a href="#" class="link" [routerLink]="['/datenschutz']"
-            >Datenschutzerklärung</a
-          >
-          zu.
-        </p>
-      </label>
+    <!-- Passwort Wiederholen Eingabefeld -->
+    <div class="input-primary">
+      <input
+        [formControl]="confirmPasswordControl"
+        placeholder="Passwort Wiederholen"
+        type="password"
+        [ngClass]="{
+          'input-error':
+            confirmPasswordControl.invalid && confirmPasswordControl.touched
+        }"
+      />
+      <div *ngIf="confirmPasswordControl.touched" class="error-message">
+        <ng-container
+          *ngIf="passwordControl.value !== confirmPasswordControl.value"
+        >
+          Passwörter stimmen nicht überein
+        </ng-container>
+      </div>
     </div>
     <div class="next-button">
       <button
         mat-flat-button
         class="button-primary"
-        [routerLink]="['/select-avatar']"
+        [disabled]="
+          !registerForm.valid ||
+          passwordControl.value !== confirmPasswordControl.value
+        "
+        (click)="proceedToSelectAvatar()"
       >
         Weiter
       </button>
@@ -77,7 +159,7 @@
   </div>
 
   <div class="info-links">
-    <a class="link" [routerLink]="['/impressum']">Impressum</a>
-    <a class="link" [routerLink]="['/datenschutz']">Datenschutz</a>
+    <a class="link" (click)="navigateToImprint()">Impressum</a>
+    <a class="link" (click)="navigateToPrivacyPolicy()">Datenschutz</a>
   </div>
 </div>

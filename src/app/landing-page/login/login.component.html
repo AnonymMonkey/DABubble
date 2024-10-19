@@ -8,38 +8,50 @@
     </p>
 
     <div class="input-primary">
-      <input placeholder="beispielname&#64;email.com" />
+      <input [formControl]="email" placeholder="beispielname&#64;email.com" />
       <mat-icon>mail_outline</mat-icon>
+      <div *ngIf="email.invalid && email.touched" class="error-message">
+        Bitte eine gültige E-Mail-Adresse eingeben.
+      </div>
     </div>
 
     <div class="input-primary">
-      <input placeholder="Passwort" />
+      <input [formControl]="password" type="password" placeholder="Passwort" />
       <mat-icon>lock_outline</mat-icon>
+      <!-- Fehlermeldung für ungültiges Passwort -->
+      <div *ngIf="password.invalid && password.touched" class="error-message">
+        Bitte ein Passwort eingeben.
+      </div>
     </div>
 
-    <a class="link" [routerLink]="['/reset-password']">Passwort vergessen?</a>
+    <a class="link" (click)="navigateToResetPassword()">Passwort vergessen?</a>
+
+    <!-- Fehlermeldungen anzeigen -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
 
     <div class="cutline">
       <p>ODER</p>
     </div>
 
-    <div class="google">
+    <div class="google" (click)="googleLogin()">
       <img src="assets/img/google.webp" alt="" />
       <p>Anmelden mit Google</p>
     </div>
 
     <div class="buttons">
-      <button mat-flat-button class="button-primary" [routerLink]="['/main']">
+      <button mat-flat-button class="button-primary" (click)="login()">
         Anmelden
       </button>
-      <button mat-flat-button class="button-secondary" [routerLink]="['/main']">
+      <button mat-flat-button class="button-secondary" (click)="guestLogin()">
         Gäste-Login
       </button>
     </div>
   </mat-card>
 
-  <div class="logo-bg"></div>
-  <div class="logo">
+  <div class="logo-bg" *ngIf="showAnimation"></div>
+  <div class="logo" *ngIf="showAnimation">
     <div class="logo-container">
       <img src="assets/img/logo.webp" alt="" />
       <div class="logo-name">
@@ -57,11 +69,11 @@
 
   <div class="register-link">
     <p>Neu bei DABubble?</p>
-    <a class="link" [routerLink]="['/register']">Konto erstellen</a>
+    <a class="link" (click)="navigateToRegister()">Konto erstellen</a>
   </div>
 
   <div class="info-links">
-    <a class="link" [routerLink]="['/impressum']">Impressum</a>
-    <a class="link" [routerLink]="['/datenschutz']">Datenschutz</a>
+    <a class="link" (click)="navigateToImprint()">Impressum</a>
+    <a class="link" (click)="navigateToPrivacyPolicy()">Datenschutz</a>
   </div>
 </div>
