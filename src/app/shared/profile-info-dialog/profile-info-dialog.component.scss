@@ -77,3 +77,12 @@
     }
   }
 }
+
+::ng-deep {
+  .cdk-overlay-pane.mat-mdc-dialog-panel {
+    position: static !important;
+  }
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: 30px;
+  }
+}

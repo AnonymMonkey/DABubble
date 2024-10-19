@@ -1,8 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  ViewEncapsulation,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileInfoDialogComponent } from '../../../shared/profile-info-dialog/profile-info-dialog.component';
@@ -14,7 +10,6 @@ import { ProfileInfoDialogComponent } from '../../../shared/profile-info-dialog/
   templateUrl: './profile-dialog.component.html',
   styleUrl: './profile-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
 })
 export class ProfileDialogComponent {
   constructor(public dialog: MatDialog) {}

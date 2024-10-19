@@ -10,15 +10,15 @@
   }
 }
 
-.mat-mdc-dialog-container .mdc-dialog__surface {
-  border-radius: 30px;
-  border-top-right-radius: 0;
-}
-
-.cdk-overlay-pane.mat-mdc-dialog-panel {
+::ng-deep .cdk-overlay-pane.mat-mdc-dialog-panel {
   position: absolute !important;
   top: 100px;
   right: 24px;
+}
+
+::ng-deep.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 30px;
+  border-top-right-radius: 0;
 }
 
 .profile-dialog-button {

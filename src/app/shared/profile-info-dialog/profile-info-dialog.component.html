@@ -6,8 +6,10 @@
   <img class="profile-image" src="./assets/img/profile/frederik.webp" alt="" />
   <div class="profile-info-name">
     <div class="name-edit">
-      <h2>Frederick Beck</h2>
-      <span>Bearbeiten</span>
+      <h2>{{ ownProfile ? "Frederick Beck" : "Sofie Müller" }}</h2>
+      <span [ngStyle]="{ display: ownProfile ? 'block' : 'none' }"
+        >Bearbeiten</span
+      >
     </div>
     <div class="activity-indicator">
       <div class="badge"></div>
