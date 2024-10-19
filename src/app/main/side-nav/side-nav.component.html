@@ -25,7 +25,8 @@
           <button
             mat-icon-button
             class="toolbar-icon"
-            (click)="$event.stopPropagation()"
+            clickStopPropagation
+            (click)="openCreateChannelDialog()"
           >
             <mat-icon class="material-symbols-outlined">add</mat-icon>
           </button>
