@@ -31,6 +31,8 @@ export class SideNavComponent {
   constructor(public dialog: MatDialog) {}
 
   openCreateChannelDialog(): void {
-    this.dialog.open(CreateChannelDialogComponent);
+    this.dialog.open(CreateChannelDialogComponent, {
+      panelClass: 'create-channel-dialog',
+    });
   }
 }

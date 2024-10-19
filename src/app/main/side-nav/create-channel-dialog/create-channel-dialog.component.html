@@ -1,1 +1,26 @@
-<p>create-channel-dialog works!</p>
+<div class="dialog-wrapper">
+  <div class="header-wrapper">
+    <h3>Channel erstellen</h3>
+    <mat-icon (click)="dialogRef.close()">close</mat-icon>
+  </div>
+  <p>
+    Channels dienen deinem Team zur Kommunikation. Am besten sollten sie
+    themenbezogen sein #marketing zum Beispiel.
+  </p>
+  <h4>Channel-Name</h4>
+  <form class="form-field">
+    <mat-icon class="material-symbols-outlined">tag</mat-icon>
+    <input
+      placeholder="z.B Kooperationsprojekte"
+      required
+      [(ngModel)]="channelName"
+      name="channelName"
+      (ngModelChange)="checkInputEmpty()"
+    />
+  </form>
+  <h4>Beschreibung <span>(optional)</span></h4>
+  <form class="form-field description">
+    <input placeholder="Dein Text hier" />
+  </form>
+  <button class="button-primary" [disabled]="invalid">Erstellen</button>
+</div>
