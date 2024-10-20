@@ -2,9 +2,16 @@ import { inject, Injectable } from '@angular/core';
 import { Firestore } from '@angular/fire/firestore';
 import { User } from 'firebase/auth';
 import { UserData } from '../../models/user.model';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore';
 import { get, getDatabase, onDisconnect, ref, set } from 'firebase/database';
 import { AuthService } from '../auth-service/auth.service';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -29,13 +36,37 @@ export class UserService {
   }
 
   // Ruft die Daten eines Nutzers anhand seiner UID aus Firestore ab
-  async getUserDataByUID(uid: string): Promise<any> {
-    const userDocRef = doc(this.firestore, `users/${uid}`);
-    const userDoc = await getDoc(userDocRef);
-    if (userDoc.exists()) {
-      return userDoc.data(); // Rückgabe der Daten des angeforderten Nutzers
-    }
-    throw new Error('Nutzer nicht gefunden');
+  // async getUserDataByUID(uid: string): Promise<any> {
+  //   const userDocRef = doc(this.firestore, `users/${uid}`);
+  //   const userDoc = await getDoc(userDocRef);
+  //   if (userDoc.exists()) {
+  //     return userDoc.data(); // Rückgabe der Daten des angeforderten Nutzers
+  //   }
+  //   throw new Error('Nutzer nicht gefunden');
+  // }
+
+  getUserDataByUID(uid: string): Observable<any> {
+    return new Observable((observer) => {
+      const userDocRef = doc(this.firestore, `users/${uid}`);
+
+      // Listener für Echtzeit-Aktualisierungen
+      const unsubscribe = onSnapshot(
+        userDocRef,
+        (userDoc) => {
+          if (userDoc.exists()) {
+            observer.next(userDoc.data()); // Gibt die Daten des Nutzers in Echtzeit zurück
+          } else {
+            observer.error('Nutzer nicht gefunden');
+          }
+        },
+        (error) => {
+          observer.error(error);
+        }
+      );
+
+      // Bereinigen des Listeners, wenn das Observable abgeschlossen ist
+      return () => unsubscribe();
+    });
   }
 
   // Problem tritt auf, da sich auth.service und user.service überschneiden

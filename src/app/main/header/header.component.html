@@ -8,9 +8,9 @@
     <mat-icon>search</mat-icon>
   </div>
   <div class="profile" (click)="toggleDropdown()">
-    <p>Frederik Beck</p>
+    <p>{{ userData.displayName }}</p>
     <div class="image-with-badge">
-      <img src="./assets/img/profile/frederik.webp" alt="" />
+      <img src="./{{ userData.photoURL }}" alt="" />
       <div class="badge"></div>
     </div>
     <mat-icon>keyboard_arrow_down</mat-icon>

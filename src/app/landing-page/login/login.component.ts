@@ -61,7 +61,7 @@ export class LoginComponent {
 
     try {
       await this.authService.login(this.email.value!, this.password.value!);
-      this.routingService.navigateToMain();
+      // this.routingService.navigateToMain();
     } catch (error: any) {
       this.errorService.logError(error);
       this.errorMessage = error.message;
@@ -71,7 +71,7 @@ export class LoginComponent {
   async googleLogin() {
     try {
       await this.authService.googleLogin();
-      this.routingService.navigateToMain();
+      // this.routingService.navigateToMain();
     } catch (error: any) {
       this.errorService.logError(error);
       this.errorMessage = error.message;
@@ -81,7 +81,7 @@ export class LoginComponent {
   async guestLogin() {
     try {
       await this.authService.guestLogin();
-      this.routingService.navigateToMain();
+      // this.routingService.navigateToMain();
     } catch (error: any) {
       this.errorService.logError(error);
       this.errorMessage = error.message;

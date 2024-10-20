@@ -1,9 +1,11 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileDialogComponent } from './profile-dialog/profile-dialog.component';
+import { ActivatedRoute } from '@angular/router';
+import { UserData } from '../../shared/models/user.model';
 
 @Component({
   selector: 'app-header',
@@ -14,7 +16,15 @@ import { ProfileDialogComponent } from './profile-dialog/profile-dialog.componen
   encapsulation: ViewEncapsulation.None,
 })
 export class HeaderComponent {
-  constructor(public dialog: MatDialog) {}
+  userId!: string;
+  @Input() userData!: UserData;
+
+  constructor(public dialog: MatDialog, private route: ActivatedRoute) {
+    this.route.params.subscribe((params) => {
+      this.userId = params['uid'];
+      // console.log(this.userId);
+    });
+  }
   toggleDropdown(): void {
     const dialogRef = this.dialog.open(ProfileDialogComponent);
   }

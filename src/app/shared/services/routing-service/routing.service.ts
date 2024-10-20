@@ -27,8 +27,8 @@ export class RoutingService {
     this.router.navigate(['/select-avatar']);
   }
 
-  navigateToMain(): void {
-    this.router.navigate(['/main']);
+  navigateToMain(uid: string): void {
+    this.router.navigate(['/main/' + uid]);
   }
 
   navigateToImprint(): void {

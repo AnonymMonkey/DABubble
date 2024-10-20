@@ -38,7 +38,7 @@ export class AuthService {
     try {
       const userCredential = await signInAnonymously(this.auth);
       await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
-      this.routingService.navigateToMain(); // Navigiert zur Hauptseite
+      this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
     } catch (error) {
       this.handleError(error);
     }
@@ -62,7 +62,7 @@ export class AuthService {
         formattedDisplayName
       );
       await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
-      this.routingService.navigateToMain(); // Navigiert zur Hauptseite
+      this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
     } catch (error: any) {
       this.handleError(error);
     }
@@ -87,7 +87,7 @@ export class AuthService {
         googleProfilePhotoURL
       );
       await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
-      this.routingService.navigateToMain(); // Navigiert zur Hauptseite
+      this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
     } catch (error) {
       this.handleError(error);
     }
@@ -149,7 +149,7 @@ export class AuthService {
         formattedDisplayName
       );
       this.notificationService.showNotification('Konto erfolgreich erstellt!'); // Zeigt eine Erfolgsbenachrichtigung an
-      this.routingService.navigateToMain(); // Navigiert zur Hauptseite
+      this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
     } catch (error) {
       this.handleError(error);
     }
