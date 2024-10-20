@@ -14,8 +14,8 @@ export class UserService {
   private database = getDatabase(); // Realtime Database für den Online-Status
   private tempUserData: Partial<UserData> = {}; // Temporäre Speicherung der Registrierungsdaten
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
-  private authService?: AuthService; 
-  constructor() {}
+
+  // constructor(private authService: AuthService) {}
 
   // Ruft alle online Nutzer aus der Realtime Database ab
   // Gibt die Daten der Nutzer zurück, die aktuell als online markiert sind
@@ -38,19 +38,21 @@ export class UserService {
     throw new Error('Nutzer nicht gefunden');
   }
 
+  // Problem tritt auf, da sich auth.service und user.service überschneiden
   // Ruft die Daten des aktuell authentifizierten Nutzers ab
   // Benötigt den AuthService, um den aktuellen Benutzer zu ermitteln
-  async getCurrentUserData(): Promise<any> {
-    const currentUser = await this.authService?.getCurrentUser().toPromise();
-    if (currentUser?.uid) {
-      const userDocRef = doc(this.firestore, `users/${currentUser.uid}`);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        return userDoc.data(); // Rückgabe der Daten des aktuellen Benutzers
-      }
-    }
-    throw new Error('Nutzer nicht gefunden oder nicht angemeldet');
-  }
+
+  // async getCurrentUserData(): Promise<any> {
+  //   const currentUser = await this.authService.getCurrentUser().toPromise();
+  //   if (currentUser?.uid) {
+  //     const userDocRef = doc(this.firestore, `users/${currentUser.uid}`);
+  //     const userDoc = await getDoc(userDocRef);
+  //     if (userDoc.exists()) {
+  //       return userDoc.data(); // Rückgabe der Daten des aktuellen Benutzers
+  //     }
+  //   }
+  //   throw new Error('Nutzer nicht gefunden oder nicht angemeldet');
+  // }
 
   // Temporäre Registrierungsdaten speichern
   // Diese Funktion wird verwendet, um während des Registrierungsprozesses Daten temporär zu speichern

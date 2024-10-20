@@ -1,0 +1,88 @@
+.profile-info-dialog {
+  color: var(--black-color);
+  padding: 45px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 38px;
+  width: 500px;
+
+  .card-header {
+    h3 {
+      font-size: 24px;
+    }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    mat-icon {
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .profile-image {
+    align-self: center;
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+  }
+
+  .profile-info-name {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .name-edit {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      span {
+        color: var(--purple3-color);
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+
+    .activity-indicator {
+      color: var(--online-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      .badge {
+        width: 16px;
+        height: 16px;
+        background-color: var(--online-color);
+        border-radius: 50%;
+      }
+    }
+  }
+
+  .profile-mail-info {
+    display: flex;
+    gap: 16px;
+
+    .mail-info-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      a {
+        text-decoration: none;
+        color: var(--blue-color);
+      }
+    }
+  }
+}
+
+::ng-deep {
+  .cdk-overlay-pane.mat-mdc-dialog-panel {
+    position: static !important;
+  }
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: 30px;
+  }
+}

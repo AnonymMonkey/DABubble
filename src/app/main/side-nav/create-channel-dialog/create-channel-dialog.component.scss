@@ -1,0 +1,73 @@
+::ng-deep {
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: 30px;
+  }
+}
+
+.dialog-wrapper {
+  color: var(--black-color) !important;
+  padding: 45px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 872px;
+
+  .header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    mat-icon {
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+  h4 {
+    color: var(--black-color);
+    span {
+      color: var(--grey-color);
+    }
+  }
+
+  .form-field {
+    color: var(--grey-color);
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+    flex: 1;
+
+    mat-icon {
+      position: absolute;
+      left: var(--padding-32);
+    }
+    input {
+      width: 100%;
+      font-size: 18px;
+      font-family: var(--font-nunito);
+      padding: var(--padding-16) var(--padding-16) var(--padding-16) 65px;
+      border-radius: 42px;
+      border: 1px solid var(--light-purple-color);
+      &:hover {
+        outline: 1px solid var(--purple2-color);
+      }
+      &:focus-visible {
+        outline: 1px solid var(--purple1-color);
+      }
+    }
+  }
+  .description {
+    input {
+      padding: var(--padding-16) !important;
+    }
+  }
+
+  .button-primary {
+    align-self: flex-end;
+
+    &:disabled {
+      cursor: not-allowed !important;
+    }
+  }
+}
