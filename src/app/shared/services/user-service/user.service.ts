@@ -41,6 +41,7 @@ export class UserService {
   // Problem tritt auf, da sich auth.service und user.service überschneiden
   // Ruft die Daten des aktuell authentifizierten Nutzers ab
   // Benötigt den AuthService, um den aktuellen Benutzer zu ermitteln
+
   // async getCurrentUserData(): Promise<any> {
   //   const currentUser = await this.authService.getCurrentUser().toPromise();
   //   if (currentUser?.uid) {

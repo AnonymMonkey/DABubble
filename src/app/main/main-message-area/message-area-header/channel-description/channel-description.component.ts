@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import {MatExpansionModule} from '@angular/material/expansion';
@@ -10,6 +10,8 @@ import { ChannelDisplayDescriptionComponent } from './channel-display-descriptio
 import { ChannelEditNameComponent } from './channel-edit-name/channel-edit-name.component';
 import { ChannelDisplayNameComponent } from './channel-display-name/channel-display-name.component';
 import { NgIf } from '@angular/common';
+import { Channel } from '../../../../shared/models/channel.model';
+import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 
 
 @Component({
@@ -19,11 +21,21 @@ import { NgIf } from '@angular/common';
   templateUrl: './channel-description.component.html',
   styleUrl: './channel-description.component.scss'
 })
-export class ChannelDescriptionComponent {
+export class ChannelDescriptionComponent implements OnInit {
   editName: boolean = false;
   editDescription: boolean = false;
+  currentChannel: Channel | null = null;
 
-  constructor(public header: MessageAreaHeaderComponent) { }
+  constructor(public header: MessageAreaHeaderComponent, public channelService: ChannelService) { }
+
+  ngOnInit(): void {
+    this.channelService.currentChannel$.subscribe({
+      next: (channel) => {
+        this.currentChannel = channel;
+      }
+    });
+  }
+
 
   toggleEditName() {
     this.editName = !this.editName;

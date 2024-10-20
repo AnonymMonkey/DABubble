@@ -1,10 +1,14 @@
-import { ChangeDetectorRef, Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { ChannelDescriptionComponent } from './channel-description/channel-description.component';
-import { ChannelMembersListComponent } from './channel-members-list/channel-members-list.component';
+import { Channel } from '../../../shared/models/channel.model'; // Importiere dein Channel Interface
+import { ChannelService } from '../../../shared/services/channel-service/channel.service';
+import { Subscription } from 'rxjs';
 import { ChannelNewMemberComponent } from './channel-new-member/channel-new-member.component';
+import { ChannelMembersListComponent } from './channel-members-list/channel-members-list.component';
+import { ChannelDescriptionComponent } from './channel-description/channel-description.component';
+import { NgFor } from '@angular/common';
 
 @Component({
   selector: 'app-message-area-header',
@@ -13,33 +17,51 @@ import { ChannelNewMemberComponent } from './channel-new-member/channel-new-memb
     MatMenuModule,
     MatIcon,
     MatToolbarModule,
-    ChannelDescriptionComponent,
     MatMenuTrigger,
+    MatToolbarModule,
+    ChannelNewMemberComponent,
     ChannelMembersListComponent,
-    ChannelNewMemberComponent
+    ChannelDescriptionComponent,
+    NgFor
   ],
   templateUrl: './message-area-header.component.html',
-  styleUrl: './message-area-header.component.scss',
+  styleUrls: ['./message-area-header.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class MessageAreaHeaderComponent {
+export class MessageAreaHeaderComponent implements OnInit {
   @ViewChild('chooseChannelMenuTrigger') chooseChannelMenuTrigger!: MatMenuTrigger;
   @ViewChild('memberListMenuTrigger') memberListMenuTrigger!: MatMenuTrigger;
   @ViewChild('addMemberMenuTrigger') addMemberMenuTrigger!: MatMenuTrigger;
 
   isMenuOpened: string = '';
 
-  closeMenu(menuType: string) {
-    if (menuType === 'choose-channel' && this.chooseChannelMenuTrigger) {
-      this.chooseChannelMenuTrigger.closeMenu();
-    } else if (menuType === 'member-list' && this.memberListMenuTrigger) {
-      this.memberListMenuTrigger.closeMenu();
-    } else if (menuType === 'add-member' && this.addMemberMenuTrigger) {
-      this.addMemberMenuTrigger.closeMenu();
+  currentChannel: Channel | null = null;
+
+  constructor(private channelService: ChannelService) {}
+
+  ngOnInit(): void {
+    this.channelService.currentChannel$.subscribe({
+      next: (channel) => {
+        this.currentChannel = channel;
+      }
+    });
+  }
+
+  closeMenu(menuType: 'choose-channel' | 'member-list' | 'add-member') {
+    switch (menuType) {
+      case 'choose-channel':
+        this.chooseChannelMenuTrigger?.closeMenu();
+        break;
+      case 'member-list':
+        this.memberListMenuTrigger?.closeMenu();
+        break;
+      case 'add-member':
+        this.addMemberMenuTrigger?.closeMenu();
+        break;
     }
   }
 
-  openMenu(menuType: string) {
+  openMenu(menuType: 'add-member') {
     if (menuType === 'add-member') {
       this.addMemberMenuTrigger.openMenu();
     }

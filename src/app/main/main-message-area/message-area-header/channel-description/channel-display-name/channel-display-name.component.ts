@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { ChannelDescriptionComponent } from '../channel-description.component';
+import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
+import { Channel } from '../../../../../shared/models/channel.model';
 
 @Component({
   selector: 'app-channel-display-name',
@@ -10,6 +12,16 @@ import { ChannelDescriptionComponent } from '../channel-description.component';
 })
 export class ChannelDisplayNameComponent {
 
-  constructor(public description: ChannelDescriptionComponent) {}
+  currentChannel: Channel | null = null;
+
+  constructor(public description: ChannelDescriptionComponent, private channelService: ChannelService) {}
+
+  ngOnInit(): void {
+    this.channelService.currentChannel$.subscribe({
+      next: (channel) => {
+        this.currentChannel = channel;
+      }
+    });
+  }
 
 }

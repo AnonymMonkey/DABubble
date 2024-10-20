@@ -4,7 +4,7 @@
     <button (click)="description.toggleEditName()">Speichern</button>
   </div>
   <div class="input-secondary">
-    <input type="text" placeholder="Entwicklerteam" />
+    <input type="text" placeholder="{{currentChannel?.channelName}}" />
     <mat-icon class="material-symbols-outlined">tag</mat-icon>
   </div>
 </section>
