@@ -21,7 +21,7 @@
         />
       </svg>
       <!-- <mat-icon class="material-symbols-outline">tag</mat-icon> -->
-      Entwicklerteam
+      <span>{{currentChannel?.channelName}}</span>
       <mat-icon>keyboard_arrow_down</mat-icon>
     </button>
     <mat-menu
@@ -41,10 +41,8 @@
       #memberListMenuTrigger="matMenuTrigger"
       class="button-channel-member-list"
     >
-      <img src="../../../../assets/img/profile/elias.webp" alt="Profile Picture" />
-      <img src="../../../../assets/img/profile/elise.webp" alt="" />
-      <img src="../../../../assets/img/profile/sofia.webp" alt="" />
-      <span>3</span>
+    <img src="../../../../assets/img/profile/elias.webp" alt="Profile Picture" *ngFor="let member of currentChannel?.members?.slice(0, 3)" />
+    <span>{{ (currentChannel?.members?.length || 0) + 1 }}</span>
     </button>
     <mat-menu
       #memberListMenu="matMenu"

@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MessageAreaHeaderComponent } from '../message-area-header.component';
 import { MatIcon } from '@angular/material/icon';
+import { Channel } from '../../../../shared/models/channel.model';
+import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 
 @Component({
   selector: 'app-channel-new-member',
@@ -9,7 +11,17 @@ import { MatIcon } from '@angular/material/icon';
   templateUrl: './channel-new-member.component.html',
   styleUrl: './channel-new-member.component.scss'
 })
-export class ChannelNewMemberComponent {
+export class ChannelNewMemberComponent implements OnInit {
 
-  constructor(public header: MessageAreaHeaderComponent) { }
+  currentChannel: Channel | null = null;
+
+  constructor(public header: MessageAreaHeaderComponent, private channelService: ChannelService) { }
+
+  ngOnInit(): void {
+    this.channelService.currentChannel$.subscribe({
+      next: (channel) => {
+        this.currentChannel = channel;
+      }
+    });
+  }
 }

@@ -7,6 +7,7 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { NgClass, NgIf } from '@angular/common';
 import { ThreadComponent } from './thread/thread.component';
 import { Renderer2 } from '@angular/core';
+import { ChannelService } from '../../shared/services/channel-service/channel.service';
 
 @Component({
   selector: 'app-main-message-area',
@@ -33,9 +34,12 @@ export class MainMessageAreaComponent implements AfterViewInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenav', { read: ElementRef }) sidenavElement!: ElementRef;
 
-  constructor(private renderer: Renderer2) {}
+  constructor(private renderer: Renderer2, private channelService: ChannelService) {}
 
   ngAfterViewInit() {
+    this.channelService.setChannel('aWD9P0ibWthJ7zAqdMYw');  //ANCHOR -  Setze den Channel in der Sidebar - für Semir.
+
+
     // Füge box-shadow hinzu, wenn das Sidenav komplett geöffnet ist
     this.sidenav.openedStart.subscribe(() => {
       this.renderer.setStyle(
@@ -43,7 +47,6 @@ export class MainMessageAreaComponent implements AfterViewInit {
         'box-shadow',
         '0px 2px 2px 0px rgba(0, 0, 0, 0.078)',
       );
-      console.log('opened');
     });
 
     this.sidenav.closedStart.subscribe(() => {

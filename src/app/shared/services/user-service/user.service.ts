@@ -14,8 +14,8 @@ export class UserService {
   private database = getDatabase(); // Realtime Database für den Online-Status
   private tempUserData: Partial<UserData> = {}; // Temporäre Speicherung der Registrierungsdaten
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
-
-  constructor(private authService: AuthService) {}
+  private authService?: AuthService; 
+  constructor() {}
 
   // Ruft alle online Nutzer aus der Realtime Database ab
   // Gibt die Daten der Nutzer zurück, die aktuell als online markiert sind
@@ -41,7 +41,7 @@ export class UserService {
   // Ruft die Daten des aktuell authentifizierten Nutzers ab
   // Benötigt den AuthService, um den aktuellen Benutzer zu ermitteln
   async getCurrentUserData(): Promise<any> {
-    const currentUser = await this.authService.getCurrentUser().toPromise();
+    const currentUser = await this.authService?.getCurrentUser().toPromise();
     if (currentUser?.uid) {
       const userDocRef = doc(this.firestore, `users/${currentUser.uid}`);
       const userDoc = await getDoc(userDocRef);
