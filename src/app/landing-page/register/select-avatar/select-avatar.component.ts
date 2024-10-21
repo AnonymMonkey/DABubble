@@ -73,7 +73,7 @@ export class SelectAvatarComponent implements OnInit {
       }
 
       this.notificationService.showNotification('Konto erfolgreich erstellt!');
-      this.routingService.navigateToMain();
+      // this.routingService.navigateToMain();
     } catch (error) {
       this.errorService.logError(error);
     }

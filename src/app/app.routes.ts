@@ -18,7 +18,7 @@ export const routes: Routes = [
   { path: 'select-avatar', component: SelectAvatarComponent }, // Route für Avatar-Auswahl
 
   // Hauptkomponente nach Login (Main-Bereich der App)
-  { path: 'main', component: MainComponent },
+  { path: 'main/:uid', component: MainComponent },
 
   // Impressum und Datenschutz als eigene Routen
   { path: 'imprint', component: ImprintComponent },
