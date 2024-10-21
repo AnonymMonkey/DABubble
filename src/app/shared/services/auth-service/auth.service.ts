@@ -54,7 +54,7 @@ export class AuthService {
         password
       );
 
-      // ########################Beim login brauchen wir keinen neuen User erstellen, die alten daten werden dan überschrieben
+      //NOTE - Beim login brauchen wir keinen neuen User erstellen, die alten daten werden dan überschrieben
 
       // const formattedDisplayName = new UserData(
       //   userCredential.user
