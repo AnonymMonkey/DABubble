@@ -27,8 +27,9 @@ export class RoutingService {
     this.router.navigate(['/select-avatar']);
   }
 
-  navigateToMain(): void {
-    this.router.navigate(['/main']);
+  //NOTE - hier habe ich die uid von aktuellem User eingebunden, somit haben wir für jeden User eine individuelle main
+  navigateToMain(uid: string): void {
+    this.router.navigate(['/main/' + uid]);
   }
 
   navigateToImprint(): void {
