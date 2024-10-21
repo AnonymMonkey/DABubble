@@ -15,7 +15,7 @@
     autosize
   >
     <mat-drawer #drawer class="example-sidenav" mode="side" [opened]="true">
-      <app-side-nav></app-side-nav>
+      <app-side-nav [userData]="userData"></app-side-nav>
     </mat-drawer>
   </mat-drawer-container>
   <app-main-message-area></app-main-message-area>

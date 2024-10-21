@@ -53,14 +53,17 @@ export class AuthService {
         email,
         password
       );
-      const formattedDisplayName = new UserData(
-        userCredential.user
-      ).formatDisplayName();
 
-      await this.userService.saveUserData(
-        userCredential.user,
-        formattedDisplayName
-      );
+      // ########################Beim login brauchen wir keinen neuen User erstellen, die alten daten werden dan überschrieben
+
+      // const formattedDisplayName = new UserData(
+      //   userCredential.user
+      // ).formatDisplayName();
+
+      // await this.userService.saveUserData(
+      //   userCredential.user,
+      //   formattedDisplayName
+      // );
       await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
       this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
     } catch (error: any) {

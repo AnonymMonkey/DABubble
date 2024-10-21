@@ -1,4 +1,4 @@
-import { Component, signal, ViewEncapsulation } from '@angular/core';
+import { Component, Input, signal, ViewEncapsulation } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateChannelDialogComponent } from './create-channel-dialog/create-channel-dialog.component';
 import { ClickStopPropagationDirective } from '../../shared/directives/click-stop-propagation.directive';
+import { UserData } from '../../shared/models/user.model';
 
 @Component({
   selector: 'app-side-nav',
@@ -27,8 +28,15 @@ import { ClickStopPropagationDirective } from '../../shared/directives/click-sto
 })
 export class SideNavComponent {
   readonly panelOpenState = signal(false);
+  @Input() userData!: UserData;
 
   constructor(public dialog: MatDialog) {}
+
+  ngOnInit(): void {
+    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
+    //Add 'implements OnInit' to the class.
+    console.log(this.userData);
+  }
 
   openCreateChannelDialog(): void {
     this.dialog.open(CreateChannelDialogComponent, {

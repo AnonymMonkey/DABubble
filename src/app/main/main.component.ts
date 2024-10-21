@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { UserService } from '../shared/services/user-service/user.service';
 import { UserData } from '../shared/models/user.model';
-import { Subscription } from 'rxjs';
+import { catchError, of, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-main',
@@ -36,6 +36,7 @@ export class MainComponent {
     this.route.params.subscribe((params) => {
       this.userId = params['uid'];
     });
+    this.loadUserData();
   }
 
   ngOnDestroy(): void {
@@ -46,13 +47,20 @@ export class MainComponent {
     }
   }
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  loadUserData() {
     this.subscription = this.userService
       .getUserDataByUID(this.userId)
+      .pipe(
+        catchError((err) => {
+          console.error('Fehler beim Abrufen der Nutzerdaten:', err);
+          return of(null); // Gibt ein leeres Observable zurück, um den Fehler zu umgehen
+        })
+      )
       .subscribe({
         next: (data) => {
           this.userData = data;
-          console.log(this.userData);
         },
         error: (err) =>
           console.error('Fehler beim Abrufen der Nutzerdaten:', err),

@@ -10,7 +10,7 @@ import {
   setDoc,
 } from 'firebase/firestore';
 import { get, getDatabase, onDisconnect, ref, set } from 'firebase/database';
-import { AuthService } from '../auth-service/auth.service';
+import { AuthService } from '../auth-service/auth.service'; //NOTE - Muss auskommentiert werden
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -22,6 +22,7 @@ export class UserService {
   private tempUserData: Partial<UserData> = {}; // Temporäre Speicherung der Registrierungsdaten
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
 
+  //NOTE - Der Constructor musste auch auskommentiert werden, da er nicht benutzt wird
   // constructor(private authService: AuthService) {}
 
   // Ruft alle online Nutzer aus der Realtime Database ab
@@ -35,6 +36,7 @@ export class UserService {
     throw new Error('Keine aktiven Nutzer gefunden');
   }
 
+  //NOTE - Musste ich auskommentieren, da ein Promise die Daten nur einmalig lädt
   // Ruft die Daten eines Nutzers anhand seiner UID aus Firestore ab
   // async getUserDataByUID(uid: string): Promise<any> {
   //   const userDocRef = doc(this.firestore, `users/${uid}`);
@@ -45,6 +47,7 @@ export class UserService {
   //   throw new Error('Nutzer nicht gefunden');
   // }
 
+  //NOTE - Hier habe ich die vorherige Funktion in eine Observable umgeformt
   getUserDataByUID(uid: string): Observable<any> {
     return new Observable((observer) => {
       const userDocRef = doc(this.firestore, `users/${uid}`);
@@ -69,7 +72,7 @@ export class UserService {
     });
   }
 
-  // Problem tritt auf, da sich auth.service und user.service überschneiden
+  //NOTE - Problem tritt auf, da sich auth.service und user.service überschneiden
   // Ruft die Daten des aktuell authentifizierten Nutzers ab
   // Benötigt den AuthService, um den aktuellen Benutzer zu ermitteln
   // async getCurrentUserData(): Promise<any> {

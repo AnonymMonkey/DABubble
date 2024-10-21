@@ -6,25 +6,20 @@ import { MatDialog } from '@angular/material/dialog';
 import { ProfileDialogComponent } from './profile-dialog/profile-dialog.component';
 import { ActivatedRoute } from '@angular/router';
 import { UserData } from '../../shared/models/user.model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [MatFormFieldModule, MatIconModule, MatInputModule, CommonModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
 export class HeaderComponent {
-  userId!: string;
   @Input() userData!: UserData;
 
-  constructor(public dialog: MatDialog, private route: ActivatedRoute) {
-    this.route.params.subscribe((params) => {
-      this.userId = params['uid'];
-      // console.log(this.userId);
-    });
-  }
+  constructor(public dialog: MatDialog, private route: ActivatedRoute) {}
   toggleDropdown(): void {
     const dialogRef = this.dialog.open(ProfileDialogComponent);
   }
