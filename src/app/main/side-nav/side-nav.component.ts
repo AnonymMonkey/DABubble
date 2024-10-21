@@ -60,7 +60,6 @@ export class SideNavComponent {
         this.channelService
           .getChannelById(channel)
           .subscribe((channelData) => this.allChannelsData.push(channelData));
-        console.log(this.allChannelsData);
       });
     }, 0);
   }
