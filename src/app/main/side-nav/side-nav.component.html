@@ -32,12 +32,13 @@
           </button>
         </mat-panel-title>
       </mat-expansion-panel-header>
+
+      @for (channel of allChannelsData; track $index) {
       <button class="button-secondary">
-        <mat-icon class="material-symbols-outlined">tag</mat-icon>Entwicklerteam
+        <mat-icon class="material-symbols-outlined">tag</mat-icon
+        >{{ channel.channelName }}
       </button>
-      <button class="button-secondary">
-        <mat-icon class="material-symbols-outlined">tag</mat-icon>Office-team
-      </button>
+      }
       <button
         class="button-secondary footer-button"
         (click)="openCreateChannelDialog()"

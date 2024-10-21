@@ -25,7 +25,7 @@ import { catchError, of, Subscription } from 'rxjs';
   ],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainComponent {
   userId!: string;
