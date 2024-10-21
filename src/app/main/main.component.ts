@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { HeaderComponent } from './header/header.component';
 import { MainMessageAreaComponent } from './main-message-area/main-message-area.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,6 +25,7 @@ import { catchError, of, Subscription } from 'rxjs';
   ],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainComponent {
   userId!: string;
@@ -36,7 +37,6 @@ export class MainComponent {
     this.route.params.subscribe((params) => {
       this.userId = params['uid'];
     });
-    this.loadUserData();
   }
 
   ngOnDestroy(): void {
@@ -47,20 +47,17 @@ export class MainComponent {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadUserData();
+  }
 
   loadUserData() {
     this.subscription = this.userService
       .getUserDataByUID(this.userId)
-      .pipe(
-        catchError((err) => {
-          console.error('Fehler beim Abrufen der Nutzerdaten:', err);
-          return of(null); // Gibt ein leeres Observable zurück, um den Fehler zu umgehen
-        })
-      )
       .subscribe({
         next: (data) => {
           this.userData = data;
+          console.log(this.userData);
         },
         error: (err) =>
           console.error('Fehler beim Abrufen der Nutzerdaten:', err),
