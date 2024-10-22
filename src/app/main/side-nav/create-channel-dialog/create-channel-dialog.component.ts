@@ -31,6 +31,7 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class CreateChannelDialogComponent {
   channelName: string = '';
+  description: string = '';
   invalid: boolean = true;
 
   readonly dialogRef = inject(MatDialogRef<CreateChannelDialogComponent>);
@@ -43,5 +44,10 @@ export class CreateChannelDialogComponent {
     } else {
       this.invalid = false;
     }
+  }
+
+  test() {
+    console.log(this.channelName);
+    console.log(this.description);
   }
 }
