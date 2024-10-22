@@ -101,6 +101,9 @@
         background-color: var(--bg-color) !important;
         font-weight: 700 !important;
         cursor: pointer;
+        p {
+          cursor: pointer;
+        }
       }
 
       &:hover .material-symbols-outlined {
