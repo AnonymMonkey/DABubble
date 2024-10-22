@@ -1,25 +1,15 @@
-<section>
-  <div class="chat-history-daily-container-other-people">
-    <div class="date-container">
-      <div class="first-line"></div>
-      <div class="date">
-        <span>Dienstag, 14. Januar</span>
-      </div>
-      <div class="last-line"></div>
-    </div>
-    <app-other-message-template></app-other-message-template>
-  </div>
+<section #messageContainer *ngIf="(currentChannel$ | async) as currentChannel">
+  <!-- Iteriere über jede Gruppe von Nachrichten, die nach Datum gruppiert sind -->
+  <div *ngFor="let messageGroup of groupedMessages">
+    
+    <!-- Zeige das Datum der Nachrichtengruppe an -->
+    <app-date-of-message [date]="messageGroup.date"></app-date-of-message>
 
-  <!-- Example own Messages -->
-  <div class="chat-history-daily-container-own">
-    <div class="date-container">
-      <div class="first-line"></div>
-      <div class="date">
-        <span>Heute</span>
-      </div>
-      <div class="last-line"></div>
+    <!-- Iteriere über die Nachrichten in dieser Gruppe -->
+    <div *ngFor="let message of messageGroup.messages">
+      <!-- Unterscheide zwischen eigenen und fremden Nachrichten -->
+      <app-other-message-template *ngIf="message.user.userId !== currentUserId" [message]="message"></app-other-message-template>
+      <app-own-message-template *ngIf="message.user.userId === currentUserId" [message]="message"></app-own-message-template>
     </div>
-    <app-own-message-template></app-own-message-template>
   </div>
-  
 </section>

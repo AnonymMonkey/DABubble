@@ -154,14 +154,6 @@ section {
     position: relative;
   }
   
-  .name-and-time-own {
-    height: 25px;
-    display: flex;
-    flex-direction: row-reverse; /* add this */
-    gap: 30px;
-    position: relative;
-  }
-  
   .name {
     font-weight: 700 !important;
   
@@ -170,6 +162,12 @@ section {
       color: var(--purple3-color);
     }
   }
+
+  .time {
+    color: var(--grey-color);
+    font-size: 14px;
+    align-self: center;
+  }
   
   .message {
     border-radius: 0px 30px 30px 30px;
@@ -177,6 +175,7 @@ section {
     padding: 10px 20px;
     position: relative;
     display: flex;
+    width: fit-content;
   }
   
   .message-own {

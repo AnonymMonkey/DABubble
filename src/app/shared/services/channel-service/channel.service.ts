@@ -10,11 +10,13 @@ import { getDoc, getDocs } from 'firebase/firestore';
 export class ChannelService  {
   private currentChannelSubject = new BehaviorSubject<Channel | null>(null); // BehaviorSubject
   public currentChannel$ = this.currentChannelSubject.asObservable(); // Observable für Komponenten
+  public channelId: string | undefined;
 
   constructor(private firestore: Firestore) {}
 
   // Methode zum Laden eines Channels und Speichern im Subject
   setChannel(channelId: string): void {
+    this.channelId = channelId;
     this.getChannelById(channelId).subscribe({
       next: (channel) => {
         this.currentChannelSubject.next(channel); // Setze den Channel im BehaviorSubject

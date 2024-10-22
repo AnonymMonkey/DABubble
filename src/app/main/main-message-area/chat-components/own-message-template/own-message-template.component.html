@@ -62,17 +62,17 @@
       'message-container-hover': isEmojiContainerVisible === 2
     }"
   >
-    <img src="../../../../../assets/img/profile/noah.webp" alt="Profile Picture" />
+    <img src="{{ message?.user?.photoURL }}" alt="Profile Picture" />
     <div class="text-container">
       <div class="name-and-time-own">
-        <span class="name">Noah Braun</span>
-        <span class="time">14:25 Uhr</span>
+        <span class="name">{{ message?.user?.userName }}</span>
+        <span class="time">{{ message?.time | date: 'HH:mm' }} Uhr</span>
       </div>
-      <span class="message-own">Welche Version ist aktuell von Angular?</span>
+      <span class="message-own">{{ message?.content }}</span>
       <div class="emoji-container d-none"></div>
-      <div class="thread-own">
-        <span (click)="mainMessageArea.toggleSidenav()">2 Antworten</span>
-        <span>Letzte Antwort 14:56 Uhr</span>
+      <div class="thread-own" *ngIf="message?.thread?.messages.length > 0">
+        <span (click)="mainMessageArea.toggleSidenav()"> {{ message?.thread?.messages.length }} {{ message?.thread?.messages.length === 1 ? 'Antwort' : 'Antworten' }} </span>
+        <span>Letzte Antwort: {{ getLastReplyTime(message.thread.messages) }}</span>
       </div>
     </div>
   </div>
