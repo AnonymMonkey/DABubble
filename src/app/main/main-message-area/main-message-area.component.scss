@@ -18,6 +18,8 @@ app-message-area-header {
 app-message-area-chat-history {
   display: flex;
   flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 app-message-area-new-message {

@@ -13,7 +13,7 @@
     </div>
     <div class="member" *ngFor="let user of currentChannel?.members">
       <img
-        src="../../../../assets/img/profile/elias.webp"
+        src="{{user.photoURL}}"
         alt="Profile Picture"
       />
       <span>{{user.userName}}</span>

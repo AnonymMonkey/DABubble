@@ -6,50 +6,20 @@ section {
   justify-content: flex-end;
   color: black;
   font-family: var(--font-nunito);
+  height: fit-content;
+
+  div {
+    width: 100%;
+  }
 }
 
-.chat-history-daily-container-other-people {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
-.chat-history-daily-container-own {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end; /** add this */
-  justify-content: flex-start;
-}
-
-
-.date-container {
+app-date-of-message {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding: 10px 20px 0px 20px;
-}
-
-.first-line,
-.last-line {
-  flex-grow: 1;
-  height: 1px;
-  background-color: var(--light-purple-color);
-}
-
-.date {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 400;
-  border: 1px solid var(--light-purple-color);
-  border-radius: 30px;
-  padding: 5px 10px;
 }
 
 app-own-message-template, app-other-message-template {
   width: 100%;
+  display: flex;
 }

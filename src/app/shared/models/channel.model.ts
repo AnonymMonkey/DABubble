@@ -2,6 +2,7 @@ export class Channel {
   admin: {
     userId: string;
     userName: string;
+    photoURL: string;
   };
   channelId: string;
   channelName: string;
@@ -9,6 +10,7 @@ export class Channel {
   members: {
     userId: string;
     userName: string;
+    photoURL: string;
   }[];
   messages: {
     content: string;
@@ -29,6 +31,7 @@ export class Channel {
         user: {
           userId: string;
           userName: string;
+          photoURL: string;
         };
       }[];
     };
@@ -36,16 +39,17 @@ export class Channel {
     user: {
       userId: string;
       userName: string;
+      photoURL: string;
     };
   }[];
   
 
   constructor(
-    admin: { userId: string; userName: string },
+    admin: { userId: string; userName: string, photoURL: string },
     channelId: string,
     channelName: string,
     description: string,
-    members: { userId: string; userName: string }[],
+    members: { userId: string; userName: string, photoURL: string }[],
     messages: {
       content: string;
       messageId: string;
@@ -56,11 +60,11 @@ export class Channel {
           messageId: string;
           reactions: { emoji: string; count: number }[];
           time: string;
-          user: { userId: string; userName: string };
+          user: { userId: string; userName: string, photoURL: string };
         }[];
       };
       time: string;
-      user: { userId: string; userName: string };
+      user: { userId: string; userName: string, photoURL: string };
     }[],
   ) {
     this.admin = admin;

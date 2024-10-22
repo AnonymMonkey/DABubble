@@ -1,6 +1,6 @@
 <section>
   <div class="textarea-container">
-    <textarea placeholder="Nachricht an #Entwicklerteam" id=""></textarea>
+    <textarea placeholder="Nachricht an #Entwicklerteam" id="" [(ngModel)]="newMessageContent"></textarea>
     <div class="icons-container">
       <div class="left-icons">
         <mat-icon class="material-symbols-outlined">add</mat-icon>
@@ -8,7 +8,8 @@
         <mat-icon class="material-symbols-outlined">sentiment_satisfied</mat-icon>
         <mat-icon class="material-symbols-outlined">alternate_email</mat-icon>
       </div>
-      <mat-icon>send</mat-icon>
+      <mat-icon (click)="sendMessage()">send</mat-icon>
     </div>
   </div>
 </section>
+
