@@ -21,7 +21,7 @@
 
     <!-- ################ -->
 
-    <mat-form-field class="example-chip-list">
+    <mat-form-field class="example-chip-list" *ngIf="radioValue === 2">
       <mat-chip-grid #chipGrid aria-label="Enter fruits">
         @for (fruit of fruits(); track fruit) {
         <mat-chip-row
@@ -30,6 +30,7 @@
           (edited)="edit(fruit, $event)"
           [aria-description]="'press enter to edit ' + fruit.name"
         >
+          <img src="assets/img/profile/elias.webp" alt="" />
           {{ fruit.name }}
           <button matChipRemove [attr.aria-label]="'remove ' + fruit.name">
             <mat-icon>cancel</mat-icon>
@@ -54,7 +55,6 @@
       class="button-primary"
       mat-button
       mat-dialog-close
-      cdkFocusInitial
     >
       Erstellen
     </button>

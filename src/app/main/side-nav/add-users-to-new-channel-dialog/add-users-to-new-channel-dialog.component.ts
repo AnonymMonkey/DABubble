@@ -41,13 +41,13 @@ export class AddUsersToNewChannelDialogComponent {
   readonly dialogRef = inject(
     MatDialogRef<AddUsersToNewChannelDialogComponent>
   );
-  radioValue: string = '';
+  radioValue: number = 0;
   invalid: boolean = true;
 
   constructor() {}
 
   checkChoice() {
-    if (this.radioValue.length != 0) {
+    if (this.radioValue != 0) {
       this.invalid = false;
     } else {
       this.invalid = true;
