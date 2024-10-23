@@ -26,7 +26,11 @@
       placeholder="Dein Text hier"
     />
   </form>
-  <button class="button-primary" (click)="test()" [disabled]="invalid">
-    Erstellen
+  <button
+    class="button-primary"
+    (click)="openAddUsersToChannelDialog()"
+    [disabled]="invalid"
+  >
+    Weiter
   </button>
 </div>
