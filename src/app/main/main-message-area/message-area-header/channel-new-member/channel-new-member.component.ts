@@ -13,7 +13,7 @@ import { ChannelService } from '../../../../shared/services/channel-service/chan
 })
 export class ChannelNewMemberComponent implements OnInit {
 
-  currentChannel: Channel | null = null;
+  currentChannel: Channel | undefined;
 
   constructor(public header: MessageAreaHeaderComponent, private channelService: ChannelService) { }
 

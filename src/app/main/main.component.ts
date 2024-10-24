@@ -6,7 +6,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { SideNavComponent } from './side-nav/side-nav.component';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule, RouterOutlet } from '@angular/router';
 import { UserService } from '../shared/services/user-service/user.service';
 import { UserData } from '../shared/models/user.model';
 import { catchError, of, Subscription } from 'rxjs';
@@ -22,6 +22,7 @@ import { catchError, of, Subscription } from 'rxjs';
     MatButtonModule,
     SideNavComponent,
     CommonModule,
+    RouterModule,
   ],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',

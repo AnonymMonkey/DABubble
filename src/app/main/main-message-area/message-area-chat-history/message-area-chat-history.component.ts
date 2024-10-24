@@ -12,7 +12,7 @@ import { Channel } from '../../../shared/models/channel.model';
 import { Observable } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { ActivatedRoute } from '@angular/router';
+import { MainComponent } from '../../main.component';
 
 @Component({
   selector: 'app-message-area-chat-history',
@@ -23,21 +23,21 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class MessageAreaChatHistoryComponent implements OnInit {
   isEmojiContainerVisible: number = 0;
-  currentChannel$?: Observable<Channel | null>;
+  currentChannel$?: Observable<Channel | undefined>;
   currentUserId: any;
   groupedMessages: any[] = []; // Array to store messages grouped by date
-  currentChannel: Channel | null = null;
+  currentChannel: Channel | undefined;
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
 
   constructor(
     private firestore: Firestore,
     private channelService: ChannelService,
-    private route: ActivatedRoute,
+    private main: MainComponent,
   ) {}
 
   ngOnInit(): void {
-    this.getUserIdFromUrl();
+    this.currentUserId = this.main.userId;
 
     // Listen for channel changes in Firestore in real-time
     this.currentChannel$ = this.channelService.currentChannel$;
@@ -47,21 +47,6 @@ export class MessageAreaChatHistoryComponent implements OnInit {
         this.listenForMessages(channel.channelId);
       }
     });
-
-  }
-
-  getUserIdFromUrl(): void {
-    this.route.paramMap.subscribe((params) => {
-      this.currentUserId = params.get('uid'); // UID aus den URL-Parametern abrufen
-    });
-  }
-
-  scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.messageContainer) {
-        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
-      }
-    }, 0);
   }
 
   listenForMessages(channelId: string): void {
@@ -105,9 +90,17 @@ export class MessageAreaChatHistoryComponent implements OnInit {
       date,
       messages: grouped[date],
     }));
-
-    console.log(this.groupedMessages, this.currentUserId);
+    console.log(this.groupedMessages);
+    
 
     this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    setTimeout(() => {
+      if (this.messageContainer) {
+        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+      }
+    }, 0);
   }
 }

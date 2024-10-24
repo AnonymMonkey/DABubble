@@ -14,7 +14,7 @@ import { NgFor } from '@angular/common';
 })
 export class ChannelMembersListComponent {
 
-  currentChannel: Channel | null = null;
+  currentChannel: Channel | undefined;
 
   constructor(public header: MessageAreaHeaderComponent, private channelService: ChannelService) {}
 

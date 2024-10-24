@@ -24,7 +24,7 @@ import { ChannelService } from '../../../../shared/services/channel-service/chan
 export class ChannelDescriptionComponent implements OnInit {
   editName: boolean = false;
   editDescription: boolean = false;
-  currentChannel: Channel | null = null;
+  currentChannel: Channel | undefined;
 
   constructor(public header: MessageAreaHeaderComponent, public channelService: ChannelService) { }
 
