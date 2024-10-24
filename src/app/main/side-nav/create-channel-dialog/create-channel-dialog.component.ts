@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {
+  MatDialog,
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
@@ -11,6 +12,8 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { AddUsersToNewChannelDialogComponent } from '../add-users-to-new-channel-dialog/add-users-to-new-channel-dialog.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-create-channel-dialog',
@@ -25,17 +28,19 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     FormsModule,
     MatInputModule,
+    CommonModule,
   ],
   templateUrl: './create-channel-dialog.component.html',
   styleUrl: './create-channel-dialog.component.scss',
 })
 export class CreateChannelDialogComponent {
   channelName: string = '';
+  description: string = '';
   invalid: boolean = true;
+  isSecondDialogOpen: boolean = false;
 
   readonly dialogRef = inject(MatDialogRef<CreateChannelDialogComponent>);
-
-  constructor() {}
+  constructor(public dialog: MatDialog) {}
 
   checkInputEmpty() {
     if (this.channelName.length == 0) {
@@ -43,5 +48,22 @@ export class CreateChannelDialogComponent {
     } else {
       this.invalid = false;
     }
+  }
+
+  openAddUsersToChannelDialog() {
+    this.isSecondDialogOpen = true;
+    this.dialog
+      .open(AddUsersToNewChannelDialogComponent, {
+        panelClass: 'add-users-to-new-channel-dialog',
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.isSecondDialogOpen = true;
+        this.dialogRef.close();
+      });
+  }
+  test() {
+    console.log(this.channelName);
+    console.log(this.description);
   }
 }

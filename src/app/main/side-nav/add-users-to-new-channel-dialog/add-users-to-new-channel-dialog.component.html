@@ -1,0 +1,70 @@
+<div class="dialog-wrapper">
+  <div class="header-wrapper">
+    <h3>Channel erstellen</h3>
+    <mat-icon (click)="dialogRef.close()">close</mat-icon>
+  </div>
+  <mat-dialog-content>
+    <mat-radio-group
+      class="radio-group"
+      [(ngModel)]="radioValue"
+      (ngModelChange)="checkChoice()"
+    >
+      <mat-radio-button [value]="1"
+        >Alle Mitglieder von
+        <span class="channel-name">OfficeTeam</span>
+        hinzufügen</mat-radio-button
+      >
+      <mat-radio-button [value]="2"
+        >Bestimmte Leute hinzufügen</mat-radio-button
+      >
+    </mat-radio-group>
+
+    <!-- ################ -->
+
+    <mat-form-field class="example-chip-list" *ngIf="radioValue === 2">
+      <mat-chip-grid #chipGrid aria-label="Enter fruits">
+        @for (fruit of fruits(); track fruit) {
+        <mat-chip-row (removed)="remove(fruit)">
+          <img src="assets/img/profile/elias.webp" alt="" />
+          {{ fruit }}
+          <button matChipRemove [attr.aria-label]="'remove ' + fruit">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-chip-row>
+        }
+        <input
+          name="currentUser"
+          placeholder="New fruit..."
+          #fruitInput
+          [(ngModel)]="currentUser"
+          [matChipInputFor]="chipGrid"
+          [matAutocomplete]="auto"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="add($event)"
+          [matChipInputAddOnBlur]="false"
+        />
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="selected($event)"
+        >
+          @for (fruit of filteredFruits(); track fruit) {
+          <mat-option [value]="fruit">{{ fruit }}</mat-option>
+          }
+        </mat-autocomplete>
+      </mat-chip-grid>
+    </mat-form-field>
+
+    <!-- ################ -->
+  </mat-dialog-content>
+  <mat-dialog-actions [align]="'end'">
+    <button
+      [disabled]="invalid"
+      class="button-primary"
+      mat-button
+      mat-dialog-close
+      (click)="test()"
+    >
+      Erstellen
+    </button>
+  </mat-dialog-actions>
+</div>

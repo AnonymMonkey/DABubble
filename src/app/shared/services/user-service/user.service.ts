@@ -1,5 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { Firestore } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  collectionData,
+  docData,
+} from '@angular/fire/firestore';
 import { User } from 'firebase/auth';
 import { UserData } from '../../models/user.model';
 import {
@@ -11,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import { get, getDatabase, onDisconnect, ref, set } from 'firebase/database';
 import { AuthService } from '../auth-service/auth.service'; //NOTE - Muss auskommentiert werden
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +26,30 @@ export class UserService {
   private database = getDatabase(); // Realtime Database für den Online-Status
   private tempUserData: Partial<UserData> = {}; // Temporäre Speicherung der Registrierungsdaten
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
+
+  //REVIEW - Hier versuche ich die Daten zentral in diesem service zu speichern,
+  // sodass jede Komponente darauf zugreifen kann.
+
+  private allUserDataSubject = new BehaviorSubject<any[]>([]);
+  allUserData$ = this.allUserDataSubject.asObservable();
+  private userDataSubject = new BehaviorSubject<any>(null); // Zum Speichern der Benutzerdaten
+  userData$ = this.userDataSubject.asObservable(); // Observable für andere Komponenten
+
+  loadAllUserData(): void {
+    const userCollection = collection(this.firestore, 'users'); // Referenz zur Collection 'users'
+    collectionData(userCollection, { idField: 'id' }).subscribe((data) => {
+      this.allUserDataSubject.next(data); // Daten in das BehaviorSubject laden
+    });
+  }
+
+  loadUserDataByUID(uid: string): void {
+    const userDoc = doc(this.firestore, `users/${uid}`); // Referenz auf das spezifische Dokument
+    docData(userDoc, { idField: 'id' }).subscribe((data) => {
+      this.userDataSubject.next(data); // Setzt die Benutzerdaten
+    });
+  }
+
+  //REVIEW - Ende
 
   //NOTE - Der Constructor musste auch auskommentiert werden, da er nicht benutzt wird
   // constructor(private authService: AuthService) {}

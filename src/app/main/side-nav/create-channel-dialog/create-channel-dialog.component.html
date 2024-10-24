@@ -1,4 +1,8 @@
-<div class="dialog-wrapper">
+<div
+  class="dialog-wrapper"
+  [attr.inert]="isSecondDialogOpen ? true : null"
+  [ngStyle]="{ display: isSecondDialogOpen ? 'none' : 'flex' }"
+>
   <div class="header-wrapper">
     <h3>Channel erstellen</h3>
     <mat-icon (click)="dialogRef.close()">close</mat-icon>
@@ -20,7 +24,17 @@
   </form>
   <h4>Beschreibung <span>(optional)</span></h4>
   <form class="form-field description">
-    <input placeholder="Dein Text hier" />
+    <input
+      [(ngModel)]="description"
+      name="description"
+      placeholder="Dein Text hier"
+    />
   </form>
-  <button class="button-primary" [disabled]="invalid">Erstellen</button>
+  <button
+    class="button-primary"
+    (click)="openAddUsersToChannelDialog()"
+    [disabled]="invalid"
+  >
+    Weiter
+  </button>
 </div>
