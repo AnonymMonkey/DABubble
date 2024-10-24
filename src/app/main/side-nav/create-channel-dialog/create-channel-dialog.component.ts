@@ -52,16 +52,25 @@ export class CreateChannelDialogComponent {
 
   openAddUsersToChannelDialog() {
     this.isSecondDialogOpen = true;
-    this.dialog
-      .open(AddUsersToNewChannelDialogComponent, {
-        panelClass: 'add-users-to-new-channel-dialog',
-      })
-      .afterClosed()
-      .subscribe(() => {
-        this.isSecondDialogOpen = true;
-        this.dialogRef.close();
-      });
+    const secondDialogRef = this.dialog.open(
+      AddUsersToNewChannelDialogComponent
+    );
+    secondDialogRef.componentInstance.channelName = this.channelName;
+    secondDialogRef.componentInstance.description = this.description;
+
+    secondDialogRef.afterClosed().subscribe(() => {
+      this.isSecondDialogOpen = true;
+      this.dialogRef.close();
+    });
   }
+
+  // sendThisDataToNextDialog() {
+  //   const dataToSend = {
+  //     channelName: this.channelName,
+  //     description: this.description,
+  //   };
+  //   this.dialogRef.close(dataToSend);
+  // }
   test() {
     console.log(this.channelName);
     console.log(this.description);

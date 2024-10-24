@@ -1,7 +1,18 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, computed, inject, model, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  Inject,
+  inject,
+  model,
+  signal,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
@@ -13,6 +24,9 @@ import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
+import { Channel } from '../../../shared/models/channel.model';
+import { UserService } from '../../../shared/services/user-service/user.service';
+import { UserData } from '../../../shared/models/user.model';
 
 @Component({
   selector: 'app-add-users-to-new-channel-dialog',
@@ -39,8 +53,41 @@ export class AddUsersToNewChannelDialogComponent {
   );
   radioValue: number = 0;
   invalid: boolean = true;
+  channelName: string = '';
+  description: string = '';
+  newChannelData!: Channel;
+  userService = inject(UserService);
+  userData!: UserData;
+  allUserData!: UserData[];
+
+  newAllUserData: { userId: string; userName: string; photoUrl: string }[] = [];
 
   constructor() {}
+
+  ngOnInit(): void {
+    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
+    //Add 'implements OnInit' to the class.
+    this.userService.userData$.subscribe((data) => {
+      this.userData = data; // Empfange die Benutzerdaten
+    });
+
+    this.userService.allUserData$.subscribe((data) => {
+      // console.log(data[0].displayName);
+      data.forEach((element) => {
+        // console.log(element.displayName);
+
+        this.newAllUserData.push({
+          userId: element.uid,
+          userName: element.displayName,
+          photoUrl: element.photoURL,
+        });
+      });
+      console.log(this.newAllUserData);
+
+      // this.allUserData = data;
+    });
+    this.newChannelData = new Channel();
+  }
 
   checkChoice() {
     if (this.radioValue != 0) {
@@ -55,22 +102,35 @@ export class AddUsersToNewChannelDialogComponent {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   readonly currentUser = model('');
   readonly fruits = signal<string[]>([]);
-  readonly allFruits: string[] = [
+  readonly allUsers: string[] = [
     'Apple',
     'Lemon',
     'Lime',
     'Orange',
     'Strawberry',
   ];
-  readonly filteredFruits = computed(() => {
+  // readonly filteredUsers = computed(() => {
+  //   const currentUser = this.currentUser().toLowerCase();
+  //   return currentUser
+  //     ? this.allUsers.filter(
+  //         (fruit) =>
+  //           fruit.toLowerCase().includes(currentUser) &&
+  //           !this.fruits().includes(fruit)
+  //       )
+  //     : this.allUsers.filter((fruit) => !this.fruits().includes(fruit));
+  // });
+
+  readonly filteredUsersTest = computed(() => {
     const currentUser = this.currentUser().toLowerCase();
     return currentUser
-      ? this.allFruits.filter(
-          (fruit) =>
-            fruit.toLowerCase().includes(currentUser) &&
-            !this.fruits().includes(fruit)
+      ? this.newAllUserData.filter(
+          (user) =>
+            user.userName.toLowerCase().includes(currentUser) &&
+            !this.fruits().includes(user.userName)
         )
-      : this.allFruits.filter((fruit) => !this.fruits().includes(fruit));
+      : this.newAllUserData.filter(
+          (user) => !this.fruits().includes(user.userName)
+        );
   });
 
   readonly announcer = inject(LiveAnnouncer);
@@ -81,7 +141,7 @@ export class AddUsersToNewChannelDialogComponent {
     // Add our fruit
     if (
       value &&
-      this.allFruits.includes(value) &&
+      this.allUsers.includes(value) &&
       !this.fruits().includes(value)
     ) {
       this.fruits.update((fruits) => [...fruits, value]);
@@ -121,5 +181,14 @@ export class AddUsersToNewChannelDialogComponent {
 
   test() {
     console.log(this.fruits());
+    this.newChannelData.channelName = this.channelName;
+    this.newChannelData.description = this.description;
+    this.newChannelData.admin.userId = this.userData.uid;
+    this.newChannelData.admin.userName = this.userData.displayName;
+    this.newChannelData.admin.photoURL = this.userData.photoURL;
+    console.log(this.fruits());
+
+    // console.log(this.newChannelData);
+    // console.log(this.allUserData);
   }
 }

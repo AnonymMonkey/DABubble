@@ -93,6 +93,17 @@
       color: var(--purple1-color);
     }
   }
+
+  .mat-mdc-option .mdc-list-item__primary-text {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    img {
+      height: 30px;
+      width: 30px;
+      border-radius: 50%;
+    }
+  }
 }
 
 .dialog-wrapper {
@@ -145,6 +156,18 @@
           height: 30px;
           width: 30px;
           border-radius: 50%;
+        }
+      }
+    }
+
+    mat-autocomplete {
+      mat-option {
+        span {
+          img {
+            height: 30px;
+            width: 30px;
+            border-radius: 50%;
+          }
         }
       }
     }
