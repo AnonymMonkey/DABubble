@@ -32,7 +32,6 @@ export class MessageAreaNewMessageComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.channelId = this.channelService.channelId || 'aWD9P0ibWthJ7zAqdMYw';
     this.getUserData();
   }
 

@@ -72,8 +72,7 @@ section {
   // gap: 20px;
 }
 
-app-main-message-area {
-  display: flex;
+router-outlet + * {
   flex-grow: 1;
-  // width: 100%;
+  display: flex;
 }

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ViewEncapsulation, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, ViewChild, ViewEncapsulation, AfterViewInit, ElementRef, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MessageAreaHeaderComponent } from './message-area-header/message-area-header.component';
 import { MessageAreaChatHistoryComponent } from './message-area-chat-history/message-area-chat-history.component';
@@ -8,6 +8,8 @@ import { NgClass, NgIf } from '@angular/common';
 import { ThreadComponent } from './thread/thread.component';
 import { Renderer2 } from '@angular/core';
 import { ChannelService } from '../../shared/services/channel-service/channel.service';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-main-message-area',
@@ -25,21 +27,32 @@ import { ChannelService } from '../../shared/services/channel-service/channel.se
   templateUrl: './main-message-area.component.html',
   styleUrls: ['./main-message-area.component.scss'],
 })
-export class MainMessageAreaComponent implements AfterViewInit {
+export class MainMessageAreaComponent implements AfterViewInit, OnInit {
   events: string[] = [];
   opened: boolean = false;
   shouldRun = true;
   threadOpened: boolean = false;
+  channelData: any;
+
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenav', { read: ElementRef }) sidenavElement!: ElementRef;
 
-  constructor(private renderer: Renderer2, private channelService: ChannelService) {}
+  constructor(private renderer: Renderer2, private channelService: ChannelService, private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    this.channelService.channelData$.subscribe(data => {
+      this.channelData = data; // Channel-Daten speichern
+    });
+    this.route.paramMap.subscribe(params => {
+      const channelId = params.get('channelId'); // channelId aus der URL abfragen
+      if (channelId) {
+        this.channelService.setChannel(channelId); // Channel setzen
+      }
+    });
+  }
 
   ngAfterViewInit() {
-    this.channelService.setChannel('aWD9P0ibWthJ7zAqdMYw');  //ANCHOR -  Setze den Channel in der Sidebar - für Semir.
-
-
     // Füge box-shadow hinzu, wenn das Sidenav komplett geöffnet ist
     this.sidenav.openedStart.subscribe(() => {
       this.renderer.setStyle(
