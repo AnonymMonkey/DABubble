@@ -28,19 +28,20 @@
           <img src="assets/img/profile/elias.webp" alt="" />
           {{ fruit }}
           <button matChipRemove [attr.aria-label]="'remove ' + fruit">
-            <mat-icon>cancel</mat-icon>
+            <mat-icon>close</mat-icon>
           </button>
         </mat-chip-row>
         }
         <input
-          name="currentFruit"
+          name="currentUser"
           placeholder="New fruit..."
           #fruitInput
-          [(ngModel)]="currentFruit"
+          [(ngModel)]="currentUser"
           [matChipInputFor]="chipGrid"
           [matAutocomplete]="auto"
           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
           (matChipInputTokenEnd)="add($event)"
+          [matChipInputAddOnBlur]="false"
         />
         <mat-autocomplete
           #auto="matAutocomplete"
@@ -61,6 +62,7 @@
       class="button-primary"
       mat-button
       mat-dialog-close
+      (click)="test()"
     >
       Erstellen
     </button>

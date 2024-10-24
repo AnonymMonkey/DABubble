@@ -80,6 +80,19 @@
   .mat-mdc-dialog-container-with-actions .mat-mdc-dialog-content {
     padding: 10px 0 4px 0 !important;
   }
+
+  .mat-mdc-chip-remove .mat-icon {
+    width: 10px;
+    height: 10px;
+    font-size: 16px;
+    box-sizing: content-box;
+    color: black;
+    font-weight: bold;
+
+    &:hover {
+      color: var(--purple1-color);
+    }
+  }
 }
 
 .dialog-wrapper {
@@ -117,7 +130,7 @@
     font-family: var(--font-nunito);
 
     mat-chip-grid {
-      padding: 10px;
+      padding: 2px 10px;
       border-radius: 42px;
       border: 1px solid var(--light-purple-color);
       &:hover {

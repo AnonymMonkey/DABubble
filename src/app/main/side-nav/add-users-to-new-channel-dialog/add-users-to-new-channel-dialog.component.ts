@@ -53,8 +53,8 @@ export class AddUsersToNewChannelDialogComponent {
   //NOTE - Hier werden die chips angezeigt
 
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  readonly currentFruit = model('');
-  readonly fruits = signal(['Lemon']);
+  readonly currentUser = model('');
+  readonly fruits = signal<string[]>([]);
   readonly allFruits: string[] = [
     'Apple',
     'Lemon',
@@ -63,12 +63,14 @@ export class AddUsersToNewChannelDialogComponent {
     'Strawberry',
   ];
   readonly filteredFruits = computed(() => {
-    const currentFruit = this.currentFruit().toLowerCase();
-    return currentFruit
-      ? this.allFruits.filter((fruit) =>
-          fruit.toLowerCase().includes(currentFruit)
+    const currentUser = this.currentUser().toLowerCase();
+    return currentUser
+      ? this.allFruits.filter(
+          (fruit) =>
+            fruit.toLowerCase().includes(currentUser) &&
+            !this.fruits().includes(fruit)
         )
-      : this.allFruits.slice();
+      : this.allFruits.filter((fruit) => !this.fruits().includes(fruit));
   });
 
   readonly announcer = inject(LiveAnnouncer);
@@ -77,12 +79,19 @@ export class AddUsersToNewChannelDialogComponent {
     const value = (event.value || '').trim();
 
     // Add our fruit
-    if (value) {
+    if (
+      value &&
+      this.allFruits.includes(value) &&
+      !this.fruits().includes(value)
+    ) {
       this.fruits.update((fruits) => [...fruits, value]);
     }
 
     // Clear the input value
-    this.currentFruit.set('');
+    this.currentUser.set('');
+    if (event.input) {
+      event.input.value = '';
+    }
   }
 
   remove(fruit: string): void {
@@ -99,8 +108,18 @@ export class AddUsersToNewChannelDialogComponent {
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    this.fruits.update((fruits) => [...fruits, event.option.viewValue]);
-    this.currentFruit.set('');
+    const value = event.option.viewValue;
+
+    // Nur hinzufügen, wenn das Element noch nicht in der Liste enthalten ist
+    if (!this.fruits().includes(value)) {
+      this.fruits.update((fruits) => [...fruits, value]);
+    }
+
+    this.currentUser.set('');
     event.option.deselect();
+  }
+
+  test() {
+    console.log(this.fruits());
   }
 }

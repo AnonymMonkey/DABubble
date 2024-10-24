@@ -39,28 +39,11 @@ export class MainComponent {
     });
   }
 
-  ngOnDestroy(): void {
-    //Called once, before the instance is destroyed.
-    //Add 'implements OnDestroy' to the class.
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
-
   ngOnInit() {
-    this.loadUserData();
-  }
-
-  loadUserData() {
-    this.subscription = this.userService
-      .getUserDataByUID(this.userId)
-      .subscribe({
-        next: (data) => {
-          this.userData = data;
-          console.log(this.userData);
-        },
-        error: (err) =>
-          console.error('Fehler beim Abrufen der Nutzerdaten:', err),
-      });
+    this.userService.loadAllUserData();
+    this.userService.loadUserDataByUID(this.userId);
+    this.userService.userData$.subscribe((data) => {
+      this.userData = data; // Empfange die Benutzerdaten
+    });
   }
 }
