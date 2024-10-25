@@ -61,16 +61,6 @@ export class SideNavComponent {
     });
   }
 
-  // loadAllChannelsData(): void {
-  //   setTimeout(() => {
-  //     this.userData.channels.forEach((channel) => {
-  //       this.channelService
-  //         .getChannelById(channel)
-  //         .subscribe((channelData) => this.allChannelsData.push(channelData));
-  //     });
-  //   }, 0);
-  // }
-
   loadAllChannelsData(): void {
     this.allChannelsData = []; // Initialisiere die Liste neu
 
