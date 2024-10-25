@@ -178,9 +178,7 @@ export class AddUsersToNewChannelDialogComponent {
   test() {
     this.bindDialogDataToNewChannelData();
     this.channelService.createChannel(this.newChannelData).subscribe({
-      next: (channelId) => {
-        console.log('Neuer Channel erstellt mit ID:', channelId);
-      },
+      next: (channelId) => {},
       error: (error) => {
         console.error('Fehler beim Erstellen des Channels:', error);
       },
