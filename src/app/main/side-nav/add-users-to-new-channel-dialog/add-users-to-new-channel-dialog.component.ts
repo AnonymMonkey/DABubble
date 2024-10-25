@@ -27,6 +27,7 @@ import {
 import { Channel } from '../../../shared/models/channel.model';
 import { UserService } from '../../../shared/services/user-service/user.service';
 import { UserData } from '../../../shared/models/user.model';
+import { ChannelService } from '../../../shared/services/channel-service/channel.service';
 
 @Component({
   selector: 'app-add-users-to-new-channel-dialog',
@@ -56,6 +57,7 @@ export class AddUsersToNewChannelDialogComponent {
   channelName: string = '';
   description: string = '';
   newChannelData!: Channel;
+  channelService = inject(ChannelService);
   userService = inject(UserService);
   userData!: UserData;
   allUserData!: UserData[];
@@ -174,14 +176,18 @@ export class AddUsersToNewChannelDialogComponent {
   }
 
   test() {
+    this.bindDialogDataToNewChannelData();
+    this.channelService.createChannel(this.newChannelData);
+    console.log(this.newChannelData);
+    // console.log(this.allUserData);
+  }
+
+  bindDialogDataToNewChannelData() {
     this.newChannelData.channelName = this.channelName;
     this.newChannelData.description = this.description;
     this.newChannelData.admin.userId = this.userData.uid;
     this.newChannelData.admin.userName = this.userData.displayName;
     this.newChannelData.admin.photoURL = this.userData.photoURL;
     this.newChannelData.members = this.users();
-
-    console.log(this.newChannelData);
-    // console.log(this.allUserData);
   }
 }

@@ -1,13 +1,19 @@
 import { Injectable } from '@angular/core';
-import { Firestore, doc, docData, collection, collectionData } from '@angular/fire/firestore';
+import {
+  Firestore,
+  doc,
+  docData,
+  collection,
+  collectionData,
+} from '@angular/fire/firestore';
 import { BehaviorSubject, Observable, from, map } from 'rxjs';
 import { Channel } from '../../models/channel.model';
-import { getDoc, getDocs } from 'firebase/firestore';
+import { addDoc, getDoc, getDocs } from 'firebase/firestore';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class ChannelService  {
+export class ChannelService {
   private currentChannelSubject = new BehaviorSubject<Channel | null>(null); // BehaviorSubject
   public currentChannel$ = this.currentChannelSubject.asObservable(); // Observable für Komponenten
   public channelId: string | undefined;
@@ -23,7 +29,7 @@ export class ChannelService  {
       },
       error: (error) => {
         console.error('Fehler beim Laden des Channels:', error);
-      }
+      },
     });
   }
 
@@ -47,11 +53,30 @@ export class ChannelService  {
     const channelsCollection = collection(this.firestore, 'channels');
     return from(getDocs(channelsCollection)).pipe(
       map((channelSnapshot) =>
-        channelSnapshot.docs.map(doc => {
+        channelSnapshot.docs.map((doc) => {
           const channelData = doc.data() as Channel;
           return { ...channelData, channelId: doc.id };
         })
       )
     );
   }
+
+  //NOTE - Ich habe hier eine Funktion fürs erstellen eines neuen Channels erstellt
+
+  createChannel(channelData: Partial<Channel>): Observable<string> {
+    const channelCollection = collection(this.firestore, 'channels');
+    const channelObject = {
+      admin: channelData.admin,
+      channelId: channelData.channelId,
+      channelName: channelData.channelName,
+      description: channelData.description,
+      members: channelData.members,
+      messages: channelData.messages,
+    };
+    return from(addDoc(channelCollection, channelObject)).pipe(
+      map((docRef) => docRef.id) // Rückgabe der ID des neu erstellten Channels
+    );
+  }
+
+  //NOTE - Ende
 }
