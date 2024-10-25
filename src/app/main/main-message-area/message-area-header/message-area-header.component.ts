@@ -35,7 +35,7 @@ export class MessageAreaHeaderComponent implements OnInit {
 
   isMenuOpened: string = '';
 
-  currentChannel: Channel | null = null;
+  currentChannel: Channel | undefined;
 
   constructor(private channelService: ChannelService) {}
 

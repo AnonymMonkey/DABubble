@@ -12,7 +12,7 @@ import { Channel } from '../../../shared/models/channel.model';
 import { Observable } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { ActivatedRoute } from '@angular/router';
+import { MainComponent } from '../../main.component';
 
 @Component({
   selector: 'app-message-area-chat-history',
@@ -34,10 +34,10 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class MessageAreaChatHistoryComponent implements OnInit {
   isEmojiContainerVisible: number = 0;
-  currentChannel$?: Observable<Channel | null>;
+  currentChannel$?: Observable<Channel | undefined>;
   currentUserId: any;
   groupedMessages: any[] = []; // Array to store messages grouped by date
-  currentChannel: Channel | null = null;
+  currentChannel: Channel | undefined;
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
 
@@ -45,10 +45,11 @@ export class MessageAreaChatHistoryComponent implements OnInit {
     private firestore: Firestore,
     private channelService: ChannelService,
     private route: ActivatedRoute
+    private main: MainComponent,
   ) {}
 
   ngOnInit(): void {
-    this.getUserIdFromUrl();
+    this.currentUserId = this.main.userId;
 
     // Listen for channel changes in Firestore in real-time
     this.currentChannel$ = this.channelService.currentChannel$;
@@ -120,5 +121,13 @@ export class MessageAreaChatHistoryComponent implements OnInit {
     // console.log(this.groupedMessages, this.currentUserId);
 
     this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    setTimeout(() => {
+      if (this.messageContainer) {
+        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+      }
+    }, 0);
   }
 }

@@ -12,7 +12,7 @@ import { ChannelService } from '../../../../../shared/services/channel-service/c
 })
 export class ChannelEditDescriptionComponent {
 
-  currentChannel: Channel | null = null
+  currentChannel: Channel | undefined;
 
   constructor(public description: ChannelDescriptionComponent, private channelService: ChannelService) {}
 

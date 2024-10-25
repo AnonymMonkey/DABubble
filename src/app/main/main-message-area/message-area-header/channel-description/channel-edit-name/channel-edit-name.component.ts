@@ -13,7 +13,7 @@ import { ChannelService } from '../../../../../shared/services/channel-service/c
 })
 export class ChannelEditNameComponent implements OnInit {
 
-  currentChannel: Channel | null = null;
+  currentChannel: Channel | undefined;
 
   constructor(public description: ChannelDescriptionComponent, private channelService: ChannelService) {}
 

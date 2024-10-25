@@ -12,7 +12,7 @@ import { Channel } from '../../../../../shared/models/channel.model';
 })
 export class ChannelDisplayDescriptionComponent {
 
-  currentChannel: Channel | null = null;
+  currentChannel: Channel | undefined;
 
   constructor(public description: ChannelDescriptionComponent, private channelService: ChannelService) {}
 
