@@ -6,9 +6,16 @@ import {
   collection,
   collectionData,
 } from '@angular/fire/firestore';
-import { BehaviorSubject, Observable, from, map } from 'rxjs';
+import { BehaviorSubject, Observable, from, map, switchMap } from 'rxjs';
 import { Channel } from '../../models/channel.model';
-import { addDoc, getDoc, getDocs } from 'firebase/firestore';
+import {
+  addDoc,
+  arrayUnion,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -65,18 +72,35 @@ export class ChannelService {
 
   createChannel(channelData: Partial<Channel>): Observable<string> {
     const channelCollection = collection(this.firestore, 'channels');
+    const newChannelRef = doc(channelCollection);
+
     const channelObject = {
-      admin: channelData.admin,
-      channelId: channelData.channelId,
-      channelName: channelData.channelName,
-      description: channelData.description,
-      members: channelData.members,
-      messages: channelData.messages,
+      ...JSON.parse(JSON.stringify(channelData)),
+      channelId: newChannelRef.id,
     };
-    return from(addDoc(channelCollection, channelObject)).pipe(
-      map((docRef) => docRef.id) // Rückgabe der ID des neu erstellten Channels
+
+    return from(setDoc(newChannelRef, channelObject)).pipe(
+      switchMap(() => {
+        // Extrahiere die User-IDs aus channelData.members
+        const userIds =
+          channelData.members?.map((member) => member.userId) || [];
+
+        // Weise die channelId allen Usern zu und füge sie dem channels-Array hinzu
+        const updateUserObservables = userIds.map((userId) => {
+          const userDocRef = doc(this.firestore, `users/${userId}`);
+          return from(
+            updateDoc(userDocRef, {
+              channels: arrayUnion(newChannelRef.id),
+            })
+          );
+        });
+
+        // Warte, bis alle Updates abgeschlossen sind
+        return from(Promise.all(updateUserObservables)).pipe(
+          map(() => newChannelRef.id) // Gibt die ID des neu erstellten Channels zurück
+        );
+      })
     );
   }
-
   //NOTE - Ende
 }

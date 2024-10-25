@@ -63,16 +63,4 @@ export class CreateChannelDialogComponent {
       this.dialogRef.close();
     });
   }
-
-  // sendThisDataToNextDialog() {
-  //   const dataToSend = {
-  //     channelName: this.channelName,
-  //     description: this.description,
-  //   };
-  //   this.dialogRef.close(dataToSend);
-  // }
-  test() {
-    console.log(this.channelName);
-    console.log(this.description);
-  }
 }
