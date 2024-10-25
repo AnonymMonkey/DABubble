@@ -60,31 +60,23 @@ export class AddUsersToNewChannelDialogComponent {
   userData!: UserData;
   allUserData!: UserData[];
 
-  newAllUserData: { userId: string; userName: string; photoUrl: string }[] = [];
+  newAllUserData: { userId: string; userName: string; photoURL: string }[] = [];
 
   constructor() {}
 
   ngOnInit(): void {
-    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-    //Add 'implements OnInit' to the class.
     this.userService.userData$.subscribe((data) => {
       this.userData = data; // Empfange die Benutzerdaten
     });
 
     this.userService.allUserData$.subscribe((data) => {
-      // console.log(data[0].displayName);
       data.forEach((element) => {
-        // console.log(element.displayName);
-
         this.newAllUserData.push({
           userId: element.uid,
           userName: element.displayName,
-          photoUrl: element.photoURL,
+          photoURL: element.photoURL,
         });
       });
-      console.log(this.newAllUserData);
-
-      // this.allUserData = data;
     });
     this.newChannelData = new Channel();
   }
@@ -101,35 +93,28 @@ export class AddUsersToNewChannelDialogComponent {
 
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   readonly currentUser = model('');
-  readonly fruits = signal<string[]>([]);
-  readonly allUsers: string[] = [
-    'Apple',
-    'Lemon',
-    'Lime',
-    'Orange',
-    'Strawberry',
-  ];
-  // readonly filteredUsers = computed(() => {
-  //   const currentUser = this.currentUser().toLowerCase();
-  //   return currentUser
-  //     ? this.allUsers.filter(
-  //         (fruit) =>
-  //           fruit.toLowerCase().includes(currentUser) &&
-  //           !this.fruits().includes(fruit)
-  //       )
-  //     : this.allUsers.filter((fruit) => !this.fruits().includes(fruit));
-  // });
 
-  readonly filteredUsersTest = computed(() => {
+  readonly users = signal<
+    {
+      userId: string;
+      userName: string;
+      photoURL: string;
+    }[]
+  >([]);
+  readonly allUsers: string[] = [];
+
+  readonly filteredUsers = computed(() => {
     const currentUser = this.currentUser().toLowerCase();
+
     return currentUser
       ? this.newAllUserData.filter(
           (user) =>
             user.userName.toLowerCase().includes(currentUser) &&
-            !this.fruits().includes(user.userName)
+            !this.users().some((element) => element.userName === user.userName)
         )
       : this.newAllUserData.filter(
-          (user) => !this.fruits().includes(user.userName)
+          (user) =>
+            !this.users().some((element) => element.userName === user.userName)
         );
   });
 
@@ -138,41 +123,50 @@ export class AddUsersToNewChannelDialogComponent {
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
 
-    // Add our fruit
+    // Finde den entsprechenden Benutzer basierend auf dem eingegebenen `userName`
+    const selectedUser = this.newAllUserData.find(
+      (user) => user.userName === value
+    );
+
+    // Benutzer hinzufügen, wenn er existiert und noch nicht in `users` enthalten ist
     if (
-      value &&
-      this.allUsers.includes(value) &&
-      !this.fruits().includes(value)
+      selectedUser &&
+      !this.users().some((user) => user.userName === selectedUser.userName)
     ) {
-      this.fruits.update((fruits) => [...fruits, value]);
+      this.users.update((users) => [...users, selectedUser]);
     }
 
-    // Clear the input value
+    // Input zurücksetzen
     this.currentUser.set('');
     if (event.input) {
       event.input.value = '';
     }
   }
 
-  remove(fruit: string): void {
-    this.fruits.update((fruits) => {
-      const index = fruits.indexOf(fruit);
+  remove(user: { userId: string; userName: string; photoURL: string }): void {
+    this.users.update((users) => {
+      const index = users.findIndex((f) => f.userId === user.userId);
       if (index < 0) {
-        return fruits;
+        return users;
       }
 
-      fruits.splice(index, 1);
-      this.announcer.announce(`Removed ${fruit}`);
-      return [...fruits];
+      users.splice(index, 1);
+      this.announcer.announce(`Removed ${user.userName}`);
+      return [...users];
     });
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    const value = event.option.viewValue;
+    const selectedUser = this.newAllUserData.find(
+      (user) => user.userName === event.option.viewValue
+    );
 
-    // Nur hinzufügen, wenn das Element noch nicht in der Liste enthalten ist
-    if (!this.fruits().includes(value)) {
-      this.fruits.update((fruits) => [...fruits, value]);
+    // Nur hinzufügen, wenn das Objekt existiert und noch nicht in der Liste enthalten ist
+    if (
+      selectedUser &&
+      !this.users().some((user) => user.userId === selectedUser.userId)
+    ) {
+      this.users.update((users) => [...users, selectedUser]);
     }
 
     this.currentUser.set('');
@@ -180,15 +174,14 @@ export class AddUsersToNewChannelDialogComponent {
   }
 
   test() {
-    console.log(this.fruits());
     this.newChannelData.channelName = this.channelName;
     this.newChannelData.description = this.description;
     this.newChannelData.admin.userId = this.userData.uid;
     this.newChannelData.admin.userName = this.userData.displayName;
     this.newChannelData.admin.photoURL = this.userData.photoURL;
-    console.log(this.fruits());
+    this.newChannelData.members = this.users();
 
-    // console.log(this.newChannelData);
+    console.log(this.newChannelData);
     // console.log(this.allUserData);
   }
 }
