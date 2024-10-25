@@ -23,10 +23,10 @@
 
     <mat-form-field class="example-chip-list" *ngIf="radioValue === 2">
       <mat-chip-grid #chipGrid aria-label="Enter fruits">
-        @for (fruit of fruits(); track fruit) {
+        @for (fruit of users(); track fruit) {
         <mat-chip-row (removed)="remove(fruit)">
-          <img src="assets/img/profile/elias.webp" alt="" />
-          {{ fruit }}
+          <img src="{{ fruit.photoURL }}" alt="" />
+          {{ fruit.userName }}
           <button matChipRemove [attr.aria-label]="'remove ' + fruit">
             <mat-icon>close</mat-icon>
           </button>
@@ -47,8 +47,11 @@
           #auto="matAutocomplete"
           (optionSelected)="selected($event)"
         >
-          @for (fruit of filteredFruits(); track fruit) {
-          <mat-option [value]="fruit">{{ fruit }}</mat-option>
+          @for (user of filteredUsers(); track user) {
+          <mat-option [value]="user">
+            <img src="{{ user.photoURL }}" alt="" />
+            {{ user.userName }}
+          </mat-option>
           }
         </mat-autocomplete>
       </mat-chip-grid>

@@ -17,7 +17,18 @@ import { MainComponent } from '../../main.component';
 @Component({
   selector: 'app-message-area-chat-history',
   standalone: true,
-  imports: [MatIcon, DateOfMessageComponent, NgClass, NgFor, MatSidenavModule, CommonModule, ThreadComponent, MainMessageAreaComponent, OtherMessageTemplateComponent, OwnMessageTemplateComponent],
+  imports: [
+    MatIcon,
+    DateOfMessageComponent,
+    NgClass,
+    NgFor,
+    MatSidenavModule,
+    CommonModule,
+    ThreadComponent,
+    MainMessageAreaComponent,
+    OtherMessageTemplateComponent,
+    OwnMessageTemplateComponent,
+  ],
   templateUrl: './message-area-chat-history.component.html',
   styleUrls: ['./message-area-chat-history.component.scss'],
 })
@@ -33,6 +44,7 @@ export class MessageAreaChatHistoryComponent implements OnInit {
   constructor(
     private firestore: Firestore,
     private channelService: ChannelService,
+    private route: ActivatedRoute
     private main: MainComponent,
   ) {}
 
@@ -47,6 +59,21 @@ export class MessageAreaChatHistoryComponent implements OnInit {
         this.listenForMessages(channel.channelId);
       }
     });
+  }
+
+  getUserIdFromUrl(): void {
+    this.route.paramMap.subscribe((params) => {
+      this.currentUserId = params.get('uid'); // UID aus den URL-Parametern abrufen
+    });
+  }
+
+  scrollToBottom(): void {
+    setTimeout(() => {
+      if (this.messageContainer) {
+        this.messageContainer.nativeElement.scrollTop =
+          this.messageContainer.nativeElement.scrollHeight;
+      }
+    }, 0);
   }
 
   listenForMessages(channelId: string): void {
@@ -90,8 +117,8 @@ export class MessageAreaChatHistoryComponent implements OnInit {
       date,
       messages: grouped[date],
     }));
-    console.log(this.groupedMessages);
-    
+
+    // console.log(this.groupedMessages, this.currentUserId);
 
     this.scrollToBottom();
   }

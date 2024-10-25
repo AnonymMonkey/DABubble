@@ -45,7 +45,6 @@ export class MainComponent {
     this.userService.loadUserDataByUID(this.userId);
     this.userService.userData$.subscribe((data) => {
       this.userData = data; // Empfange die Benutzerdaten
-      console.log(this.userData);
     });
   }
 }

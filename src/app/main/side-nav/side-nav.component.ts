@@ -4,6 +4,7 @@ import {
   inject,
   Input,
   signal,
+  SimpleChanges,
   ViewEncapsulation,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -44,8 +45,14 @@ export class SideNavComponent {
 
   constructor(public dialog: MatDialog) {}
 
-  ngOnInit(): void {
-    this.loadAllChannelsData();
+  // ngOnInit(): void {
+  //   this.loadAllChannelsData();
+  // }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['userData']) {
+      this.loadAllChannelsData();
+    }
   }
 
   openCreateChannelDialog(): void {
@@ -55,12 +62,22 @@ export class SideNavComponent {
   }
 
   loadAllChannelsData(): void {
-    setTimeout(() => {
-      this.userData.channels.forEach((channel) => {
-        this.channelService
-          .getChannelById(channel)
-          .subscribe((channelData) => this.allChannelsData.push(channelData));
+    this.allChannelsData = []; // Initialisiere die Liste neu
+
+    this.userData.channels.forEach((channelId) => {
+      this.channelService.getChannelById(channelId).subscribe((channelData) => {
+        const existingIndex = this.allChannelsData.findIndex(
+          (c) => c.channelId === channelData.channelId
+        );
+
+        if (existingIndex > -1) {
+          // Aktualisiere das bestehende Channel-Datenobjekt
+          this.allChannelsData[existingIndex] = channelData;
+        } else {
+          // Füge den Channel hinzu, wenn er noch nicht existiert
+          this.allChannelsData.push(channelData);
+        }
       });
-    }, 0);
+    });
   }
 }

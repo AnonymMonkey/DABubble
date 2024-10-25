@@ -1,14 +1,27 @@
 import { Injectable } from '@angular/core';
-import { Firestore, doc, docData, collection, collectionData } from '@angular/fire/firestore';
-import { BehaviorSubject, Observable, from, map } from 'rxjs';
+import {
+  Firestore,
+  doc,
+  docData,
+  collection,
+  collectionData,
+} from '@angular/fire/firestore';
+import { BehaviorSubject, Observable, from, map, switchMap } from 'rxjs';
 import { Channel } from '../../models/channel.model';
-import { getDoc, getDocs } from 'firebase/firestore';
+import {
+  addDoc,
+  arrayUnion,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChannelService {
-  private currentChannelSubject = new BehaviorSubject<Channel | undefined>(undefined); // BehaviorSubject
+  private currentChannelSubject = new BehaviorSubject<Channel | null>(null); // BehaviorSubject
   public currentChannel$ = this.currentChannelSubject.asObservable(); // Observable für Komponenten
   public currentChannel: Channel | null = null;
   public channelId: string | undefined;
@@ -27,7 +40,7 @@ export class ChannelService {
       },
       error: (error) => {
         console.error('Fehler beim Laden des Channels:', error);
-      }
+      },
     });
   }
 
@@ -51,11 +64,47 @@ export class ChannelService {
     const channelsCollection = collection(this.firestore, 'channels');
     return from(getDocs(channelsCollection)).pipe(
       map((channelSnapshot) =>
-        channelSnapshot.docs.map(doc => {
+        channelSnapshot.docs.map((doc) => {
           const channelData = doc.data() as Channel;
           return { ...channelData, channelId: doc.id };
         })
       )
     );
   }
+
+  //NOTE - Ich habe hier eine Funktion fürs erstellen eines neuen Channels erstellt
+
+  createChannel(channelData: Partial<Channel>): Observable<string> {
+    const channelCollection = collection(this.firestore, 'channels');
+    const newChannelRef = doc(channelCollection);
+
+    const channelObject = {
+      ...JSON.parse(JSON.stringify(channelData)),
+      channelId: newChannelRef.id,
+    };
+
+    return from(setDoc(newChannelRef, channelObject)).pipe(
+      switchMap(() => {
+        // Extrahiere die User-IDs aus channelData.members
+        const userIds =
+          channelData.members?.map((member) => member.userId) || [];
+
+        // Weise die channelId allen Usern zu und füge sie dem channels-Array hinzu
+        const updateUserObservables = userIds.map((userId) => {
+          const userDocRef = doc(this.firestore, `users/${userId}`);
+          return from(
+            updateDoc(userDocRef, {
+              channels: arrayUnion(newChannelRef.id),
+            })
+          );
+        });
+
+        // Warte, bis alle Updates abgeschlossen sind
+        return from(Promise.all(updateUserObservables)).pipe(
+          map(() => newChannelRef.id) // Gibt die ID des neu erstellten Channels zurück
+        );
+      })
+    );
+  }
+  //NOTE - Ende
 }
