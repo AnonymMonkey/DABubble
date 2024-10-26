@@ -34,7 +34,10 @@
       </mat-expansion-panel-header>
 
       @for (channel of allChannelsData; track $index) {
-      <button class="button-secondary">
+      <button
+        class="button-secondary"
+        [routerLink]="['/channels', channel.channelId]"
+      >
         <mat-icon class="material-symbols-outlined">tag</mat-icon
         >{{ channel.channelName }}
       </button>

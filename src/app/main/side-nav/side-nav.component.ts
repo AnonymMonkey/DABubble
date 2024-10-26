@@ -19,6 +19,7 @@ import { ClickStopPropagationDirective } from '../../shared/directives/click-sto
 import { UserData } from '../../shared/models/user.model';
 import { ChannelService } from '../../shared/services/channel-service/channel.service';
 import { Channel } from '../../shared/models/channel.model';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-side-nav',
@@ -31,6 +32,7 @@ import { Channel } from '../../shared/models/channel.model';
     MatExpansionModule,
     CommonModule,
     ClickStopPropagationDirective,
+    RouterModule,
   ],
   templateUrl: './side-nav.component.html',
   styleUrl: './side-nav.component.scss',
@@ -66,6 +68,7 @@ export class SideNavComponent {
 
     this.userData.channels.forEach((channelId) => {
       this.channelService.getChannelById(channelId).subscribe((channelData) => {
+        if (!channelData) return;
         const existingIndex = this.allChannelsData.findIndex(
           (c) => c.channelId === channelData.channelId
         );
@@ -79,5 +82,6 @@ export class SideNavComponent {
         }
       });
     });
+    console.log(this.allChannelsData);
   }
 }

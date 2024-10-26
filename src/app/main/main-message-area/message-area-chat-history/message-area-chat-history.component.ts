@@ -13,6 +13,7 @@ import { Observable } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { MainComponent } from '../../main.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-message-area-chat-history',
@@ -44,8 +45,8 @@ export class MessageAreaChatHistoryComponent implements OnInit {
   constructor(
     private firestore: Firestore,
     private channelService: ChannelService,
-    private route: ActivatedRoute
-    private main: MainComponent,
+    private route: ActivatedRoute,
+    private main: MainComponent
   ) {}
 
   ngOnInit(): void {
@@ -67,14 +68,14 @@ export class MessageAreaChatHistoryComponent implements OnInit {
     });
   }
 
-  scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.messageContainer) {
-        this.messageContainer.nativeElement.scrollTop =
-          this.messageContainer.nativeElement.scrollHeight;
-      }
-    }, 0);
-  }
+  // scrollToBottom(): void {
+  //   setTimeout(() => {
+  //     if (this.messageContainer) {
+  //       this.messageContainer.nativeElement.scrollTop =
+  //         this.messageContainer.nativeElement.scrollHeight;
+  //     }
+  //   }, 0);
+  // }
 
   listenForMessages(channelId: string): void {
     const channelDocRef = doc(this.firestore, `channels/${channelId}`);
@@ -126,7 +127,8 @@ export class MessageAreaChatHistoryComponent implements OnInit {
   scrollToBottom(): void {
     setTimeout(() => {
       if (this.messageContainer) {
-        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+        this.messageContainer.nativeElement.scrollTop =
+          this.messageContainer.nativeElement.scrollHeight;
       }
     }, 0);
   }
