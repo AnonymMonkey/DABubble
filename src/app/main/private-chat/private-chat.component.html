@@ -1,0 +1,10 @@
+<section>
+  <mat-card appearance="outlined" class="mat-card-container">
+    <mat-card-content>
+      <app-private-chat-header></app-private-chat-header>
+      <app-private-chat-placeholder *ngIf="!hasMessages"></app-private-chat-placeholder>
+      <app-message-area-chat-history *ngIf="hasMessages"></app-message-area-chat-history>
+      <app-message-area-new-message></app-message-area-new-message>
+    </mat-card-content>
+  </mat-card>
+</section>

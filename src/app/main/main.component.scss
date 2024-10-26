@@ -72,7 +72,6 @@ section {
   // gap: 20px;
 }
 
-router-outlet + * {
-  flex-grow: 1;
-  display: flex;
+router-outlet {
+  display: none;
 }
