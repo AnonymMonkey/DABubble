@@ -49,8 +49,13 @@
         >
           @for (user of filteredUsers(); track user) {
           <mat-option [value]="user">
-            <img src="{{ user.photoURL }}" alt="" />
-            {{ user.userName }}
+            <!-- <img src="{{ user.photoURL }}" alt="" />
+            {{ user.userName }} -->
+            <div class="image-with-badge">
+              <img src="{{ user.photoURL }}" alt="" />
+              <div class="badge"></div>
+            </div>
+            <p class="name">{{ user.userName }}</p>
           </mat-option>
           }
         </mat-autocomplete>
