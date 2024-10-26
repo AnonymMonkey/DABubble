@@ -1,0 +1,12 @@
+<section>
+        <div class="other-user">
+            <img src="../../../../assets/img/profile/frederik.webp" alt="Profile Picture">
+                <span>Frederick Beck <p *ngIf="isChatWithSelf()">(Du)</p></span>
+        </div>
+        <div *ngIf="!isChatWithSelf()" class="description">
+            <span>Diese Unterhaltung findet nur zwischen<a> {{'@' + 'Frederick Beck'}} </a>und dir statt.</span>
+        </div>
+        <div *ngIf="isChatWithSelf()" class="description">
+            <span> <p>Dieser Raum ist nur für dich da.</p> Mache dir Notizen, liste deine To-dos auf oder bewahre Links und Dateien griffbereit auf. Du kannst hier auch gerne Dinge mit dir selbst besprechen.</span>
+        </div>
+</section>

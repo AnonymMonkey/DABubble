@@ -21,6 +21,7 @@ export class UserService {
   private database = getDatabase(); // Realtime Database für den Online-Status
   private tempUserData: Partial<UserData> = {}; // Temporäre Speicherung der Registrierungsdaten
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
+  public userId: string = '34gzWvEfogZ6Xn05ydewTpkOKF83'; // ID des aktuell angemeldeten Nutzers
 
   //NOTE - Der Constructor musste auch auskommentiert werden, da er nicht benutzt wird
   // constructor(private authService: AuthService) {}

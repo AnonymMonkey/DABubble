@@ -8,6 +8,7 @@ import { SelectAvatarComponent } from './landing-page/register/select-avatar/sel
 import { ResetPasswordComponent } from './landing-page/login/reset-password/reset-password.component';
 import { NewPasswordComponent } from './landing-page/login/reset-password/new-password/new-password.component';
 import { MainMessageAreaComponent } from './main/main-message-area/main-message-area.component';
+import { PrivateChatComponent } from './main/private-chat/private-chat.component';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent }, // Standardmäßig Login anzeigen
@@ -22,6 +23,9 @@ export const routes: Routes = [
     component: MainComponent,
     children: [
       { path: 'channel/:channelId', component: MainMessageAreaComponent }, // Route für einen spezifischen Channel
+      { path: 'privatechat/:privateChatId', component: PrivateChatComponent }, // Route für einen spezifischen PrivateChat
+      // { path: 'privatechat', component: PrivateChatComponent },
+      { path : '', component: MainMessageAreaComponent },
     ],
   },
 

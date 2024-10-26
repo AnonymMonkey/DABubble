@@ -12,7 +12,7 @@ export class MessageService {
   messages$ = this.messagesSubject.asObservable();
 
   addMessage(content: string, messageId: string, userId: string, userName: string) {
-    const newMessage = new ChannelMessage(content, messageId, userId, userName); // Instanz der Klasse erstellen
+    const newMessage = new ChannelMessage(content, messageId, userId, userName, ''); // Instanz der Klasse erstellen
     this.messages.push(newMessage);
     this.messagesSubject.next(this.messages);
   }
