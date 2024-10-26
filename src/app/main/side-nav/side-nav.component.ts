@@ -66,6 +66,7 @@ export class SideNavComponent {
 
     this.userData.channels.forEach((channelId) => {
       this.channelService.getChannelById(channelId).subscribe((channelData) => {
+        if (!channelData) return;
         const existingIndex = this.allChannelsData.findIndex(
           (c) => c.channelId === channelData.channelId
         );

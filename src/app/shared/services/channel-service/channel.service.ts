@@ -21,7 +21,9 @@ import {
   providedIn: 'root',
 })
 export class ChannelService {
-  private currentChannelSubject = new BehaviorSubject<Channel | null>(null); // BehaviorSubject
+  private currentChannelSubject = new BehaviorSubject<Channel | undefined>(
+    undefined
+  ); // BehaviorSubject
   public currentChannel$ = this.currentChannelSubject.asObservable(); // Observable für Komponenten
   public currentChannel: Channel | null = null;
   public channelId: string | undefined;
