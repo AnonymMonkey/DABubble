@@ -1,3 +1,5 @@
+import { FirestoreDataConverter, DocumentData, DocumentSnapshot } from '@angular/fire/firestore';
+
 export class ChannelMessage {
     content: string;
     messageId: string;
@@ -29,6 +31,30 @@ export class ChannelMessage {
         photoURL,
       };
     }
+
+
+
+ channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
+  toFirestore(message: ChannelMessage): DocumentData {
+    return {
+      content: message.content,
+      messageId: message.messageId,
+      reactions: message.reactions,
+      time: message.time,
+      user: message.user
+    };
+  },
+  fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ChannelMessage {
+    const data: any = snapshot.data() || {};
+    return new ChannelMessage(
+      data.content,
+      data.messageId,
+      data.user.userId,
+      data.user.userName,
+      data.user.photoURL
+    );
+  }
+};
 
     addReaction(emoji: string): void {
       const existingReaction = this.reactions.find(r => r.emoji === emoji);

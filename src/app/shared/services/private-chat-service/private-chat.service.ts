@@ -1,71 +1,74 @@
 import { Injectable } from '@angular/core';
-import { Firestore, doc, getDoc, setDoc, onSnapshot } from '@angular/fire/firestore';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Firestore, doc, docData, setDoc, FirestoreDataConverter, DocumentReference, DocumentSnapshot, DocumentData } from '@angular/fire/firestore';
+import { BehaviorSubject, Observable, from } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { PrivateChat } from '../../models/private-chat.model';
 import { ChannelMessage } from '../../models/channel-message.model';
+
+// FirestoreDataConverter für PrivateChat
+const privateChatConverter: FirestoreDataConverter<PrivateChat> = {
+  toFirestore(chat: PrivateChat): DocumentData {
+    return { ...chat };
+  },
+  fromFirestore(snapshot: DocumentSnapshot<DocumentData>): PrivateChat {
+    const data = snapshot.data() || {};
+    return {
+      chatId: snapshot.id,
+      messages: data['messages'] || [],
+      user: data['user'] || []
+    } as PrivateChat;
+  }
+};
 
 @Injectable({
   providedIn: 'root'
 })
 export class PrivateChatService {
-  private currentPrivateChatSubject: BehaviorSubject<PrivateChat | undefined> = new BehaviorSubject<PrivateChat | undefined>(undefined);
-  public currentPrivateChat$: Observable<PrivateChat | undefined> = this.currentPrivateChatSubject.asObservable();
+  private currentPrivateChatSubject = new BehaviorSubject<PrivateChat | undefined>(undefined);
+  public currentPrivateChat$ = this.currentPrivateChatSubject.asObservable();
 
   constructor(private firestore: Firestore) {}
 
   // Methode zum Abrufen eines privaten Chats
-  async getPrivateChat(currentUserId: string, privateChatId: string): Promise<void> {
-    const privateChatDocRef = doc(this.firestore, `users/${currentUserId}/privateChat/${privateChatId}`);
+  getPrivateChat(currentUserId: string, privateChatId: string): Observable<PrivateChat | undefined> {
+    const privateChatDocRef = doc(this.firestore, `users/${currentUserId}/privateChat/${privateChatId}`).withConverter(privateChatConverter);
     
-    try {
-      const privateChatDoc = await getDoc(privateChatDocRef);
-      console.log("Private Chat Document:", privateChatDoc);
-      
-      if (privateChatDoc.exists()) {
-        const privateChatData = privateChatDoc.data() as PrivateChat;
-        this.currentPrivateChatSubject.next(privateChatData);
-        this.listenForChatUpdates(currentUserId, privateChatId);
-      } else {
-        console.error("Kein privater Chat gefunden!");
-      }
-    } catch (error) {
-      console.error("Fehler beim Abrufen des privaten Chats:", error);
-    }
+    return docData<PrivateChat>(privateChatDocRef).pipe(
+      tap((data) => {
+        this.currentPrivateChatSubject.next(data);
+      })
+    );
   }
 
   // Methode zum Hinzufügen eines neuen privaten Chats
-  async addPrivateChat(currentUserId: string, privateChatId: string, otherUser: { userId: string; userName: string; photoURL: string; }): Promise<void> {
+  addPrivateChat(currentUserId: string, privateChatId: string, otherUser: { userId: string; userName: string; photoURL: string; }): Observable<void> {
     const newPrivateChat = new PrivateChat(privateChatId);
     newPrivateChat.user[0] = otherUser; // Setze den anderen Benutzer
 
-    const privateChatDocRef = doc(this.firestore, `users/${currentUserId}/privateChat/${privateChatId}`);
-    await setDoc(privateChatDocRef, { ...newPrivateChat });
-    this.currentPrivateChatSubject.next(newPrivateChat);
+    const privateChatDocRef = doc(this.firestore, `users/${currentUserId}/privateChat/${privateChatId}`).withConverter(privateChatConverter);
+    return from(setDoc(privateChatDocRef, newPrivateChat)).pipe(
+      tap(() => this.currentPrivateChatSubject.next(newPrivateChat))
+    );
   }
 
   // Methode zum Hinzufügen einer Nachricht zu einem privaten Chat
-  async addMessageToPrivateChat(currentUserId: string, privateChatId: string, message: ChannelMessage): Promise<void> {
-    const privateChatDocRef = doc(this.firestore, `users/${currentUserId}/privateChat/${privateChatId}`);
-
-    // Nachricht zur Firestore-Datenbank hinzufügen
-    await setDoc(privateChatDocRef, {
-      messages: [message],
-      // Hier könnten weitere Felder sein, je nach deiner Struktur
-    }, { merge: true });
+  addMessageToPrivateChat(currentUserId: string, privateChatId: string, message: ChannelMessage): Observable<void> {
+    const privateChatDocRef = doc(this.firestore, `users/${currentUserId}/privateChat/${privateChatId}`).withConverter(privateChatConverter);
+       
+    return from(setDoc(privateChatDocRef, {
+      messages: [message], // Achte darauf, dass message jetzt richtig umgewandelt wird
+    }, { merge: true }));
   }
+  
 
   // Methode zum Hören auf Chat-Updates
-  private listenForChatUpdates(currentUserId: string, privateChatId: string): void {
-    const privateChatDocRef = doc(this.firestore, `users/${currentUserId}/privateChat/${privateChatId}`);
-
-    // Firestore Listener für Echtzeit-Updates
-    onSnapshot(privateChatDocRef, (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        const privateChatData = docSnapshot.data() as PrivateChat;
-        this.currentPrivateChatSubject.next(privateChatData);
-      } else {
-        console.error("Dokument für Echtzeit-Updates nicht gefunden!");
-      }
-    });
+  listenForChatUpdates(currentUserId: string, privateChatId: string): Observable<PrivateChat | undefined> {
+    const privateChatDocRef = doc(this.firestore, `users/${currentUserId}/privateChat/${privateChatId}`).withConverter(privateChatConverter);
+    
+    return docData<PrivateChat>(privateChatDocRef).pipe(
+      tap((docSnapshot) => {
+        this.currentPrivateChatSubject.next(docSnapshot);
+      })
+    );
   }
 }
