@@ -36,7 +36,7 @@
       @for (channel of allChannelsData; track $index) {
       <button
         class="button-secondary"
-        [routerLink]="['/channels', channel.channelId]"
+        routerLink="channel/{{ channel.channelId }}"
       >
         <mat-icon class="material-symbols-outlined">tag</mat-icon
         >{{ channel.channelName }}
