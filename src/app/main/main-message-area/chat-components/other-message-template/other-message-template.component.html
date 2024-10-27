@@ -72,7 +72,7 @@
       <span class="message">{{ message?.content }}</span>
       <div class="emoji-container d-none"></div>
       <div class="thread" *ngIf="message?.thread?.messages.length > 0">
-        <span (click)="mainMessageArea.toggleSidenav()" >
+        <span (click)="mainMessageArea.toggleSidenav(); channelService.setActualThread(message.thread)" >
           {{ message?.thread?.messages.length }} {{ message?.thread?.messages.length === 1 ? 'Antwort' : 'Antworten' }}
         </span>
         <span>

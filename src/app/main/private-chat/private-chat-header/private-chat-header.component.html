@@ -2,11 +2,10 @@
     <div class="other-user">
         <button
           mat-button
-          [matMenuTriggerFor]="chooseChannelMenu"
           class="other-user-button"
           [class.menu-opened]="isMenuOpened"
           (click)="isMenuOpened = true"
-          #chooseChannelMenuTrigger="matMenuTrigger"
+          (click)="openProfileInfo()"
         >
            <div class="image-with-badge">
           <img src="../../../../assets/img/profile/frederik.webp" alt="Profile Picture">
@@ -14,16 +13,6 @@
         </div>
           <span>Username</span>
         </button>
-        <mat-menu
-          #chooseChannelMenu="matMenu"
-          xPosition="after"
-          (closed)="isMenuOpened = false"
-          class="other-user-profile-menu"
-          
-        >
-          <div>Platzhalter für Profil</div>
-        </mat-menu>
       </div>
-
   </mat-toolbar>
   
