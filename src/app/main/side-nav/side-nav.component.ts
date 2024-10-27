@@ -95,7 +95,6 @@ export class SideNavComponent {
     this.userService.getAllUsersOnlineStatus().subscribe(
       (statusArray) => {
         this.allUserStatus = statusArray;
-        console.log(this.allUserStatus);
       },
       (error) => {
         console.error(error);
