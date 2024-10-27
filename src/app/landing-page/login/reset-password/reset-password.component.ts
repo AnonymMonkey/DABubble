@@ -12,6 +12,7 @@ import { AuthService } from '../../../shared/services/auth-service/auth.service'
 import { CommonModule } from '@angular/common';
 import { ErrorService } from '../../../shared/services/error-service/error.service';
 import { RoutingService } from '../../../shared/services/routing-service/routing.service';
+import { NotificationService } from '../../../shared/services/notification-service/notification.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -31,6 +32,7 @@ export class ResetPasswordComponent {
   // Abhängigkeiten über `inject` beziehen
   private authService = inject(AuthService);
   private errorService = inject(ErrorService);
+  private notificationService = inject(NotificationService);
   private routingService = inject(RoutingService);
 
   email = new FormControl('', [Validators.required, Validators.email]); // FormControl für E-Mail mit Validierung
@@ -46,9 +48,10 @@ export class ResetPasswordComponent {
 
     try {
       await this.authService.sendPasswordResetEmail(this.email.value!);
-      this.successMessage =
-        'Eine E-Mail zum Zurücksetzen des Passworts wurde gesendet.';
-      this.errorMessage = ''; // Löschen der Fehlermeldung bei Erfolg
+      this.notificationService.showNotification(
+        'E-Mail zum Zurücksetzen des Passworts gesendet.'
+      );
+      this.goBack();
     } catch (error) {
       this.errorService.logError(error); // Fehler über den ErrorService behandeln
       this.errorMessage =

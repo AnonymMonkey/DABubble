@@ -88,6 +88,10 @@
     }
   }
 
+  .error-message {
+    color: var(--error-color);
+  }
+
   .logo-bg {
     position: absolute;
     z-index: 1;

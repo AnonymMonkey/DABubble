@@ -1,5 +1,5 @@
 <div class="register">
-  <mat-card>
+  <mat-card (keydown.enter)="proceedToSelectAvatar()">
     <div class="headline">
       <mat-icon class="back-icon" (click)="navigateToLogin()"
         >arrow_back</mat-icon
