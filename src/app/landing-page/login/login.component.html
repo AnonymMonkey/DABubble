@@ -50,8 +50,9 @@
     </div>
   </mat-card>
 
+  <!-- Logo-Animation nur beim ersten Laden -->
   <div class="logo-bg" *ngIf="showAnimation"></div>
-  <div class="logo" *ngIf="showAnimation">
+  <div [ngClass]="{ logo: showAnimation, 'logo-final': !showAnimation }">
     <div class="logo-container">
       <img src="assets/img/logo.webp" alt="" />
       <div class="logo-name">

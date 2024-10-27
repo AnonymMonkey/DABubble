@@ -43,12 +43,11 @@ export class LoginComponent {
     private authService: AuthService,
     private errorService: ErrorService,
     private routingService: RoutingService
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     const animationPlayed = sessionStorage.getItem('animationPlayed');
+    this.showAnimation = !animationPlayed;
+
     if (!animationPlayed) {
-      this.showAnimation = true;
       sessionStorage.setItem('animationPlayed', 'true');
     }
   }

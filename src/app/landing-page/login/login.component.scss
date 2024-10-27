@@ -169,6 +169,33 @@
     }
   }
 
+  // Logo-final nur nach der Animation anzeigen
+  .logo-final {
+    position: fixed;
+    top: 75px;
+    left: 75px;
+    z-index: 2;
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-16);
+
+      img {
+        height: 70px;
+        /* transform: none; */ // Keine Animation für die finale Position
+      }
+
+      .logo-name {
+        position: relative;
+        font-size: 34px;
+        color: var(--black-color);
+        font-weight: bold;
+        letter-spacing: -2px;
+      }
+    }
+  }
+
   .register-link,
   .info-links {
     position: absolute;
@@ -249,6 +276,7 @@
     height: 100%;
   }
   100% {
+    opacity: 0;
     width: 0;
     height: 0;
   }
