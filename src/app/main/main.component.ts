@@ -46,5 +46,12 @@ export class MainComponent {
     this.userService.userData$.subscribe((data) => {
       this.userData = data; // Empfange die Benutzerdaten
     });
+
+    this.checkUserStatusOnReload(this.userId);
+  }
+
+  // Beispielaufruf beim Reload
+  async checkUserStatusOnReload(userId: string): Promise<void> {
+    await this.userService.setOnlineStatus(userId, true, true); // Hier wird onReload auf true gesetzt
   }
 }
