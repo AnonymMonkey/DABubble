@@ -1,21 +1,19 @@
 import { Component, Input } from '@angular/core';
-import { MainMessageAreaComponent } from '../../main-message-area.component';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
-import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 
 @Component({
-  selector: 'app-own-message-template',
+  selector: 'app-own-private-message-template',
   standalone: true,
-  imports: [NgClass, NgIf, DatePipe],
-  templateUrl: './own-message-template.component.html',
-  styleUrl: './own-message-template.component.scss'
+  imports: [DatePipe, NgClass, NgIf],
+  templateUrl: './own-private-message-template.component.html',
+  styleUrl: './own-private-message-template.component.scss'
 })
-export class OwnMessageTemplateComponent {
+export class OwnPrivateMessageTemplateComponent {
   @Input() message: any;
   isEmojiContainerVisible: number = 0;
 
 
-  constructor(public mainMessageArea: MainMessageAreaComponent, public channelService: ChannelService) {}
+  constructor() {}
   showEmojiContainer(id: number) {
     this.isEmojiContainerVisible = id;
   }

@@ -27,6 +27,7 @@ export class ChannelService {
   public currentChannel$ = this.currentChannelSubject.asObservable(); // Observable für Komponenten
   public currentChannel: Channel | null = null;
   public channelId: string | undefined;
+  public actualThread: Array<string> = []; // Daten des aktuell ausgewählten Threads
 
   // Neues Observable für Channel-Daten
   public channelData$: Observable<Channel | undefined> = this.currentChannel$;
@@ -109,4 +110,8 @@ export class ChannelService {
     );
   }
   //NOTE - Ende
+
+  setActualThread(threadData: Array<string>): void {
+    this.actualThread = threadData;
+  }
 }
