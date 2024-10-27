@@ -20,6 +20,7 @@ import { UserData } from '../../shared/models/user.model';
 import { ChannelService } from '../../shared/services/channel-service/channel.service';
 import { Channel } from '../../shared/models/channel.model';
 import { RouterModule } from '@angular/router';
+import { UserService } from '../../shared/services/user-service/user.service';
 
 @Component({
   selector: 'app-side-nav',
@@ -44,12 +45,18 @@ export class SideNavComponent {
   channelService = inject(ChannelService);
   @Input() userData!: UserData;
   allChannelsData: Channel[] = [];
+  userService = inject(UserService);
+  allUserData: UserData[] = [];
+  allUserStatus: { userId: string; online: boolean }[] = [];
 
   constructor(public dialog: MatDialog) {}
 
-  // ngOnInit(): void {
-  //   this.loadAllChannelsData();
-  // }
+  ngOnInit(): void {
+    this.userService.allUserData$.subscribe((data) => {
+      this.allUserData = data;
+    });
+    this.loadOnlineStatus();
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['userData']) {
@@ -82,5 +89,24 @@ export class SideNavComponent {
         }
       });
     });
+  }
+
+  loadOnlineStatus() {
+    this.userService.getAllUsersOnlineStatus().subscribe(
+      (statusArray) => {
+        this.allUserStatus = statusArray;
+        console.log(this.allUserStatus);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+  }
+
+  checkUserOnlineStatus(userId: string): boolean {
+    const userStatus = this.allUserStatus.find(
+      (status) => status.userId === userId
+    );
+    return userStatus ? userStatus.online : false;
   }
 }
