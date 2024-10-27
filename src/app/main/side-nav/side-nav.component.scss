@@ -137,10 +137,14 @@
     width: 28%;
     border-radius: 50%;
     border: 3px solid var(--text-color);
-    background-color: var(--online-color);
+    background-color: var(--grey-color);
     position: absolute;
     bottom: 8%;
     right: 0;
+  }
+
+  .badge.online {
+    background-color: var(--online-color);
   }
 }
 

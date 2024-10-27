@@ -72,7 +72,7 @@
       <button class="button-secondary">
         <div class="image-with-badge">
           <img src="{{ userData.photoURL }}" alt="" />
-          <div class="badge"></div>
+          <div class="badge" style="background-color: #92c83e"></div>
         </div>
         <p class="name">{{ userData.displayName }} (Du)</p>
       </button>
@@ -84,7 +84,10 @@
       >
         <div class="image-with-badge">
           <img src="{{ user.photoURL }}" alt="" />
-          <div class="badge"></div>
+          <div
+            class="badge"
+            [class.online]="checkUserOnlineStatus(user.uid)"
+          ></div>
         </div>
         <p class="name">{{ user.displayName }}</p>
       </button>

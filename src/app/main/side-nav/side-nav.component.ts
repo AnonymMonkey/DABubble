@@ -47,6 +47,7 @@ export class SideNavComponent {
   allChannelsData: Channel[] = [];
   userService = inject(UserService);
   allUserData: UserData[] = [];
+  allUserStatus: { userId: string; online: boolean }[] = [];
 
   constructor(public dialog: MatDialog) {}
 
@@ -54,6 +55,7 @@ export class SideNavComponent {
     this.userService.allUserData$.subscribe((data) => {
       this.allUserData = data;
     });
+    this.loadOnlineStatus();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -87,6 +89,24 @@ export class SideNavComponent {
         }
       });
     });
-    console.log(this.allChannelsData);
+  }
+
+  loadOnlineStatus() {
+    this.userService.getAllUsersOnlineStatus().subscribe(
+      (statusArray) => {
+        this.allUserStatus = statusArray;
+        console.log(this.allUserStatus);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+  }
+
+  checkUserOnlineStatus(userId: string): boolean {
+    const userStatus = this.allUserStatus.find(
+      (status) => status.userId === userId
+    );
+    return userStatus ? userStatus.online : false;
   }
 }

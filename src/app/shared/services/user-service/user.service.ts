@@ -14,7 +14,14 @@ import {
   serverTimestamp,
   setDoc,
 } from 'firebase/firestore';
-import { get, getDatabase, onDisconnect, ref, set } from 'firebase/database';
+import {
+  get,
+  getDatabase,
+  onDisconnect,
+  onValue,
+  ref,
+  set,
+} from 'firebase/database';
 import { AuthService } from '../auth-service/auth.service'; //NOTE - Muss auskommentiert werden
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -35,6 +42,7 @@ export class UserService {
   allUserData$ = this.allUserDataSubject.asObservable();
   private userDataSubject = new BehaviorSubject<any>(null); // Zum Speichern der Benutzerdaten
   userData$ = this.userDataSubject.asObservable(); // Observable für andere Komponenten
+  allUsersOnlineStatus$: { userId: string; online: boolean }[] = [];
 
   loadAllUserData(): void {
     const userCollection = collection(this.firestore, 'users'); // Referenz zur Collection 'users'
@@ -55,15 +63,51 @@ export class UserService {
   //NOTE - Der Constructor musste auch auskommentiert werden, da er nicht benutzt wird
   // constructor(private authService: AuthService) {}
 
+  //NOTE - Hier musste ich auskommentieren, da ein Promise die Daten nur einmalig zurückgegeben wird
   // Ruft alle online Nutzer aus der Realtime Database ab
   // Gibt die Daten der Nutzer zurück, die aktuell als online markiert sind
-  async getOnlineUsers(): Promise<any[]> {
-    const onlineUsersRef = ref(this.database, 'onlineUsers');
-    const snapshot = await get(onlineUsersRef);
-    if (snapshot.exists()) {
-      return Object.values(snapshot.val()); // Rückgabe der Liste der Online-Nutzer
-    }
-    throw new Error('Keine aktiven Nutzer gefunden');
+  // async getOnlineUsers(): Promise<any[]> {
+  //   const onlineUsersRef = ref(this.database, 'onlineUsers');
+  //   const snapshot = await get(onlineUsersRef);
+  //   if (snapshot.exists()) {
+  //     return Object.values(snapshot.val()); // Rückgabe der Liste der Online-Nutzer
+  //   }
+  //   throw new Error('Keine aktiven Nutzer gefunden');
+  // }
+
+  // getOnlineUsers(): Observable<any[]> {
+  //   const onlineUsersRef = ref(this.database, 'status');
+  //   return new Observable<any[]>((observer) => {
+  //     onValue(onlineUsersRef, (snapshot) => {
+  //       if (snapshot.exists()) {
+  //         observer.next(Object.values(snapshot.val())); // Rückgabe der Liste der Online-Nutzer
+  //       } else {
+  //         observer.error('Keine aktiven Nutzer gefunden');
+  //       }
+  //     });
+  //   });
+  // }
+
+  getAllUsersOnlineStatus(): Observable<{ userId: string; online: boolean }[]> {
+    const onlineUsersRef = ref(this.database, 'status');
+    return new Observable<{ userId: string; online: boolean }[]>((observer) => {
+      onValue(
+        onlineUsersRef,
+        (snapshot) => {
+          const usersOnlineStatus: { userId: string; online: boolean }[] = [];
+          snapshot.forEach((childSnapshot) => {
+            usersOnlineStatus.push({
+              userId: childSnapshot.key as string,
+              online: childSnapshot.val().online,
+            });
+          });
+          observer.next(usersOnlineStatus); // Aktueller Status für alle Nutzer zurückgeben
+        },
+        (error) => {
+          observer.error(error); // Fehlerbehandlung
+        }
+      );
+    });
   }
 
   //NOTE - Musste ich auskommentieren, da ein Promise die Daten nur einmalig lädt
