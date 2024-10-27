@@ -48,21 +48,3 @@ mat-toolbar {
     align-items: center;
     display: flex;
 }
-
-.cdk-overlay-container {
-  background: rgba(0, 0, 0, 0.32);
-}
-
-.other-user-profile-menu {
-  width: 400px;
-  height: 500px;
-}
-
-.cdk-overlay-pane {
-  margin-left: 200px;
-}
-
-.mat-mdc-menu-panel {
-  border-radius: 30px !important;
-  max-width: unset !important;
-}

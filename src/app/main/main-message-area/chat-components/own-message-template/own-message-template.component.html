@@ -71,7 +71,7 @@
       <span class="message-own">{{ message?.content }}</span>
       <div class="emoji-container d-none"></div>
       <div class="thread-own" *ngIf="message?.thread?.messages.length > 0">
-        <span (click)="mainMessageArea.toggleSidenav()"> {{ message?.thread?.messages.length }} {{ message?.thread?.messages.length === 1 ? 'Antwort' : 'Antworten' }} </span>
+        <span (click)="mainMessageArea.toggleSidenav(); channelService.setActualThread(message.thread)"> {{ message?.thread?.messages.length }} {{ message?.thread?.messages.length === 1 ? 'Antwort' : 'Antworten' }} </span>
         <span>Letzte Antwort: {{ getLastReplyTime(message.thread.messages) }}</span>
       </div>
     </div>

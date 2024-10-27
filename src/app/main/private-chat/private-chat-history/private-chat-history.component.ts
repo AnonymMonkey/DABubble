@@ -1,106 +1,75 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DateOfMessageComponent } from '../../main-message-area/chat-components/date-of-message/date-of-message.component';
-import { OtherMessageTemplateComponent } from '../../main-message-area/chat-components/other-message-template/other-message-template.component';
-import { OwnMessageTemplateComponent } from '../../main-message-area/chat-components/own-message-template/own-message-template.component';
 import { NgFor, NgIf } from '@angular/common';
-import { Firestore } from '@angular/fire/firestore';
-import { MainComponent } from '../../main.component';
-import { doc, onSnapshot } from 'firebase/firestore';
 import { ChannelMessage } from '../../../shared/models/channel-message.model';
 import { ActivatedRoute } from '@angular/router';
 import { PrivateChat } from '../../../shared/models/private-chat.model';
 import { Observable } from 'rxjs';
-import { PrivateChatService } from '../../../shared/services/private-chat-service/private-chat.service';
+import { UserService } from '../../../shared/services/user-service/user.service';
+import { OtherPrivateMessageTemplateComponent } from '../chat-components/other-private-message-template/other-private-message-template.component';
+import { OwnPrivateMessageTemplateComponent } from '../chat-components/own-private-message-template/own-private-message-template.component';
 
 @Component({
   selector: 'app-private-chat-history',
   standalone: true,
-  imports: [DateOfMessageComponent, OtherMessageTemplateComponent, OwnMessageTemplateComponent, NgIf, NgFor],
+  imports: [DateOfMessageComponent, OtherPrivateMessageTemplateComponent, OwnPrivateMessageTemplateComponent, NgIf, NgFor],
   templateUrl: './private-chat-history.component.html',
   styleUrls: ['./private-chat-history.component.scss']
 })
-export class PrivateChatHistoryComponent {
+export class PrivateChatHistoryComponent implements OnInit {
   isEmojiContainerVisible: number = 0;
   currentPrivateChat$?: Observable<PrivateChat | undefined>;
   currentUserId: any;
-  privateChatId: string | undefined;
+  privateChatId: string = '';
   groupedMessages: any[] = []; // Array to store messages grouped by date
   currentPrivateChat: PrivateChat | undefined;
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
+  public messages: ChannelMessage[] = [];
+  private privateChat!: PrivateChat;
 
   constructor(
-    private firestore: Firestore,
-    private main: MainComponent,
-    private privateChatService: PrivateChatService,
-    private route: ActivatedRoute
+    private userService: UserService,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
-    this.currentUserId = this.main.userId;
+    this.currentUserId = this.userService.userId;
+    this.privateChatId = this.route.snapshot.paramMap.get('privateChatId') as string;
 
-    this.currentPrivateChat$ = this.privateChatService.currentPrivateChat$;
-    this.route.params.subscribe(params => {
-      this.privateChatId = params['privateChatId'];
-      if (this.privateChatId) {
-        this.listenForMessages(this.privateChatId);
+    this.userService.getUserDataByUID(this.currentUserId).subscribe({
+      next: (userData) => {
+        this.privateChat = userData.privateChat[this.privateChatId];
+        this.messages = this.privateChat.messages;
+        
+        // Gruppiere und sortiere die Nachrichten
+        this.groupMessagesByDateAndSender();
+      },
+      error: (err) => {
+        console.error('Fehler beim Abrufen der Benutzerdaten:', err);
       }
     });
   }
 
-  listenForMessages(privateChatId: string): void {
-    const chatDocRef = doc(this.firestore, `users/${this.currentUserId}/privateChat/${privateChatId}`);
-
-    // Set up Firestore listener
-    onSnapshot(chatDocRef, (docSnapshot) => {
-      const chatData: any = docSnapshot.data();
-      if (chatData && chatData.messages) {
-        this.groupMessagesByDate(chatData.messages);
-        this.scrollToBottom();
+  groupMessagesByDateAndSender(): void {
+    const grouped = this.messages.reduce((acc: any, message: ChannelMessage) => {
+      const messageDate = new Date(message.time).toLocaleDateString(); // Verwende 'time' anstelle von 'timestamp'
+      const isOwnMessage = message.user.userId === this.currentUserId; // Prüfen, ob die Nachricht vom aktuellen Benutzer ist
+  
+      // Gruppiere nach Datum
+      if (!acc[messageDate]) {
+        acc[messageDate] = { date: messageDate, messages: [] };
       }
-    });
-  }
-
-  groupMessagesByDate(messages: any[]): void {
-    const grouped = messages.reduce((acc, message) => {
-      const messageDate = new Date(message.time);
-      const today = new Date();
-
-      let dateString: string;
-      if (
-        messageDate.getFullYear() === today.getFullYear() &&
-        messageDate.getMonth() === today.getMonth() &&
-        messageDate.getDate() === today.getDate()
-      ) {
-        dateString = 'Heute';
-      } else {
-        dateString = messageDate.toLocaleDateString();
-      }
-
-      if (!acc[dateString]) {
-        acc[dateString] = [];
-      }
-
-      // Add a flag to check if the message is from the current user
-      acc[dateString].push({
-        ...message,
-        isOwnMessage: message.senderId === this.currentUserId
-      });
+  
+      // Füge Nachricht hinzu
+      acc[messageDate].messages.push({ ...message, isOwnMessage });
       return acc;
     }, {});
-
-    this.groupedMessages = Object.keys(grouped).map((date) => ({
-      date,
-      messages: grouped[date],
-    }));
-    this.scrollToBottom();
-  }
-
-  scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.messageContainer) {
-        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
-      }
-    }, 0);
-  }
+  
+    // Erstelle ein Array und sortiere es nach Datum
+    this.groupedMessages = Object.values(grouped).map((group: any) => {
+      group.messages.sort((a: ChannelMessage, b: ChannelMessage) => new Date(a.time).getTime() - new Date(b.time).getTime());
+      return group;
+    });
+  }  
 }
