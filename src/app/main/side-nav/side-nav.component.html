@@ -76,55 +76,19 @@
         </div>
         <p class="name">{{ userData.displayName }} (Du)</p>
       </button>
-      <button class="button-secondary">
+
+      @for (user of allUserData; track $index) {
+      <button
+        *ngIf="user.displayName != userData.displayName"
+        class="button-secondary"
+      >
         <div class="image-with-badge">
-          <img src="./assets/img/profile/sofia.webp" alt="" />
+          <img src="{{ user.photoURL }}" alt="" />
           <div class="badge"></div>
         </div>
-        <p class="name">Sofia Müller</p>
+        <p class="name">{{ user.displayName }}</p>
       </button>
-      <button class="button-secondary">
-        <div class="image-with-badge">
-          <img src="./assets/img/profile/noah.webp" alt="" />
-          <div class="badge"></div>
-        </div>
-        <p class="name">Noah Braun</p>
-      </button>
-      <button class="button-secondary">
-        <div class="image-with-badge">
-          <img src="./assets/img/profile/elise.webp" alt="" />
-          <div class="badge"></div>
-        </div>
-        <p class="name">Elise Roth</p>
-      </button>
-      <button class="button-secondary">
-        <div class="image-with-badge">
-          <img src="./assets/img/profile/elias.webp" alt="" />
-          <div class="badge"></div>
-        </div>
-        <p class="name">Elias Neumann</p>
-      </button>
-      <button class="button-secondary">
-        <div class="image-with-badge">
-          <img src="./assets/img/profile/steffen.webp" alt="" />
-          <div class="badge"></div>
-        </div>
-        <p class="name">Steffen Hoffmann</p>
-      </button>
-      <button class="button-secondary">
-        <div class="image-with-badge">
-          <img src="./assets/img/profile/steffen.webp" alt="" />
-          <div class="badge"></div>
-        </div>
-        <p class="name">Steffen Hoffmann</p>
-      </button>
-      <button class="button-secondary">
-        <div class="image-with-badge">
-          <img src="./assets/img/profile/steffen.webp" alt="" />
-          <div class="badge"></div>
-        </div>
-        <p class="name">Steffen Hoffmann</p>
-      </button>
+      }
     </mat-expansion-panel>
   </div>
 </div>
