@@ -32,6 +32,7 @@ import { UserService } from '../../shared/services/user-service/user.service';
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
+  public errorMessage: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -53,6 +54,7 @@ export class RegisterComponent implements OnInit {
         ],
       ],
       confirmPassword: ['', Validators.required],
+      acceptTerms: [false, Validators.requiredTrue],
     });
   }
 
@@ -60,6 +62,27 @@ export class RegisterComponent implements OnInit {
   fullNameValidator(control: any) {
     const value = control.value || '';
     return value.trim().split(/\s+/).length >= 2 ? null : { fullName: true };
+  }
+
+  // Überprüfen, ob die E-Mail bereits registriert ist
+  async checkEmailExistsAndProceed() {
+    const email = this.emailControl.value;
+
+    try {
+      const emailExists = await this.authService.checkEmailExistsInFirestore(
+        email
+      );
+
+      if (emailExists) {
+        this.errorMessage = 'Diese E-Mail-Adresse ist bereits registriert.';
+      } else {
+        this.errorMessage = null;
+        this.proceedToSelectAvatar();
+      }
+    } catch (error) {
+      console.error('Fehler bei der Überprüfung der E-Mail-Adresse:', error);
+      this.errorMessage = 'Fehler bei der Überprüfung der E-Mail-Adresse.';
+    }
   }
 
   // Temporäre Speicherung der Registrierungsdaten und Weiterleitung
@@ -96,6 +119,10 @@ export class RegisterComponent implements OnInit {
 
   get confirmPasswordControl(): FormControl {
     return this.registerForm.get('confirmPassword') as FormControl;
+  }
+
+  get acceptTermsControl(): FormControl {
+    return this.registerForm.get('acceptTerms') as FormControl;
   }
 
   // Überprüfen, ob ein Großbuchstabe vorhanden ist

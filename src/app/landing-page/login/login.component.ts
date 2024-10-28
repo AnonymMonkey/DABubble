@@ -36,35 +36,38 @@ import { ErrorService } from '../../shared/services/error-service/error.service'
 export class LoginComponent {
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', [Validators.required]);
-  errorMessage: string = '';
+  errorMessage: string | null = null;
   showAnimation: boolean = false;
 
   constructor(
     private authService: AuthService,
     private errorService: ErrorService,
     private routingService: RoutingService
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     const animationPlayed = sessionStorage.getItem('animationPlayed');
+    this.showAnimation = !animationPlayed;
+
     if (!animationPlayed) {
-      this.showAnimation = true;
       sessionStorage.setItem('animationPlayed', 'true');
     }
   }
 
   async login() {
+    // Überprüfen, ob beide Felder gültige Eingaben haben
     if (this.email.invalid || this.password.invalid) {
       this.errorMessage = 'Bitte gültige E-Mail und Passwort eingeben.';
       return;
     }
 
     try {
+      // Versuche den Benutzer anzumelden
       await this.authService.login(this.email.value!, this.password.value!);
+      this.errorMessage = null; // Fehlermeldung zurücksetzen, falls vorher eine angezeigt wurde
+      // Weiterleitung nach erfolgreichem Login
       // this.routingService.navigateToMain();
     } catch (error: any) {
-      this.errorService.logError(error);
-      this.errorMessage = error.message;
+      this.errorService.logError(error); // Fehler wird protokolliert
+      this.errorMessage = 'Benutzername oder Passwort ist falsch.'; // Allgemeine Fehlermeldung
     }
   }
 

@@ -253,7 +253,6 @@ export class UserService {
   }
   
 
-
   //NOTE - Hier wird die UID des aktuell angemeldeten Nutzers in der variable userId gespeichert.
   initializeUserId(): void {
     this.route.paramMap.subscribe((params) => {

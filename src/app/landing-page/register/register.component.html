@@ -1,5 +1,5 @@
 <div class="register">
-  <mat-card>
+  <mat-card (keydown.enter)="checkEmailExistsAndProceed()">
     <div class="headline">
       <mat-icon class="back-icon" (click)="navigateToLogin()"
         >arrow_back</mat-icon
@@ -129,6 +129,45 @@
         </ng-container>
       </div>
     </div>
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <div class="checkbox-wrapper-33">
+      <label class="checkbox">
+        <input
+          class="checkbox__trigger visuallyhidden"
+          type="checkbox"
+          [formControl]="acceptTermsControl"
+        />
+        <span class="checkbox__symbol">
+          <svg
+            aria-hidden="true"
+            class="icon-checkbox"
+            width="28px"
+            height="28px"
+            viewBox="0 0 28 28"
+            version="1"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M4 14l8 7L24 7"></path>
+          </svg>
+        </span>
+        <p class="checkbox__textwrapper">
+          Ich stimme der
+          <a href="#" class="link" (click)="navigateToPrivacyPolicy()"
+            >Datenschutzerklärung</a
+          >
+          zu.
+        </p>
+      </label>
+      <div
+        *ngIf="acceptTermsControl.invalid && acceptTermsControl.touched"
+        class="error-message"
+      >
+        Die Zustimmung zur Datenschutzerklärung ist erforderlich.
+      </div>
+    </div>
+
     <div class="next-button">
       <button
         mat-flat-button
@@ -137,7 +176,7 @@
           !registerForm.valid ||
           passwordControl.value !== confirmPasswordControl.value
         "
-        (click)="proceedToSelectAvatar()"
+        (click)="checkEmailExistsAndProceed()"
       >
         Weiter
       </button>

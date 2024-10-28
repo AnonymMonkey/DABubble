@@ -1,5 +1,5 @@
 <div class="login">
-  <mat-card>
+  <mat-card (keydown.enter)="login()">
     <h1>Anmeldung</h1>
 
     <p>
@@ -10,18 +10,11 @@
     <div class="input-primary">
       <input [formControl]="email" placeholder="beispielname&#64;email.com" />
       <mat-icon>mail_outline</mat-icon>
-      <div *ngIf="email.invalid && email.touched" class="error-message">
-        Bitte eine gültige E-Mail-Adresse eingeben.
-      </div>
     </div>
 
     <div class="input-primary">
       <input [formControl]="password" type="password" placeholder="Passwort" />
       <mat-icon>lock_outline</mat-icon>
-      <!-- Fehlermeldung für ungültiges Passwort -->
-      <div *ngIf="password.invalid && password.touched" class="error-message">
-        Bitte ein Passwort eingeben.
-      </div>
     </div>
 
     <a class="link" (click)="navigateToResetPassword()">Passwort vergessen?</a>
@@ -50,8 +43,9 @@
     </div>
   </mat-card>
 
+  <!-- Logo-Animation nur beim ersten Laden -->
   <div class="logo-bg" *ngIf="showAnimation"></div>
-  <div class="logo" *ngIf="showAnimation">
+  <div [ngClass]="{ logo: showAnimation, 'logo-final': !showAnimation }">
     <div class="logo-container">
       <img src="assets/img/logo.webp" alt="" />
       <div class="logo-name">
