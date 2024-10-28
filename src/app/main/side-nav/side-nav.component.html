@@ -81,6 +81,7 @@
       <button
         *ngIf="user.displayName != userData.displayName"
         class="button-secondary"
+        (click)="openChatWithUser(user)"
       >
         <div class="image-with-badge">
           <img src="{{ user.photoURL }}" alt="" />
