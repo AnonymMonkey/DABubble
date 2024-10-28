@@ -19,8 +19,9 @@ import { ClickStopPropagationDirective } from '../../shared/directives/click-sto
 import { UserData } from '../../shared/models/user.model';
 import { ChannelService } from '../../shared/services/channel-service/channel.service';
 import { Channel } from '../../shared/models/channel.model';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../shared/services/user-service/user.service';
+import { PrivateChatService } from '../../shared/services/private-chat-service/private-chat.service';
 
 @Component({
   selector: 'app-side-nav',
@@ -46,8 +47,10 @@ export class SideNavComponent {
   @Input() userData!: UserData;
   allChannelsData: Channel[] = [];
   userService = inject(UserService);
+  privateChatService = inject(PrivateChatService);
   allUserData: UserData[] = [];
   allUserStatus: { userId: string; online: boolean }[] = [];
+  router: Router = inject(Router);
 
   constructor(public dialog: MatDialog) {}
 
@@ -107,5 +110,22 @@ export class SideNavComponent {
       (status) => status.userId === userId
     );
     return userStatus ? userStatus.online : false;
+  }
+
+  openChatWithUser(targetUser: UserData) {
+    this.privateChatService
+      .openOrCreatePrivateChat(this.userData, targetUser)
+      .subscribe((chatId) => {
+        if (chatId) {
+          this.router.navigate([
+            `/main/${this.userData.uid}/privatechat`,
+            chatId,
+          ]);
+        } else {
+          console.error(
+            'Fehler beim Öffnen oder Erstellen des privaten Chats.'
+          );
+        }
+      });
   }
 }
