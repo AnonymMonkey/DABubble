@@ -3,7 +3,7 @@
     <img src="./assets/img/Workspace logo.png" alt="" />
     <span>Devspace</span>
   </div>
-  <button mat-icon-button class="toolbar-icon">
+  <button mat-icon-button class="toolbar-icon" routerLink=".">
     <mat-icon class="material-symbols-outlined">edit_square</mat-icon>
   </button>
 </mat-toolbar>
@@ -81,6 +81,7 @@
       <button
         *ngIf="user.displayName != userData.displayName"
         class="button-secondary"
+        (click)="openChatWithUser(user)"
       >
         <div class="image-with-badge">
           <img src="{{ user.photoURL }}" alt="" />
