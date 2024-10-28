@@ -77,6 +77,10 @@
   }
 }
 
+.error-message {
+  color: var(--error-color);
+}
+
 form {
   display: flex;
   flex-direction: column;

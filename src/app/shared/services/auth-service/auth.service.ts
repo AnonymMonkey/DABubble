@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import {
   Auth,
   signInWithEmailAndPassword,
@@ -8,6 +8,7 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   confirmPasswordReset,
+  fetchSignInMethodsForEmail,
   User,
 } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
@@ -18,18 +19,35 @@ import { ErrorService } from '../error-service/error.service';
 import { RoutingService } from '../routing-service/routing.service';
 import { UserData } from '../../models/user.model';
 import { NotificationService } from '../notification-service/notification.service';
+import { Firestore } from '@angular/fire/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   constructor(
+    private firestore: Firestore,
     private auth: Auth = inject(Auth),
     private userService: UserService,
     private errorService: ErrorService,
     private routingService: RoutingService,
     private notificationService: NotificationService
   ) {}
+
+  async checkEmailExistsInFirestore(email: string): Promise<boolean> {
+    const usersCollection = collection(this.firestore, 'users');
+    const querySnapshot = await getDocs(usersCollection);
+
+    // Durchlaufe alle Dokumente und prüfe, ob die E-Mail existiert
+    for (const doc of querySnapshot.docs) {
+      const data = doc.data();
+      if (data['email'] === email) {
+        return true; // E-Mail gefunden
+      }
+    }
+    return false; // E-Mail nicht gefunden
+  }
 
   // Anmeldung als Gastnutzer
   // Benutzer wird anonym in Firebase authentifiziert
@@ -155,6 +173,17 @@ export class AuthService {
       this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
     } catch (error) {
       this.handleError(error);
+    }
+  }
+
+  async checkEmailExists(email: string): Promise<boolean> {
+    try {
+      const signInMethods = await fetchSignInMethodsForEmail(this.auth, email);
+      return signInMethods.length > 0; // Gibt true zurück, wenn die E-Mail existiert
+    } catch (error) {
+      this.handleError(error);
+      console.error('Fehler bei fetchSignInMethodsForEmail:', error);
+      throw error;
     }
   }
 
