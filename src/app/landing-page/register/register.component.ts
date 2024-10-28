@@ -54,6 +54,7 @@ export class RegisterComponent implements OnInit {
         ],
       ],
       confirmPassword: ['', Validators.required],
+      acceptTerms: [false, Validators.requiredTrue],
     });
   }
 
@@ -118,6 +119,10 @@ export class RegisterComponent implements OnInit {
 
   get confirmPasswordControl(): FormControl {
     return this.registerForm.get('confirmPassword') as FormControl;
+  }
+
+  get acceptTermsControl(): FormControl {
+    return this.registerForm.get('acceptTerms') as FormControl;
   }
 
   // Überprüfen, ob ein Großbuchstabe vorhanden ist

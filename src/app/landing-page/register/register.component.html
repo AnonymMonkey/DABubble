@@ -134,7 +134,11 @@
 
     <div class="checkbox-wrapper-33">
       <label class="checkbox">
-        <input class="checkbox__trigger visuallyhidden" type="checkbox" />
+        <input
+          class="checkbox__trigger visuallyhidden"
+          type="checkbox"
+          [formControl]="acceptTermsControl"
+        />
         <span class="checkbox__symbol">
           <svg
             aria-hidden="true"
@@ -150,12 +154,18 @@
         </span>
         <p class="checkbox__textwrapper">
           Ich stimme der
-          <a href="#" class="link" [routerLink]="['/datenschutz']"
+          <a href="#" class="link" (click)="navigateToPrivacyPolicy()"
             >Datenschutzerklärung</a
           >
           zu.
         </p>
       </label>
+      <div
+        *ngIf="acceptTermsControl.invalid && acceptTermsControl.touched"
+        class="error-message"
+      >
+        Die Zustimmung zur Datenschutzerklärung ist erforderlich.
+      </div>
     </div>
 
     <div class="next-button">
