@@ -3,10 +3,10 @@
     <h3>Profil</h3>
     <mat-icon (click)="closeDialog()">close</mat-icon>
   </div>
-  <img class="profile-image" src="./assets/img/profile/frederik.webp" alt="" />
+  <img class="profile-image" src="{{ userData.photoURL }}" alt="" />
   <div class="profile-info-name">
     <div class="name-edit">
-      <h2>{{ ownProfile ? "Frederick Beck" : "Sofie Müller" }}</h2>
+      <h2>{{ userData.displayName }}</h2>
       <span [ngStyle]="{ display: ownProfile ? 'block' : 'none' }"
         >Bearbeiten</span
       >
@@ -20,7 +20,13 @@
     <mat-icon>mail_outline</mat-icon>
     <div class="mail-info-wrapper">
       <span>E-Mail-Adresse</span>
-      <a href="mailto:fred.beck&#64;email.com">fred.beck&#64;email.com</a>
+      <a href="mailto:{{ userData.email }}">{{ userData.email }}</a>
     </div>
+  </div>
+  <div
+    class="button-wrapper"
+    [ngStyle]="{ display: !ownProfile ? 'flex' : 'none' }"
+  >
+    <button class="button-primary">Private Nachricht</button>
   </div>
 </mat-card>

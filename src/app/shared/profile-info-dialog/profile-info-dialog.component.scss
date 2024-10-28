@@ -76,6 +76,11 @@
       }
     }
   }
+
+  .button-wrapper {
+    display: flex;
+    justify-content: center;
+  }
 }
 
 ::ng-deep {
