@@ -1,0 +1,28 @@
+.search-field {
+  color: var(--grey-color);
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 960px;
+
+  mat-icon {
+    position: absolute;
+    right: var(--padding-32);
+  }
+
+  input {
+    width: 100%;
+    font-size: var(--fontsize-24);
+    font-family: var(--font-nunito);
+    padding: var(--padding-16) var(--padding-16) var(--padding-16)
+      var(--padding-32);
+    border-radius: 42px;
+    border: none;
+    &:hover {
+      outline: 1px solid var(--purple2-color);
+    }
+    &:focus-visible {
+      outline: 1px solid var(--purple1-color);
+    }
+  }
+}
