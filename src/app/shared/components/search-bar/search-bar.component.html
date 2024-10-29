@@ -1,4 +1,21 @@
-<div class="search-field">
-  <input placeholder="{{ placeholder }}" />
+<div mat-form-field class="search-field">
+  <input
+    matInput
+    [formControl]="inputControl"
+    [matAutocomplete]="auto"
+    placeholder="{{ placeholder }}"
+  />
   <mat-icon *ngIf="searchIconExists">search</mat-icon>
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    (optionSelected)="onOptionSelected($event.option)"
+  >
+    <mat-option
+      *ngFor="let option of filteredOptions | async"
+      [value]="getOptionName(option)"
+      [id]="getOptionId(option)"
+    >
+      {{ getOptionName(option) }}
+    </mat-option>
+  </mat-autocomplete>
 </div>
