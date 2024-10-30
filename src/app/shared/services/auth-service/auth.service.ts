@@ -98,15 +98,15 @@ export class AuthService {
 
       const googleProfilePhotoURL =
         userCredential.user.photoURL || 'assets/img/profile/placeholder.webp'; // Google-Profilbild oder Platzhalter verwenden
-      const formattedDisplayName = new UserData(
-        userCredential.user
-      ).formatDisplayName();
+      // const formattedDisplayName = new UserData(
+      //   userCredential.user
+      // ).formatDisplayName();
 
-      await this.userService.saveUserData(
-        userCredential.user,
-        formattedDisplayName,
-        googleProfilePhotoURL
-      );
+      // await this.userService.saveUserData(
+      //   userCredential.user,
+      //   formattedDisplayName,
+      //   googleProfilePhotoURL
+      // );
       await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
       this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
     } catch (error) {
