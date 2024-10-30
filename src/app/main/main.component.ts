@@ -37,6 +37,7 @@ export class MainComponent {
   constructor(private route: ActivatedRoute) {
     this.route.params.subscribe((params) => {
       this.userId = params['uid'];
+      this.userService.userId = this.userId;
     });
   }
 

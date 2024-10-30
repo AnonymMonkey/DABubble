@@ -1,5 +1,5 @@
 import { CommonModule, NgClass, NgFor } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { ThreadComponent } from '../thread/thread.component';
@@ -11,9 +11,8 @@ import { ChannelService } from '../../../shared/services/channel-service/channel
 import { Channel } from '../../../shared/models/channel.model';
 import { Observable } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { MainComponent } from '../../main.component';
-import { ActivatedRoute } from '@angular/router';
+import { collection, doc, onSnapshot } from 'firebase/firestore';
+import { collectionData } from 'rxfire/firestore';
 
 @Component({
   selector: 'app-message-area-chat-history',
@@ -34,9 +33,9 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./message-area-chat-history.component.scss'],
 })
 export class MessageAreaChatHistoryComponent implements OnInit {
+  @Input() currentUserId: any; // Setze den Typ auf string für mehr Klarheit
   isEmojiContainerVisible: number = 0;
   currentChannel$?: Observable<Channel | undefined>;
-  currentUserId: any;
   groupedMessages: any[] = []; // Array to store messages grouped by date
   currentChannel: Channel | undefined;
 
@@ -45,13 +44,9 @@ export class MessageAreaChatHistoryComponent implements OnInit {
   constructor(
     private firestore: Firestore,
     private channelService: ChannelService,
-    private route: ActivatedRoute,
-    private main: MainComponent
   ) {}
 
   ngOnInit(): void {
-    this.currentUserId = this.main.userId;
-
     // Listen for channel changes in Firestore in real-time
     this.currentChannel$ = this.channelService.currentChannel$;
 
@@ -62,31 +57,18 @@ export class MessageAreaChatHistoryComponent implements OnInit {
     });
   }
 
-  getUserIdFromUrl(): void {
-    this.route.paramMap.subscribe((params) => {
-      this.currentUserId = params.get('uid'); // UID aus den URL-Parametern abrufen
-    });
-  }
-
-  // scrollToBottom(): void {
-  //   setTimeout(() => {
-  //     if (this.messageContainer) {
-  //       this.messageContainer.nativeElement.scrollTop =
-  //         this.messageContainer.nativeElement.scrollHeight;
-  //     }
-  //   }, 0);
-  // }
-
   listenForMessages(channelId: string): void {
-    const channelDocRef = doc(this.firestore, `channels/${channelId}`);
-
-    // Set up Firestore listener
-    onSnapshot(channelDocRef, (docSnapshot) => {
-      const channelData: any = docSnapshot.data();
-      if (channelData && channelData.messages) {
-        this.groupMessagesByDate(channelData.messages);
-        this.scrollToBottom();
-      }
+    const messagesCollectionRef = collection(this.firestore, `channels/${channelId}/messages`);
+  
+    // Set up Firestore listener for messages
+    collectionData(messagesCollectionRef).subscribe((messages) => {
+      // Sortiere die Nachrichten nach Zeit, bevor du sie gruppierst
+      messages.sort((a: any, b: any) => {
+        return new Date(a['time']).getTime() - new Date(b['time']).getTime();
+      });
+  
+      this.groupMessagesByDate(messages);
+      this.scrollToBottom();
     });
   }
 
@@ -95,7 +77,7 @@ export class MessageAreaChatHistoryComponent implements OnInit {
     const grouped = messages.reduce((acc, message) => {
       const messageDate = new Date(message.time);
       const today = new Date();
-
+  
       let dateString: string;
       if (
         messageDate.getFullYear() === today.getFullYear() &&
@@ -106,23 +88,33 @@ export class MessageAreaChatHistoryComponent implements OnInit {
       } else {
         dateString = messageDate.toLocaleDateString();
       }
-
+  
       if (!acc[dateString]) {
         acc[dateString] = [];
       }
-      acc[dateString].push(message);
+  
+      acc[dateString].push({
+        ...message,
+        messageId: message.messageId,
+      });
+  
       return acc;
     }, {});
-
+  
     this.groupedMessages = Object.keys(grouped).map((date) => ({
       date,
       messages: grouped[date],
     }));
-
-    // console.log(this.groupedMessages, this.currentUserId);
-
+  
+    // Optional: Sorte die groupedMessages nach Datum, falls gewünscht
+    this.groupedMessages.sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime(); // neueste zuerst
+    });
+  
     this.scrollToBottom();
   }
+  
+  
 
   scrollToBottom(): void {
     setTimeout(() => {

@@ -1,0 +1,47 @@
+:host {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    color: black;
+    font-family: var(--font-nunito);
+    height: fit-content;
+  
+    div {
+      width: 100%;
+    }
+  }
+
+  .reply-info {
+    display: flex;
+    align-items: center;
+    margin: 10px 0; /* Abstand nach oben und unten */
+  }
+  
+  .reply-divider {
+    flex-grow: 1; /* Füllt den verfügbaren Platz */
+    border: none; /* Entfernt Standardrahmen */
+    height: 1px; /* Höhe des Strichs */
+    background-color: gray; /* Farbe des Strichs */
+    margin-left: 10px; /* Abstand zwischen Text und Strich */
+  }
+  
+  
+  app-date-of-message {
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  
+  app-own-private-message-template, app-other-private-message-template {
+    width: 100%;
+    display: flex;
+  }
+  

@@ -1,1 +1,26 @@
-<p>thread-chat-history works!</p>
+<div *ngIf="currentMessage">
+  <ng-container *ngIf="isCurrentUser(currentMessage); else otherUserMessage">
+    <app-own-private-message-template [message]="currentMessage"></app-own-private-message-template>
+  </ng-container>
+  <ng-template #otherUserMessage>
+    <app-other-private-message-template [message]="currentMessage"></app-other-private-message-template>
+  </ng-template>
+
+  <div class="reply-info">
+    <span>{{ (threadMessages$ | async)?.length }} Antworten</span>
+    <hr class="reply-divider">
+  </div>
+
+  <ng-container *ngIf="threadMessages$ | async as threadMessages">
+    <div *ngIf="threadMessages.length > 0">
+      <ng-container *ngFor="let threadMessage of threadMessages">
+        <ng-container *ngIf="isCurrentUser(threadMessage); else otherUserThreadMessage">
+          <app-own-private-message-template [message]="threadMessage"></app-own-private-message-template>
+        </ng-container>
+        <ng-template #otherUserThreadMessage>
+          <app-other-private-message-template [message]="threadMessage"></app-other-private-message-template>
+        </ng-template>
+      </ng-container>
+    </div>
+  </ng-container>  
+</div>

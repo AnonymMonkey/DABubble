@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { MainMessageAreaComponent } from '../../main-message-area.component';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
+import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 
 @Component({
   selector: 'app-own-message-template',
@@ -15,7 +16,8 @@ export class OwnMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
 
 
-  constructor(public mainMessageArea: MainMessageAreaComponent, public channelService: ChannelService) {}
+  constructor(public mainMessageArea: MainMessageAreaComponent, public channelService: ChannelService, public threadService: ThreadService
+  ) {}
   showEmojiContainer(id: number) {
     this.isEmojiContainerVisible = id;
   }

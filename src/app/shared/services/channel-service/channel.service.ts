@@ -16,6 +16,10 @@ import {
   setDoc,
   updateDoc,
 } from 'firebase/firestore';
+import { MatDialog } from '@angular/material/dialog';
+import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
+import { UserData } from '../../models/user.model';
+import { ChannelMessage } from '../../models/channel-message.model';
 
 @Injectable({
   providedIn: 'root',
@@ -26,13 +30,13 @@ export class ChannelService {
   ); // BehaviorSubject
   public currentChannel$ = this.currentChannelSubject.asObservable(); // Observable für Komponenten
   public currentChannel: Channel | null = null;
-  public channelId: string | undefined;
+  public channelId: string = '';
   public actualThread: Array<string> = []; // Daten des aktuell ausgewählten Threads
 
   // Neues Observable für Channel-Daten
   public channelData$: Observable<Channel | undefined> = this.currentChannel$;
 
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore, public dialog: MatDialog) {}
 
   // Methode zum Laden eines Channels und Speichern im Subject
   setChannel(channelId: string): void {
@@ -53,8 +57,23 @@ export class ChannelService {
     return from(getDoc(channelDoc)).pipe(
       map((docSnapshot) => {
         if (docSnapshot.exists()) {
-          const channelData = docSnapshot.data() as Channel;
-          return { ...channelData, channelId: docSnapshot.id };
+          const channelData = docSnapshot.data() as {
+            admin: { userId: string; userName: string; photoURL: string };
+            channelName: string;
+            description: string;
+            members: { userId: string; userName: string; photoURL: string }[];
+            messages: { [messageId: string]: any }; // Anpassung erforderlich, wenn du ChannelMessage verwendest
+          };
+  
+          // Erstelle eine neue Instanz von Channel und gib sie zurück
+          return new Channel(
+            channelData.admin,
+            channelId,
+            channelData.channelName,
+            channelData.description,
+            channelData.members,
+            channelData.messages // oder ein leeres Objekt, wenn messages nicht vorhanden sind
+          );
         } else {
           return undefined; // Gebe undefined zurück, wenn der Channel nicht existiert
         }
@@ -62,18 +81,33 @@ export class ChannelService {
     );
   }
 
-  // Channels laden
   getChannels(): Observable<Channel[]> {
     const channelsCollection = collection(this.firestore, 'channels');
     return from(getDocs(channelsCollection)).pipe(
       map((channelSnapshot) =>
         channelSnapshot.docs.map((doc) => {
-          const channelData = doc.data() as Channel;
-          return { ...channelData, channelId: doc.id };
+          const channelData = doc.data() as {
+            admin: { userId: string; userName: string; photoURL: string; };
+            channelName: string;
+            description: string;
+            members: { userId: string; userName: string; photoURL: string; }[];
+            messages: { [messageId: string]: ChannelMessage };
+          };
+  
+          // Erstelle eine neue Instanz von Channel und gib sie zurück
+          return new Channel(
+            channelData.admin,
+            doc.id, // Verwende die ID des Dokuments
+            channelData.channelName,
+            channelData.description,
+            channelData.members,
+            channelData.messages
+          );
         })
       )
     );
   }
+  
 
   //NOTE - Ich habe hier eine Funktion fürs erstellen eines neuen Channels erstellt
 
@@ -113,5 +147,9 @@ export class ChannelService {
 
   setActualThread(threadData: Array<string>): void {
     this.actualThread = threadData;
+  }
+
+  openProfileInfo(user: any): void {
+    const dialogRef = this.dialog.open(ProfileInfoDialogComponent);
   }
 }
