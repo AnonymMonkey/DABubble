@@ -3,10 +3,10 @@
     <img src="assets/img/logo.webp" alt="" />
     <img src="assets/img/logo_name.webp" alt="" />
   </div>
-  <div class="search-field">
-    <input placeholder="Devspace durchsuchen" />
-    <mat-icon>search</mat-icon>
-  </div>
+  <app-search-bar
+    [placeholder]="'Devspace durchsuchen'"
+    [searchIconExists]="true"
+  ></app-search-bar>
   <div class="profile" (click)="toggleDropdown()">
     <p *ngIf="userData">{{ userData.displayName }}</p>
     <div class="image-with-badge">

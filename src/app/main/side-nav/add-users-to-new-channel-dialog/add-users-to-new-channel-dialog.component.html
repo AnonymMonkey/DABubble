@@ -34,7 +34,7 @@
         }
         <input
           name="currentUser"
-          placeholder="New fruit..."
+          placeholder="User hinzufügen..."
           #fruitInput
           [(ngModel)]="currentUser"
           [matChipInputFor]="chipGrid"
@@ -49,8 +49,6 @@
         >
           @for (user of filteredUsers(); track user) {
           <mat-option [value]="user">
-            <!-- <img src="{{ user.photoURL }}" alt="" />
-            {{ user.userName }} -->
             <div class="image-with-badge">
               <img src="{{ user.photoURL }}" alt="" />
               <div class="badge"></div>
