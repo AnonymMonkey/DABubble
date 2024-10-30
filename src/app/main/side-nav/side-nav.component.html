@@ -37,6 +37,8 @@
       <button
         class="button-secondary"
         routerLink="channel/{{ channel.channelId }}"
+        routerLinkActive="active"
+        (click)="activeButtonService.setActiveButton('')"
       >
         <mat-icon class="material-symbols-outlined">tag</mat-icon
         >{{ channel.channelName }}
@@ -69,7 +71,13 @@
           </div>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <button class="button-secondary">
+      <button
+        class="button-secondary"
+        (click)="openChatWithUser(userData, userData.uid + '_' + userData.uid)"
+        [ngClass]="{
+          active: isActiveButton(userData.uid + '_' + userData.uid)
+        }"
+      >
         <div class="image-with-badge">
           <img src="{{ userData.photoURL }}" alt="" />
           <div class="badge" style="background-color: #92c83e"></div>
@@ -81,13 +89,14 @@
       <button
         *ngIf="user.displayName != userData.displayName"
         class="button-secondary"
-        (click)="openChatWithUser(user)"
+        (click)="openChatWithUser(user, userData.uid + '_' + user.uid)"
+        [ngClass]="{ active: isActiveButton(userData.uid + '_' + user.uid) }"
       >
         <div class="image-with-badge">
           <img src="{{ user.photoURL }}" alt="" />
           <div
             class="badge"
-            [class.online]="checkUserOnlineStatus(user.uid)"
+            [class.online]="userService.checkUserOnlineStatus(user.uid)"
           ></div>
         </div>
         <p class="name">{{ user.displayName }}</p>

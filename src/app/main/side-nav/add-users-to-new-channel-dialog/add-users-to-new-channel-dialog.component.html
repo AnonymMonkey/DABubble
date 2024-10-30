@@ -51,7 +51,10 @@
           <mat-option [value]="user">
             <div class="image-with-badge">
               <img src="{{ user.photoURL }}" alt="" />
-              <div class="badge"></div>
+              <div
+                class="badge"
+                [class.online]="userService.checkUserOnlineStatus(user.userId)"
+              ></div>
             </div>
             <p class="name">{{ user.userName }}</p>
           </mat-option>
