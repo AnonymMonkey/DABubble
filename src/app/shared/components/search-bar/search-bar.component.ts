@@ -10,6 +10,7 @@ import { Channel } from '../../models/channel.model';
 import { UserData } from '../../models/user.model';
 import { map, Observable, startWith } from 'rxjs';
 import { Router } from '@angular/router';
+import { ActiveChatButtonService } from '../../services/profile-chat-button-service/active-chat-button.service';
 
 @Component({
   selector: 'app-search-bar',
@@ -35,6 +36,7 @@ export class SearchBarComponent {
   inputControl = new FormControl('');
   filteredOptions!: Observable<(Channel | UserData)[]>;
   router = inject(Router);
+  activeButtonService = inject(ActiveChatButtonService);
 
   ngOnInit(): void {
     this.loadAllUserData();
@@ -128,6 +130,7 @@ export class SearchBarComponent {
           .navigate([`/main/${this.userData.uid}/channel/${option.id}`])
           .then(() => {
             this.inputControl.setValue('');
+            this.activeButtonService.setActiveButton('');
           });
       } else if (option.value.startsWith('@')) {
         this.router
@@ -136,6 +139,9 @@ export class SearchBarComponent {
           ])
           .then(() => {
             this.inputControl.setValue('');
+            this.activeButtonService.setActiveButton(
+              `${this.userData.uid}_${option.id}`
+            );
           });
       } else {
         console.log('Kein weiterleiten möglich!');

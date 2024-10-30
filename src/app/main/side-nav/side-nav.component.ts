@@ -22,6 +22,8 @@ import { Channel } from '../../shared/models/channel.model';
 import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../shared/services/user-service/user.service';
 import { PrivateChatService } from '../../shared/services/private-chat-service/private-chat.service';
+import { A } from '@angular/cdk/keycodes';
+import { ActiveChatButtonService } from '../../shared/services/profile-chat-button-service/active-chat-button.service';
 
 @Component({
   selector: 'app-side-nav',
@@ -50,7 +52,7 @@ export class SideNavComponent {
   privateChatService = inject(PrivateChatService);
   allUserData: UserData[] = [];
   router: Router = inject(Router);
-  activeButton: number = 0;
+  activeButtonService = inject(ActiveChatButtonService);
 
   constructor(public dialog: MatDialog) {}
 
@@ -105,12 +107,12 @@ export class SideNavComponent {
     );
   }
 
-  openChatWithUser(targetUser: UserData, buttonID: number) {
+  openChatWithUser(targetUser: UserData, buttonID: string) {
     this.privateChatService
       .openOrCreatePrivateChat(this.userData, targetUser)
       .subscribe((chatId) => {
         if (chatId) {
-          this.activeButton = buttonID;
+          this.activeButtonService.setActiveButton(buttonID);
           this.router.navigate([
             `/main/${this.userData.uid}/privatechat`,
             chatId,
@@ -121,5 +123,9 @@ export class SideNavComponent {
           );
         }
       });
+  }
+
+  isActiveButton(buttonId: string): boolean {
+    return this.activeButtonService.activeButtonId === buttonId;
   }
 }
