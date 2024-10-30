@@ -87,7 +87,7 @@
           <img src="{{ user.photoURL }}" alt="" />
           <div
             class="badge"
-            [class.online]="checkUserOnlineStatus(user.uid)"
+            [class.online]="userService.checkUserOnlineStatus(user.uid)"
           ></div>
         </div>
         <p class="name">{{ user.displayName }}</p>

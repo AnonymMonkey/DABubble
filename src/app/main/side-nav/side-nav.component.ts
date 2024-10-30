@@ -49,7 +49,6 @@ export class SideNavComponent {
   userService = inject(UserService);
   privateChatService = inject(PrivateChatService);
   allUserData: UserData[] = [];
-  allUserStatus: { userId: string; online: boolean }[] = [];
   router: Router = inject(Router);
 
   constructor(public dialog: MatDialog) {}
@@ -97,19 +96,12 @@ export class SideNavComponent {
   loadOnlineStatus() {
     this.userService.getAllUsersOnlineStatus().subscribe(
       (statusArray) => {
-        this.allUserStatus = statusArray;
+        this.userService.allUsersOnlineStatus$ = statusArray;
       },
       (error) => {
         console.error(error);
       }
     );
-  }
-
-  checkUserOnlineStatus(userId: string): boolean {
-    const userStatus = this.allUserStatus.find(
-      (status) => status.userId === userId
-    );
-    return userStatus ? userStatus.online : false;
   }
 
   openChatWithUser(targetUser: UserData) {

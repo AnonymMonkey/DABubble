@@ -229,20 +229,24 @@ export class UserService {
   }
 
   // Setzt den Online-Status des Benutzers in der Realtime Database
-  async setOnlineStatus(userId: string, isOnline: boolean, onReload: boolean = false): Promise<void> {
+  async setOnlineStatus(
+    userId: string,
+    isOnline: boolean,
+    onReload: boolean = false
+  ): Promise<void> {
     const userStatusRef = ref(this.database, `status/${userId}`);
-  
+
     // Wenn die Methode aufgrund eines Reloads aufgerufen wird, setzen wir den Online-Status auf true
     if (onReload) {
       isOnline = true;
     }
-  
+
     // Setzt den Online-Status und den Zeitpunkt der letzten Online-Aktivität
     await set(userStatusRef, {
       online: isOnline,
       lastOnline: isOnline ? null : new Date().toISOString(),
     });
-  
+
     // Falls die Verbindung unterbrochen wird, wird der Nutzer als offline markiert
     if (isOnline) {
       onDisconnect(userStatusRef).set({
@@ -251,7 +255,6 @@ export class UserService {
       });
     }
   }
-  
 
   //NOTE - Hier wird die UID des aktuell angemeldeten Nutzers in der variable userId gespeichert.
   initializeUserId(): void {
@@ -263,5 +266,12 @@ export class UserService {
         console.error('Keine UID in der URL gefunden.');
       }
     });
+  }
+
+  checkUserOnlineStatus(userId: string): boolean {
+    const userStatus = this.allUsersOnlineStatus$.find(
+      (status) => status.userId === userId
+    );
+    return userStatus ? userStatus.online : false;
   }
 }
