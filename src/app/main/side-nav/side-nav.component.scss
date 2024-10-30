@@ -115,6 +115,16 @@
       }
     }
 
+    .active {
+      color: var(--purple1-color) !important;
+      background-color: var(--bg-color) !important;
+      font-weight: 700 !important;
+      cursor: pointer;
+      p {
+        cursor: pointer;
+      }
+    }
+
     .footer-button {
       margin-top: 8px;
       &:hover {

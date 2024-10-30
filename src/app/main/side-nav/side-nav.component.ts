@@ -50,6 +50,7 @@ export class SideNavComponent {
   privateChatService = inject(PrivateChatService);
   allUserData: UserData[] = [];
   router: Router = inject(Router);
+  activeButton: number = 0;
 
   constructor(public dialog: MatDialog) {}
 
@@ -104,11 +105,12 @@ export class SideNavComponent {
     );
   }
 
-  openChatWithUser(targetUser: UserData) {
+  openChatWithUser(targetUser: UserData, buttonID: number) {
     this.privateChatService
       .openOrCreatePrivateChat(this.userData, targetUser)
       .subscribe((chatId) => {
         if (chatId) {
+          this.activeButton = buttonID;
           this.router.navigate([
             `/main/${this.userData.uid}/privatechat`,
             chatId,
