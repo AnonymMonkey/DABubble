@@ -19,7 +19,6 @@ export class PrivateChatPlaceholderComponent implements OnInit {
   chatUserId: string | undefined = '';
   chatUserName: string | undefined;
   chatUserPhotoURL: string | undefined;
-  isMenuOpened: boolean = false;
   dialog = inject(MatDialog);
 
   constructor(
@@ -65,13 +64,8 @@ export class PrivateChatPlaceholderComponent implements OnInit {
   }
 
   openProfileInfo(): void {
-    this.isMenuOpened = true; // Menü als geöffnet markieren
     const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
       data: { userId: this.chatUserId, userName: this.chatUserName, userPhotoURL: this.chatUserPhotoURL  }
-    });
-
-    dialogRef.afterClosed().subscribe(() => {
-      this.isMenuOpened = false; // Menü als geschlossen markieren
     });
   }
 }

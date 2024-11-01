@@ -9,7 +9,7 @@
     >
       <div class="image-with-badge">
         <img [src]="chatUserPhotoURL || '../../../../assets/img/profile/placeholder-img.webp'" alt="Profile Picture">
-        <div class="badge"></div>
+        <div class="badge" [class.online]="userService.checkUserOnlineStatus(chatUserId!)"></div>
       </div>
       <span>{{ chatUserName || 'Loading...' }}</span>
     </button>
