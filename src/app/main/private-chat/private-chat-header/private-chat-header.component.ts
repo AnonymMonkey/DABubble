@@ -19,14 +19,14 @@ import { PrivateChatService } from '../../../shared/services/private-chat-servic
 export class PrivateChatHeaderComponent implements OnInit {
   isMenuOpened: boolean = false;
   currentUserId: string = '';
-  chatUserId: string | undefined = '';
+  public chatUserId: string | undefined = '';
   chatUserName: string | undefined;
   chatUserPhotoURL: string | undefined;
 
   constructor(
     public dialog: MatDialog,
     private route: ActivatedRoute,
-    private userService: UserService,
+    public userService: UserService,
   ) {}
 
   ngOnInit() {
@@ -60,7 +60,7 @@ export class PrivateChatHeaderComponent implements OnInit {
   openProfileInfo(): void {
     this.isMenuOpened = true; // Menü als geöffnet markieren
     const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
-      data: { userName: this.chatUserName, userPhotoURL: this.chatUserPhotoURL }
+      data: { userId: this.chatUserId, userName: this.chatUserName, userPhotoURL: this.chatUserPhotoURL  }
     });
 
     dialogRef.afterClosed().subscribe(() => {
