@@ -13,10 +13,9 @@ import { NgFor } from '@angular/common';
   styleUrl: './channel-members-list.component.scss'
 })
 export class ChannelMembersListComponent {
-
   currentChannel: Channel | undefined;
 
-  constructor(public header: MessageAreaHeaderComponent, private channelService: ChannelService) {}
+  constructor(public header: MessageAreaHeaderComponent, public channelService: ChannelService) {}
 
   ngOnInit(): void {
     this.channelService.currentChannel$.subscribe({

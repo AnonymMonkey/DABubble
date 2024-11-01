@@ -4,18 +4,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { AsyncPipe, DatePipe, NgFor } from '@angular/common';
 import { Firestore, FirestoreDataConverter, DocumentData, DocumentSnapshot } from '@angular/fire/firestore';
-import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { ChannelService } from '../../../shared/services/channel-service/channel.service';
+import { arrayUnion, collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { UserService } from '../../../shared/services/user-service/user.service';
 import { ActivatedRoute } from '@angular/router';
 import { PrivateChat } from '../../../shared/models/private-chat.model';
 import { PrivateChatService } from '../../../shared/services/private-chat-service/private-chat.service';
+import { ChannelService } from '../../../shared/services/channel-service/channel.service';
+import { Channel } from '../../../shared/models/channel.model';
 
-// Converter für ChannelMessage
 const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   toFirestore(message: ChannelMessage): DocumentData {
     return {
-      content: message.content,
+      content: message.content,  // Der Inhalt wird hier direkt gespeichert
       messageId: message.messageId,
       reactions: message.reactions,
       time: message.time,
@@ -48,19 +48,32 @@ export class MessageAreaNewMessageComponent implements OnInit {
   userId?: string;
   userName?: string;
   photoURL?: string;
+  channel: Channel | undefined;
 
   constructor(
     private firestore: Firestore,
     private userService: UserService,
     private route: ActivatedRoute,
-    private privateChatService: PrivateChatService
+    private privateChatService: PrivateChatService,
+    private channelService: ChannelService
   ) {}
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe(async params => {
       this.userId = this.userService.userId;
       this.privateChatId = params.get('privateChatId') || undefined;
       this.channelId = params.get('channelId') || undefined;
+
+      if (this.channelId) {
+        this.channelService.getChannelById(this.channelId).subscribe(channel => {
+          if (channel) {
+            this.channel = channel;
+          } else {
+            console.error('Channel existiert nicht.');
+          }
+        });
+      }
+
       this.getUserData();
     });
   }
@@ -78,51 +91,68 @@ export class MessageAreaNewMessageComponent implements OnInit {
   }
 
   async sendMessage() {
-    if (!this.newMessageContent.trim()) return;
+    if (!this.newMessageContent) return;
 
+    // Generiere die messageId außerhalb des ChannelMessage-Objekts
+    const messageId = `msg_${Date.now()}`;
+
+    // Erstelle das ChannelMessage-Objekt und setze die messageId
     const newMessage = new ChannelMessage(
-      this.newMessageContent,
-      this.generateMessageId(),
+      this.newMessageContent, // Speichere den Inhalt direkt
       this.userId || '',
       this.userName || '',
-      this.photoURL || ''
+      this.photoURL || '',
+      messageId // Die ID hier übergeben
     );
 
     if (this.privateChatId) {
       await this.sendPrivateChatMessage(newMessage);
     } else if (this.channelId) {
+      this.channel?.addMessage(messageId, newMessage);
       await this.sendChannelMessage(newMessage);
     } else {
       console.error('Weder privateChatId noch channelId ist definiert.');
     }
 
-    this.newMessageContent = ''; // Nachrichteneingabefeld zurücksetzen
+    // Nachrichteneingabefeld zurücksetzen
+    this.newMessageContent = '';
+  }
+
+  private async sendChannelMessage(newMessage: ChannelMessage) {
+    const messagesRef = collection(this.firestore, `channels/${this.channelId}/messages`);
+    try {
+      const newMessageDocRef = doc(messagesRef, newMessage.messageId);
+      await setDoc(newMessageDocRef, channelMessageConverter.toFirestore(newMessage));
+      this.channel?.addMessage(newMessage.messageId, newMessage);
+    } catch (error) {
+      console.error('Fehler beim Senden der Nachricht im Channel:', error);
+    }
   }
 
   private async sendPrivateChatMessage(newMessage: ChannelMessage) {
     const userDocRef = doc(this.firestore, `users/${this.userId}`);
     const userSnapshot = await getDoc(userDocRef);
-  
+
     if (!userSnapshot.exists()) {
       console.error('Benutzerdokument existiert nicht.');
       return;
     }
-  
+
     const userData = userSnapshot.data() as { privateChat?: Record<string, PrivateChat> };
-  
+
     if (!userData.privateChat) {
       console.error('privateChat ist nicht definiert.');
       return;
     }
-  
+
     const privateChatId = this.privateChatId;
     if (!privateChatId) {
       console.error('privateChatId ist nicht definiert.');
       return;
     }
-  
+
     const privateChatExists = userData.privateChat[privateChatId];
-  
+
     if (!privateChatExists) {
       await updateDoc(userDocRef, {
         [`privateChat.${privateChatId}`]: {
@@ -135,8 +165,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
         }
       });
     }
-  
-    // Nutze arrayUnion um die Nachricht hinzuzufügen
+
     await updateDoc(userDocRef, {
       [`privateChat.${privateChatId}.messages`]: arrayUnion({
         content: newMessage.content,
@@ -146,33 +175,5 @@ export class MessageAreaNewMessageComponent implements OnInit {
         user: newMessage.user
       })
     });
-  
-    console.log('Nachricht im privaten Chat erfolgreich hinzugefügt.');
-  }
-
-  private async sendChannelMessage(newMessage: ChannelMessage) {
-    const channelDocRef = doc(this.firestore, `channels/${this.channelId}`).withConverter(channelMessageConverter);
-    await this.updateChannelMessages(channelDocRef, newMessage);
-    console.log('Nachricht im Channel erfolgreich hinzugefügt.');
-  }
-
-  private async updateChannelMessages(channelDocRef: any, message: ChannelMessage) {
-    try {
-      await updateDoc(channelDocRef, {
-        messages: arrayUnion({
-          content: message.content,
-          messageId: message.messageId,
-          reactions: message.reactions,
-          time: message.time,
-          user: message.user
-        })
-      });
-    } catch (error) {
-      console.error('Fehler beim Einfügen der Nachricht:', error);
-    }
-  }
-
-  private generateMessageId(): string {
-    return Math.random().toString(36).substring(2); // Generiere eine einfache eindeutige ID
   }
 }

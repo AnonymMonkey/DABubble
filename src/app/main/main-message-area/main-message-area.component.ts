@@ -10,6 +10,7 @@ import { Renderer2 } from '@angular/core';
 import { ChannelService } from '../../shared/services/channel-service/channel.service';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
+import { MainComponent } from '../main.component';
 
 @Component({
   selector: 'app-main-message-area',
@@ -33,21 +34,25 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
   shouldRun = true;
   threadOpened: boolean = false;
   channelData: any;
+  channelId!: string | null;
+  public currentUserId!: string;
+  
 
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenav', { read: ElementRef }) sidenavElement!: ElementRef;
 
-  constructor(private renderer: Renderer2, private channelService: ChannelService, private route: ActivatedRoute) {}
+  constructor(private renderer: Renderer2, private channelService: ChannelService, private route: ActivatedRoute, private main: MainComponent) {}
 
   ngOnInit(): void {
+    this.currentUserId = this.main.userId;
     this.channelService.channelData$.subscribe(data => {
       this.channelData = data; // Channel-Daten speichern
     });
     this.route.paramMap.subscribe(params => {
-      const channelId = params.get('channelId'); // channelId aus der URL abfragen
-      if (channelId) {
-        this.channelService.setChannel(channelId); // Channel setzen
+      this.channelId = params.get('channelId'); // channelId aus der URL abfragen
+      if (this.channelId) {
+        this.channelService.setChannel(this.channelId); // Channel setzen
       }
     });
   }

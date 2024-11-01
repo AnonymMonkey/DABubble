@@ -34,7 +34,7 @@ export class UserService {
   private database = getDatabase(); // Realtime Database für den Online-Status
   private tempUserData: Partial<UserData> = {}; // Temporäre Speicherung der Registrierungsdaten
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
-  public userId: string = ''; // ID des aktuell angemeldeten Nutzers
+  public userId!: string; // ID des aktuell angemeldeten Nutzers
 
   //REVIEW - Hier versuche ich die Daten zentral in diesem service zu speichern,
   // sodass jede Komponente darauf zugreifen kann.
@@ -44,11 +44,6 @@ export class UserService {
   private userDataSubject = new BehaviorSubject<any>(null); // Zum Speichern der Benutzerdaten
   userData$ = this.userDataSubject.asObservable(); // Observable für andere Komponenten
   public route: ActivatedRoute = inject(ActivatedRoute);
-
-  //NOTE - Hier wird die UID des aktuell angemeldeten Nutzers in der variable userId gespeichert.
-  ngOnInit(): void {
-    this.initializeUserId();
-  }
 
   allUsersOnlineStatus$: { userId: string; online: boolean }[] = [];
 
