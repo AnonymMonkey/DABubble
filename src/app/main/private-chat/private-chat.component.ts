@@ -9,6 +9,7 @@ import { NgIf } from '@angular/common';
 import { PrivateChat } from '../../shared/models/private-chat.model';
 import { UserService } from '../../shared/services/user-service/user.service';
 import { PrivateChatHistoryComponent } from './private-chat-history/private-chat-history.component';
+import { ThreadMessage } from '../../shared/models/thread-message.model';
 
 @Component({
   selector: 'app-private-chat',
@@ -27,7 +28,7 @@ import { PrivateChatHistoryComponent } from './private-chat-history/private-chat
 })
 export class PrivateChatComponent implements OnInit {
   public hasMessages: boolean = false;
-  public messages: ChannelMessage[] = [];
+  public messages: ThreadMessage[] = [];
   private privateChat!: PrivateChat;
 
   constructor(
@@ -40,17 +41,18 @@ export class PrivateChatComponent implements OnInit {
     const privateChatId: any =
       this.route.snapshot.paramMap.get('privateChatId'); // privateChatId aus den Routenparametern holen
 
-    // this.userService.getUserDataByUID(currentUserId).subscribe({
-    //   next: (userData) => {
-    //     this.privateChat = userData.privateChat[privateChatId];
-    //     if (this.privateChat?.messages) {
-    //       this.hasMessages = this.privateChat.messages.length > 0;
-    //       this.messages = this.privateChat.messages;
-    //     }
-    //   },
-    //   error: (err) => {
-    //     console.error('Fehler beim Abrufen der Benutzerdaten:', err);
-    //   }
-    // });
+    this.userService.getUserDataByUID(currentUserId).subscribe({
+      next: (userData) => {
+        this.privateChat = userData.privateChat[privateChatId];
+        if (this.privateChat?.messages) {
+          console.log('Privater Chat geladen:', this.privateChat.messages);
+          this.hasMessages = this.privateChat.messages.length > 0;
+          this.messages = this.privateChat.messages;
+        }
+      },
+      error: (err) => {
+        console.error('Fehler beim Abrufen der Benutzerdaten:', err);
+      }
+    });
   }
 }

@@ -1,18 +1,17 @@
 <mat-toolbar>
-    <div class="other-user">
-        <button
-          mat-button
-          class="other-user-button"
-          [class.menu-opened]="isMenuOpened"
-          (click)="isMenuOpened = true"
-          (click)="openProfileInfo()"
-        >
-           <div class="image-with-badge">
-          <img src="../../../../assets/img/profile/frederik.webp" alt="Profile Picture">
-          <div class="badge"></div>
-        </div>
-          <span>Username</span>
-        </button>
+  <div class="other-user">
+    <button
+      mat-button
+      class="other-user-button"
+      [class.menu-opened]="isMenuOpened"
+      (click)="isMenuOpened = true"
+      (click)="openProfileInfo()"
+    >
+      <div class="image-with-badge">
+        <img [src]="chatUserPhotoURL || '../../../../assets/img/profile/placeholder-img.webp'" alt="Profile Picture">
+        <div class="badge"></div>
       </div>
-  </mat-toolbar>
-  
+      <span>{{ chatUserName || 'Loading...' }}</span>
+    </button>
+  </div>
+</mat-toolbar>

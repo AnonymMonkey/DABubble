@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, Inject, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { UserData } from '../models/user.model';
 import { Subscription } from 'rxjs';
@@ -22,12 +22,20 @@ export class ProfileInfoDialogComponent {
   userService = inject(UserService);
 
   readonly dialogRef = inject(MatDialogRef<ProfileInfoDialogComponent>);
-  constructor() {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { userName: string; userPhotoURL: string }) {}
 
   ngOnInit() {
-    this.userService.userData$.subscribe((data) => {
-      this.userData = data; // Empfange die Benutzerdaten
-    });
+    if (this.data) {
+      this.userData = {
+        displayName: this.data.userName,
+        photoURL: this.data.userPhotoURL,
+      } as UserData; // Verwende den Typ UserData
+      this.ownProfile = false;
+    } else {
+      this.userService.userData$.subscribe((data) => {
+        this.userData = data; // Empfange die Benutzerdaten
+      });
+    }
   }
 
   closeDialog() {

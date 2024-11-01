@@ -93,26 +93,6 @@ getPrivateChat(currentUserId: string, privateChatId: string): Observable<Private
     return privateChat.find((chat) => chat.chatId === chatId) ? chatId : null;
   }
 
-  // createNewChatEntry(currentUser: UserData, targetUser: UserData, chatId: string) {
-  //   return {
-  //     chatId,
-  //     user: [
-  //       {
-  //         userId: currentUser.uid,
-  //         userName: currentUser.displayName,
-  //         photoURL: currentUser.photoURL,
-  //       },
-  //       {
-  //         userId: targetUser.uid,
-  //         userName: targetUser.displayName,
-  //         photoURL: targetUser.photoURL,
-  //       },
-  //     ],
-  //     messages: [],
-  //   };
-  // }
-
-
   //ANCHOR - Robin - chatID außerhalb und innerhalb Objekt.
   createNewChatEntry(currentUser: UserData, targetUser: UserData, chatId: string) {
     return {
@@ -134,19 +114,7 @@ getPrivateChat(currentUserId: string, privateChatId: string): Observable<Private
       }
     };
   }
-  
-  // updateUsersChats(currentUserRef: DocumentReference, targetUserRef: DocumentReference, newChat: any): Observable<string> {
-  //   return from(Promise.all([
-  //     updateDoc(currentUserRef, { privateChat: arrayUnion(newChat) }),
-  //     updateDoc(targetUserRef, { privateChat: arrayUnion(newChat) }),
-  //   ])).pipe(
-  //     map(() => newChat.chatId),
-  //     catchError((error) => {
-  //       console.error('Fehler beim Aktualisieren der Chats der Benutzer:', error);
-  //       return of(''); // Rückgabe eines leeren Strings bei Fehler
-  //     })
-  //   );
-  // }
+
   //ANCHOR - Robin - Leichte Umstrukturierung der Methode, um die ID außerhalb als Schlüssel und zusätzlich innerhalb des Objekts zu erstellen.
   updateUsersChats(currentUserRef: DocumentReference, targetUserRef: DocumentReference, newChat: any): Observable<string> {
     const chatId = Object.keys(newChat)[0]; // Holt die äußere ID
