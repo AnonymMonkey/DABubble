@@ -27,7 +27,6 @@ export class PrivateChatHeaderComponent implements OnInit {
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private userService: UserService,
-    private privateChatService: PrivateChatService
   ) {}
 
   ngOnInit() {
@@ -59,8 +58,13 @@ export class PrivateChatHeaderComponent implements OnInit {
   }
 
   openProfileInfo(): void {
+    this.isMenuOpened = true; // Menü als geöffnet markieren
     const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
       data: { userName: this.chatUserName, userPhotoURL: this.chatUserPhotoURL }
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.isMenuOpened = false; // Menü als geschlossen markieren
     });
   }
 

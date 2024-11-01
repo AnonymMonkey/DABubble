@@ -1,7 +1,7 @@
 <section *ngIf="chatUserId && chatUserName">
     <div class="other-user">
-      <img [src]="chatUserPhotoURL || '../../../../assets/img/profile/default-profile.webp'" alt="Profile Picture">
-      <span>
+      <img [src]="chatUserPhotoURL || '../../../../assets/img/profile/default-profile.webp'" alt="Profile Picture" (click)="openProfileInfo()">
+      <span (click)="openProfileInfo()">
         {{ chatUserName }} 
         <p *ngIf="isChatWithSelf()">(Du)</p>
       </span>

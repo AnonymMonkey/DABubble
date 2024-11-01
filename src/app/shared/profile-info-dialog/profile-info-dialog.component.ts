@@ -22,15 +22,21 @@ export class ProfileInfoDialogComponent {
   userService = inject(UserService);
 
   readonly dialogRef = inject(MatDialogRef<ProfileInfoDialogComponent>);
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { userName: string; userPhotoURL: string }) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { userId: string; userName: string; userPhotoURL: string }) {}
 
+  //ANCHOR - Semir - Überprüfung, ob eigenes oder anderes Profil.
   ngOnInit() {
     if (this.data) {
       this.userData = {
+        uid: this.data.userId,
         displayName: this.data.userName,
         photoURL: this.data.userPhotoURL,
       } as UserData; // Verwende den Typ UserData
-      this.ownProfile = false;
+      if (this.data.userId === this.userService.userId) {
+        this.ownProfile = true;
+      } else {
+        this.ownProfile = false;
+      }
     } else {
       this.userService.userData$.subscribe((data) => {
         this.userData = data; // Empfange die Benutzerdaten
