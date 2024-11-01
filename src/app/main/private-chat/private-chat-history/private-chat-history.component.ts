@@ -9,6 +9,7 @@ import { UserService } from '../../../shared/services/user-service/user.service'
 import { OtherPrivateMessageTemplateComponent } from '../chat-components/other-private-message-template/other-private-message-template.component';
 import { OwnPrivateMessageTemplateComponent } from '../chat-components/own-private-message-template/own-private-message-template.component';
 import { PrivateChatService } from '../../../shared/services/private-chat-service/private-chat.service';
+import { ThreadMessage } from '../../../shared/models/thread-message.model';
 
 @Component({
   selector: 'app-private-chat-history',
@@ -26,7 +27,7 @@ export class PrivateChatHistoryComponent implements OnInit {
   currentPrivateChat: PrivateChat | undefined;
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
-  public messages: ChannelMessage[] = [];
+  public messages: ThreadMessage[] = [];
   private privateChat!: PrivateChat;
 
   constructor(
@@ -64,7 +65,7 @@ export class PrivateChatHistoryComponent implements OnInit {
   }
 
   groupMessagesByDateAndSender(): void {
-    const grouped = this.messages.reduce((acc: any, message: ChannelMessage) => {
+    const grouped = this.messages.reduce((acc: any, message: ThreadMessage) => {
       const messageDate = new Date(message.time).toLocaleDateString(); // Verwende 'time' anstelle von 'timestamp'
       const isOwnMessage = message.user.userId === this.currentUserId; // Prüfen, ob die Nachricht vom aktuellen Benutzer ist
   
