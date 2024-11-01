@@ -20,7 +20,6 @@ export class PrivateChatPlaceholderComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private userService: UserService,
-    private privateChatService: PrivateChatService, // Füge den PrivateChatService hier hinzu
   ) {
     
   }
@@ -37,8 +36,6 @@ export class PrivateChatPlaceholderComponent implements OnInit {
         } else if (foundUserId !== undefined) {
           this.chatUserId = foundUserId;
         }
-        
-        console.log('chatUserId:', this.chatUserId);
         if (this.chatUserId) {
           this.loadChatUserData(); // Benutzerdaten laden
         }
