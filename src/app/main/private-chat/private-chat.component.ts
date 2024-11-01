@@ -45,7 +45,6 @@ export class PrivateChatComponent implements OnInit {
       next: (userData) => {
         this.privateChat = userData.privateChat[privateChatId];
         if (this.privateChat?.messages) {
-          console.log('Privater Chat geladen:', this.privateChat.messages);
           this.hasMessages = this.privateChat.messages.length > 0;
           this.messages = this.privateChat.messages;
         }
