@@ -1,8 +1,11 @@
 import { NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UserService } from '../../../shared/services/user-service/user.service';
 import { PrivateChatService } from '../../../shared/services/private-chat-service/private-chat.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ProfileInfoDialogComponent } from '../../../shared/profile-info-dialog/profile-info-dialog.component';
+import { user } from 'rxfire/auth';
 
 @Component({
   selector: 'app-private-chat-placeholder',
@@ -16,6 +19,8 @@ export class PrivateChatPlaceholderComponent implements OnInit {
   chatUserId: string | undefined = '';
   chatUserName: string | undefined;
   chatUserPhotoURL: string | undefined;
+  isMenuOpened: boolean = false;
+  dialog = inject(MatDialog);
 
   constructor(
     private route: ActivatedRoute,
@@ -57,5 +62,16 @@ export class PrivateChatPlaceholderComponent implements OnInit {
 
   isChatWithSelf(): boolean {
     return this.currentUserId === this.chatUserId;
+  }
+
+  openProfileInfo(): void {
+    this.isMenuOpened = true; // Menü als geöffnet markieren
+    const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
+      data: { userId: this.chatUserId, userName: this.chatUserName, userPhotoURL: this.chatUserPhotoURL  }
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.isMenuOpened = false; // Menü als geschlossen markieren
+    });
   }
 }
