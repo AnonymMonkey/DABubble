@@ -4,11 +4,12 @@ export class ThreadMessage {
   content: string;
   messageId: string; // ID der Thread-Nachricht
   time: string;
-  user: {
+  user: { // Benutzerinformationen in einem Array
     userId: string;
     userName: string;
     photoURL: string;
-  };
+  }; // Array für Benutzer
+
   reactions: {
     emoji: string;
     count: number;
@@ -26,11 +27,7 @@ export class ThreadMessage {
     this.content = content;
     this.messageId = messageId;
     this.time = time || new Date().toISOString();
-    this.user = {
-      userId,
-      userName,
-      photoURL,
-    };
+    this.user = { userId, userName, photoURL }; // Benutzerinformationen in ein Array packen
     this.reactions = reactions; // Reaktionen initialisieren
   }
 
@@ -41,7 +38,7 @@ export class ThreadMessage {
         content: message.content,
         messageId: message.messageId,
         time: message.time,
-        user: message.user,
+        user: message.user, // Füge Benutzerinformationen hinzu
         reactions: message.reactions, // Füge Reaktionen hinzu
       };
     },
@@ -49,7 +46,7 @@ export class ThreadMessage {
       const data: any = snapshot.data() as DocumentData;
       return new ThreadMessage(
         data.content,
-        data.user.userId,
+        data.user.userId, // Hole die Benutzerinformationen aus dem Array
         data.user.userName,
         data.user.photoURL,
         data.messageId,

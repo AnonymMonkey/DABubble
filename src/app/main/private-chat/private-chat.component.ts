@@ -40,17 +40,17 @@ export class PrivateChatComponent implements OnInit {
     const privateChatId: any =
       this.route.snapshot.paramMap.get('privateChatId'); // privateChatId aus den Routenparametern holen
 
-    this.userService.getUserDataByUID(currentUserId).subscribe({
-      next: (userData) => {
-        this.privateChat = userData.privateChat[privateChatId];
-        if (this.privateChat?.messages) {
-          this.hasMessages = this.privateChat.messages.length > 0;
-          this.messages = this.privateChat.messages;
-        }
-      },
-      error: (err) => {
-        console.error('Fehler beim Abrufen der Benutzerdaten:', err);
-      }
-    });
+    // this.userService.getUserDataByUID(currentUserId).subscribe({
+    //   next: (userData) => {
+    //     this.privateChat = userData.privateChat[privateChatId];
+    //     if (this.privateChat?.messages) {
+    //       this.hasMessages = this.privateChat.messages.length > 0;
+    //       this.messages = this.privateChat.messages;
+    //     }
+    //   },
+    //   error: (err) => {
+    //     console.error('Fehler beim Abrufen der Benutzerdaten:', err);
+    //   }
+    // });
   }
 }

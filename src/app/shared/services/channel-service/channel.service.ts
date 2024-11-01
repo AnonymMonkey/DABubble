@@ -29,7 +29,6 @@ export class ChannelService {
     undefined
   ); // BehaviorSubject
   public currentChannel$ = this.currentChannelSubject.asObservable(); // Observable für Komponenten
-  public currentChannel: Channel | null = null;
   public channelId: string = '';
   public actualThread: Array<string> = []; // Daten des aktuell ausgewählten Threads
 

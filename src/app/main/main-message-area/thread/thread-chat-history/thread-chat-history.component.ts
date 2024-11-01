@@ -1,6 +1,4 @@
-import { Component, ElementRef, Input, ViewChild, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Channel } from '../../../../shared/models/channel.model';
+import { Component, ElementRef, Input, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { ChannelMessage } from '../../../../shared/models/channel-message.model';
@@ -8,6 +6,9 @@ import { ThreadMessage } from '../../../../shared/models/thread-message.model';
 import { OwnPrivateMessageTemplateComponent } from '../../../private-chat/chat-components/own-private-message-template/own-private-message-template.component';
 import { OtherPrivateMessageTemplateComponent } from '../../../private-chat/chat-components/other-private-message-template/other-private-message-template.component';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { Firestore } from '@angular/fire/firestore';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-thread-chat-history',
@@ -16,58 +17,45 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
   templateUrl: './thread-chat-history.component.html',
   styleUrls: ['./thread-chat-history.component.scss']
 })
-export class ThreadChatHistoryComponent implements OnInit {
-  @Input() currentUserId: any;
-  currentChannel: Channel | undefined;
-  currentMessage: ChannelMessage | null = null;
-
-  // Observable für die Thread-Nachrichten
-  threadMessages$: Observable<ThreadMessage[]> = this.threadService.threadMessages$;
+export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
+  @Input() currentUserId: any; // Derzeitiger Benutzer
+  public currentMessage: ChannelMessage | null = null; // Aktuelle Nachricht
+  public threadMessages: ThreadMessage[] = []; // Lokale Variable für Thread-Nachrichten
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
+  private unsubscribe$ = new Subject<void>(); // Subject zum Steuern der Zerstörung
 
-  constructor(
-    private channelService: ChannelService,
-    private threadService: ThreadService,
-  ) {}
+  constructor(private threadService: ThreadService) {}
 
   ngOnInit(): void {
-    this.channelService.currentChannel$.subscribe((channel) => {
-      if (channel) {
-        this.currentChannel = channel;
-
-        // Starte das Abonnieren der Thread-Nachrichten, falls eine aktuelle Nachricht vorhanden ist
-        if (this.currentMessage) {
-          this.threadService.getAndListenToThreadMessages(this.currentMessage.messageId, this.currentChannel.channelId);
-        }
-      }
-    });
-
-    this.threadService.actualMessage$.subscribe((message) => {
-      if (message) {
-        this.currentMessage = message;
-        this.scrollToBottom();
-
-        // Starte das Abonnieren der Thread-Nachrichten, wenn der aktuelle Kanal definiert ist
-        if (this.currentChannel) {
-          this.threadService.getAndListenToThreadMessages(this.currentMessage.messageId, this.currentChannel.channelId);
-        }
-      } else {
-        this.currentMessage = null;
-      }
+    this.threadService.actualMessage$.pipe(takeUntil(this.unsubscribe$)).subscribe((message) => {
+      this.currentMessage = message;
     });
   }
 
-  isCurrentUser(message: ThreadMessage): boolean {
-    return message.user.userId === this.currentUserId; // Vergleiche die Benutzer-ID
+  ngAfterViewInit(): void {
+    this.scrollToBottom();
   }
 
-  scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.messageContainer) {
-        this.messageContainer.nativeElement.scrollTop =
-          this.messageContainer.nativeElement.scrollHeight;
-      }
-    }, 0);
+  ngOnDestroy(): void {
+    this.unsubscribe$.next(); // Signalisiert die Zerstörung
+    this.unsubscribe$.complete(); // Schließt das Subject
+  }
+
+  isCurrentUser(message: ChannelMessage): boolean {
+    return message.user.userId === this.currentUserId;
+  }
+
+  isCurrentUserThread(message: ThreadMessage): boolean {
+    if (Array.isArray(message.user) && message.user.length > 0) {
+      return message.user[0].userId === this.currentUserId;
+    }
+    return false; // Falls kein Benutzer vorhanden ist
+  }
+
+  private scrollToBottom(): void {
+    if (this.messageContainer) {
+      this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+    }
   }
 }

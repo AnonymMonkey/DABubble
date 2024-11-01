@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { UserService } from '../../../shared/services/user-service/user.service';
 import { OtherPrivateMessageTemplateComponent } from '../chat-components/other-private-message-template/other-private-message-template.component';
 import { OwnPrivateMessageTemplateComponent } from '../chat-components/own-private-message-template/own-private-message-template.component';
+import { PrivateChatService } from '../../../shared/services/private-chat-service/private-chat.service';
 
 @Component({
   selector: 'app-private-chat-history',
@@ -31,24 +32,35 @@ export class PrivateChatHistoryComponent implements OnInit {
   constructor(
     private userService: UserService,
     private route: ActivatedRoute,
+    private privateChatService: PrivateChatService
   ) {}
 
   ngOnInit(): void {
     this.currentUserId = this.userService.userId;
     this.privateChatId = this.route.snapshot.paramMap.get('privateChatId') as string;
-
-    this.userService.getUserDataByUID(this.currentUserId).subscribe({
-      next: (userData) => {
-        this.privateChat = userData.privateChat[this.privateChatId];
-        this.messages = this.privateChat.messages;
-        
-        // Gruppiere und sortiere die Nachrichten
-        this.groupMessagesByDateAndSender();
+  
+    console.log('Aktuelle Benutzer-ID:', this.currentUserId);
+    console.log('Private Chat-ID:', this.privateChatId);
+  
+    this.privateChatService.getPrivateChat(this.currentUserId, this.privateChatId).subscribe({
+      next: (privateChat) => {
+        if (privateChat) {
+          console.log('Privater Chat geladen:', privateChat);
+          this.privateChat = privateChat;
+          this.messages = this.privateChat.messages;
+          this.groupMessagesByDateAndSender();
+        } else {
+          console.error('Privater Chat nicht gefunden');
+        }
       },
       error: (err) => {
-        console.error('Fehler beim Abrufen der Benutzerdaten:', err);
+        console.error('Fehler beim Abrufen des privaten Chats:', err);
       }
     });
+  }
+  
+  logAllPrivateChats(): void {
+    console.log('Alle privaten Chats:', this.privateChat);
   }
 
   groupMessagesByDateAndSender(): void {

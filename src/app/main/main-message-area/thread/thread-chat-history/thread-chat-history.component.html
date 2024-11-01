@@ -1,26 +1,28 @@
-<div *ngIf="currentMessage">
-  <ng-container *ngIf="isCurrentUser(currentMessage); else otherUserMessage">
-    <app-own-private-message-template [message]="currentMessage"></app-own-private-message-template>
-  </ng-container>
-  <ng-template #otherUserMessage>
-    <app-other-private-message-template [message]="currentMessage"></app-other-private-message-template>
-  </ng-template>
+<div #messageContainer class="message-container">
+  <div *ngIf="currentMessage">
+    <!-- Zeige die aktuelle Nachricht -->
+    <ng-container *ngIf="isCurrentUser(currentMessage); else otherUserMessage">
+      <app-own-private-message-template [message]="currentMessage"></app-own-private-message-template>
+    </ng-container>
+    <ng-template #otherUserMessage>
+      <app-other-private-message-template [message]="currentMessage"></app-other-private-message-template>
+    </ng-template>
 
-  <div class="reply-info">
-    <span>{{ (threadMessages$ | async)?.length }} Antworten</span>
-    <hr class="reply-divider">
-  </div>
+    <div class="reply-info">
+      <span>{{ (currentMessage.thread | keyvalue)?.length }} Antworten</span>
+      <hr class="reply-divider">
+    </div>
 
-  <ng-container *ngIf="threadMessages$ | async as threadMessages">
-    <div *ngIf="threadMessages.length > 0">
-      <ng-container *ngFor="let threadMessage of threadMessages">
-        <ng-container *ngIf="isCurrentUser(threadMessage); else otherUserThreadMessage">
-          <app-own-private-message-template [message]="threadMessage"></app-own-private-message-template>
+    <!-- Liste der Thread-Nachrichten -->
+    <ng-container *ngIf="currentMessage && currentMessage.thread">
+      <div *ngFor="let threadMessage of currentMessage.thread | keyvalue">
+        <ng-container *ngIf="threadMessage.value && isCurrentUserThread(threadMessage.value); else otherUserThreadMessage">
+          <app-own-private-message-template [message]="threadMessage.value"></app-own-private-message-template>
         </ng-container>
         <ng-template #otherUserThreadMessage>
-          <app-other-private-message-template [message]="threadMessage"></app-other-private-message-template>
+          <app-other-private-message-template [message]="threadMessage.value"></app-other-private-message-template>
         </ng-template>
-      </ng-container>
-    </div>
-  </ng-container>  
+      </div>
+    </ng-container>
+  </div>
 </div>

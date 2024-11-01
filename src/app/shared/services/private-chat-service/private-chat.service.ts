@@ -36,140 +36,151 @@ const privateChatConverter: FirestoreDataConverter<PrivateChat> = {
   providedIn: 'root',
 })
 export class PrivateChatService {
-  private currentPrivateChatSubject = new BehaviorSubject<
-    PrivateChat | undefined
-  >(undefined);
+  private currentPrivateChatSubject = new BehaviorSubject<PrivateChat | undefined>(undefined);
   public currentPrivateChat$ = this.currentPrivateChatSubject.asObservable();
 
   constructor(private firestore: Firestore, private route: ActivatedRoute) {}
 
-  // Methode zum Hinzufügen eines neuen privaten Chats
-  addPrivateChat(
-    currentUserId: string,
-    privateChatId: string,
-    otherUser: { userId: string; userName: string; photoURL: string }
-  ): Observable<void> {
-    const newPrivateChat = new PrivateChat(privateChatId);
-    newPrivateChat.user[0] = otherUser; // Setze den anderen Benutzer
-
-    const privateChatDocRef = doc(
-      this.firestore,
-      `users/${currentUserId}/privateChat/${privateChatId}`
-    ).withConverter(privateChatConverter);
-    return from(setDoc(privateChatDocRef, newPrivateChat)).pipe(
-      tap(() => this.currentPrivateChatSubject.next(newPrivateChat))
-    );
-  }
-
   // Methode zum Hinzufügen einer Nachricht zu einem privaten Chat
-  addMessageToPrivateChat(
-    currentUserId: string,
-    privateChatId: string,
-    message: ChannelMessage
-  ): Observable<void> {
-    const privateChatDocRef = doc(
-      this.firestore,
-      `users/${currentUserId}/privateChat/${privateChatId}`
-    ).withConverter(privateChatConverter);
+  addMessageToPrivateChat(currentUserId: string, privateChatId: string, message: ChannelMessage): Observable<void> {
+    const privateChatDocRef = this.getPrivateChatDocRef(currentUserId, privateChatId);
 
-    return from(
-      setDoc(
-        privateChatDocRef,
-        {
-          messages: [message], // Achte darauf, dass message jetzt richtig umgewandelt wird
-        },
-        { merge: true }
-      )
-    );
-  }
-
-  //ANCHOR - Methode zum Abrufen eines privaten Chats
-
-  getPrivateChats(userRef: DocumentReference): Observable<any[]> {
-    return from(getDoc(userRef)).pipe(
-      map((userDoc) => userDoc.data()?.['privateChat'] || [])
-    );
-  }
-
-  findExistingChat(privateChat: any[], chatId: string): string | null {
-    return privateChat.find((chat) => chat.chatId === chatId) ? chatId : null;
-  }
-
-  createNewChatEntry(
-    currentUser: UserData,
-    targetUser: UserData,
-    chatId: string
-  ) {
-    return {
-      chatId,
-      user: [
-        {
-          userId: currentUser.uid,
-          userName: currentUser.displayName,
-          photoURL: currentUser.photoURL,
-        },
-        {
-          userId: targetUser.uid,
-          userName: targetUser.displayName,
-          photoURL: targetUser.photoURL,
-        },
-      ],
-      messages: [],
-    };
-  }
-
-  updateUsersChats(
-    currentUserRef: DocumentReference,
-    targetUserRef: DocumentReference,
-    newChat: any
-  ): Observable<string> {
-    return from(
-      Promise.all([
-        updateDoc(currentUserRef, { privateChat: arrayUnion(newChat) }),
-        updateDoc(targetUserRef, { privateChat: arrayUnion(newChat) }),
-      ])
-    ).pipe(
-      map(() => newChat.chatId),
+    return from(setDoc(privateChatDocRef, { messages: arrayUnion(message) }, { merge: true })).pipe(
       catchError((error) => {
-        console.error('Fehler beim Erstellen des privaten Chats:', error);
-        return of(''); // Hier '' zurückgeben statt null
+        console.error('Fehler beim Hinzufügen der Nachricht:', error);
+        return of(undefined); // Rückgabe von undefined bei Fehler
       })
     );
   }
 
-  openOrCreatePrivateChat(
-    currentUser: UserData,
-    targetUser: UserData
-  ): Observable<string> {
+  // Methode zum Abrufen eines spezifischen privaten Chats
+  // Methode zum Abrufen eines spezifischen privaten Chats
+getPrivateChat(currentUserId: string, privateChatId: string): Observable<PrivateChat | undefined> {
+  const privateChatDocRef = doc(this.firestore, `users/${currentUserId}/privateChat/${privateChatId}`).withConverter(privateChatConverter);
+ 
+  return docData<PrivateChat>(privateChatDocRef).pipe( // Hier den Typ hinzugefügt
+    catchError((error) => {
+      console.error('Fehler beim Abrufen des privaten Chats:', error);
+      return of(undefined); // Rückgabe von undefined bei Fehler
+    })
+  );
+}
+
+
+  // Methode zum Abrufen aller privaten Chats eines Benutzers
+  getPrivateChats(userRef: DocumentReference): Observable<any[]> {
+    return from(getDoc(userRef)).pipe(
+      map((userDoc) => {
+        const data = userDoc.data();
+        const privateChats = data?.['privateChat'];
+        if (privateChats && typeof privateChats === 'object') {
+          return Object.values(privateChats);
+        }
+        return [];
+      }),
+      catchError((error) => {
+        console.error('Fehler beim Abrufen der privaten Chats:', error);
+        return of([]); // Rückgabe eines leeren Arrays bei Fehler
+      })
+    );
+  }
+
+  findExistingChat(privateChat: any[], chatId: string): string | null {
+    if (!Array.isArray(privateChat)) {
+      console.error('privateChat ist kein Array:', privateChat);
+      return null;
+    }
+    return privateChat.find((chat) => chat.chatId === chatId) ? chatId : null;
+  }
+
+  // createNewChatEntry(currentUser: UserData, targetUser: UserData, chatId: string) {
+  //   return {
+  //     chatId,
+  //     user: [
+  //       {
+  //         userId: currentUser.uid,
+  //         userName: currentUser.displayName,
+  //         photoURL: currentUser.photoURL,
+  //       },
+  //       {
+  //         userId: targetUser.uid,
+  //         userName: targetUser.displayName,
+  //         photoURL: targetUser.photoURL,
+  //       },
+  //     ],
+  //     messages: [],
+  //   };
+  // }
+
+
+  //ANCHOR - Robin - chatID außerhalb und innerhalb Objekt.
+  createNewChatEntry(currentUser: UserData, targetUser: UserData, chatId: string) {
+    return {
+      [chatId]: { // Äußere Ebene, wo die ID als Schlüssel dient
+        chatId,   // Innere Ebene mit derselben ID als Wert
+        user: [
+          {
+            userId: currentUser.uid,
+            userName: currentUser.displayName,
+            photoURL: currentUser.photoURL,
+          },
+          {
+            userId: targetUser.uid,
+            userName: targetUser.displayName,
+            photoURL: targetUser.photoURL,
+          },
+        ],
+        messages: [],
+      }
+    };
+  }
+  
+  // updateUsersChats(currentUserRef: DocumentReference, targetUserRef: DocumentReference, newChat: any): Observable<string> {
+  //   return from(Promise.all([
+  //     updateDoc(currentUserRef, { privateChat: arrayUnion(newChat) }),
+  //     updateDoc(targetUserRef, { privateChat: arrayUnion(newChat) }),
+  //   ])).pipe(
+  //     map(() => newChat.chatId),
+  //     catchError((error) => {
+  //       console.error('Fehler beim Aktualisieren der Chats der Benutzer:', error);
+  //       return of(''); // Rückgabe eines leeren Strings bei Fehler
+  //     })
+  //   );
+  // }
+  //ANCHOR - Robin - Leichte Umstrukturierung der Methode, um die ID außerhalb als Schlüssel und zusätzlich innerhalb des Objekts zu erstellen.
+  updateUsersChats(currentUserRef: DocumentReference, targetUserRef: DocumentReference, newChat: any): Observable<string> {
+    const chatId = Object.keys(newChat)[0]; // Holt die äußere ID
+    const chatData = newChat[chatId]; // Zugriff auf das innere Objekt mit Chatdaten 
+    return from(Promise.all([
+      updateDoc(currentUserRef, { [`privateChat.${chatId}`]: chatData }),
+      updateDoc(targetUserRef, { [`privateChat.${chatId}`]: chatData }),
+    ])).pipe(
+      map(() => chatId),
+      catchError((error) => {
+        console.error('Fehler beim Aktualisieren der Chats der Benutzer:', error);
+        return of(''); // Rückgabe eines leeren Strings bei Fehler
+      })
+    );
+  }
+  
+
+  openOrCreatePrivateChat(currentUser: UserData, targetUser: UserData): Observable<string> {
     const chatId = this.generateChatId(currentUser.uid, targetUser.uid);
     const currentUserRef = doc(this.firestore, 'users', currentUser.uid);
     const targetUserRef = doc(this.firestore, 'users', targetUser.uid);
 
-    // Zuerst prüfen wir auf vorhandene Chats im Dokument beider Benutzer
     return combineLatest([
       this.getPrivateChats(currentUserRef),
       this.getPrivateChats(targetUserRef),
     ]).pipe(
       switchMap(([currentUserChats, targetUserChats]) => {
-        const existingChatCurrentUser = this.findExistingChat(
-          currentUserChats,
-          chatId
-        );
-        const existingChatTargetUser = this.findExistingChat(
-          targetUserChats,
-          chatId
-        );
+        const existingChatCurrentUser = this.findExistingChat(currentUserChats, chatId);
+        const existingChatTargetUser = this.findExistingChat(targetUserChats, chatId);
 
-        // Falls der Chat bereits existiert, gibt die ID zurück
         if (existingChatCurrentUser || existingChatTargetUser) {
-          return of(chatId);
+          return of(chatId); // Chat existiert bereits
         } else {
-          // Falls der Chat in keinem der beiden Dokumente existiert, wird er erstellt
-          const newChat = this.createNewChatEntry(
-            currentUser,
-            targetUser,
-            chatId
-          );
+          const newChat = this.createNewChatEntry(currentUser, targetUser, chatId);
           return this.updateUsersChats(currentUserRef, targetUserRef, newChat);
         }
       })
@@ -178,5 +189,10 @@ export class PrivateChatService {
 
   generateChatId(uid1: string, uid2: string): string {
     return [uid1, uid2].sort().join('_');
+  }
+
+  // Private Methode zum Abrufen des DocumentReference für private Chats
+  private getPrivateChatDocRef(userId: string, privateChatId: string): DocumentReference {
+    return doc(this.firestore, `users/${userId}/privateChat/${privateChatId}`).withConverter(privateChatConverter);
   }
 }
