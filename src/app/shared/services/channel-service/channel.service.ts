@@ -153,6 +153,7 @@ export class ChannelService {
         userId: user.userId,
         userName: user.userName,
         userPhotoURL: user.photoURL,
+        email: user.email,
       },
     });
   }
