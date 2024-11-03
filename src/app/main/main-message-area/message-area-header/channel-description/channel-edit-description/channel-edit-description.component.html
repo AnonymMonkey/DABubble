@@ -1,13 +1,19 @@
 <div class="description-container">
-    <div class="description-container-headline">
-      <span>Beschreibung</span>
-      <button (click)="description.toggleEditDescription()">Speichern</button>
-    </div>
-   <div class="input-secondary">
-    <input type="text" placeholder="Dein Text hier" />
-   </div>
-    <div class="created-by-container">
-      <span>Erstellt von</span>
-      <span>{{currentChannel?.admin?.userName}}</span>
-    </div>
+  <div class="description-container-headline">
+    <span>Beschreibung</span>
+    <button (click)="saveDescription(); description.toggleEditDescription()">Speichern</button>
   </div>
+  <div class="input-secondary">
+    <input 
+      type="text" 
+      placeholder="Dein Text hier" 
+      [(ngModel)]="newDescription" 
+      (keydown.enter)="saveDescription(); description.toggleEditDescription()"
+    />
+  </div>
+  <div class="created-by-container">
+    <span>Erstellt von</span>
+    <span>{{ currentChannel?.admin?.userName }}</span>
+  </div>
+</div>
+

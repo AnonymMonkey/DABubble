@@ -52,47 +52,47 @@ export class ChannelService {
 
   // Methode zur Abfrage eines Channels anhand der ID
   getChannelById(channelId: string): Observable<Channel | undefined> {
-    const channelDoc = doc(this.firestore, `channels/${channelId}`);
-    return from(getDoc(channelDoc)).pipe(
-      map((docSnapshot) => {
-        if (docSnapshot.exists()) {
-          const channelData = docSnapshot.data() as {
+    const channelDocRef = doc(this.firestore, `channels/${channelId}`);
+    return docData(channelDocRef).pipe(
+      map((docSnapshot: any) => {
+        if (docSnapshot) {
+          const channelData = docSnapshot as {
             admin: { userId: string; userName: string; photoURL: string };
             channelName: string;
             description: string;
             members: { userId: string; userName: string; photoURL: string }[];
-            messages: { [messageId: string]: any }; // Anpassung erforderlich, wenn du ChannelMessage verwendest
+            messages: { [messageId: string]: any };
           };
-  
-          // Erstelle eine neue Instanz von Channel und gib sie zurück
+          
+          // Erstelle und gebe eine neue Instanz von Channel zurück
           return new Channel(
             channelData.admin,
             channelId,
             channelData.channelName,
             channelData.description,
             channelData.members,
-            channelData.messages // oder ein leeres Objekt, wenn messages nicht vorhanden sind
+            channelData.messages
           );
         } else {
-          return undefined; // Gebe undefined zurück, wenn der Channel nicht existiert
+          return undefined;
         }
       })
     );
   }
-
+  
   getChannels(): Observable<Channel[]> {
     const channelsCollection = collection(this.firestore, 'channels');
     return from(getDocs(channelsCollection)).pipe(
       map((channelSnapshot) =>
         channelSnapshot.docs.map((doc) => {
           const channelData = doc.data() as {
-            admin: { userId: string; userName: string; photoURL: string; };
+            admin: { userId: string; userName: string; photoURL: string };
             channelName: string;
             description: string;
-            members: { userId: string; userName: string; photoURL: string; }[];
+            members: { userId: string; userName: string; photoURL: string }[];
             messages: { [messageId: string]: ChannelMessage };
           };
-  
+
           // Erstelle eine neue Instanz von Channel und gib sie zurück
           return new Channel(
             channelData.admin,
@@ -106,7 +106,6 @@ export class ChannelService {
       )
     );
   }
-  
 
   //NOTE - Ich habe hier eine Funktion fürs erstellen eines neuen Channels erstellt
 
@@ -149,6 +148,35 @@ export class ChannelService {
   }
 
   openProfileInfo(user: any): void {
-    const dialogRef = this.dialog.open(ProfileInfoDialogComponent);
+    const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
+      data: {
+        userId: user.userId,
+        userName: user.userName,
+        userPhotoURL: user.photoURL,
+      },
+    });
+  }
+
+  // updateChannelDescription(
+  //   channelId: string,
+  //   newDescription: string
+  // ): Promise<void> {
+  //   const channelDoc = doc(this.firestore, `channels/${channelId}`);
+  //   return updateDoc(channelDoc, { description: newDescription });
+  // }
+
+  updateChannelDescription(channelId: string, newDescription: string): Observable<void> {
+    const channelDocRef = doc(this.firestore, `channels/${channelId}`);
+    return from(updateDoc(channelDocRef, { description: newDescription })).pipe(
+      switchMap(() => this.getChannelById(channelId)),
+      map((updatedChannel) => {
+        this.currentChannelSubject.next(updatedChannel);
+      })
+    );
+  }
+
+  updateChannelName(channelId: string, newName: string): Promise<void> {
+    const channelDocRef = doc(this.firestore, `channels/${channelId}`);
+    return updateDoc(channelDocRef, { channelName: newName });
   }
 }

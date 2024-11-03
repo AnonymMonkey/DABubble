@@ -94,9 +94,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
     });
   }
 
-  private static generatePrivateMessageId(privateChatId: string): string {
-    const currentCount = this.privateChatCounters.get(privateChatId) || 1;
-    this.privateChatCounters.set(privateChatId, currentCount + 1);
+  private static generatePrivateMessageId(): string {;
     const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
     const randomNumber = Math.floor(Math.random() * 1000) + 1;
     return `msg_${timestamp}_${randomNumber}`;
@@ -107,7 +105,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
     if (!this.newMessageContent) return;
 
     const messageId = this.privateChatId
-      ? MessageAreaNewMessageComponent.generatePrivateMessageId(this.privateChatId)
+      ? MessageAreaNewMessageComponent.generatePrivateMessageId()
       : `msg_${Date.now()}`;
 
     const newMessage = new ChannelMessage(
@@ -155,7 +153,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
     }
 
     // Generiere eine neue Nachricht ID mit Timestamp und random number
-    const newMessageId = MessageAreaNewMessageComponent.generatePrivateMessageId(this.privateChatId!);
+    const newMessageId = MessageAreaNewMessageComponent.generatePrivateMessageId();
 
     // Nachricht zum messages-Objekt des spezifischen Chats hinzufügen
     await updateDoc(userDocRef, {

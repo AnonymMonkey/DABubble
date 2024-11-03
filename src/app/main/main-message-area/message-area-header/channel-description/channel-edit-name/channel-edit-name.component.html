@@ -1,10 +1,11 @@
 <section class="edit-channel-name-container">
   <div class="headline">
     <span>Channel-Name</span>
-    <button (click)="description.toggleEditName()">Speichern</button>
+    <button (click)="saveChannelName(); description.toggleEditName()">Speichern</button>
   </div>
   <div class="input-secondary">
-    <input type="text" placeholder="{{currentChannel?.channelName}}" />
+    <input [(ngModel)]="newChannelName" placeholder="Channel-Name" (keydown.enter)="saveChannelName(); description.toggleEditName()" />
     <mat-icon class="material-symbols-outlined">tag</mat-icon>
   </div>
 </section>
+

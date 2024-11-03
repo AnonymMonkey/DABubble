@@ -1,26 +1,44 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ChannelDescriptionComponent } from '../channel-description.component';
 import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
 import { Channel } from '../../../../../shared/models/channel.model';
+import { NgIf } from '@angular/common';
+import { UserService } from '../../../../../shared/services/user-service/user.service';
 
 @Component({
   selector: 'app-channel-display-description',
   standalone: true,
-  imports: [ChannelDescriptionComponent],
+  imports: [ChannelDescriptionComponent, NgIf],
   templateUrl: './channel-display-description.component.html',
-  styleUrl: './channel-display-description.component.scss'
+  styleUrls: ['./channel-display-description.component.scss']
 })
-export class ChannelDisplayDescriptionComponent {
-
+export class ChannelDisplayDescriptionComponent implements OnInit {
+  userService = inject(UserService);
   currentChannel: Channel | undefined;
 
-  constructor(public description: ChannelDescriptionComponent, private channelService: ChannelService) {}
+  constructor(
+    public description: ChannelDescriptionComponent,
+    private channelService: ChannelService
+  ) {}
 
   ngOnInit(): void {
     this.channelService.currentChannel$.subscribe({
       next: (channel) => {
         this.currentChannel = channel;
-      }
+      },
+      error: (error) => console.error('Fehler beim Laden des Channels:', error)
     });
+  }
+
+  updateDescription(newDescription: string): void {
+    if (this.currentChannel) {
+      this.channelService.updateChannelDescription(this.currentChannel.channelId, newDescription).subscribe({
+        error: (error) => console.error('Fehler beim Aktualisieren der Beschreibung:', error)
+      });
+    }
+  }
+
+  userIsAdmin(): boolean {
+    return this.currentChannel?.admin?.userId === this.userService.userId;
   }
 }
