@@ -1,3 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.chat-container {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
 section {
   flex-grow: 1;
   display: flex;

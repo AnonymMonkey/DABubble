@@ -35,10 +35,10 @@ export class ThreadMessage {
 
   // Methode, die eine neue, aufsteigende ID für jeden Chat zurückgibt
   private static generateMessageId(chatId: string): string {
-    const currentCount = this.chatIdCounters.get(chatId) || 1;
+    const currentCount = this.chatIdCounters.get(chatId) || 1; // Verwende Zähler für ID
     this.chatIdCounters.set(chatId, currentCount + 1);
-    return `msg_${currentCount}`; // Formatieren der ID als "msg_1", "msg_2", etc.
-  }
+    return currentCount.toString(); // Gibt die aktuelle ID zurück
+}
 
   // Statische Methode, um ein Objekt mit der ID als Schlüssel außen und innen zu erstellen
   static createWithIdAsKey(content: string, userId: string, userName: string, photoURL: string, chatId: string, reactions: { emoji: string; count: number }[] = []): { [key: string]: ThreadMessage } {

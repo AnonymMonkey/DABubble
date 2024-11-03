@@ -95,11 +95,13 @@ export class MessageAreaNewMessageComponent implements OnInit {
   }
 
   private static generatePrivateMessageId(privateChatId: string): string {
-    // Hole den aktuellen Zähler für diesen privateChatId oder setze ihn auf 1
     const currentCount = this.privateChatCounters.get(privateChatId) || 1;
     this.privateChatCounters.set(privateChatId, currentCount + 1);
-    return `msg_${currentCount}`;
-  }
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    const randomNumber = Math.floor(Math.random() * 1000) + 1;
+    return `msg_${timestamp}_${randomNumber}`;
+}
+
 
   async sendMessage() {
     if (!this.newMessageContent) return;
@@ -139,56 +141,11 @@ export class MessageAreaNewMessageComponent implements OnInit {
     }
   }
 
-  // private async sendPrivateChatMessage(newMessage: ChannelMessage) {
-  //   const userDocRef = doc(this.firestore, `users/${this.userId}`);
-  //   const userSnapshot = await getDoc(userDocRef);
-
-  //   if (!userSnapshot.exists()) {
-  //     console.error('Benutzerdokument existiert nicht.');
-  //     return;
-  //   }
-
-  //   const userData = userSnapshot.data() as { privateChat?: Record<string, PrivateChat> };
-
-  //   if (!userData.privateChat) {
-  //     console.error('privateChat ist nicht definiert.');
-  //     return;
-  //   }
-
-  //   const privateChatId = this.privateChatId;
-  //   if (!privateChatId) {
-  //     console.error('privateChatId ist nicht definiert.');
-  //     return;
-  //   }
-
-  //   if (!userData.privateChat[privateChatId]) {
-  //     await updateDoc(userDocRef, {
-  //       [`privateChat.${privateChatId}`]: {
-  //         chatId: privateChatId,
-  //         messages: [],
-  //         user: [
-  //           {
-  //             userId: this.userId || '',
-  //             userName: this.userName || '',
-  //             photoURL: this.photoURL || '',
-  //           }
-  //         ]
-  //       }
-  //     });
-  //   }
-
-  //   await updateDoc(userDocRef, {
-  //     [`privateChat.${privateChatId}.messages`]: arrayUnion({
-  //       content: newMessage.content,
-  //       messageId: newMessage.messageId,
-  //       reactions: newMessage.reactions,
-  //       time: newMessage.time,
-  //       user: newMessage.user,
-  //     })
-  //   });
-  // }
-
   private async sendPrivateChatMessage(newMessage: ThreadMessage) {
+    const [userId1, userId2] = this.privateChatId!.split('_');
+    const isSelfMessage = this.userId === userId1;
+
+    // Aktuelles Benutzerdokument abrufen
     const userDocRef = doc(this.firestore, `users/${this.userId}`);
     const userSnapshot = await getDoc(userDocRef);
 
@@ -197,45 +154,64 @@ export class MessageAreaNewMessageComponent implements OnInit {
         return;
     }
 
-    const userData = userSnapshot.data() as { privateChat?: Record<string, PrivateChat> };
+    // Generiere eine neue Nachricht ID mit Timestamp und random number
+    const newMessageId = MessageAreaNewMessageComponent.generatePrivateMessageId(this.privateChatId!);
 
-    if (!userData.privateChat) {
-        console.error('privateChat ist nicht definiert.');
-        return;
-    }
-
-    const privateChatId = this.privateChatId;
-    if (!privateChatId) {
-        console.error('privateChatId ist nicht definiert.');
-        return;
-    }
-
-    // Überprüfen, ob der private Chat existiert, wenn nicht, erstelle ihn
-    if (!userData.privateChat[privateChatId]) {
-        await updateDoc(userDocRef, {
-            [`privateChat.${privateChatId}`]: {
-                chatId: privateChatId, // Setzen der ID sowohl als Schlüssel außen als auch innen
-                messages: {}, // Initialisierung mit leerem Nachrichtenobjekt
-                user: [
-                    {
-                        userId: this.userId || '',
-                        userName: this.userName || '',
-                        photoURL: this.photoURL || '',
-                    }
-                ]
-            }
-        });
-    }
-
-    // Nachricht zum messages-Objekt des spezifischen Chats hinzufügen, mit messageId als Schlüssel
+    // Nachricht zum messages-Objekt des spezifischen Chats hinzufügen
     await updateDoc(userDocRef, {
-        [`privateChat.${privateChatId}.messages.${newMessage.messageId}`]: {
+        [`privateChat.${this.privateChatId}.messages.${newMessageId}`]: {
             content: newMessage.content,
-            messageId: newMessage.messageId,
+            messageId: newMessageId,
             reactions: newMessage.reactions,
             time: newMessage.time,
-            user: newMessage.user,
+            user: {
+                userId: this.userId,
+                userName: this.userName,
+                photoURL: this.photoURL,
+            },
         }
     });
+
+    // Wenn die Nachricht nicht vom aktuellen Benutzer stammt, speichere sie auch im anderen Benutzer-Dokument
+    const otherUserId = isSelfMessage ? userId2 : userId1; // Bestimme die ID des anderen Benutzers
+    const otherUserDocRef = doc(this.firestore, `users/${otherUserId}`);
+
+    await updateDoc(otherUserDocRef, {
+        [`privateChat.${this.privateChatId}.messages.${newMessageId}`]: {
+            content: newMessage.content,
+            messageId: newMessageId,
+            reactions: newMessage.reactions,
+            time: newMessage.time,
+            user: {
+                userId: this.userId,
+                userName: this.userName,
+                photoURL: this.photoURL,
+            },
+        }
+    });
+  }
+
+private async getLastMessageId(chatId: string): Promise<number | null> {
+  const userDocRef = doc(this.firestore, `users/${this.userId}`);
+  const userSnapshot = await getDoc(userDocRef);
+
+  if (!userSnapshot.exists()) {
+      console.error('Benutzerdokument existiert nicht.');
+      return null;
+  }
+
+  const chatData = userSnapshot.data()?.['privateChat'][chatId]?.messages;
+
+  if (chatData) {
+    // Die IDs der Nachrichten abrufen und die letzte ID finden
+    const messageIds = Object.keys(chatData).map(id => parseInt(id.replace('msg_', ''))); // IDs in Zahlen umwandeln
+    if (messageIds.length > 0) {
+        const lastMessageId = Math.max(...messageIds); // Höchste ID finden
+        return lastMessageId; // Rückgabe der letzten ID
+    }
+  }
+
+  return null; // Falls keine Nachrichten vorhanden sind
 }
+
 }
