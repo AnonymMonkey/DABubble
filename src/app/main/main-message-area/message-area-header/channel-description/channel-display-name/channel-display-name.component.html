@@ -1,7 +1,7 @@
 <section class="edit-channel-name-container">
 <div class="headline">
     <span>Channel-Name</span>
-    <button (click)="description.toggleEditName()">Bearbeiten</button>
+    <button (click)="description.toggleEditName()" *ngIf="userIsAdmin()">Bearbeiten</button>
   </div>
   <div class="input-primary d-none">
     <input type="text" placeholder="Dein Text hier" />

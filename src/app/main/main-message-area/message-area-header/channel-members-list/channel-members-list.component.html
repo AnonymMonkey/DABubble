@@ -4,20 +4,10 @@
     <mat-icon (click)="header.closeMenu('member-list')">close</mat-icon>
   </div>
   <div class="members-container">
-    <div class="member" (click)="channelService.openProfileInfo('Du')">
-      <img
-        src="../../../../assets/img/profile/frederik.webp"
-        alt="Profile Picture"
-      />
-      <span>Frederick Beck (Du)</span>
-    </div>
-    <div class="member" *ngFor="let user of currentChannel?.members" (click)="channelService.openProfileInfo(user)">
-      <img
-        src="{{user.photoURL}}"
-        alt="Profile Picture"
-      />
+    <div class="member" *ngFor="let user of sortedMembers" (click)="channelService.openProfileInfo(user)">
+      <img src="{{user.photoURL}}" alt="Profile Picture" />
       <span>{{user.userName}}</span>
-    </div>
+    </div>   
     <div class="new-member" (click)="header.closeMenu('member-list')" (click)="header.openMenu('add-member')">
       <div class="add-icon">
         <svg

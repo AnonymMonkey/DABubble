@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -26,7 +26,6 @@ import { NgFor } from '@angular/common';
   ],
   templateUrl: './message-area-header.component.html',
   styleUrls: ['./message-area-header.component.scss'],
-  encapsulation: ViewEncapsulation.None,
 })
 export class MessageAreaHeaderComponent implements OnInit {
   @ViewChild('chooseChannelMenuTrigger') chooseChannelMenuTrigger!: MatMenuTrigger;
@@ -34,10 +33,11 @@ export class MessageAreaHeaderComponent implements OnInit {
   @ViewChild('addMemberMenuTrigger') addMemberMenuTrigger!: MatMenuTrigger;
 
   isMenuOpened: string = '';
+  currentBorderRadius: string = '0px 30px 30px 30px'; // Standardwert
 
   currentChannel: Channel | undefined;
 
-  constructor(private channelService: ChannelService) {}
+  constructor(private channelService: ChannelService, private el: ElementRef, private renderer: Renderer2) {}
 
   ngOnInit(): void {
     this.channelService.currentChannel$.subscribe({
@@ -66,4 +66,24 @@ export class MessageAreaHeaderComponent implements OnInit {
       this.addMemberMenuTrigger.openMenu();
     }
   }
+
+  toggleBorder(menuType: string) {
+    // Setze den border-radius je nach Menütyp
+    switch (menuType) {
+      case 'choose-channel':
+        this.currentBorderRadius = '0px 30px 30px 30px';
+        break;
+      case 'member-list':
+        this.currentBorderRadius = '30px 0px 30px 30px';
+        break;
+      case 'add-member':
+        this.currentBorderRadius = '30px 0px 30px 30px';
+        break;
+      default:
+        this.currentBorderRadius = '0px 30px 30px 30px';
+    }
+    document.documentElement.style.setProperty('--border-radius', this.currentBorderRadius);
+  }
+  
+  
 }
