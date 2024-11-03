@@ -269,4 +269,9 @@ export class UserService {
     );
     return userStatus ? userStatus.online : false;
   }
+
+  getUserEmail(uid: string): string {
+    const user = this.allUserDataSubject.getValue().find((user) => user.id === uid);
+    return user ? user.email : '';
+  }  
 }
