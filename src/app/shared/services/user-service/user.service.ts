@@ -194,6 +194,32 @@ export class UserService {
     displayName?: string,
     photoURL?: string
   ): Promise<void> {
+    const userRef = doc(this.firestore, `users/${user.uid}`);
+    const userSnapshot = await getDoc(userRef);
+
+    // Typisiere `existingData` als teilweise `UserData`
+    let existingData: Partial<UserData> = {};
+    if (userSnapshot.exists()) {
+      existingData = userSnapshot.data() as Partial<UserData>;
+    }
+
+    const userData = new UserData(user, displayName);
+    userData.lastLogin = serverTimestamp();
+    userData.photoURL = photoURL || userData.photoURL;
+    userData.displayName = userData.formatDisplayName();
+
+    // Überprüfe, ob Channels und privateChats bereits existieren und übernehme sie, falls vorhanden
+    userData.channels = existingData.channels || userData.channels;
+    userData.privateChat = existingData.privateChat || userData.privateChat;
+
+    return setDoc(userRef, { ...userData }, { merge: true });
+  }
+
+  /*   async saveUserData(
+    user: User,
+    displayName?: string,
+    photoURL?: string
+  ): Promise<void> {
     const userData = new UserData(user, displayName);
     userData.lastLogin = serverTimestamp(); // Aktualisiert den letzten Login-Zeitpunkt
 
@@ -204,11 +230,11 @@ export class UserService {
     userData.displayName = userData.formatDisplayName();
 
     return setDoc(
-      doc(this.firestore, `users/${user.uid}`),
+      doc(this.firestore, users/${user.uid}),
       { ...userData },
       { merge: true } // Zusammenführen mit bestehenden Daten, um nichts zu überschreiben
     );
-  }
+  } */
 
   // Speichert den Avatar (Profilbild) eines Benutzers in Firestore
   async saveAvatar(userId: string, avatarUrl: string): Promise<void> {

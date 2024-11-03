@@ -98,13 +98,9 @@ export class AuthService {
 
       const googleProfilePhotoURL =
         userCredential.user.photoURL || 'assets/img/profile/placeholder.webp'; // Google-Profilbild oder Platzhalter verwenden
-      const formattedDisplayName = new UserData(
-        userCredential.user
-      ).formatDisplayName();
 
       await this.userService.saveUserData(
         userCredential.user,
-        formattedDisplayName,
         googleProfilePhotoURL
       );
       await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
@@ -219,5 +215,10 @@ export class AuthService {
   private handleError(error: any) {
     this.errorService.logError(error); // Loggt den Fehler
     throw error; // Gibt den Fehler an den Aufrufer zurück
+  }
+
+  formatDisplayName(name: string): string {
+    const user = new UserData({} as any, name); // Erstelle ein UserData-Objekt mit dem Namen
+    return user.formatDisplayName(); // Rufe die Formatierungsfunktion auf
   }
 }
