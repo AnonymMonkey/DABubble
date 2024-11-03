@@ -1,3 +1,11 @@
+.message-container-wrapper {
+  height: 100%; /* Or specify a fixed height, e.g., 400px */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 section {
   flex-grow: 1;
   display: flex;

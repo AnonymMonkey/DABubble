@@ -1,88 +1,98 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+} from '@angular/core';
 import { DateOfMessageComponent } from '../../main-message-area/chat-components/date-of-message/date-of-message.component';
-import { NgFor, NgIf } from '@angular/common';
-import { ChannelMessage } from '../../../shared/models/channel-message.model';
-import { ActivatedRoute } from '@angular/router';
-import { PrivateChat } from '../../../shared/models/private-chat.model';
-import { Observable } from 'rxjs';
-import { UserService } from '../../../shared/services/user-service/user.service';
+import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
 import { OtherPrivateMessageTemplateComponent } from '../chat-components/other-private-message-template/other-private-message-template.component';
 import { OwnPrivateMessageTemplateComponent } from '../chat-components/own-private-message-template/own-private-message-template.component';
-import { PrivateChatService } from '../../../shared/services/private-chat-service/private-chat.service';
-import { ThreadMessage } from '../../../shared/models/thread-message.model';
+import { PrivateChatPlaceholderComponent } from '../private-chat-placeholder/private-chat-placeholder.component';
+import { PrivateChatHeaderComponent } from '../private-chat-header/private-chat-header.component';
+import { UserService } from '../../../shared/services/user-service/user.service';
 
 @Component({
   selector: 'app-private-chat-history',
   standalone: true,
-  imports: [DateOfMessageComponent, OtherPrivateMessageTemplateComponent, OwnPrivateMessageTemplateComponent, NgIf, NgFor],
+  imports: [
+    DateOfMessageComponent,
+    NgFor,
+    MatCardModule,
+    AsyncPipe,
+    NgIf,
+    OtherPrivateMessageTemplateComponent,
+    OwnPrivateMessageTemplateComponent,
+    PrivateChatPlaceholderComponent,
+    PrivateChatHeaderComponent,
+  ],
   templateUrl: './private-chat-history.component.html',
-  styleUrls: ['./private-chat-history.component.scss']
+  styleUrls: ['./private-chat-history.component.scss'],
 })
-export class PrivateChatHistoryComponent implements OnInit {
-  isEmojiContainerVisible: number = 0;
-  currentPrivateChat$?: Observable<PrivateChat | undefined>;
-  currentUserId: any;
+export class PrivateChatHistoryComponent
+  implements OnInit, OnChanges, AfterViewInit
+{
+  @Input() messages: any[] = []; // Erwartet ein Array von Nachrichten
+  @ViewChild('chatContainer') private chatContainer!: ElementRef;
   privateChatId: string = '';
-  groupedMessages: any[] = []; // Array to store messages grouped by date
-  currentPrivateChat: PrivateChat | undefined;
+  groupedMessages: { date: string; messages: any[] }[] = [];
 
-  @ViewChild('messageContainer') messageContainer!: ElementRef;
-  public messages: ThreadMessage[] = [];
-  private privateChat!: PrivateChat;
-
-  constructor(
-    private userService: UserService,
-    private route: ActivatedRoute,
-    private privateChatService: PrivateChatService
-  ) {}
+  constructor(private userService: UserService) {}
 
   ngOnInit(): void {
-    this.currentUserId = this.userService.userId;
-    this.privateChatId = this.route.snapshot.paramMap.get('privateChatId') as string;
-  
-    console.log('Aktuelle Benutzer-ID:', this.currentUserId);
-    console.log('Private Chat-ID:', this.privateChatId);
-  
-    this.privateChatService.getPrivateChat(this.currentUserId, this.privateChatId).subscribe({
-      next: (privateChat) => {
-        if (privateChat) {
-          console.log('Privater Chat geladen:', privateChat);
-          this.privateChat = privateChat;
-          this.messages = this.privateChat.messages;
-          this.groupMessagesByDateAndSender();
-        } else {
-          console.error('Privater Chat nicht gefunden');
-        }
-      },
-      error: (err) => {
-        console.error('Fehler beim Abrufen des privaten Chats:', err);
-      }
-    });
-  }
-  
-  logAllPrivateChats(): void {
-    console.log('Alle privaten Chats:', this.privateChat);
+    this.groupAndSortMessages();
+    this.scrollToBottom();
   }
 
-  groupMessagesByDateAndSender(): void {
-    const grouped = this.messages.reduce((acc: any, message: ThreadMessage) => {
-      const messageDate = new Date(message.time).toLocaleDateString(); // Verwende 'time' anstelle von 'timestamp'
-      const isOwnMessage = message.user.userId === this.currentUserId; // Prüfen, ob die Nachricht vom aktuellen Benutzer ist
-  
-      // Gruppiere nach Datum
-      if (!acc[messageDate]) {
-        acc[messageDate] = { date: messageDate, messages: [] };
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['messages'] && !changes['messages'].firstChange) {
+      this.groupAndSortMessages();
+      this.scrollToBottom(); // Zum neuesten Nachrichtenblock scrollen
+    }
+  }
+
+  ngAfterViewInit(): void {
+    this.scrollToBottom(); // Initiales Scrollen zum unteren Rand
+  }
+
+  private groupAndSortMessages(): void {
+    const grouped: { [date: string]: any[] } = {};
+
+    // Nachrichten gruppieren und nach Datum sortieren
+    this.messages
+      .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()) // Nachrichten nach Zeit sortieren
+      .forEach((message) => {
+        const date = new Date(message.time).toLocaleDateString(); // Verwende ein einheitliches Datumsformat
+        if (!grouped[date]) {
+          grouped[date] = [];
+        }
+        grouped[date].push(message);
+      });
+
+    this.groupedMessages = Object.keys(grouped).map((date) => ({
+      date,
+      messages: grouped[date],
+    }));
+  }
+
+  private async scrollToBottom(): Promise<void> {
+    if (this.chatContainer) {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 50)); // Kurze Verzögerung, um DOM-Aktualisierung abzuwarten
+        this.chatContainer.nativeElement.scrollTop =
+          this.chatContainer.nativeElement.scrollHeight;
+      } catch (err) {
+        console.error('Scroll Error:', err);
       }
-  
-      // Füge Nachricht hinzu
-      acc[messageDate].messages.push({ ...message, isOwnMessage });
-      return acc;
-    }, {});
-  
-    // Erstelle ein Array und sortiere es nach Datum
-    this.groupedMessages = Object.values(grouped).map((group: any) => {
-      group.messages.sort((a: ChannelMessage, b: ChannelMessage) => new Date(a.time).getTime() - new Date(b.time).getTime());
-      return group;
-    });
-  }  
+    }
+  }
+
+  isOwnMessage(userId: string): boolean {
+    return userId === this.userService.userId;
+  }
 }

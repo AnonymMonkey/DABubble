@@ -1,5 +1,5 @@
 import { CommonModule, NgClass, NgFor } from '@angular/common';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { ThreadComponent } from '../thread/thread.component';
@@ -32,12 +32,11 @@ import { collectionData } from 'rxfire/firestore';
   templateUrl: './message-area-chat-history.component.html',
   styleUrls: ['./message-area-chat-history.component.scss'],
 })
-export class MessageAreaChatHistoryComponent implements OnInit {
-  @Input() currentUserId: any; // Setze den Typ auf string für mehr Klarheit
-  isEmojiContainerVisible: number = 0;
+export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked {
+  @Input() currentUserId: string | undefined;
   currentChannel$?: Observable<Channel | undefined>;
-  groupedMessages: any[] = []; // Array to store messages grouped by date
-  currentChannel: Channel | undefined;
+  groupedMessages: any[] = [];
+  private shouldScroll: boolean = false;
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
 
@@ -47,9 +46,7 @@ export class MessageAreaChatHistoryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Listen for channel changes in Firestore in real-time
     this.currentChannel$ = this.channelService.currentChannel$;
-
     this.currentChannel$.subscribe((channel) => {
       if (channel) {
         this.listenForMessages(channel.channelId);
@@ -59,69 +56,62 @@ export class MessageAreaChatHistoryComponent implements OnInit {
 
   listenForMessages(channelId: string): void {
     const messagesCollectionRef = collection(this.firestore, `channels/${channelId}/messages`);
-  
-    // Set up Firestore listener for messages
+
     collectionData(messagesCollectionRef).subscribe((messages) => {
-      // Sortiere die Nachrichten nach Zeit, bevor du sie gruppierst
-      messages.sort((a: any, b: any) => {
-        return new Date(a['time']).getTime() - new Date(b['time']).getTime();
-      });
-  
+      messages.sort((a: any, b: any) => new Date(a['time']).getTime() - new Date(b['time']).getTime());
       this.groupMessagesByDate(messages);
-      this.scrollToBottom();
+      this.shouldScroll = true; // Set flag to scroll after messages load
     });
   }
 
-  // Group messages by date
   groupMessagesByDate(messages: any[]): void {
     const grouped = messages.reduce((acc, message) => {
       const messageDate = new Date(message.time);
       const today = new Date();
-  
+
       let dateString: string;
       if (
         messageDate.getFullYear() === today.getFullYear() &&
         messageDate.getMonth() === today.getMonth() &&
         messageDate.getDate() === today.getDate()
       ) {
-        dateString = 'Heute'; // If it's the current day
+        dateString = 'Heute';
       } else {
         dateString = messageDate.toLocaleDateString();
       }
-  
+
       if (!acc[dateString]) {
         acc[dateString] = [];
       }
-  
+
       acc[dateString].push({
         ...message,
         messageId: message.messageId,
       });
-  
+
       return acc;
     }, {});
-  
+
     this.groupedMessages = Object.keys(grouped).map((date) => ({
       date,
       messages: grouped[date],
     }));
-  
-    // Optional: Sorte die groupedMessages nach Datum, falls gewünscht
-    this.groupedMessages.sort((a, b) => {
-      return new Date(b.date).getTime() - new Date(a.date).getTime(); // neueste zuerst
-    });
-  
-    this.scrollToBottom();
+
+    this.groupedMessages.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
-  
-  
+
+  ngAfterViewChecked(): void {
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false; // Reset the flag after scrolling
+    }
+  }
 
   scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.messageContainer) {
-        this.messageContainer.nativeElement.scrollTop =
-          this.messageContainer.nativeElement.scrollHeight;
-      }
-    }, 0);
+    if (this.messageContainer && this.messageContainer.nativeElement.scrollHeight) {
+      setTimeout(() => {
+        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+      }, 100); // Adding a small delay to allow message rendering
+    }
   }
 }

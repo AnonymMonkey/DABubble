@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { MainMessageAreaComponent } from '../../../main-message-area/main-message-area.component';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
 
 @Component({
@@ -13,7 +12,7 @@ export class OtherPrivateMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
   @Input() message: any = '';
 
-  constructor(public mainMessageArea: MainMessageAreaComponent) {}
+  constructor() {}
 
   showEmojiContainer(id: number) {
     this.isEmojiContainerVisible = id;
