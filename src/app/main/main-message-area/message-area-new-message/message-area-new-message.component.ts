@@ -189,27 +189,27 @@ export class MessageAreaNewMessageComponent implements OnInit {
     });
   }
 
-private async getLastMessageId(chatId: string): Promise<number | null> {
-  const userDocRef = doc(this.firestore, `users/${this.userId}`);
-  const userSnapshot = await getDoc(userDocRef);
+// private async getLastMessageId(chatId: string): Promise<number | null> {
+//   const userDocRef = doc(this.firestore, `users/${this.userId}`);
+//   const userSnapshot = await getDoc(userDocRef);
 
-  if (!userSnapshot.exists()) {
-      console.error('Benutzerdokument existiert nicht.');
-      return null;
-  }
+//   if (!userSnapshot.exists()) {
+//       console.error('Benutzerdokument existiert nicht.');
+//       return null;
+//   }
 
-  const chatData = userSnapshot.data()?.['privateChat'][chatId]?.messages;
+//   const chatData = userSnapshot.data()?.['privateChat'][chatId]?.messages;
 
-  if (chatData) {
-    // Die IDs der Nachrichten abrufen und die letzte ID finden
-    const messageIds = Object.keys(chatData).map(id => parseInt(id.replace('msg_', ''))); // IDs in Zahlen umwandeln
-    if (messageIds.length > 0) {
-        const lastMessageId = Math.max(...messageIds); // Höchste ID finden
-        return lastMessageId; // Rückgabe der letzten ID
-    }
-  }
+//   if (chatData) {
+//     // Die IDs der Nachrichten abrufen und die letzte ID finden
+//     const messageIds = Object.keys(chatData).map(id => parseInt(id.replace('msg_', ''))); // IDs in Zahlen umwandeln
+//     if (messageIds.length > 0) {
+//         const lastMessageId = Math.max(...messageIds); // Höchste ID finden
+//         return lastMessageId; // Rückgabe der letzten ID
+//     }
+//   }
 
-  return null; // Falls keine Nachrichten vorhanden sind
-}
+//   return null; // Falls keine Nachrichten vorhanden sind
+// }
 
 }
