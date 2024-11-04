@@ -1,5 +1,13 @@
 import { CommonModule, NgClass, NgFor } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  ElementRef,
+  Input,
+  OnInit,
+  Query,
+  ViewChild,
+} from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { ThreadComponent } from '../thread/thread.component';
@@ -11,8 +19,11 @@ import { ChannelService } from '../../../shared/services/channel-service/channel
 import { Channel } from '../../../shared/models/channel.model';
 import { Observable } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
-import { collection, doc, onSnapshot } from 'firebase/firestore';
+import { collection, CollectionReference, doc, getDocs, limit, onSnapshot, orderBy, startAfter } from 'firebase/firestore';
 import { collectionData } from 'rxfire/firestore';
+import { DocumentData } from 'rxfire/firestore/interfaces';
+import { query } from '@angular/animations';
+import { F } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-message-area-chat-history',
@@ -32,7 +43,9 @@ import { collectionData } from 'rxfire/firestore';
   templateUrl: './message-area-chat-history.component.html',
   styleUrls: ['./message-area-chat-history.component.scss'],
 })
-export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked {
+export class MessageAreaChatHistoryComponent
+  implements OnInit, AfterViewChecked
+{
   @Input() currentUserId: string | undefined;
   currentChannel$?: Observable<Channel | undefined>;
   groupedMessages: any[] = [];
@@ -42,7 +55,7 @@ export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked
 
   constructor(
     private firestore: Firestore,
-    private channelService: ChannelService,
+    private channelService: ChannelService
   ) {}
 
   ngOnInit(): void {
@@ -50,18 +63,43 @@ export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked
     this.currentChannel$.subscribe((channel) => {
       if (channel) {
         this.listenForMessages(channel.channelId);
+        console.log('Channel:', channel);
       }
     });
   }
 
   listenForMessages(channelId: string): void {
     const messagesCollectionRef = collection(this.firestore, `channels/${channelId}/messages`);
-
-    collectionData(messagesCollectionRef).subscribe((messages) => {
-      messages.sort((a: any, b: any) => new Date(a['time']).getTime() - new Date(b['time']).getTime());
-      this.groupMessagesByDate(messages);
-      this.shouldScroll = true; // Set flag to scroll after messages load
+  
+    // Initiales Laden der Nachrichten
+    this.loadMessages(messagesCollectionRef);
+    
+    // Listener für nachfolgende Nachrichten
+    onSnapshot(messagesCollectionRef, snapshot => {
+      if (!snapshot.empty) {
+        const newMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        this.processNewMessages(newMessages);
+      }
     });
+  }
+  
+  private async loadMessages(collectionRef: CollectionReference<DocumentData>): Promise<void> {
+    const snapshot = await getDocs(collectionRef);
+    
+    if (!snapshot.empty) {
+      const messages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data() as DocumentData // Typisiere die Daten hier
+      }));
+  
+      this.groupMessagesByDate(messages);
+    }
+  }
+  
+  
+  private processNewMessages(messages: any[]): void {
+    // Hier kannst du neue Nachrichten verarbeiten
+    this.groupMessagesByDate(messages);
   }
 
   groupMessagesByDate(messages: any[]): void {
@@ -97,7 +135,9 @@ export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked
       messages: grouped[date],
     }));
 
-    this.groupedMessages.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    this.groupedMessages.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
   }
 
   ngAfterViewChecked(): void {
@@ -108,10 +148,16 @@ export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked
   }
 
   scrollToBottom(): void {
-    if (this.messageContainer && this.messageContainer.nativeElement.scrollHeight) {
+    if (
+      this.messageContainer &&
+      this.messageContainer.nativeElement.scrollHeight
+    ) {
       setTimeout(() => {
-        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+        this.messageContainer.nativeElement.scrollTop =
+          this.messageContainer.nativeElement.scrollHeight;
       }, 100); // Adding a small delay to allow message rendering
     }
   }
 }
+
+
