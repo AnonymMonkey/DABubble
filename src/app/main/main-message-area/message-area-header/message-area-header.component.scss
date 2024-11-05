@@ -8,10 +8,8 @@
     box-shadow: 0px 6px 10px 0px #00000033 !important;
     padding: 0;
     max-width: unset !important;
-  }  
+  }
 }
-
-
 
 :host {
   width: 100%;
@@ -54,9 +52,15 @@ mat-toolbar {
     transform: scale(1.002);
   }
 
-  &:hover svg,
-  &.menu-opened svg {
-    fill: var(--purple3-color);
+  mat-icon {
+    color: var(--black-color) !important;
+  }
+
+  &:hover, 
+  &.menu-opened {
+    mat-icon {
+      color: var(--purple3-color) !important;
+    }
   }
 }
 

@@ -72,8 +72,13 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
     });
   }
 
-  toggleSidenav() {
-    this.sidenav.toggle();
-    this.threadOpened = !this.threadOpened;
+  openSidenav() {
+    this.sidenav.open();
+    this.threadOpened = true;
+  }
+
+  closeSidenav() {
+    this.sidenav.close();
+    this.threadOpened = false;
   }
 }

@@ -1,18 +1,22 @@
 import { Component, Input } from '@angular/core';
 import { MainMessageAreaComponent } from '../../main-message-area.component';
-import { DatePipe, NgClass, NgIf } from '@angular/common';
+import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
+import { MatIcon } from '@angular/material/icon';
+import { PickerModule } from '@ctrl/ngx-emoji-mart';
+import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 
 @Component({
   selector: 'app-other-message-template',
   standalone: true,
-  imports: [NgClass, DatePipe, NgIf],
+  imports: [NgClass, DatePipe, NgIf, NgFor, MatIcon, PickerModule, EmojiComponent],
   templateUrl: './other-message-template.component.html',
   styleUrl: './other-message-template.component.scss'
 })
 export class OtherMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
+  emojis: string = '';
   @Input() message: any = '';
 
   constructor(public mainMessageArea: MainMessageAreaComponent, public channelService: ChannelService, public threadService: ThreadService) {}
@@ -41,5 +45,9 @@ export class OtherMessageTemplateComponent {
     }
   
     return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
+  }
+
+  addEmoji(emoji: string) {
+    // this.mainMessageArea.addEmoji(emoji);
   }
 }
