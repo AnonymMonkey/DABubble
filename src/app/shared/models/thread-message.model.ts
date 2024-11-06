@@ -14,9 +14,6 @@ export class ThreadMessage {
     count: number;
   }[];
 
-  // Map, um für jeden Chat eine eigene ID-Nummerierung zu speichern
-  private static chatIdCounters: Map<string, number> = new Map();
-
   constructor(
     content: string,
     userId: string,
@@ -24,22 +21,23 @@ export class ThreadMessage {
     photoURL: string,
     chatId: string,
     reactions: { emoji: string; count: number }[] = [],
-    time?: string
+    time: string = new Date().toISOString()
   ) {
     this.content = content;
-    this.messageId = ThreadMessage.generateMessageId(chatId); // Generiere eine ID spezifisch für diesen Chat
-    this.time = time || new Date().toISOString();
+    this.messageId = ThreadMessage.generateUniqueMessageId();
+    this.time = time;
     this.user = { userId, userName, photoURL };
     this.reactions = reactions;
   }
 
-  // Methode, die eine neue, aufsteigende ID für jeden Chat zurückgibt
-  private static generateMessageId(chatId: string): string {
-    const randomCount = Math.floor(Math.random() * 1000) + 1; 
-    return `thread_${randomCount}_${Date.now()}`; // Generierung einer ID mit Timestamp
+  // Methode zur Generierung einer ID mit Timestamp und zufälliger Zahl
+  private static generateUniqueMessageId(): string {
+    const timestamp = Date.now();
+    const randomSuffix = Math.floor(Math.random() * 1000) + 1; 
+    return `thread_${timestamp}_${randomSuffix}`;
   }
 
-  // Statische Methode, um ein Objekt mit der ID als Schlüssel außen und innen zu erstellen
+  // Statische Methode, um ein Objekt mit der ID als Schlüssel zu erstellen
   static createWithIdAsKey(content: string, userId: string, userName: string, photoURL: string, chatId: string, reactions: { emoji: string; count: number }[] = []): { [key: string]: ThreadMessage } {
     const message = new ThreadMessage(content, userId, userName, photoURL, chatId, reactions);
     return {
@@ -65,7 +63,7 @@ export class ThreadMessage {
         data.user.userId,
         data.user.userName,
         data.user.photoURL,
-        snapshot.id, // Verwenden Sie die Dokument-ID als messageId
+        snapshot.id,
         data.reactions || [],
         data.time
       );

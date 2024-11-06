@@ -1,3 +1,69 @@
+::ng-deep {
+  .mat-mdc-menu-panel {
+    overflow: hidden !important;
+  }
+
+  emoji-mart-anchors {
+    width: 100%;
+  }
+
+  .emoji-mart-anchors {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .emoji-mart-search {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    input {
+      width: 100%;
+      height: 30px;
+    }
+
+    label {
+      display: none;
+    }
+
+    button {
+      position: absolute;
+      right: 10px;
+      height: 25px;
+      width: 25px;
+      padding: 0 !important;
+      align-self: center;
+    }
+  }
+
+  .emoji-mart-scroll {
+    display: flex;
+    flex-direction: column;
+    max-height: 245px;
+    overflow-y: scroll;
+    color: var(--black-color);
+  }
+
+  .emoji-mart-bar {
+    display: flex;
+    color: var(--black-color);
+  }
+
+  .emoji-mart-preview {
+    padding-left: 5px;
+  }
+
+  .emoji-mart-preview-emoji {
+    margin-bottom: -9px;
+    margin-top: 2px;
+  }
+
+  .emoji-mart-preview-data {
+    display: none;
+  }
+}
+
 section {
   display: flex;
   align-items: center;
@@ -71,4 +137,15 @@ textarea {
       color: var(--purple3-color);
     }
   }
+}
+
+.emoji-picker-container {
+  position: absolute;
+  z-index: 1000;
+  bottom: 80px; /* Oder ein Wert, der den Picker über dem Textbereich platziert */
+  left: 0;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: 350px;
 }
