@@ -5,7 +5,6 @@ import {
   ElementRef,
   Input,
   OnInit,
-  Query,
   ViewChild,
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
@@ -19,12 +18,8 @@ import { ChannelService } from '../../../shared/services/channel-service/channel
 import { Channel } from '../../../shared/models/channel.model';
 import { Observable } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
-import { collection, CollectionReference, doc, getDocs, limit, onSnapshot, orderBy, startAfter } from 'firebase/firestore';
-import { collectionData } from 'rxfire/firestore';
+import { collection, CollectionReference, getDocs, onSnapshot, } from 'firebase/firestore';
 import { DocumentData } from 'rxfire/firestore/interfaces';
-import { query } from '@angular/animations';
-import { F } from '@angular/cdk/keycodes';
-
 @Component({
   selector: 'app-message-area-chat-history',
   standalone: true,
@@ -63,18 +58,13 @@ export class MessageAreaChatHistoryComponent
     this.currentChannel$.subscribe((channel) => {
       if (channel) {
         this.listenForMessages(channel.channelId);
-        console.log('Channel:', channel);
       }
     });
   }
 
   listenForMessages(channelId: string): void {
     const messagesCollectionRef = collection(this.firestore, `channels/${channelId}/messages`);
-  
-    // Initiales Laden der Nachrichten
     this.loadMessages(messagesCollectionRef);
-    
-    // Listener für nachfolgende Nachrichten
     onSnapshot(messagesCollectionRef, snapshot => {
       if (!snapshot.empty) {
         const newMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -85,11 +75,10 @@ export class MessageAreaChatHistoryComponent
   
   private async loadMessages(collectionRef: CollectionReference<DocumentData>): Promise<void> {
     const snapshot = await getDocs(collectionRef);
-    
     if (!snapshot.empty) {
       const messages = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data() as DocumentData // Typisiere die Daten hier
+        ...doc.data() as DocumentData
       }));
   
       this.groupMessagesByDate(messages);
@@ -98,7 +87,6 @@ export class MessageAreaChatHistoryComponent
   
   
   private processNewMessages(messages: any[]): void {
-    // Hier kannst du neue Nachrichten verarbeiten
     this.groupMessagesByDate(messages);
   }
 
@@ -155,7 +143,7 @@ export class MessageAreaChatHistoryComponent
       setTimeout(() => {
         this.messageContainer.nativeElement.scrollTop =
           this.messageContainer.nativeElement.scrollHeight;
-      }, 100); // Adding a small delay to allow message rendering
+      }, 100);
     }
   }
 }

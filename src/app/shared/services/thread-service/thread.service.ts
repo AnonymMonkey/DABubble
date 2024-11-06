@@ -2,8 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ChannelMessage } from '../../models/channel-message.model';
-import { Firestore, doc, updateDoc, onSnapshot } from '@angular/fire/firestore';
-import { ThreadMessage } from '../../models/thread-message.model';
+import { Firestore, doc, onSnapshot } from '@angular/fire/firestore';
 import { ChannelService } from '../channel-service/channel.service';
 
 @Injectable({
@@ -43,7 +42,9 @@ export class ThreadService implements OnDestroy {
   }
 
   setActualMessage(message: ChannelMessage): void {
-    this.actualMessageSubject.next(message);
+    if (message !== this.actualMessageSubject.value) {
+      this.actualMessageSubject.next(message);
+    }
   }
 
   unsubscribe(): void {

@@ -1,15 +1,41 @@
 <section>
   <div class="textarea-container">
-    <textarea placeholder="Nachricht an #Entwicklerteam" id="" [(ngModel)]="newMessageContent" (keydown.enter)="sendMessage(); $event.preventDefault();"></textarea>
+    <textarea
+      placeholder="Nachricht an #Entwicklerteam"
+      [(ngModel)]="newMessageContent"
+      (keydown.enter)="sendMessage(); $event.preventDefault()"
+    ></textarea>
     <div class="icons-container">
       <div class="left-icons">
-        <mat-icon class="material-symbols-outlined">add</mat-icon>
+        <mat-icon
+          class="material-symbols-outlined"
+          >add</mat-icon
+        >
         <div class="grey-line"></div>
-        <mat-icon class="material-symbols-outlined">sentiment_satisfied</mat-icon>
+        <mat-icon
+          class="material-symbols-outlined"
+          [matMenuTriggerFor]="emojiMenu"
+          >sentiment_satisfied</mat-icon
+        >
         <mat-icon class="material-symbols-outlined">alternate_email</mat-icon>
       </div>
       <mat-icon (click)="sendMessage()">send</mat-icon>
     </div>
   </div>
-</section>
 
+  <mat-menu xPosition="after" #emojiMenu>
+      <emoji-mart
+        title="Pick your emoji…"
+        emoji="point_up"
+        set="apple"
+        (emojiClick)="addEmoji($event)"
+        [totalFrequentLines]="2"
+        [native]="true"
+        [theme]="'light'"
+        [i18n]="{
+          search: 'Suche Emojis',
+          categories: { search: 'Suchergebnisse', recent: 'Neueste' }
+        }"
+      ></emoji-mart>
+  </mat-menu>
+</section>
