@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ChannelMessage } from '../../../shared/models/channel-message.model';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { AsyncPipe, DatePipe, NgFor } from '@angular/common';
+import { AsyncPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Firestore, FirestoreDataConverter, DocumentData, DocumentSnapshot } from '@angular/fire/firestore';
-import { arrayUnion, collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { UserService } from '../../../shared/services/user-service/user.service';
 import { ActivatedRoute } from '@angular/router';
-import { PrivateChat } from '../../../shared/models/private-chat.model';
 import { PrivateChatService } from '../../../shared/services/private-chat-service/private-chat.service';
 import { ChannelService } from '../../../shared/services/channel-service/channel.service';
 import { Channel } from '../../../shared/models/channel.model';
 import { ThreadMessage } from '../../../shared/models/thread-message.model';
+import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
+import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
+import { MatMenu, MatMenuModule } from '@angular/material/menu';
+
 
 const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   toFirestore(message: ChannelMessage): DocumentData {
@@ -38,9 +41,10 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
 @Component({
   selector: 'app-message-area-new-message',
   standalone: true,
-  imports: [MatIconModule, FormsModule, DatePipe, NgFor, AsyncPipe],
+  imports: [MatIconModule, MatMenu, MatMenuModule, FormsModule, DatePipe, NgFor, AsyncPipe, PickerModule, PickerComponent, EmojiComponent, NgIf],
   templateUrl: './message-area-new-message.component.html',
   styleUrls: ['./message-area-new-message.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class MessageAreaNewMessageComponent implements OnInit {
   newMessageContent = '';
@@ -50,9 +54,6 @@ export class MessageAreaNewMessageComponent implements OnInit {
   userName?: string;
   photoURL?: string;
   channel: Channel | undefined;
-  
-  // Map zur Speicherung der Nachrichtenzähler pro privateChatId
-  private static privateChatCounters: Map<string, number> = new Map();
 
   constructor(
     private firestore: Firestore,
@@ -188,28 +189,11 @@ export class MessageAreaNewMessageComponent implements OnInit {
         }
     });
   }
-
-// private async getLastMessageId(chatId: string): Promise<number | null> {
-//   const userDocRef = doc(this.firestore, `users/${this.userId}`);
-//   const userSnapshot = await getDoc(userDocRef);
-
-//   if (!userSnapshot.exists()) {
-//       console.error('Benutzerdokument existiert nicht.');
-//       return null;
-//   }
-
-//   const chatData = userSnapshot.data()?.['privateChat'][chatId]?.messages;
-
-//   if (chatData) {
-//     // Die IDs der Nachrichten abrufen und die letzte ID finden
-//     const messageIds = Object.keys(chatData).map(id => parseInt(id.replace('msg_', ''))); // IDs in Zahlen umwandeln
-//     if (messageIds.length > 0) {
-//         const lastMessageId = Math.max(...messageIds); // Höchste ID finden
-//         return lastMessageId; // Rückgabe der letzten ID
-//     }
-//   }
-
-//   return null; // Falls keine Nachrichten vorhanden sind
-// }
-
+  
+  addEmoji(event: any) {
+    console.log('Emoji selected:', event);
+    const emoji = event.emoji.native || event.emoji;
+    this.newMessageContent += emoji;
+  }
+  
 }

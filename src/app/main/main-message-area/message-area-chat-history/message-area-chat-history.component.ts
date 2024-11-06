@@ -58,7 +58,6 @@ export class MessageAreaChatHistoryComponent
     this.currentChannel$.subscribe((channel) => {
       if (channel) {
         this.listenForMessages(channel.channelId);
-        console.log('Channel:', channel);
       }
     });
   }

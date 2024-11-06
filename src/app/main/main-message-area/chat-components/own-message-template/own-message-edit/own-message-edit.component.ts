@@ -48,7 +48,6 @@ export class OwnMessageEditComponent implements OnInit {
     this.temporaryMessageContent.emit(this.editedMessageContent); // Temporären Text senden
   
     if (this.editedMessageContent === this.message.content) {
-      console.log('Keine Änderungen zum Speichern.');
       this.clearInput(false); // Bearbeitungsmodus sofort verlassen, aber Inhalt beibehalten
       return;
     }

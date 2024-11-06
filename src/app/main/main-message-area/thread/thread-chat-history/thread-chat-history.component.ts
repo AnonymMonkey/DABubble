@@ -1,12 +1,10 @@
 import { Component, ElementRef, Input, ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { ChannelMessage } from '../../../../shared/models/channel-message.model';
 import { ThreadMessage } from '../../../../shared/models/thread-message.model';
 import { OwnPrivateMessageTemplateComponent } from '../../../private-chat/chat-components/own-private-message-template/own-private-message-template.component';
 import { OtherPrivateMessageTemplateComponent } from '../../../private-chat/chat-components/other-private-message-template/other-private-message-template.component';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Firestore } from '@angular/fire/firestore';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 

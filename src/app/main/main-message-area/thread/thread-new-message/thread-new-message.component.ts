@@ -129,8 +129,6 @@ export class ThreadNewMessageComponent {
             messageId: newMessage.messageId,
           },
         });
-  
-        console.log('Nachricht erfolgreich in Firestore gespeichert.');
       } catch (error) {
         console.error('Fehler beim Speichern der Nachricht in Firestore:', error);
       }

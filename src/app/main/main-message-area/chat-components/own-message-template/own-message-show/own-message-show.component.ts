@@ -1,57 +1,26 @@
-import { Component, Input } from '@angular/core';
-import { MainMessageAreaComponent } from '../../../main-message-area.component';
-import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { Component, inject, Input } from '@angular/core';
 import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
+import { NgIf, DatePipe } from '@angular/common';
 import { ThreadService } from '../../../../../shared/services/thread-service/thread.service';
-import { MatIcon } from '@angular/material/icon';
-import { PickerModule } from '@ctrl/ngx-emoji-mart';
-import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
-import { Firestore } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { MainMessageAreaComponent } from '../../../main-message-area.component';
 
 @Component({
   selector: 'app-own-message-show',
   standalone: true,
-  imports: [
-    NgClass,
-    DatePipe,
-    NgIf,
-    NgFor,
-    MatIcon,
-    PickerModule,
-    EmojiComponent,
-    AsyncPipe
-  ],
+  imports: [NgIf, DatePipe],
   templateUrl: './own-message-show.component.html',
-  styleUrl: './own-message-show.component.scss',
+  styleUrl: './own-message-show.component.scss'
 })
 export class OwnMessageShowComponent {
   @Input() message: any;
-  @Input() temporaryMessageContent: string = ''; // Neuen Input für temporären Text
-
-  public isEmojiContainerVisible: number = 0;
-  public emojis: string = '';
-  
-  public threadMessages$: Observable<any[]> = new Observable();
-
-  constructor(
-    public mainMessageArea: MainMessageAreaComponent,
-    public channelService: ChannelService,
-    public threadService: ThreadService,
-    public firestore: Firestore
-  ) {}
-
+  public channelService = inject(ChannelService);
+  public threadService = inject(ThreadService);
+  public mainMessageArea = inject(MainMessageAreaComponent);
   get threadKeys(): string[] {
     return Object.keys(this.message?.thread || {});
   }
   
-  showEmojiContainer(id: number) {
-    this.isEmojiContainerVisible = id;
-  }
-
-  hideEmojiContainer() {
-    this.isEmojiContainerVisible = 0;
-  }
+  constructor() {}
 
   getLastReplyTime(thread: { [key: string]: any }): string {
     // Extrahiere die Nachrichten aus dem Objekt (Werte des Objekts)
@@ -72,10 +41,5 @@ export class OwnMessageShowComponent {
     }
   
     return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
-  }
-  
-
-  addEmoji(emoji: string) {
-    // this.mainMessageArea.addEmoji(emoji);
   }
 }
