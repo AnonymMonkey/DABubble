@@ -10,16 +10,31 @@ import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 @Component({
   selector: 'app-other-message-template',
   standalone: true,
-  imports: [NgClass, DatePipe, NgIf, NgFor, MatIcon, PickerModule, EmojiComponent],
+  imports: [
+    NgClass,
+    DatePipe,
+    NgIf,
+    NgFor,
+    MatIcon,
+    PickerModule,
+    EmojiComponent,
+  ],
   templateUrl: './other-message-template.component.html',
-  styleUrl: './other-message-template.component.scss'
+  styleUrl: './other-message-template.component.scss',
 })
 export class OtherMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
   emojis: string = '';
   @Input() message: any = '';
-
-  constructor(public mainMessageArea: MainMessageAreaComponent, public channelService: ChannelService, public threadService: ThreadService) {}
+  get threadKeys(): string[] {
+    return Object.keys(this.message?.thread || {});
+  }
+  
+  constructor(
+    public mainMessageArea: MainMessageAreaComponent,
+    public channelService: ChannelService,
+    public threadService: ThreadService
+  ) {}
 
   showEmojiContainer(id: number) {
     this.isEmojiContainerVisible = id;
@@ -29,8 +44,11 @@ export class OtherMessageTemplateComponent {
     this.isEmojiContainerVisible = 0;
   }
 
-  getLastReplyTime(messages: any[]): string {
-    // Nimm die letzte Nachricht aus dem Array
+  getLastReplyTime(thread: { [key: string]: any }): string {
+    // Extrahiere die Nachrichten aus dem Objekt (Werte des Objekts)
+    const messages = Object.values(thread);
+  
+    // Nimm die letzte Nachricht aus dem Array der Nachrichten
     const lastMessage = messages[messages.length - 1];
   
     if (lastMessage && lastMessage.time) {
@@ -46,6 +64,7 @@ export class OtherMessageTemplateComponent {
   
     return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
   }
+  
 
   addEmoji(emoji: string) {
     // this.mainMessageArea.addEmoji(emoji);

@@ -52,14 +52,14 @@
       </div>
       <span class="message">{{ message?.content }}</span>
       <div class="emoji-container d-none"></div>
-      <div class="thread" *ngIf="message?.thread?.length > 0">
-        <span (click)="mainMessageArea.openSidenav(); threadService.setActualMessage(message)" >
-          {{ message?.thread?.length }} {{ message?.thread?.length === 1 ? 'Antwort' : 'Antworten' }}
+      <div class="thread" *ngIf="message?.thread && threadKeys.length > 0">
+        <span (click)="mainMessageArea.openSidenav(); threadService.setActualMessage(message)">
+          {{ threadKeys.length }} {{ threadKeys.length === 1 ? 'Antwort' : 'Antworten' }}
         </span>
         <span>
-          Letzte Antwort: {{ getLastReplyTime(message.thread.messages) }}
+          Letzte Antwort: {{ getLastReplyTime(message.thread) }}
         </span>
-      </div>
+      </div>           
     </div>
   </div>
 </section>

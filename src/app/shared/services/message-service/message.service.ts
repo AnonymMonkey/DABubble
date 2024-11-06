@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ChannelMessage } from '../../models/channel-message.model';
 import { doc, updateDoc } from 'firebase/firestore';
 import { enableIndexedDbPersistence, Firestore } from '@angular/fire/firestore';
 import { ChannelService } from '../channel-service/channel.service';
+import { docData } from 'rxfire/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +21,11 @@ export class MessageService {
     const newMessage = new ChannelMessage(content, messageId, userId, userName, '');
     this.messages.push(newMessage);
     this.messagesSubject.next(this.messages);
+  }
+
+  getMessageUpdates(messageId: string): Observable<any> {
+    const messageDocRef = doc(this.firestore, `messages/${messageId}`);
+    return docData(messageDocRef, { idField: 'messageId' });
   }
 
    async updateMessageContent(messageId: string, newContent: string): Promise<void> {

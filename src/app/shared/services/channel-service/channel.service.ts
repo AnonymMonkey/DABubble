@@ -4,14 +4,11 @@ import {
   doc,
   docData,
   collection,
-  collectionData,
 } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable, from, map, switchMap } from 'rxjs';
 import { Channel } from '../../models/channel.model';
 import {
-  addDoc,
   arrayUnion,
-  getDoc,
   getDocs,
   setDoc,
   updateDoc,
