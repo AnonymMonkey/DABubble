@@ -7,7 +7,7 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -61,7 +61,6 @@ export class AddUsersToNewChannelDialogComponent {
   userService = inject(UserService);
   userData!: UserData;
   allUserData!: UserData[];
-  myControl = new FormControl('');
 
   newAllUserData: { userId: string; userName: string; photoURL: string }[] = [];
 
