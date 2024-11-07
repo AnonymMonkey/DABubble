@@ -1,0 +1,38 @@
+<mat-card class="profile-info-dialog" appearance="outlined">
+  <div class="card-header">
+    <h3>Dein profil bearbeiten</h3>
+    <mat-icon (click)="closeDialog()">close</mat-icon>
+  </div>
+  <img class="profile-image" src="{{ user.photoURL }}" alt="" />
+  <div class="profile-info-name">
+    <div class="name-edit">
+      <mat-icon class="material-symbols-outlined">account_circle</mat-icon>
+      <h3>Vollständiger Name</h3>
+    </div>
+    <div class="input-secondary">
+      <input
+        type="text"
+        [(ngModel)]="newName"
+        placeholder="{{ user.displayName }}"
+      />
+    </div>
+  </div>
+  <div class="profile-info-name">
+    <div class="name-edit">
+      <mat-icon>mail_outline</mat-icon>
+      <h3>E-Mail-Adresse</h3>
+    </div>
+    <div class="input-secondary">
+      <input
+        type="text"
+        [(ngModel)]="newEmail"
+        placeholder="{{ user.email }}"
+      />
+    </div>
+  </div>
+
+  <div class="button-wrapper">
+    <button class="button-primary" (click)="closeDialog()">Abbrechen</button>
+    <button class="button-primary" (click)="test()">Speichern</button>
+  </div>
+</mat-card>

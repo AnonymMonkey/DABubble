@@ -10,9 +10,13 @@ import { UserData } from '../../models/user.model';
 import {
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
+  updateDoc,
+  where,
 } from 'firebase/firestore';
 import {
   get,
@@ -297,7 +301,45 @@ export class UserService {
   }
 
   getUserEmail(uid: string): string {
-    const user = this.allUserDataSubject.getValue().find((user) => user.id === uid);
+    const user = this.allUserDataSubject
+      .getValue()
+      .find((user) => user.id === uid);
     return user ? user.email : '';
-  }  
+  }
+
+  saveProfileChanges(uid: string, newName: string, newEmail: string) {
+    return setDoc(
+      doc(this.firestore, `users/${uid}`),
+      { displayName: newName, email: newEmail },
+      { merge: true } // Verhindert, dass andere Daten überschrieben werden
+    );
+  }
+
+  async updateUserInChannels(userId: string, newUserName: any) {
+    try {
+      // 1. Sammlung `Channels` abfragen und Dokumente finden, die die userId enthalten
+      const channelsRef = collection(this.firestore, 'Channels');
+      const q = query(channelsRef, where('userId', '==', userId)); // Passen, falls userId anders gespeichert ist
+      const querySnapshot = await getDocs(q);
+      console.log(querySnapshot.docs);
+
+      // 2. Alle relevanten Dokumente durchlaufen und die Userdaten aktualisieren
+      for (const docSnapshot of querySnapshot.docs) {
+        const channelDocRef = doc(this.firestore, 'Channels', docSnapshot.id);
+
+        // 3. Nur die relevanten Felder aktualisieren
+        await updateDoc(channelDocRef, {
+          // Ersetze die Felder entsprechend den zu aktualisierenden Daten
+          userName: newUserName,
+          // Füge andere benötigte Felder hier hinzu
+        });
+      }
+      console.log('User-Daten in allen Kanälen erfolgreich aktualisiert');
+    } catch (error) {
+      console.error(
+        'Fehler beim Aktualisieren der User-Daten in Channels:',
+        error
+      );
+    }
+  }
 }

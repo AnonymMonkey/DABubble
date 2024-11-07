@@ -2,7 +2,11 @@ import { Component, Inject, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { UserData } from '../models/user.model';
 import { Subscription } from 'rxjs';
@@ -10,6 +14,7 @@ import { UserService } from '../services/user-service/user.service';
 import { PrivateChatService } from '../services/private-chat-service/private-chat.service';
 import { ActiveChatButtonService } from '../services/profile-chat-button-service/active-chat-button.service';
 import { Router } from '@angular/router';
+import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
 
 @Component({
   selector: 'app-profile-info-dialog',
@@ -31,7 +36,8 @@ export class ProfileInfoDialogComponent {
   readonly dialogRef = inject(MatDialogRef<ProfileInfoDialogComponent>);
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { userId: string; userName: string; userPhotoURL: string }
+    public data: { userId: string; userName: string; userPhotoURL: string },
+    public dialog: MatDialog
   ) {}
 
   //ANCHOR - Semir - Überprüfung, ob eigenes oder anderes Profil.
@@ -83,5 +89,10 @@ export class ProfileInfoDialogComponent {
           );
         }
       });
+  }
+
+  openEditProfile(): void {
+    const dialogRef = this.dialog.open(EditDialogComponent);
+    dialogRef.componentInstance.user = this.userData;
   }
 }

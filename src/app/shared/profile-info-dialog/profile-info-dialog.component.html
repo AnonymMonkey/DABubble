@@ -7,7 +7,9 @@
   <div class="profile-info-name">
     <div class="name-edit">
       <h2>{{ userData.displayName }}</h2>
-      <span [ngStyle]="{ display: ownProfile ? 'block' : 'none' }"
+      <span
+        [ngStyle]="{ display: ownProfile ? 'block' : 'none' }"
+        (click)="openEditProfile()"
         >Bearbeiten</span
       >
     </div>

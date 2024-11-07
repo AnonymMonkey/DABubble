@@ -1,0 +1,79 @@
+.profile-info-dialog {
+  color: var(--black-color);
+  padding: 45px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 500px;
+
+  .card-header {
+    h3 {
+      font-size: 24px;
+    }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    mat-icon {
+      color: black;
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .profile-image {
+    align-self: center;
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+  }
+
+  .profile-info-name {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .name-edit {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 18px;
+
+      span {
+        color: var(--purple3-color);
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+
+    .input-secondary {
+      input {
+        padding: 15px 20px;
+        font-size: 18px;
+        font-family: "Nunito";
+        &::placeholder {
+          color: var(--grey-color);
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  .button-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+  }
+}
+
+::ng-deep {
+  .cdk-overlay-pane.mat-mdc-dialog-panel {
+    position: static !important;
+  }
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: 30px;
+  }
+}
