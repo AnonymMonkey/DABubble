@@ -7,6 +7,9 @@ import { CommonModule } from '@angular/common';
 import { UserData } from '../models/user.model';
 import { Subscription } from 'rxjs';
 import { UserService } from '../services/user-service/user.service';
+import { PrivateChatService } from '../services/private-chat-service/private-chat.service';
+import { ActiveChatButtonService } from '../services/profile-chat-button-service/active-chat-button.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile-info-dialog',
@@ -18,14 +21,22 @@ import { UserService } from '../services/user-service/user.service';
 export class ProfileInfoDialogComponent {
   ownProfile: boolean = true;
   userData!: UserData;
+  currentUserData!: UserData;
   subscription!: Subscription;
   userService = inject(UserService);
+  privateChatService = inject(PrivateChatService);
+  activeButtonService = inject(ActiveChatButtonService);
+  router = inject(Router);
 
   readonly dialogRef = inject(MatDialogRef<ProfileInfoDialogComponent>);
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { userId: string; userName: string; userPhotoURL: string }) {}
+  constructor(
+    @Inject(MAT_DIALOG_DATA)
+    public data: { userId: string; userName: string; userPhotoURL: string }
+  ) {}
 
   //ANCHOR - Semir - Überprüfung, ob eigenes oder anderes Profil.
   ngOnInit() {
+    this.loadCurrentUserData();
     if (this.data) {
       this.userData = {
         uid: this.data.userId,
@@ -45,7 +56,32 @@ export class ProfileInfoDialogComponent {
     }
   }
 
+  loadCurrentUserData() {
+    this.userService.userData$.subscribe((data) => {
+      this.currentUserData = data;
+    });
+  }
+
   closeDialog() {
     this.dialogRef.close();
+  }
+
+  openChatWithUser(targetUser: UserData, buttonID: string) {
+    this.privateChatService
+      .openOrCreatePrivateChat(this.currentUserData, targetUser)
+      .subscribe((chatId) => {
+        if (chatId) {
+          this.activeButtonService.setActiveButton(buttonID);
+          this.router.navigate([
+            `/main/${this.currentUserData.uid}/privatechat`,
+            chatId,
+          ]);
+          this.closeDialog();
+        } else {
+          console.error(
+            'Fehler beim Öffnen oder Erstellen des privaten Chats.'
+          );
+        }
+      });
   }
 }

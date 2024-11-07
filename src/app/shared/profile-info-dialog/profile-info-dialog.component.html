@@ -27,6 +27,13 @@
     class="button-wrapper"
     [ngStyle]="{ display: !ownProfile ? 'flex' : 'none' }"
   >
-    <button class="button-primary">Private Nachricht</button>
+    <button
+      class="button-primary"
+      (click)="
+        openChatWithUser(userData, userService.userId + '_' + userData.uid)
+      "
+    >
+      Private Nachricht
+    </button>
   </div>
 </mat-card>
