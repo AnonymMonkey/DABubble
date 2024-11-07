@@ -11,6 +11,7 @@ import { UserData } from '../../models/user.model';
 import { map, Observable, startWith } from 'rxjs';
 import { Router } from '@angular/router';
 import { ActiveChatButtonService } from '../../services/profile-chat-button-service/active-chat-button.service';
+import { PrivateChatService } from '../../services/private-chat-service/private-chat.service';
 
 @Component({
   selector: 'app-search-bar',
@@ -30,13 +31,14 @@ export class SearchBarComponent {
   @Input() searchIconExists: boolean = true;
   userService = inject(UserService);
   channelService = inject(ChannelService);
+  activeButtonService = inject(ActiveChatButtonService);
+  privateChatService = inject(PrivateChatService);
   userData!: UserData;
   allUserData: UserData[] = [];
   allChannelsData: Channel[] = [];
   inputControl = new FormControl('');
   filteredOptions!: Observable<(Channel | UserData)[]>;
   router = inject(Router);
-  activeButtonService = inject(ActiveChatButtonService);
 
   ngOnInit(): void {
     this.loadAllUserData();
@@ -133,21 +135,34 @@ export class SearchBarComponent {
             this.activeButtonService.setActiveButton('');
           });
       } else if (option.value.startsWith('@')) {
-        this.router
-          .navigate([
-            `/main/${this.userData.uid}/privatechat/${this.userData.uid}_${option.id}`,
-          ])
-          .then(() => {
-            this.inputControl.setValue('');
-            this.activeButtonService.setActiveButton(
-              `${this.userData.uid}_${option.id}`
-            );
-          });
+        let targetUser: UserData | undefined = this.allUserData.find(
+          (user) => user.uid === option.id
+        );
+        this.openChatWithUser(targetUser!, `${this.userData.uid}_${option.id}`);
+        this.inputControl.setValue('');
       } else {
         console.log('Kein weiterleiten möglich!');
       }
     } else {
       console.error('Ungültige Option:', option);
     }
+  }
+
+  openChatWithUser(targetUser: UserData, buttonID: string) {
+    this.privateChatService
+      .openOrCreatePrivateChat(this.userData, targetUser)
+      .subscribe((chatId) => {
+        if (chatId) {
+          this.activeButtonService.setActiveButton(buttonID);
+          this.router.navigate([
+            `/main/${this.userData.uid}/privatechat`,
+            chatId,
+          ]);
+        } else {
+          console.error(
+            'Fehler beim Öffnen oder Erstellen des privaten Chats.'
+          );
+        }
+      });
   }
 }
