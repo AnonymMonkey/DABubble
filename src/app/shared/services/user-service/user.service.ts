@@ -308,9 +308,16 @@ export class UserService {
   }
 
   saveProfileChanges(uid: string, newName: string, newEmail: string) {
+    const updatedData: any = {};
+    if (newName) {
+      updatedData.displayName = newName;
+    }
+    if (newEmail) {
+      updatedData.email = newEmail;
+    }
     return setDoc(
       doc(this.firestore, `users/${uid}`),
-      { displayName: newName, email: newEmail },
+      updatedData,
       { merge: true } // Verhindert, dass andere Daten überschrieben werden
     );
   }

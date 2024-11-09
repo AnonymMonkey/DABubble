@@ -22,7 +22,11 @@ import { UserData } from '../../models/user.model';
 import { NotificationService } from '../notification-service/notification.service';
 import { Firestore } from '@angular/fire/firestore';
 import { collection, getDocs } from 'firebase/firestore';
-import { verifyBeforeUpdateEmail } from 'firebase/auth';
+import {
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  verifyBeforeUpdateEmail,
+} from 'firebase/auth';
 
 @Injectable({
   providedIn: 'root',
@@ -224,25 +228,19 @@ export class AuthService {
     return user.formatDisplayName(); // Rufe die Formatierungsfunktion auf
   }
 
-  updateEmail(newEmail: string) {
+  async changeEmail(newEmail: string): Promise<void> {
     const user = this.auth.currentUser;
-    verifyBeforeUpdateEmail(user!, newEmail)
-      .then(() => {
-        console.log(
-          'Verifizierungs-E-Mail an die neue Adresse gesendet. Bitte bestätigen.'
-        );
-      })
-      .catch((error) => {
-        console.error('Fehler beim Senden der Verifizierungs-E-Mail:', error);
-        throw error;
-      });
-    // updateEmail(user!, newEmail)
-    //   .then(() => {
-    //     console.log('E-Mail-Adresse erfolgreich aktualisiert');
-    //   })
-    //   .catch((error) => {
-    //     console.error('Fehler beim Aktualisieren der E-Mail-Adresse:', error);
-    //     throw error; // Fehler weitergeben, um sie ggf. im Aufrufer zu behandeln
-    //   });
+    if (!user) {
+      console.error('Kein Benutzer eingeloggt.');
+      return;
+    }
+    try {
+      await verifyBeforeUpdateEmail(user, newEmail);
+      console.log(
+        'Eine Bestätigungs-E-Mail wurde an die neue E-Mail-Adresse gesendet.'
+      );
+    } catch (error) {
+      console.error('Fehler beim Ändern der E-Mail:', error);
+    }
   }
 }

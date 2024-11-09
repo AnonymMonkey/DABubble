@@ -32,8 +32,9 @@ export class EditDialogComponent {
       this.newName,
       this.newEmail
     );
-    this.userService.updateUserInChannels(this.user.uid, this.newName);
-    // this.authService.updateEmail(this.newEmail);
+    if (this.newEmail !== this.user.email) {
+      this.authService.changeEmail(this.newEmail);
+    }
     this.closeDialog();
   }
 }
