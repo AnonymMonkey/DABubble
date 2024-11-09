@@ -236,9 +236,6 @@ export class AuthService {
     }
     try {
       await verifyBeforeUpdateEmail(user, newEmail);
-      console.log(
-        'Eine Bestätigungs-E-Mail wurde an die neue E-Mail-Adresse gesendet.'
-      );
     } catch (error) {
       console.error('Fehler beim Ändern der E-Mail:', error);
     }
