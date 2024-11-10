@@ -43,6 +43,20 @@
       <div *ngIf="emailControl.invalid" class="error-message">
         <ng-container> Ungültige E-Mail-Adresse </ng-container>
       </div>
+      <input
+        type="password"
+        [formControl]="passwordControl"
+        placeholder="Bestätige dein Passwort"
+        *ngIf="!emailControl.invalid && editUserForm.value.email !== ''"
+        [ngClass]="{
+          'input-error': passwordControl.invalid && passwordControl.touched
+        }"
+      />
+      <div *ngIf="passwordControl.touched" class="error-message">
+        <ng-container *ngIf="passwordControl.hasError('required')">
+          Passwort ist erforderlich
+        </ng-container>
+      </div>
     </div>
   </div>
 
@@ -50,7 +64,7 @@
     <button class="button-primary" (click)="closeDialog()">Abbrechen</button>
     <button
       class="button-primary"
-      (click)="test()"
+      (click)="applyChanges()"
       [disabled]="
         !editUserForm.valid ||
         (editUserForm.value.name === '' && editUserForm.value.email === '')

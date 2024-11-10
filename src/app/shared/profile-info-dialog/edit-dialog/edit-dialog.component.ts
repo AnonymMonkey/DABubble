@@ -39,6 +39,7 @@ export class EditDialogComponent {
     this.editUserForm = this.formBuilder.group({
       name: ['', [this.fullNameValidator]],
       email: ['', [Validators.email]],
+      password: ['', [Validators.required]],
     });
   }
 
@@ -70,12 +71,26 @@ export class EditDialogComponent {
     return this.editUserForm.get('email') as FormControl;
   }
 
-  test() {
-    const newName = this.nameControl.value;
+  get passwordControl(): FormControl {
+    return this.editUserForm.get('password') as FormControl;
+  }
+
+  formatDisplayName(displayName: string): string {
+    return displayName
+      .trim() // Entfernt Leerzeichen am Anfang und Ende
+      .replace(/\s+/g, ' ') // Ersetzt mehrere aufeinanderfolgende Leerzeichen durch ein einzelnes
+      .split(' ') // Teilt den Namen in Wörter auf
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Erster Buchstabe groß, Rest klein
+      .join(' '); // Fügt die Wörter wieder zusammen
+  }
+
+  applyChanges() {
+    const newName = this.formatDisplayName(this.nameControl.value);
     const newEmail = this.emailControl.value;
+    const password = this.passwordControl.value;
     this.userService.saveProfileChanges(this.user.uid, newName, newEmail);
     if (newEmail !== this.user.email) {
-      this.authService.changeEmail(newEmail);
+      this.authService.changeEmail(newEmail, password);
     }
     this.closeDialog();
   }
