@@ -1,4 +1,11 @@
-import { Component, ViewChild, ViewEncapsulation, AfterViewInit, ElementRef, OnInit } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ViewEncapsulation,
+  AfterViewInit,
+  ElementRef,
+  OnInit,
+} from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MessageAreaHeaderComponent } from './message-area-header/message-area-header.component';
 import { MessageAreaChatHistoryComponent } from './message-area-chat-history/message-area-chat-history.component';
@@ -36,26 +43,35 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
   channelData: any;
   channelId!: string | null;
   public currentUserId!: string;
-  
-
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenav', { read: ElementRef }) sidenavElement!: ElementRef;
 
-  constructor(private renderer: Renderer2, private channelService: ChannelService, private route: ActivatedRoute, private main: MainComponent) {}
+  constructor(
+    private renderer: Renderer2,
+    private channelService: ChannelService,
+    private route: ActivatedRoute,
+    private main: MainComponent
+  ) {}
 
   ngOnInit(): void {
     this.currentUserId = this.main.userId;
-    this.channelService.channelData$.subscribe(data => {
+  
+    // Channel-Daten abonnieren
+    this.channelService.channelData$.subscribe((data) => {
       this.channelData = data; // Channel-Daten speichern
     });
-    this.route.paramMap.subscribe(params => {
-      this.channelId = params.get('channelId'); // channelId aus der URL abfragen
-      if (this.channelId) {
-        this.channelService.setChannel(this.channelId); // Channel setzen
+  
+    // Überprüfen, ob sich die URL oder die channelId geändert hat
+    this.route.paramMap.subscribe((params) => {
+      const newChannelId = params.get('channelId');
+      if (newChannelId !== this.channelId) {
+        this.channelId = newChannelId; // Setze die neue Channel ID
+        this.channelService.setChannel(this.channelId || ''); // Channel setzen
       }
     });
   }
+  
 
   ngAfterViewInit() {
     // Füge box-shadow hinzu, wenn das Sidenav komplett geöffnet ist
@@ -63,12 +79,15 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
       this.renderer.setStyle(
         this.sidenavElement.nativeElement,
         'box-shadow',
-        '0px 2px 2px 0px rgba(0, 0, 0, 0.078)',
+        '0px 2px 2px 0px rgba(0, 0, 0, 0.078)'
       );
     });
 
     this.sidenav.closedStart.subscribe(() => {
-      this.renderer.removeStyle(this.sidenavElement.nativeElement, 'box-shadow');
+      this.renderer.removeStyle(
+        this.sidenavElement.nativeElement,
+        'box-shadow'
+      );
     });
   }
 

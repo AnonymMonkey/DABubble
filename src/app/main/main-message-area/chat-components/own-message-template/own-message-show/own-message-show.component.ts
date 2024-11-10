@@ -3,11 +3,12 @@ import { ChannelService } from '../../../../../shared/services/channel-service/c
 import { NgIf, DatePipe } from '@angular/common';
 import { ThreadService } from '../../../../../shared/services/thread-service/thread.service';
 import { MainMessageAreaComponent } from '../../../main-message-area.component';
+import { MessageReactionsComponent } from '../../../../../shared/components/message-reactions/message-reactions.component';
 
 @Component({
   selector: 'app-own-message-show',
   standalone: true,
-  imports: [NgIf, DatePipe],
+  imports: [NgIf, DatePipe, MessageReactionsComponent],
   templateUrl: './own-message-show.component.html',
   styleUrl: './own-message-show.component.scss'
 })

@@ -45,7 +45,7 @@ import { ActiveChatButtonService } from '../../shared/services/profile-chat-butt
 })
 export class SideNavComponent {
   readonly panelOpenState = signal(false);
-  channelService = inject(ChannelService);
+  public channelService = inject(ChannelService);
   @Input() userData!: UserData;
   allChannelsData: Channel[] = [];
   userService = inject(UserService);

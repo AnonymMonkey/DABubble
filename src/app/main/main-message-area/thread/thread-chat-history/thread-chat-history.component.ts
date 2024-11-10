@@ -41,12 +41,12 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
   }
 
   isCurrentUser(message: ChannelMessage): boolean {
-    return message.user.userId === this.currentUserId;
+    return message.userId === this.currentUserId;
   }
 
   isCurrentUserThread(message: ThreadMessage): boolean {
-    if (Array.isArray(message.user) && message.user.length > 0) {
-      return message.user[0].userId === this.currentUserId;
+    if (Array.isArray(message.userId) && message.userId.length > 0) {
+      return message.userId === this.currentUserId;
     }
     return false; // Falls kein Benutzer vorhanden ist
   }

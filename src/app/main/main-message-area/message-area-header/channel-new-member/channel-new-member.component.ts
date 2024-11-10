@@ -18,7 +18,7 @@ import { NgIf } from '@angular/common';
 @Component({
   selector: 'app-channel-new-member',
   standalone: true,
-  imports: [MessageAreaHeaderComponent, MatDialogContent, MatDialogActions, NgIf, MatIcon, MatFormField, MatChipGrid, MatChipRow, MatChipInput, MatAutocomplete, MatAutocompleteModule, FormsModule, MatOption,  ],
+  imports: [ MatDialogContent, MatDialogActions, MatIcon, MatFormField, MatChipGrid, MatChipRow, MatChipInput, MatAutocomplete, MatAutocompleteModule, FormsModule, MatOption,  ],
   templateUrl: './channel-new-member.component.html',
   styleUrl: './channel-new-member.component.scss'
 })
@@ -167,9 +167,8 @@ export class ChannelNewMemberComponent implements OnInit {
   bindDialogDataToNewChannelData() {
     this.newChannelData.channelName = this.channelName;
     this.newChannelData.description = this.description;
-    this.newChannelData.admin.userId = this.userData.uid;
-    this.newChannelData.admin.userName = this.userData.displayName;
-    this.newChannelData.admin.photoURL = this.userData.photoURL;
-    this.newChannelData.members = this.users();
+    this.newChannelData.admin.userId = this.userData.uid;  
+    this.newChannelData.members = this.users().map(user => user.userId);  // Hier wird nur userId extrahiert
   }
+  
 }

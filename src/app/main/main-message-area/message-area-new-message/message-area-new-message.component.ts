@@ -23,7 +23,7 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
       messageId: message.messageId,
       reactions: message.reactions,
       time: message.time,
-      user: message.user
+      userId: message.userId,
     };
   },
   fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ChannelMessage {
@@ -31,9 +31,7 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
     return new ChannelMessage(
       data.content,
       data.messageId,
-      data.user.userId,
-      data.user.userName,
-      data.user.photoURL
+      data.userId,
     );
   }
 };
@@ -41,7 +39,7 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
 @Component({
   selector: 'app-message-area-new-message',
   standalone: true,
-  imports: [MatIconModule, MatMenu, MatMenuModule, FormsModule, DatePipe, NgFor, AsyncPipe, PickerModule, PickerComponent, EmojiComponent, NgIf],
+  imports: [MatIconModule, MatMenu, MatMenuModule, FormsModule, PickerModule, PickerComponent],
   templateUrl: './message-area-new-message.component.html',
   styleUrls: ['./message-area-new-message.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -102,32 +100,36 @@ export class MessageAreaNewMessageComponent implements OnInit {
 }
 
 
-  async sendMessage() {
-    if (!this.newMessageContent) return;
+async sendMessage() {
+  if (!this.newMessageContent) return;
 
-    const messageId = this.privateChatId
-      ? MessageAreaNewMessageComponent.generatePrivateMessageId()
-      : `msg_${Date.now()}`;
+  // Generiere eine Message-ID basierend auf dem Chat-Typ (private oder channel)
+  const messageId = this.privateChatId
+    ? MessageAreaNewMessageComponent.generatePrivateMessageId()
+    : `msg_${Date.now()}`;
 
-    const newMessage = new ChannelMessage(
-      this.newMessageContent,
-      this.userId || '',
-      this.userName || '',
-      this.photoURL || '',
-      messageId
-    );
+  // Erstelle ein neues ChannelMessage-Objekt
+  const newMessage = new ChannelMessage(
+    this.newMessageContent,
+    this.userId || '', // Füge die User-ID hinzu (kann auch dynamisch bezogen werden)
+    messageId
+  );
 
-    if (this.privateChatId) {
-      await this.sendPrivateChatMessage(newMessage);
-    } else if (this.channelId) {
-      this.channel?.addMessage(messageId, newMessage);
-      await this.sendChannelMessage(newMessage);
-    } else {
-      console.error('Weder privateChatId noch channelId ist definiert.');
-    }
-
-    this.newMessageContent = '';
+  if (this.privateChatId) {
+    // Wenn privateChatId vorhanden ist, sende die private Nachricht
+    await this.sendPrivateChatMessage(newMessage);
+  } else if (this.channelId) {
+    // Andernfalls, wenn channelId vorhanden ist, sende die Channel-Nachricht
+    this.channel?.addMessage(messageId, newMessage);
+    await this.sendChannelMessage(newMessage);
+  } else {
+    console.error('Weder privateChatId noch channelId ist definiert.');
   }
+
+  // Setze den Nachrichteninhalt zurück
+  this.newMessageContent = '';
+}
+
 
   private async sendChannelMessage(newMessage: ChannelMessage) {
     const messagesRef = collection(this.firestore, `channels/${this.channelId}/messages`);

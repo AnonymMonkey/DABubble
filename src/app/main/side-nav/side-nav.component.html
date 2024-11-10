@@ -38,7 +38,7 @@
         class="button-secondary"
         routerLink="channel/{{ channel.channelId }}"
         routerLinkActive="active"
-        (click)="activeButtonService.setActiveButton('')"
+        (click)="activeButtonService.setActiveButton(''); channelService.setChannel(channel.channelId)"
       >
         <mat-icon class="material-symbols-outlined">tag</mat-icon
         >{{ channel.channelName }}

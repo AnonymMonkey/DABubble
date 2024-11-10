@@ -4,6 +4,7 @@ import { ChannelService } from '../../../../../shared/services/channel-service/c
 import { Channel } from '../../../../../shared/models/channel.model';
 import { NgIf } from '@angular/common';
 import { UserService } from '../../../../../shared/services/user-service/user.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-channel-display-description',
@@ -15,6 +16,7 @@ import { UserService } from '../../../../../shared/services/user-service/user.se
 export class ChannelDisplayDescriptionComponent implements OnInit {
   userService = inject(UserService);
   currentChannel: Channel | undefined;
+  adminUserName: string = ''; // Variable für den Usernamen des Admins
 
   constructor(
     public description: ChannelDescriptionComponent,
@@ -25,6 +27,18 @@ export class ChannelDisplayDescriptionComponent implements OnInit {
     this.channelService.currentChannel$.subscribe({
       next: (channel) => {
         this.currentChannel = channel;
+        // Wenn ein admin vorhanden ist, holen wir den Usernamen
+        if (channel?.admin?.userId) {
+          this.userService.getUserDataByUID(channel.admin.userId).subscribe({
+            next: (userData) => {
+              this.adminUserName = userData?.displayName || 'Unbekannt'; // Username zuweisen oder 'Unbekannt' falls nicht vorhanden
+            },
+            error: (err) => {
+              console.error('Fehler beim Laden des Usernamens:', err);
+              this.adminUserName = 'Unbekannt'; // Default-Wert im Fehlerfall
+            }
+          });
+        }
       },
       error: (error) => console.error('Fehler beim Laden des Channels:', error)
     });

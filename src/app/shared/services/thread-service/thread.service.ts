@@ -4,6 +4,9 @@ import { takeUntil } from 'rxjs/operators';
 import { ChannelMessage } from '../../models/channel-message.model';
 import { Firestore, doc, onSnapshot } from '@angular/fire/firestore';
 import { ChannelService } from '../channel-service/channel.service';
+import { updateDoc } from 'firebase/firestore';
+import { UserService } from '../user-service/user.service';
+import { UserData } from '../../models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +18,7 @@ export class ThreadService implements OnDestroy {
   private unsubscribeActualMessage: (() => void) | null = null;
   private destroy$ = new Subject<void>(); // Subject zum Steuern der Zerstörung
 
-  constructor(private firestore: Firestore, private channelService: ChannelService) {
+  constructor(private firestore: Firestore, private channelService: ChannelService, private userService: UserService) {
     this.subscribeToActualMessage();
   }
 

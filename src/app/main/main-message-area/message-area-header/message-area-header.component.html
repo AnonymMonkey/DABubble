@@ -30,7 +30,9 @@
       #memberListMenuTrigger="matMenuTrigger"
       class="button-channel-member-list"
     >
-      <img src="{{member.photoURL}}" alt="Profile Picture" *ngFor="let member of currentChannel?.members?.slice(0, 3)" />
+    <div *ngFor="let member of currentChannel?.members?.slice(0, 3)" >
+      <img [src]="getPhotoURL(member)" alt="Profile Picture" />
+    </div>    
       <span>{{ (currentChannel?.members?.length || 0) }}</span>
     </button>
     <mat-menu

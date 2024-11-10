@@ -6,6 +6,11 @@ import { ThreadService } from '../../../../shared/services/thread-service/thread
 import { MatIcon } from '@angular/material/icon';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
+import { MatMenuModule } from '@angular/material/menu';
+import { Firestore } from '@angular/fire/firestore';
+import { MessageService } from '../../../../shared/services/message-service/message.service';
+import { MessageReactionsComponent } from '../../../../shared/components/message-reactions/message-reactions.component';
+import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
 
 @Component({
   selector: 'app-other-message-template',
@@ -14,10 +19,12 @@ import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
     NgClass,
     DatePipe,
     NgIf,
-    NgFor,
     MatIcon,
     PickerModule,
     EmojiComponent,
+    MatMenuModule,
+    MessageReactionsComponent,
+    EmojiPickerComponent
   ],
   templateUrl: './other-message-template.component.html',
   styleUrl: './other-message-template.component.scss',
@@ -33,7 +40,9 @@ export class OtherMessageTemplateComponent {
   constructor(
     public mainMessageArea: MainMessageAreaComponent,
     public channelService: ChannelService,
-    public threadService: ThreadService
+    public threadService: ThreadService,
+    private firestore: Firestore,
+    private messageService: MessageService
   ) {}
 
   showEmojiContainer(id: number) {
@@ -66,7 +75,8 @@ export class OtherMessageTemplateComponent {
   }
   
 
-  addEmoji(emoji: string) {
-    // this.mainMessageArea.addEmoji(emoji);
+  addReaction(messageId: string, emoji: any): void {
+    this.messageService.setActualMessage(this.message);
+    this.messageService.addOrChangeReaction(messageId, emoji);
   }
 }
