@@ -50,64 +50,56 @@ export class MessageService {
     }
   }
 
-async addOrChangeReaction(messageId: string, emoji: string): Promise<void> {
-  const messageRef = doc(this.firestore, `channels/${this.channelService.channelId}/messages/${messageId}`);
-  const currentMessage = this.actualMessageSubject.value;
+  async addOrChangeReaction(messageId: string, emoji: any): Promise<void> {
+    const messageRef = doc(this.firestore, `channels/${this.channelService.channelId}/messages/${messageId}`);
+    const currentMessage = this.actualMessageSubject.value;
 
-  if (!currentMessage) {
-      console.error('Aktuelle Nachricht nicht gefunden.');
-      return;
-  }
+    if (!currentMessage) {
+        console.error('Aktuelle Nachricht nicht gefunden.');
+        return;
+    }
 
-  // Abonniere das `userData$` Observable, um aktuelle Benutzerdaten zu erhalten
-  this.userService.userData$.subscribe({
-      next: async (currentUser: UserData) => {
-          // Sicherstellen, dass alle Felder des Benutzers definiert sind
-          if (!currentUser.uid || !currentUser.displayName || !currentUser.photoURL) {
-              console.error('Benutzerdaten sind unvollständig.');
-              return;
-          }
+    this.userService.userData$.subscribe({
+        next: async (currentUser: UserData) => {
+            if (!currentUser.uid || !currentUser.displayName || !currentUser.photoURL) {
+                console.error('Benutzerdaten sind unvollständig.');
+                return;
+            }
 
-          // Überprüfen, ob der Benutzer bereits auf irgendein Emoji reagiert hat
-          const existingReactionIndex = currentMessage.reactions.findIndex(r => r.userIds.includes(currentUser.uid));
-          console.log(existingReactionIndex);
-          if (existingReactionIndex !== -1) {
-              // Der Benutzer hat bereits eine Reaktion gesetzt - Emoji wechseln
-              const oldEmoji = currentMessage.reactions[existingReactionIndex].emoji;
+            // Emoji-Vergleich anpassen: Vergleiche z.B. anhand von `shortName`
+            const existingReaction = currentMessage.reactions.find(
+                r => r.emoji.shortName === emoji.shortName
+            );
 
-              // Entferne das alte Emoji
-              currentMessage.reactions[existingReactionIndex].count -= 1;
-              currentMessage.reactions[existingReactionIndex].userIds = currentMessage.reactions[existingReactionIndex].userIds.filter(uid => uid !== currentUser.uid);
+            if (existingReaction) {
+                // Überprüfen, ob der Benutzer bereits auf dieses Emoji reagiert hat
+                if (existingReaction.userIds.includes(currentUser.uid)) {
+                    return;
+                } else {
+                    // Emoji existiert, aber der Benutzer hat es noch nicht hinzugefügt
+                    existingReaction.count += 1;
+                    existingReaction.userIds.push(currentUser.uid);
+                }
+            } else {
+                // Emoji existiert noch nicht, daher als neue Reaktion hinzufügen
+                currentMessage.reactions.push({
+                    emoji: emoji,
+                    count: 1,
+                    userIds: [currentUser.uid]
+                });
+            }
 
-              // Falls der `count` des alten Emojis 0 ist, entfernen wir es aus der Reaktionsliste
-              if (currentMessage.reactions[existingReactionIndex].count === 0) {
-                  currentMessage.reactions.splice(existingReactionIndex, 1);
-              }
-          }
-
-          // Füge die neue Reaktion hinzu
-          let reaction = currentMessage.reactions.find(r => r.emoji === emoji);
-          if (reaction) {
-              // Das Emoji existiert bereits, also erhöhe den Count und füge den Benutzer hinzu
-              reaction.count += 1;
-              reaction.userIds.push(currentUser.uid);
-          } else {
-              // Neues Emoji, also füge es der Liste hinzu
-              currentMessage.reactions.push({
-                  emoji: emoji,
-                  count: 1,
-                  userIds: [currentUser.uid]
-              });
-          }
-
-          // Firestore-Dokument aktualisieren
-          await updateDoc(messageRef, { reactions: currentMessage.reactions });
-          this.actualMessageSubject.next(currentMessage);
-      },
-      error: (error) => console.error('Fehler beim Abrufen der Benutzerdaten:', error),
-      complete: () => console.log('Benutzerdaten-Abonnement abgeschlossen.')
-  });
+            // Firestore-Dokument aktualisieren
+            await updateDoc(messageRef, { reactions: currentMessage.reactions });
+            this.actualMessageSubject.next(currentMessage);
+        },
+        error: (error) => console.error('Fehler beim Abrufen der Benutzerdaten:', error),
+        complete: () => console.log('Benutzerdaten-Abonnement abgeschlossen.')
+    });
 }
+
+
+
 
 
 }

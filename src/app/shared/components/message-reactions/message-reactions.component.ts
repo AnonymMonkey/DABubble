@@ -10,7 +10,7 @@ import { NgFor } from '@angular/common';
   standalone: true,
   templateUrl: './message-reactions.component.html',
   styleUrls: ['./message-reactions.component.scss'],
-  imports: [MatMenuTrigger, EmojiComponent, MatMenuModule, NgFor],
+  imports: [EmojiComponent, MatMenuModule, NgFor],
 })
 export class MessageReactionsComponent implements OnInit {
   @Input() message: any;
@@ -24,16 +24,23 @@ export class MessageReactionsComponent implements OnInit {
   }
 
   loadReactionUsers(): void {
-    // Für jede Reaktion die Benutzer-Daten laden
-    this.message.reactions.forEach((reaction: any)=> {
-      reaction.users.forEach((user: any) => {
-        this.userService.getUserDataByUID(user.id).subscribe(userData => {
-          // displayName in der Reaktion speichern
-          user.displayName = userData?.displayName;
-        });
+    // Prüfen, ob `message` und `reactions` definiert sind und `reactions` ein Array ist
+    if (this.message && Array.isArray(this.message.reactions)) {
+      this.message.reactions.forEach((reaction: any) => {
+        if (reaction.users && Array.isArray(reaction.users)) {
+          reaction.users.forEach((user: any) => {
+            this.userService.getUserDataByUID(user.id).subscribe(userData => {
+              // displayName in der Reaktion speichern
+              user.displayName = userData?.displayName;
+            });
+          });
+        }
       });
-    });
+    } else {
+      console.warn('Reactions or message object is not defined.');
+    }
   }
+  
 
   // Für das Hover-Event das Menu anzeigen
   onEmojiHover(reaction: any): void {
