@@ -299,6 +299,11 @@ export class UserService {
       .getValue()
       .find((user) => user.id === uid);
     return user ? user.email : '';
+  }  
+
+  getPhotoURL(uid: string): string {
+    const user = this.allUserDataSubject.getValue().find((user) => user.id === uid);
+    return user ? user.photoURL : '';
   }
 
   saveProfileChanges(uid: string, newName: string, newEmail: string) {
@@ -342,7 +347,6 @@ export class UserService {
         error
       );
     }
-  }
   
 
   getPhotoURL(uid: string): string {
