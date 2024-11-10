@@ -1,3 +1,27 @@
+::ng-deep {
+  .leave-channel-menu {
+    padding: 15px 20px;
+    max-width: 400px !important;
+    display: flex;
+    flex-direction: column;
+    border-radius: 30px !important;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    p {
+      color: var(--black-color);
+      padding-bottom: 20px;
+    }
+  }
+
+  .leave-channel-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+  }
+}
+
 section {
   color: black;
   font-family: var(--font-nunito);
@@ -37,7 +61,10 @@ h2 {
   }
 }
 
-app-channel-display-name, app-channel-edit-name, app-channel-display-description, app-channel-edit-description {
+app-channel-display-name,
+app-channel-edit-name,
+app-channel-display-description,
+app-channel-edit-description {
   width: 100%;
 }
 

@@ -23,7 +23,7 @@ import {
   set,
 } from 'firebase/database';
 import { AuthService } from '../auth-service/auth.service'; //NOTE - Muss auskommentiert werden
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
 @Injectable({
@@ -125,29 +125,23 @@ export class UserService {
   // }
 
   //NOTE - Hier habe ich die vorherige Funktion in eine Observable umgeformt
-  getUserDataByUID(uid: string): Observable<any> {
-    return new Observable((observer) => {
-      const userDocRef = doc(this.firestore, `users/${uid}`);
-
-      // Listener für Echtzeit-Aktualisierungen
-      const unsubscribe = onSnapshot(
-        userDocRef,
-        (userDoc) => {
-          if (userDoc.exists()) {
-            observer.next(userDoc.data()); // Gibt die Daten des Nutzers in Echtzeit zurück
-          } else {
-            observer.error('Nutzer nicht gefunden');
-          }
-        },
-        (error) => {
-          observer.error(error);
+  getUserDataByUID(userId: string): Observable<UserData> {
+    const userDocRef = doc(this.firestore, `users/${userId}`);
+    return docData(userDocRef).pipe(
+      map((docSnapshot: any) => {
+        if (!docSnapshot) {
+          throw new Error(`Benutzer mit ID ${userId} nicht gefunden`); // Fehler werfen, wenn der Benutzer nicht existiert
         }
-      );
-
-      // Bereinigen des Listeners, wenn das Observable abgeschlossen ist
-      return () => unsubscribe();
-    });
+        return docSnapshot as UserData;
+      }),
+      catchError(error => {
+        console.error('Fehler beim Abrufen der Benutzerdaten:', error);
+        return of({} as UserData);  // Rückgabe eines leeren Objekts als Standardwert
+      })
+    );
   }
+  
+  
 
   //NOTE - Problem tritt auf, da sich auth.service und user.service überschneiden
   // Ruft die Daten des aktuell authentifizierten Nutzers ab
@@ -274,4 +268,9 @@ export class UserService {
     const user = this.allUserDataSubject.getValue().find((user) => user.id === uid);
     return user ? user.email : '';
   }  
+
+  getPhotoURL(uid: string): string {
+    const user = this.allUserDataSubject.getValue().find((user) => user.id === uid);
+    return user ? user.photoURL : '';
+  }
 }

@@ -1,5 +1,6 @@
 import { User } from 'firebase/auth';
 import { FieldValue, Timestamp } from 'firebase/firestore';
+import { PrivateChat } from './private-chat.model';
 
 export class UserData {
   uid: string; // Eindeutige Benutzer-ID
@@ -8,7 +9,8 @@ export class UserData {
   photoURL: string; // URL des Profilbildes
   lastLogin: FieldValue | Timestamp; // Zeitpunkt des letzten Logins
   channels: string[] = []; // Liste der Channels, denen der Benutzer zugeordnet ist
-  privateChat: string[] = []; // Liste der privaten Chats des Benutzers
+  privateChat: { [chatId: string]: PrivateChat } = {};
+
 
   constructor(user: User, displayName?: string) {
     // Initialisiert die Benutzerdaten aus dem Firebase `User` Objekt

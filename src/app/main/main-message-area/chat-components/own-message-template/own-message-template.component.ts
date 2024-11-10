@@ -8,11 +8,13 @@ import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { OwnMessageShowComponent } from './own-message-show/own-message-show.component';
 import { OwnMessageEditComponent } from './own-message-edit/own-message-edit.component';
 import { MessageService } from '../../../../shared/services/message-service/message.service';
+import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
+import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 
 @Component({
   selector: 'app-own-message-template',
   standalone: true,
-  imports: [NgClass, NgIf, DatePipe, MatIcon, MatMenu, MatMenuTrigger, OwnMessageShowComponent, OwnMessageEditComponent],
+  imports: [NgClass, NgIf, MatIcon, EmojiComponent, MatMenu, MatMenuTrigger, OwnMessageShowComponent, OwnMessageEditComponent, EmojiPickerComponent],
   templateUrl: './own-message-template.component.html',
   styleUrl: './own-message-template.component.scss'
 })
@@ -57,5 +59,10 @@ export class OwnMessageTemplateComponent {
 
   setEditMessageMenuOpened(boolean: boolean) {
     this.editMessageMenuOpened = boolean;
+  }
+
+  addReaction(messageId: string, emoji: any): void {
+    this.messageService.setActualMessage(this.message);
+    this.messageService.addOrChangeReaction(messageId, emoji);
   }
 }

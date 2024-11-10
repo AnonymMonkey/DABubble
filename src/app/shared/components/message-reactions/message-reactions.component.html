@@ -1,0 +1,11 @@
+<div class="added-emojis-container">
+  <span *ngFor="let reaction of message.reactions">
+    <ngx-emoji [emoji]="reaction.emoji" [size]="16" (mouseenter)="onEmojiHover(reaction)"></ngx-emoji>
+    <span>{{ reaction.count }}</span>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item *ngFor="let user of reaction.users" (click)="viewUserProfile(user.id)">
+        {{ user.displayName }}
+      </button>
+    </mat-menu>
+  </span>
+</div>

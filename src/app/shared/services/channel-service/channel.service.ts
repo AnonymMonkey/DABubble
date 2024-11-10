@@ -1,22 +1,22 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { Firestore, doc, docData, collection } from '@angular/fire/firestore';
 import {
-  Firestore,
-  doc,
-  docData,
-  collection,
-} from '@angular/fire/firestore';
-import { BehaviorSubject, Observable, from, map, switchMap } from 'rxjs';
+  BehaviorSubject,
+  Observable,
+  catchError,
+  forkJoin,
+  from,
+  map,
+  of,
+  switchMap,
+} from 'rxjs';
 import { Channel } from '../../models/channel.model';
-import {
-  arrayUnion,
-  getDocs,
-  setDoc,
-  updateDoc,
-} from 'firebase/firestore';
+import { arrayUnion, getDocs, setDoc, updateDoc } from 'firebase/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
 import { UserData } from '../../models/user.model';
 import { ChannelMessage } from '../../models/channel-message.model';
+import { UserService } from '../user-service/user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +28,7 @@ export class ChannelService {
   public currentChannel$ = this.currentChannelSubject.asObservable(); // Observable für Komponenten
   public channelId: string = '';
   public actualThread: Array<string> = []; // Daten des aktuell ausgewählten Threads
+  private userService = inject(UserService);
 
   // Neues Observable für Channel-Daten
   public channelData$: Observable<Channel | undefined> = this.currentChannel$;
@@ -51,52 +52,65 @@ export class ChannelService {
   getChannelById(channelId: string): Observable<Channel | undefined> {
     const channelDocRef = doc(this.firestore, `channels/${channelId}`);
     return docData(channelDocRef).pipe(
-      map((docSnapshot: any) => {
-        if (docSnapshot) {
-          const channelData = docSnapshot as {
-            admin: { userId: string; userName: string; photoURL: string };
-            channelName: string;
-            description: string;
-            members: { userId: string; userName: string; photoURL: string }[];
-            messages: { [messageId: string]: any };
-          };
-          
-          // Erstelle und gebe eine neue Instanz von Channel zurück
-          return new Channel(
-            channelData.admin,
-            channelId,
-            channelData.channelName,
-            channelData.description,
-            channelData.members,
-            channelData.messages
-          );
-        } else {
-          return undefined;
-        }
-      })
+        map((docSnapshot: any) => {
+            if (docSnapshot) {
+                const channelData = docSnapshot as {
+                    admin: { userId: string };
+                    channelName: string;
+                    description: string;
+                    members: string[];  // Jetzt als string[]
+                    messages: { [messageId: string]: any };
+                };
+              
+                return new Channel(
+                    channelData.admin,
+                    channelId,
+                    channelData.channelName,
+                    channelData.description,
+                    channelData.members,  // Direkt als string[] übergeben
+                    channelData.messages
+                );
+            } else {
+                return undefined;  // Rückgabe `undefined`, falls keine Daten vorhanden sind
+            }
+        })
     );
+}
+
+
+  // Methode zum Abrufen der Benutzerdaten
+  getUsersData(members: { userId: string }[]): Observable<any[]> {
+    const userRequests = members.map((member) =>
+      this.userService.getUserDataByUID(member.userId).pipe(
+        catchError((error) => {
+          console.error('Benutzer nicht gefunden:', member.userId);
+          return of(null); // Gibt null zurück, falls der Benutzer nicht gefunden wird
+        })
+      )
+    );
+    return forkJoin(userRequests); // Wartet, bis alle Benutzerdaten abgerufen wurden
   }
-  
+
   getChannels(): Observable<Channel[]> {
     const channelsCollection = collection(this.firestore, 'channels');
     return from(getDocs(channelsCollection)).pipe(
       map((channelSnapshot) =>
         channelSnapshot.docs.map((doc) => {
           const channelData = doc.data() as {
-            admin: { userId: string; userName: string; photoURL: string };
+            admin: { userId: string }; // Nur userId gespeichert
             channelName: string;
             description: string;
-            members: { userId: string; userName: string; photoURL: string }[];
+            members: { userId: string }[]; // Nur userId gespeichert
             messages: { [messageId: string]: ChannelMessage };
           };
 
           // Erstelle eine neue Instanz von Channel und gib sie zurück
           return new Channel(
-            channelData.admin,
+            channelData.admin, // Nur userId weitergeben
             doc.id, // Verwende die ID des Dokuments
             channelData.channelName,
             channelData.description,
-            channelData.members,
+            channelData.members.map((member) => member.userId), // Nur userIds weitergeben
             channelData.messages
           );
         })
@@ -104,8 +118,7 @@ export class ChannelService {
     );
   }
 
-  //NOTE - Ich habe hier eine Funktion fürs erstellen eines neuen Channels erstellt
-
+  // Funktion fürs Erstellen eines neuen Channels
   createChannel(channelData: Partial<Channel>): Observable<string> {
     const channelCollection = collection(this.firestore, 'channels');
     const newChannelRef = doc(channelCollection);
@@ -117,28 +130,22 @@ export class ChannelService {
 
     return from(setDoc(newChannelRef, channelObject)).pipe(
       switchMap(() => {
-        // Extrahiere die User-IDs aus channelData.members
-        const userIds =
-          channelData.members?.map((member) => member.userId) || [];
-
-        // Weise die channelId allen Usern zu und füge sie dem channels-Array hinzu
+        const userIds = channelData.members || [];
         const updateUserObservables = userIds.map((userId) => {
           const userDocRef = doc(this.firestore, `users/${userId}`);
           return from(
             updateDoc(userDocRef, {
-              channels: arrayUnion(newChannelRef.id),
+              channels: arrayUnion(newChannelRef.id), // Channel ID zu den Benutzern hinzufügen
             })
           );
         });
 
-        // Warte, bis alle Updates abgeschlossen sind
         return from(Promise.all(updateUserObservables)).pipe(
-          map(() => newChannelRef.id) // Gibt die ID des neu erstellten Channels zurück
+          map(() => newChannelRef.id)
         );
       })
     );
   }
-  //NOTE - Ende
 
   setActualThread(threadData: Array<string>): void {
     this.actualThread = threadData;
@@ -155,15 +162,10 @@ export class ChannelService {
     });
   }
 
-  // updateChannelDescription(
-  //   channelId: string,
-  //   newDescription: string
-  // ): Promise<void> {
-  //   const channelDoc = doc(this.firestore, `channels/${channelId}`);
-  //   return updateDoc(channelDoc, { description: newDescription });
-  // }
-
-  updateChannelDescription(channelId: string, newDescription: string): Observable<void> {
+  updateChannelDescription(
+    channelId: string,
+    newDescription: string
+  ): Observable<void> {
     const channelDocRef = doc(this.firestore, `channels/${channelId}`);
     return from(updateDoc(channelDocRef, { description: newDescription })).pipe(
       switchMap(() => this.getChannelById(channelId)),
@@ -176,5 +178,26 @@ export class ChannelService {
   updateChannelName(channelId: string, newName: string): Promise<void> {
     const channelDocRef = doc(this.firestore, `channels/${channelId}`);
     return updateDoc(channelDocRef, { channelName: newName });
+  }
+
+  getChannelMembers(channelId: string): Observable<string[]> {
+    const channelDocRef = doc(this.firestore, `channels/${channelId}`);
+    return docData(channelDocRef).pipe(
+      map((docSnapshot: any) => {
+        if (docSnapshot) {
+          // Extrahiere die Mitglieder aus den Channel-Daten
+          const channelData = docSnapshot as {
+            members: string[];  // Mitglieder als Array von User-IDs
+          };
+          return channelData.members || []; // Rückgabe der Mitglieder oder ein leeres Array, falls keine vorhanden sind
+        } else {
+          return []; // Falls kein Channel gefunden wurde, ein leeres Array zurückgeben
+        }
+      }),
+      catchError((error) => {
+        console.error('Fehler beim Abrufen der Mitglieder:', error);
+        return of([]); // Im Falle eines Fehlers ein leeres Array zurückgeben
+      })
+    );
   }
 }

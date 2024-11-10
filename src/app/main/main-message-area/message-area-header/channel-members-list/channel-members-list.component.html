@@ -5,10 +5,10 @@
   </div>
   <div class="members-container">
     <div class="member" *ngFor="let user of sortedMembers" (click)="channelService.openProfileInfo(user)">
-      <img src="{{user.photoURL}}" alt="Profile Picture" />
-      <span>{{user.userName}}</span>
-    </div>   
-    <div class="new-member" (click)="header.closeMenu('member-list')" (click)="header.openMenu('add-member')">
+      <img *ngIf="user.photoURL" [src]="user.photoURL" alt="Profile Picture" />
+      <span>{{ user.userName }}</span>
+    </div>
+    <div class="new-member" (click)="onAddMemberClick($event)">
       <div class="add-icon">
         <svg
           width="22"

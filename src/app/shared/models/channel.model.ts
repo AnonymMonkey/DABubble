@@ -1,43 +1,32 @@
-import { ChannelMessage } from './channel-message.model'; // Stelle sicher, dass der Pfad korrekt ist
+import { ChannelMessage } from "./channel-message.model";
 
 export class Channel {
   admin: {
     userId: string;
-    userName: string;
-    photoURL: string;
   };
   channelId: string;
   channelName: string;
   description: string;
-  members: {
-    userId: string;
-    userName: string;
-    photoURL: string;
-  }[];
-  messages: { [messageId: string]: ChannelMessage };  //ANCHOR - messageId vor den einzelnen Nachrichten
+  members: string[] = [];  // Standardwert ist ein leeres Array
+  messages: { [messageId: string]: ChannelMessage } = {};
 
   constructor(
-    admin: { userId: string; userName: string; photoURL: string } = {
-      userId: '',
-      userName: '',
-      photoURL: '',
-    },
+    admin: { userId: string } = { userId: '' },
     channelId: string = '',
     channelName: string = '',
     description: string = '',
-    members: { userId: string; userName: string; photoURL: string }[] = [],
-    messages: { [messageId: string]: ChannelMessage } = {} // Verwende das neue Objekt
+    members: string[] = [],  // Standardwert ist ein leeres Array
+    messages: { [messageId: string]: ChannelMessage } = {}
   ) {
     this.admin = admin;
     this.channelId = channelId;
     this.channelName = channelName;
     this.description = description;
     this.members = members;
-    this.messages = messages; // Setze die Nachrichten
+    this.messages = messages;
   }
 
   addMessage(messageId: string, message: ChannelMessage) {
-    // Setze die messageId direkt in der Nachricht und füge sie in das Dictionary ein
     message.messageId = messageId;
     this.messages[messageId] = message;
   }

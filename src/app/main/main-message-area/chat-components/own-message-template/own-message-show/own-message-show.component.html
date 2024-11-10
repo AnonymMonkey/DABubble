@@ -3,12 +3,12 @@
       <span
         class="name"
         (click)="channelService.openProfileInfo(message?.user)"
-        >{{ message?.user?.userName }}</span
+        >{{ message?.userName }}</span
       >
       <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
     </div>
     <span class="message-own">{{ message?.content }}</span>
-    <div class="emoji-container d-none"></div>
+    <app-message-reactions [message]="message" *ngIf="message.reactions.length > 0"></app-message-reactions>
     <div class="thread-own" *ngIf="message?.thread && threadKeys.length > 0">
       <span
         (click)="

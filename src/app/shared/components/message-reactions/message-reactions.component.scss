@@ -1,0 +1,15 @@
+.added-emojis-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+
+    > span {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--light-purple-color);
+        border-radius: 20px;
+        padding: 0px 10px;
+        gap: 5px;
+    }
+}

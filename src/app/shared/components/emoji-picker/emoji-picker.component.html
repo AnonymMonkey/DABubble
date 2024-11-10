@@ -1,0 +1,11 @@
+    <emoji-mart (click)="$event.stopPropagation()"
+      title="Pick your emoji…"
+      emoji="point_up"
+      set="google"
+      (emojiClick)="addReaction(message.messageId, $event.emoji)"
+      [totalFrequentLines]="2"
+      [i18n]="{
+        search: 'Suche Emojis',
+        categories: { search: 'Suchergebnisse', recent: 'Neueste' }
+      }"
+    ></emoji-mart>

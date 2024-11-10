@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
@@ -6,13 +6,17 @@ import { ThreadService } from '../../../../shared/services/thread-service/thread
 import { ThreadMessage } from '../../../../shared/models/thread-message.model'; // Importiere ThreadMessage
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import { getDoc } from 'firebase/firestore';
+import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
+import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
+import { MatMenu, MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-thread-new-message',
   standalone: true,
-  imports: [FormsModule, MatIcon],
+  imports: [FormsModule, MatIcon, MatMenuModule, PickerModule, EmojiComponent, MatMenu, PickerComponent],
   templateUrl: './thread-new-message.component.html',
   styleUrls: ['./thread-new-message.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ThreadNewMessageComponent {
   newMessageContent: string = '';
@@ -108,9 +112,7 @@ export class ThreadNewMessageComponent {
         
         const newMessage = new ThreadMessage(
           this.newMessageContent.trim(),
-          currentMessage.user.userId,
-          currentMessage.user.userName,
-          currentMessage.user.photoURL,
+          currentMessage.userId,
           newMessageId
         );
         this.newMessageContent = '';
@@ -120,9 +122,7 @@ export class ThreadNewMessageComponent {
             content: newMessage.content,
             user: [
               {
-                userId: newMessage.user.userId,
-                userName: newMessage.user.userName,
-                photoURL: newMessage.user.photoURL,
+                userId: newMessage.userId,
               },
             ],
             time: newMessage.time,
@@ -133,6 +133,12 @@ export class ThreadNewMessageComponent {
         console.error('Fehler beim Speichern der Nachricht in Firestore:', error);
       }
     }
+  }
+
+  addEmoji(event: any) {
+    console.log('Emoji selected:', event);
+    const emoji = event.emoji.native || event.emoji;
+    this.newMessageContent += emoji;
   }
   
 }

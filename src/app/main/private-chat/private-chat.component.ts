@@ -37,32 +37,39 @@ export class PrivateChatComponent implements OnInit {
       switchMap(params => {
         const privateChatId = params.get('privateChatId');
         const currentUserId = this.userService.userId;
-
+  
         if (privateChatId) {
           return this.userService.getUserDataByUID(currentUserId).pipe(
             switchMap(userData => {
-              const privateChat = userData.privateChat[privateChatId];
-              // Überprüfen, ob Nachrichten vorhanden sind
-              this.hasMessages = privateChat?.messages && Object.keys(privateChat.messages).length > 0;
-
-              // Umwandeln der Nachrichten in ein Array
-              const messagesArray = privateChat?.messages ? Object.values(privateChat.messages) : [];
-              
-              // Rückgabe des privateChat-Objekts mit dem Array von Nachrichten
-              return of({ ...privateChat, messages: messagesArray });
+              if (userData && userData.privateChat) {
+                const privateChat = userData.privateChat[privateChatId];
+                
+                // Überprüfen, ob Nachrichten vorhanden sind
+                this.hasMessages = privateChat?.messages && Object.keys(privateChat.messages).length > 0;
+  
+                // Umwandeln der Nachrichten in ein Array
+                const messagesArray = privateChat?.messages ? Object.values(privateChat.messages) : [];
+                
+                // Rückgabe des privateChat-Objekts mit dem Array von Nachrichten
+                return of({ ...privateChat, messages: messagesArray });
+              } else {
+                console.warn('Keine Benutzerdaten oder privateChat-Daten gefunden');
+                this.hasMessages = false;
+                return of(null); // Gibt ein Observable mit null zurück
+              }
             }),
             catchError(err => {
-              console.error('Error fetching user data:', err);
+              console.error('Fehler beim Abrufen der Benutzerdaten:', err);
               this.hasMessages = false;
-              return of(null); // gibt ein Observable mit null zurück
+              return of(null); // Gibt ein Observable mit null zurück
             })
           );
         } else {
-          console.error('No privateChatId found in the route parameters');
+          console.error('Kein privateChatId in den Routenparametern gefunden');
           this.hasMessages = false;
           return of(null);
         }
       })
     );
   }
-}
+}  

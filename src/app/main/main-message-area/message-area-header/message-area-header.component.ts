@@ -1,14 +1,22 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  Renderer2,
+  ViewChild,
+} from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Channel } from '../../../shared/models/channel.model'; // Importiere dein Channel Interface
+import { Channel } from '../../../shared/models/channel.model';
 import { ChannelService } from '../../../shared/services/channel-service/channel.service';
-import { Subscription } from 'rxjs';
+import { UserService } from '../../../shared/services/user-service/user.service';
 import { ChannelNewMemberComponent } from './channel-new-member/channel-new-member.component';
 import { ChannelMembersListComponent } from './channel-members-list/channel-members-list.component';
 import { ChannelDescriptionComponent } from './channel-description/channel-description.component';
-import { NgFor } from '@angular/common';
+import { NgFor, } from '@angular/common';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-message-area-header',
@@ -22,29 +30,33 @@ import { NgFor } from '@angular/common';
     ChannelNewMemberComponent,
     ChannelMembersListComponent,
     ChannelDescriptionComponent,
-    NgFor
+    NgFor,
   ],
   templateUrl: './message-area-header.component.html',
   styleUrls: ['./message-area-header.component.scss'],
 })
 export class MessageAreaHeaderComponent implements OnInit {
-  @ViewChild('chooseChannelMenuTrigger') chooseChannelMenuTrigger!: MatMenuTrigger;
+  @ViewChild('chooseChannelMenuTrigger')
+  chooseChannelMenuTrigger!: MatMenuTrigger;
   @ViewChild('memberListMenuTrigger') memberListMenuTrigger!: MatMenuTrigger;
   @ViewChild('addMemberMenuTrigger') addMemberMenuTrigger!: MatMenuTrigger;
 
   isMenuOpened: string = '';
   currentBorderRadius: string = '0px 30px 30px 30px'; // Standardwert
+  userService = inject(UserService);
 
   currentChannel: Channel | undefined;
 
-  constructor(private channelService: ChannelService, private el: ElementRef, private renderer: Renderer2) {}
+  constructor(private channelService: ChannelService) {}
 
   ngOnInit(): void {
-    this.channelService.currentChannel$.subscribe({
-      next: (channel) => {
-        this.currentChannel = channel;
-      }
-    });
+    setTimeout(() => {
+      this.channelService.currentChannel$.subscribe({
+        next: (channel) => {
+          this.currentChannel = channel;
+        },
+      });
+    }, 0);
   }
 
   closeMenu(menuType: 'choose-channel' | 'member-list' | 'add-member') {
@@ -68,7 +80,6 @@ export class MessageAreaHeaderComponent implements OnInit {
   }
 
   toggleBorder(menuType: string) {
-    // Setze den border-radius je nach Menütyp
     switch (menuType) {
       case 'choose-channel':
         this.currentBorderRadius = '0px 30px 30px 30px';
@@ -82,8 +93,13 @@ export class MessageAreaHeaderComponent implements OnInit {
       default:
         this.currentBorderRadius = '0px 30px 30px 30px';
     }
-    document.documentElement.style.setProperty('--border-radius', this.currentBorderRadius);
+    document.documentElement.style.setProperty(
+      '--border-radius',
+      this.currentBorderRadius
+    );
   }
-  
-  
+
+  getPhotoURL(userId: string): string {
+    return this.userService.getPhotoURL(userId);
+  }
 }
