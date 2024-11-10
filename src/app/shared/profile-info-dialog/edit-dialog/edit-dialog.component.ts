@@ -39,7 +39,7 @@ export class EditDialogComponent {
     this.editUserForm = this.formBuilder.group({
       name: ['', [this.fullNameValidator]],
       email: ['', [Validators.email]],
-      password: ['', [Validators.required]],
+      password: [''],
     });
   }
 

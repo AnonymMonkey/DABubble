@@ -47,6 +47,7 @@
         type="password"
         [formControl]="passwordControl"
         placeholder="Bestätige dein Passwort"
+        [required]="!emailControl.invalid && editUserForm.value.email !== ''"
         *ngIf="!emailControl.invalid && editUserForm.value.email !== ''"
         [ngClass]="{
           'input-error': passwordControl.invalid && passwordControl.touched
