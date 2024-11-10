@@ -10,6 +10,7 @@ import {
   confirmPasswordReset,
   fetchSignInMethodsForEmail,
   User,
+  updateEmail,
 } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { authState } from 'rxfire/auth';
@@ -21,6 +22,11 @@ import { UserData } from '../../models/user.model';
 import { NotificationService } from '../notification-service/notification.service';
 import { Firestore } from '@angular/fire/firestore';
 import { collection, getDocs } from 'firebase/firestore';
+import {
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  verifyBeforeUpdateEmail,
+} from 'firebase/auth';
 
 @Injectable({
   providedIn: 'root',
@@ -98,13 +104,9 @@ export class AuthService {
 
       const googleProfilePhotoURL =
         userCredential.user.photoURL || 'assets/img/profile/placeholder.webp'; // Google-Profilbild oder Platzhalter verwenden
-      const formattedDisplayName = new UserData(
-        userCredential.user
-      ).formatDisplayName();
 
       await this.userService.saveUserData(
         userCredential.user,
-        formattedDisplayName,
         googleProfilePhotoURL
       );
       await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
@@ -219,5 +221,70 @@ export class AuthService {
   private handleError(error: any) {
     this.errorService.logError(error); // Loggt den Fehler
     throw error; // Gibt den Fehler an den Aufrufer zurück
+  }
+
+  formatDisplayName(name: string): string {
+    const user = new UserData({} as any, name); // Erstelle ein UserData-Objekt mit dem Namen
+    return user.formatDisplayName(); // Rufe die Formatierungsfunktion auf
+  }
+
+  updateEmail(newEmail: string) {
+    const user = this.auth.currentUser;
+    // const credential = promptForCredentials();
+
+    // reauthenticateWithCredential(user!, credential).then(() => {
+    //   // User re-authenticated.
+    // }).catch((error) => {
+    //   // An error ocurred
+    //   // ...
+    // });
+    verifyBeforeUpdateEmail(user!, newEmail)
+      .then(() => {
+        console.log(
+          'Verifizierungs-E-Mail an die neue Adresse gesendet. Bitte bestätigen.'
+        );
+      })
+      .catch((error) => {
+        console.error('Fehler beim Senden der Verifizierungs-E-Mail:', error);
+        throw error;
+      });
+    // updateEmail(user!, newEmail)
+    //   .then(() => {
+    //     console.log('E-Mail-Adresse erfolgreich aktualisiert');
+    //   })
+    //   .catch((error) => {
+    //     console.error('Fehler beim Aktualisieren der E-Mail-Adresse:', error);
+    //     throw error; // Fehler weitergeben, um sie ggf. im Aufrufer zu behandeln
+    //   });
+  }
+
+  async changeEmail(newEmail: string, password: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      console.error('Kein Benutzer eingeloggt.');
+      return;
+    }
+
+    try {
+      await verifyBeforeUpdateEmail(user, newEmail);
+    } catch (error) {
+      if ((error as any).code === 'auth/requires-recent-login') {
+        try {
+          const credential = EmailAuthProvider.credential(
+            user.email as string,
+            password
+          );
+          await reauthenticateWithCredential(user, credential);
+          await verifyBeforeUpdateEmail(user, newEmail);
+        } catch (reauthError) {
+          console.error(
+            'Fehler bei der erneuten Authentifizierung:',
+            reauthError
+          );
+        }
+      } else {
+        console.error('Fehler beim Ändern der E-Mail:', error);
+      }
+    }
   }
 }

@@ -60,6 +60,7 @@ export class SideNavComponent {
     this.userService.allUserData$.subscribe((data) => {
       this.allUserData = data;
     });
+    this.loadAllChannelsData();
     this.loadOnlineStatus();
   }
 

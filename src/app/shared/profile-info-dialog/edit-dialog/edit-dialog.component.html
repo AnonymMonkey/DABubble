@@ -1,0 +1,76 @@
+<mat-card class="profile-info-dialog" appearance="outlined">
+  <div class="card-header">
+    <h3>Dein profil bearbeiten</h3>
+    <mat-icon (click)="closeDialog()">close</mat-icon>
+  </div>
+  <img class="profile-image" src="{{ user.photoURL }}" alt="" />
+  <div class="profile-info-name">
+    <div class="name-edit">
+      <mat-icon class="material-symbols-outlined">account_circle</mat-icon>
+      <h3>Vollständiger Name</h3>
+    </div>
+    <div class="input-secondary">
+      <input
+        type="text"
+        [formControl]="nameControl"
+        placeholder="{{ user.displayName }}"
+        [ngClass]="{
+          'input-error': nameControl.invalid
+        }"
+        (keypress)="blockNumbers($event)"
+      />
+      <div *ngIf="nameControl.invalid" class="error-message">
+        <ng-container *ngIf="nameControl.hasError('fullName')">
+          Vor- und Nachname(n) sind erforderlich
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  <div class="profile-info-name">
+    <div class="name-edit">
+      <mat-icon>mail_outline</mat-icon>
+      <h3>E-Mail-Adresse</h3>
+    </div>
+    <div class="input-secondary">
+      <input
+        type="text"
+        [formControl]="emailControl"
+        placeholder="{{ user.email }}"
+        [ngClass]="{
+          'input-error': emailControl.invalid
+        }"
+      />
+      <div *ngIf="emailControl.invalid" class="error-message">
+        <ng-container> Ungültige E-Mail-Adresse </ng-container>
+      </div>
+      <input
+        type="password"
+        [formControl]="passwordControl"
+        placeholder="Bestätige dein Passwort"
+        *ngIf="!emailControl.invalid && editUserForm.value.email !== ''"
+        [ngClass]="{
+          'input-error': passwordControl.invalid && passwordControl.touched
+        }"
+      />
+      <div *ngIf="passwordControl.touched" class="error-message">
+        <ng-container *ngIf="passwordControl.hasError('required')">
+          Passwort ist erforderlich
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="button-wrapper">
+    <button class="button-primary" (click)="closeDialog()">Abbrechen</button>
+    <button
+      class="button-primary"
+      (click)="applyChanges()"
+      [disabled]="
+        !editUserForm.valid ||
+        (editUserForm.value.name === '' && editUserForm.value.email === '')
+      "
+    >
+      Speichern
+    </button>
+  </div>
+</mat-card>

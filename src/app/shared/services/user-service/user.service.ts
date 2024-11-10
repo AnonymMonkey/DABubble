@@ -10,9 +10,13 @@ import { UserData } from '../../models/user.model';
 import {
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
+  updateDoc,
+  where,
 } from 'firebase/firestore';
 import {
   get,
@@ -188,6 +192,32 @@ export class UserService {
     displayName?: string,
     photoURL?: string
   ): Promise<void> {
+    const userRef = doc(this.firestore, `users/${user.uid}`);
+    const userSnapshot = await getDoc(userRef);
+
+    // Typisiere `existingData` als teilweise `UserData`
+    let existingData: Partial<UserData> = {};
+    if (userSnapshot.exists()) {
+      existingData = userSnapshot.data() as Partial<UserData>;
+    }
+
+    const userData = new UserData(user, displayName);
+    userData.lastLogin = serverTimestamp();
+    userData.photoURL = photoURL || userData.photoURL;
+    userData.displayName = userData.formatDisplayName();
+
+    // Überprüfe, ob Channels und privateChats bereits existieren und übernehme sie, falls vorhanden
+    userData.channels = existingData.channels || userData.channels;
+    userData.privateChat = existingData.privateChat || userData.privateChat;
+
+    return setDoc(userRef, { ...userData }, { merge: true });
+  }
+
+  /*   async saveUserData(
+    user: User,
+    displayName?: string,
+    photoURL?: string
+  ): Promise<void> {
     const userData = new UserData(user, displayName);
     userData.lastLogin = serverTimestamp(); // Aktualisiert den letzten Login-Zeitpunkt
 
@@ -198,11 +228,11 @@ export class UserService {
     userData.displayName = userData.formatDisplayName();
 
     return setDoc(
-      doc(this.firestore, `users/${user.uid}`),
+      doc(this.firestore, users/${user.uid}),
       { ...userData },
       { merge: true } // Zusammenführen mit bestehenden Daten, um nichts zu überschreiben
     );
-  }
+  } */
 
   // Speichert den Avatar (Profilbild) eines Benutzers in Firestore
   async saveAvatar(userId: string, avatarUrl: string): Promise<void> {
@@ -265,9 +295,55 @@ export class UserService {
   }
 
   getUserEmail(uid: string): string {
-    const user = this.allUserDataSubject.getValue().find((user) => user.id === uid);
+    const user = this.allUserDataSubject
+      .getValue()
+      .find((user) => user.id === uid);
     return user ? user.email : '';
-  }  
+  }
+
+  saveProfileChanges(uid: string, newName: string, newEmail: string) {
+    const updatedData: any = {};
+    if (newName) {
+      updatedData.displayName = newName;
+    }
+    if (newEmail) {
+      updatedData.email = newEmail;
+    }
+    return setDoc(
+      doc(this.firestore, `users/${uid}`),
+      updatedData,
+      { merge: true } // Verhindert, dass andere Daten überschrieben werden
+    );
+  }
+
+  async updateUserInChannels(userId: string, newUserName: any) {
+    try {
+      // 1. Sammlung `Channels` abfragen und Dokumente finden, die die userId enthalten
+      const channelsRef = collection(this.firestore, 'Channels');
+      const q = query(channelsRef, where('userId', '==', userId)); // Passen, falls userId anders gespeichert ist
+      const querySnapshot = await getDocs(q);
+      console.log(querySnapshot.docs);
+
+      // 2. Alle relevanten Dokumente durchlaufen und die Userdaten aktualisieren
+      for (const docSnapshot of querySnapshot.docs) {
+        const channelDocRef = doc(this.firestore, 'Channels', docSnapshot.id);
+
+        // 3. Nur die relevanten Felder aktualisieren
+        await updateDoc(channelDocRef, {
+          // Ersetze die Felder entsprechend den zu aktualisierenden Daten
+          userName: newUserName,
+          // Füge andere benötigte Felder hier hinzu
+        });
+      }
+      console.log('User-Daten in allen Kanälen erfolgreich aktualisiert');
+    } catch (error) {
+      console.error(
+        'Fehler beim Aktualisieren der User-Daten in Channels:',
+        error
+      );
+    }
+  }
+  
 
   getPhotoURL(uid: string): string {
     const user = this.allUserDataSubject.getValue().find((user) => user.id === uid);
