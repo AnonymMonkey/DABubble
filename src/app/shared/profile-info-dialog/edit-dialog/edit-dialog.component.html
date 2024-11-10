@@ -12,9 +12,18 @@
     <div class="input-secondary">
       <input
         type="text"
-        [(ngModel)]="newName"
+        [formControl]="nameControl"
         placeholder="{{ user.displayName }}"
+        [ngClass]="{
+          'input-error': nameControl.invalid
+        }"
+        (keypress)="blockNumbers($event)"
       />
+      <div *ngIf="nameControl.invalid" class="error-message">
+        <ng-container *ngIf="nameControl.hasError('fullName')">
+          Vor- und Nachname(n) sind erforderlich
+        </ng-container>
+      </div>
     </div>
   </div>
   <div class="profile-info-name">
@@ -25,14 +34,29 @@
     <div class="input-secondary">
       <input
         type="text"
-        [(ngModel)]="newEmail"
+        [formControl]="emailControl"
         placeholder="{{ user.email }}"
+        [ngClass]="{
+          'input-error': emailControl.invalid
+        }"
       />
+      <div *ngIf="emailControl.invalid" class="error-message">
+        <ng-container> Ungültige E-Mail-Adresse </ng-container>
+      </div>
     </div>
   </div>
 
   <div class="button-wrapper">
     <button class="button-primary" (click)="closeDialog()">Abbrechen</button>
-    <button class="button-primary" (click)="test()">Speichern</button>
+    <button
+      class="button-primary"
+      (click)="test()"
+      [disabled]="
+        !editUserForm.valid ||
+        (editUserForm.value.name === '' && editUserForm.value.email === '')
+      "
+    >
+      Speichern
+    </button>
   </div>
 </mat-card>

@@ -69,7 +69,7 @@ export class ProfileInfoDialogComponent {
   }
 
   closeDialog() {
-    this.dialogRef.close();
+    this.dialog.closeAll();
   }
 
   openChatWithUser(targetUser: UserData, buttonID: string) {

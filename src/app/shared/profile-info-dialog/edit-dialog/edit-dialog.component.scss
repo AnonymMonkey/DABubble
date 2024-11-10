@@ -59,6 +59,21 @@
           font-size: 18px;
         }
       }
+
+      .input-error {
+        box-shadow: 0 0 0 1px var(--error-color) !important;
+      }
+
+      .error-message {
+        position: absolute;
+        bottom: -24px;
+
+        display: flex;
+        flex-direction: column;
+
+        color: var(--error-color);
+        font-size: 14px;
+      }
     }
   }
 
@@ -66,6 +81,10 @@
     display: flex;
     justify-content: center;
     gap: 32px;
+
+    .button-primary:disabled {
+      cursor: not-allowed !important;
+    }
   }
 }
 
