@@ -3,7 +3,12 @@
     <h3>Dein profil bearbeiten</h3>
     <mat-icon (click)="closeDialog()">close</mat-icon>
   </div>
-  <img class="profile-image" src="{{ user.photoURL }}" alt="" />
+  <img
+    class="profile-image"
+    src="{{ user.photoURL }}"
+    alt=""
+    matTooltip="Ändere dein Profilbild"
+  />
   <div class="profile-info-name">
     <div class="name-edit">
       <mat-icon class="material-symbols-outlined">account_circle</mat-icon>

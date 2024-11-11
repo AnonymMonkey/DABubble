@@ -13,6 +13,7 @@ import {
 } from '@angular/forms';
 import { UserService } from '../../services/user-service/user.service';
 import { AuthService } from '../../services/auth-service/auth.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-edit-dialog',
@@ -23,6 +24,7 @@ import { AuthService } from '../../services/auth-service/auth.service';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    MatTooltipModule,
   ],
   templateUrl: './edit-dialog.component.html',
   styleUrl: './edit-dialog.component.scss',

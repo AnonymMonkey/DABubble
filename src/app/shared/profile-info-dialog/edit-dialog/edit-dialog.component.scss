@@ -27,6 +27,12 @@
     height: 200px;
     width: 200px;
     border-radius: 50%;
+    position: relative;
+
+    &:hover {
+      cursor: pointer;
+      outline: 8px solid #e6e6e6;
+    }
   }
 
   .profile-info-name {
