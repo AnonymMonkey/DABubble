@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -14,6 +14,7 @@ import {
 import { UserService } from '../../services/user-service/user.service';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { AvatarDialogComponent } from '../avatar-dialog/avatar-dialog.component';
 
 @Component({
   selector: 'app-edit-dialog',
@@ -36,6 +37,8 @@ export class EditDialogComponent {
   userService = inject(UserService);
   authService = inject(AuthService);
   formBuilder = inject(FormBuilder);
+
+  constructor(public dialog: MatDialog) {}
 
   ngOnInit() {
     this.editUserForm = this.formBuilder.group({
@@ -95,5 +98,10 @@ export class EditDialogComponent {
       this.authService.changeEmail(newEmail, password);
     }
     this.closeDialog();
+  }
+
+  openEditAvatar(): void {
+    const dialogRef = this.dialog.open(AvatarDialogComponent);
+    dialogRef.componentInstance.photoURL = this.user.photoURL;
   }
 }

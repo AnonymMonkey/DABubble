@@ -1,0 +1,68 @@
+<div class="select-avatar">
+  <div class="headline">
+    <mat-icon class="back-icon" (click)="dialogRef.close()"
+      >arrow_back</mat-icon
+    >
+    <h3>Ändere dein Profilbild</h3>
+  </div>
+
+  <div class="avatar-container">
+    <!-- Wenn kein Avatar ausgewählt wurde, zeige den Platzhalter an -->
+    <ng-container *ngIf="!photoURL; else avatarTemplate">
+      <div class="avatar-placeholder">
+        <mat-icon>person</mat-icon>
+        <!-- Icon wird angezeigt, wenn kein Avatar ausgewählt ist -->
+      </div>
+    </ng-container>
+
+    <ng-template #avatarTemplate>
+      <img [src]="photoURL" alt="Ausgewählter Avatar" class="selected-avatar" />
+    </ng-template>
+  </div>
+
+  <div class="select-avatar-list">
+    <p>Aus der Liste wählen</p>
+    <div class="avatars">
+      <img
+        src="assets/img/profile/elias.webp"
+        alt="Avatar Elias"
+        (click)="selectAvatar('assets/img/profile/elias.webp')"
+      />
+      <img
+        src="assets/img/profile/elise.webp"
+        alt="Avatar Elise"
+        (click)="selectAvatar('assets/img/profile/elise.webp')"
+      />
+      <img
+        src="assets/img/profile/frederik.webp"
+        alt="Avatar Frederik"
+        (click)="selectAvatar('assets/img/profile/frederik.webp')"
+      />
+      <img
+        src="assets/img/profile/noah.webp"
+        alt="Avatar Noah"
+        (click)="selectAvatar('assets/img/profile/noah.webp')"
+      />
+      <img
+        src="assets/img/profile/sofia.webp"
+        alt="Avatar Sofia"
+        (click)="selectAvatar('assets/img/profile/sofia.webp')"
+      />
+      <img
+        src="assets/img/profile/steffen.webp"
+        alt="Avatar Steffen"
+        (click)="selectAvatar('assets/img/profile/steffen.webp')"
+      />
+    </div>
+    <div class="upload-avatar">
+      <p>Eigenes Bild verwenden</p>
+      <button mat-flat-button class="button-secondary">Datei hochladen</button>
+    </div>
+  </div>
+
+  <div class="next-button">
+    <button mat-flat-button class="button-primary" [disabled]="!photoURL">
+      Profilbild speichern
+    </button>
+  </div>
+</div>
