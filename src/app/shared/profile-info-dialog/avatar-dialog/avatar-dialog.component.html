@@ -61,7 +61,12 @@
   </div>
 
   <div class="next-button">
-    <button mat-flat-button class="button-primary" [disabled]="!photoURL">
+    <button
+      mat-flat-button
+      class="button-primary"
+      [disabled]="!photoURL"
+      (click)="closeDialog()"
+    >
       Profilbild speichern
     </button>
   </div>

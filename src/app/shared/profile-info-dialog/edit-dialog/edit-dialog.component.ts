@@ -103,5 +103,12 @@ export class EditDialogComponent {
   openEditAvatar(): void {
     const dialogRef = this.dialog.open(AvatarDialogComponent);
     dialogRef.componentInstance.photoURL = this.user.photoURL;
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.userService.saveAvatar(this.user.uid, result);
+        this.user.photoURL = result;
+      }
+    });
   }
 }

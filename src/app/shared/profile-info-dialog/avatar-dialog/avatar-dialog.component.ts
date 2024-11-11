@@ -17,4 +17,8 @@ export class AvatarDialogComponent {
   selectAvatar(avatar: string) {
     this.photoURL = avatar;
   }
+
+  closeDialog() {
+    this.dialogRef.close(this.photoURL);
+  }
 }
