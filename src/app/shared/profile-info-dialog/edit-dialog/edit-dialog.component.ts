@@ -37,6 +37,7 @@ export class EditDialogComponent {
   userService = inject(UserService);
   authService = inject(AuthService);
   formBuilder = inject(FormBuilder);
+  errorMessage: string | null = '';
 
   constructor(public dialog: MatDialog) {}
 
@@ -89,15 +90,23 @@ export class EditDialogComponent {
       .join(' '); // Fügt die Wörter wieder zusammen
   }
 
-  applyChanges() {
+  async applyChanges() {
     const newName = this.formatDisplayName(this.nameControl.value);
     const newEmail = this.emailControl.value;
     const password = this.passwordControl.value;
-    this.userService.saveProfileChanges(this.user.uid, newName, newEmail);
     if (newEmail !== this.user.email) {
-      this.authService.changeEmail(newEmail, password);
+      this.errorMessage = null;
+      try {
+        await this.authService.changeEmail(newEmail, password);
+        this.userService.saveProfileChanges(this.user.uid, newName, newEmail);
+        this.dialogRef.close();
+      } catch (error) {
+        this.errorMessage = 'Falsches Passwort.';
+        throw error;
+      }
+    } else if (newEmail === '') {
+      this.userService.saveProfileChanges(this.user.uid, newName, newEmail);
     }
-    this.closeDialog();
   }
 
   openEditAvatar(): void {

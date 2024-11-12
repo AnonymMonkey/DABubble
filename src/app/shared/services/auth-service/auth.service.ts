@@ -228,62 +228,44 @@ export class AuthService {
     return user.formatDisplayName(); // Rufe die Formatierungsfunktion auf
   }
 
-  updateEmail(newEmail: string) {
-    const user = this.auth.currentUser;
-    // const credential = promptForCredentials();
-
-    // reauthenticateWithCredential(user!, credential).then(() => {
-    //   // User re-authenticated.
-    // }).catch((error) => {
-    //   // An error ocurred
-    //   // ...
-    // });
-    verifyBeforeUpdateEmail(user!, newEmail)
-      .then(() => {
-        console.log(
-          'Verifizierungs-E-Mail an die neue Adresse gesendet. Bitte bestätigen.'
-        );
-      })
-      .catch((error) => {
-        console.error('Fehler beim Senden der Verifizierungs-E-Mail:', error);
-        throw error;
-      });
-    // updateEmail(user!, newEmail)
-    //   .then(() => {
-    //     console.log('E-Mail-Adresse erfolgreich aktualisiert');
-    //   })
-    //   .catch((error) => {
-    //     console.error('Fehler beim Aktualisieren der E-Mail-Adresse:', error);
-    //     throw error; // Fehler weitergeben, um sie ggf. im Aufrufer zu behandeln
-    //   });
-  }
-
   async changeEmail(newEmail: string, password: string): Promise<void> {
     const user = this.auth.currentUser;
     if (!user) {
-      console.error('Kein Benutzer eingeloggt.');
-      return;
+      throw new Error('Kein Benutzer eingeloggt.');
     }
 
     try {
-      await verifyBeforeUpdateEmail(user, newEmail);
+      // Erstelle die Zugangsdaten zur Re-Authentifizierung
+      const credential = EmailAuthProvider.credential(
+        user!.email as string,
+        password
+      );
+
+      // Versuche, den Benutzer mit dem Passwort zu re-authentifizieren
+      await reauthenticateWithCredential(user!, credential);
+
+      // Wenn die Re-Authentifizierung erfolgreich ist, aktualisiere die E-Mail
+      await verifyBeforeUpdateEmail(user!, newEmail);
     } catch (error) {
-      if ((error as any).code === 'auth/requires-recent-login') {
-        try {
-          const credential = EmailAuthProvider.credential(
-            user.email as string,
-            password
-          );
-          await reauthenticateWithCredential(user, credential);
-          await verifyBeforeUpdateEmail(user, newEmail);
-        } catch (reauthError) {
-          console.error(
-            'Fehler bei der erneuten Authentifizierung:',
-            reauthError
-          );
-        }
+      // Logge den gesamten Fehler zur besseren Fehlerdiagnose
+      console.error(
+        'Fehler bei der Re-Authentifizierung oder E-Mail-Änderung:',
+        error
+      );
+
+      if ((error as any).code === 'auth/wrong-password') {
+        throw new Error('Falsches Passwort');
+      } else if ((error as any).code === 'auth/user-mismatch') {
+        throw new Error('Der Benutzer stimmt nicht überein.');
+      } else if ((error as any).code === 'auth/requires-recent-login') {
+        throw new Error(
+          'Bitte melden Sie sich erneut an, um Ihre E-Mail zu ändern.'
+        );
       } else {
-        console.error('Fehler beim Ändern der E-Mail:', error);
+        // Weiterer unbekannter Fehler
+        throw new Error(
+          'Fehler beim Ändern der E-Mail: ' + (error as any).message
+        );
       }
     }
   }

@@ -59,7 +59,17 @@
           'input-error': passwordControl.invalid && passwordControl.touched
         }"
       />
-      <div *ngIf="passwordControl.touched" class="error-message">
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      <div
+        *ngIf="
+          passwordControl.touched &&
+          emailControl.value !== '' &&
+          !emailControl.invalid
+        "
+        class="error-message"
+      >
         <ng-container *ngIf="passwordControl.hasError('required')">
           Passwort ist erforderlich
         </ng-container>
