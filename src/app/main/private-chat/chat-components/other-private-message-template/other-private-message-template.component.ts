@@ -1,15 +1,16 @@
 import { Component, inject, Input } from '@angular/core';
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
+import { MessageReactionsComponent } from '../../../../shared/components/message-reactions/message-reactions.component';
 
 @Component({
   selector: 'app-other-private-message-template',
   standalone: true,
-  imports: [NgClass, DatePipe, EmojiComponent, MatIcon, MatMenu, MatMenuTrigger, EmojiPickerComponent],
+  imports: [NgClass, DatePipe, EmojiComponent, MatIcon, MatMenu, MatMenuTrigger, EmojiPickerComponent, MessageReactionsComponent, NgIf],
   templateUrl: './other-private-message-template.component.html',
   styleUrl: './other-private-message-template.component.scss'
 })

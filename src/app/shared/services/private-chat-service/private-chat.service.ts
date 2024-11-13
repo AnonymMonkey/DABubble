@@ -70,37 +70,29 @@ export class PrivateChatService implements OnDestroy {
   private destroy$ = new Subject<void>();
   public privateChatId: string | null = null;
 
-  private routeSub: Subscription | null = null;
-
   constructor(
     private firestore: Firestore,
-    private route: ActivatedRoute,
     private userService: UserService
   ) {}
 
   setPrivateChatId(privateChatId: string): void {
     this.privateChatId = privateChatId;
-    console.log('Private-Chat-ID:', privateChatId);
   }
 
   async setActualMessage(messageId: string): Promise<void> {
     const userId = this.userService.userId;
 
     if (userId && this.privateChatId) {
-      // Referenz für das Benutzerdokument im Firestore
       const userDocRef = doc(this.firestore, `users/${userId}`);
       try {
-        // Abrufen des Benutzerdokuments
         const userDocSnapshot = await getDoc(userDocRef);
 
         if (userDocSnapshot.exists()) {
-          // Zugriff auf die Daten im privateChat-Objekt
           const privateChatData = userDocSnapshot.data()?.['privateChat'];
           const messages = privateChatData?.[this.privateChatId]?.messages;
 
           if (messages && messages[messageId]) {
-            // Nachricht gefunden - Daten extrahieren und aktualisieren
-            const updatedMessage = messages[messageId] as ChannelMessage;
+            const updatedMessage = messages[messageId] as ThreadMessage;
             this.actualMessageSubject.next(updatedMessage);
           } else {
             console.log('Nachricht existiert nicht.');
@@ -120,7 +112,7 @@ export class PrivateChatService implements OnDestroy {
   addMessageToPrivateChat(
     currentUserId: string,
     privateChatId: string,
-    message: ChannelMessage
+    message: ThreadMessage
   ): Observable<void> {
     const privateChatDocRef = this.getPrivateChatDocRef(
       currentUserId,
@@ -281,6 +273,119 @@ export class PrivateChatService implements OnDestroy {
 
   generateChatId(uid1: string, uid2: string): string {
     return [uid1, uid2].sort().join('_');
+  }
+
+  async addOrChangeReactionPrivateChat(messageId: string, emoji: { shortName: string; [key: string]: any }): Promise<void> {
+    if (!this.privateChatId || !messageId) {
+      console.error('Private-Chat-ID oder Nachrichten-ID fehlt.');
+      return;
+    }
+  
+    const userId = this.userService.userId;
+  
+    try {
+      // Abrufen der Benutzerdaten aus `users/{userId}`
+      const userDocRef = doc(this.firestore, `users/${userId}`);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+  
+      if (!userData) {
+        console.error('Benutzer existiert nicht.');
+        return;
+      }
+  
+      // `privateChat`-Daten innerhalb des Benutzer-Dokuments abrufen
+      const privateChats = userData['privateChat'];
+      const chatData = privateChats[this.privateChatId];
+      if (!chatData) {
+        console.error('PrivateChat mit dieser ID existiert nicht im Benutzerdokument.');
+        return;
+      }
+  
+      // Nachrichten-Daten in `chatData` abrufen
+      const currentMessage = chatData.messages ? chatData.messages[messageId] : null;
+      if (!currentMessage) {
+        console.error('Nachricht existiert nicht in diesem PrivateChat.');
+        return;
+      }
+  
+      // Benutzer-Details abrufen
+      const user = await this.getUserData();
+      if (!user) {
+        console.error('Benutzerdaten sind unvollständig.');
+        return;
+      }
+  
+      // Die beiden User-IDs aus der privateChatId extrahieren
+      const [firstUserId, secondUserId] = this.privateChatId.split('_');
+  
+      // Überprüfen, ob der aktuelle Benutzer der erste oder zweite Benutzer ist
+      const isCurrentUserFirst = firstUserId === userId;
+      const secondUserIdForSaving = isCurrentUserFirst ? secondUserId : firstUserId;
+  
+      // Reaktion für den aktuellen Benutzer überprüfen
+      let reaction = currentMessage.reactions.find(
+        (r: { emoji: { shortName: string }; userIds: string[] }) => r.emoji.shortName === emoji.shortName
+      );
+  
+      if (!reaction) {
+        // Falls keine Reaktion existiert, erstellen wir eine neue Reaktion
+        reaction = {
+          emoji: emoji,
+          count: 0, // Initialisieren des Counts auf 0
+          userIds: [],
+        };
+        currentMessage.reactions.push(reaction);
+      }
+  
+      // Überprüfen, ob der Benutzer bereits seine Reaktion abgegeben hat
+      const userAlreadyReacted = reaction.userIds.includes(userId);
+  
+      if (!userAlreadyReacted) {
+        // Benutzer hinzufügen und Count erhöhen
+        reaction.userIds.push(userId);
+        reaction.count++;
+      }
+  
+      // Wenn der zweite Benutzer denselben Emoji verwendet, erhöhen wir den Count
+      const secondUserAlreadyReacted = reaction.userIds.includes(secondUserIdForSaving);
+  
+      if (userAlreadyReacted && secondUserAlreadyReacted) {
+        // Wenn beide Benutzer denselben Emoji haben, erhöhen wir den Count auf 2
+        reaction.count = 2;
+      }
+  
+      // Reaktionen für den aktuellen Benutzer und den zweiten Benutzer in beiden Benutzer-Dokumenten speichern
+      const userDocRef1 = doc(this.firestore, `users/${userId}`);
+      const userDocRef2 = doc(this.firestore, `users/${secondUserIdForSaving}`);
+  
+      // Dokumente aktualisieren
+      await Promise.all([
+        updateDoc(userDocRef1, { [`privateChat.${this.privateChatId}.messages.${messageId}.reactions`]: currentMessage.reactions }),
+        updateDoc(userDocRef2, { [`privateChat.${this.privateChatId}.messages.${messageId}.reactions`]: currentMessage.reactions }),
+      ]);
+    } catch (error) {
+      console.error('Fehler beim Hinzufügen oder Aktualisieren der Reaktion:', error);
+    }
+  }
+  
+  
+  
+  
+  // Neue Methode zum Abrufen der Benutzerdaten als Promise
+  private async getUserData(): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      this.userService.getUserDataByUID(this.userService.userId).subscribe({
+        next: (user) => {
+          if (user) {
+            resolve(user);
+          } else {
+            reject('Benutzer nicht gefunden.');
+          }
+        },
+        error: (err) => reject(err),
+      });
+    });
   }
 
   // Private Methode zum Abrufen des DocumentReference für private Chats

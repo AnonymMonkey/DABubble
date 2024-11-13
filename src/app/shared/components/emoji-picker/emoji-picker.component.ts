@@ -1,6 +1,7 @@
 import { Component, inject, Input } from '@angular/core';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { MessageService } from '../../services/message-service/message.service';
+import { PrivateChatService } from '../../services/private-chat-service/private-chat.service';
 
 @Component({
   selector: 'app-emoji-picker',
@@ -11,12 +12,23 @@ import { MessageService } from '../../services/message-service/message.service';
 })
 export class EmojiPickerComponent {
   @Input() message!: any;
+  @Input() component: string = '';
   private messageService = inject(MessageService);
+  private privateChatService = inject(PrivateChatService);
 
-  constructor() {}
-
-  addReaction(messageId: string, emoji: string): void {
-    this.messageService.setActualMessage(this.message);
-    this.messageService.addOrChangeReaction(messageId, emoji);
+  constructor() {
   }
+
+  addReaction(messageId: string, emoji: { shortName: string; [key: string]: any }, component: string): void {
+    if (component === 'channel') {
+      this.messageService.setActualMessage(this.message);
+      this.messageService.addOrChangeReaction(messageId, emoji);
+    } else if (component === 'privateChat') {
+      this.privateChatService.setActualMessage(messageId).then(() => {
+        this.privateChatService.addOrChangeReactionPrivateChat(messageId, emoji);
+      }).catch(error => console.error('Fehler beim Setzen der Nachricht:', error));
+    }
+  }
+  
+  
 }

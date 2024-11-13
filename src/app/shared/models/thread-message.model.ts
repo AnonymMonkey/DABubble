@@ -8,13 +8,14 @@ export class ThreadMessage {
   reactions: {
     emoji: string;
     count: number;
+    userIds: string[]; 
   }[] = [];
 
   constructor(
     content: string,
     userId: string,
     chatId: string,
-    reactions: { emoji: string; count: number }[] = [],
+    reactions: { emoji: string; count: number, userIds: string[] }[] = [],
     time: string = new Date().toISOString()
   ) {
     this.content = content;
@@ -32,7 +33,7 @@ export class ThreadMessage {
   }
 
   // Statische Methode, um ein Objekt mit der ID als Schlüssel zu erstellen
-  static createWithIdAsKey(content: string, userId: string, chatId: string, reactions: { emoji: string; count: number }[] = []): { [key: string]: ThreadMessage } {
+  static createWithIdAsKey(content: string, userId: string, chatId: string, reactions: { emoji: string; count: number; userIds: string[] }[] = []): { [key: string]: ThreadMessage } {
     const message = new ThreadMessage(content, userId, chatId, reactions);
     return {
       [message.messageId]: message
@@ -47,7 +48,11 @@ export class ThreadMessage {
         messageId: message.messageId,
         time: message.time,
         userId: message.userId,  // Nur userId anstelle des gesamten Benutzerobjekts
-        reactions: message.reactions,
+        reactions: message.reactions.map(reaction => ({
+          emoji: reaction.emoji,
+          count: reaction.count,
+          userIds: reaction.userIds
+        })), // Mappt die Reaktionen mit allen drei Feldern
       };
     },
     fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ThreadMessage {
@@ -56,7 +61,7 @@ export class ThreadMessage {
         data.content,
         data.userId,  // Nur userId anstelle des gesamten Benutzerobjekts
         snapshot.id,
-        data.reactions || [],
+        data.reactions || [],  // Falls keine Reaktionen vorhanden sind, wird ein leeres Array zurückgegeben
         data.time
       );
     },
