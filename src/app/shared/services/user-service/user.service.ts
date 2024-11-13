@@ -141,14 +141,12 @@ export class UserService {
         }
         return docSnapshot as UserData;
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Fehler beim Abrufen der Benutzerdaten:', error);
-        return of({} as UserData);  // Rückgabe eines leeren Objekts als Standardwert
+        return of({} as UserData); // Rückgabe eines leeren Objekts als Standardwert
       })
     );
   }
-  
-  
 
   //NOTE - Problem tritt auf, da sich auth.service und user.service überschneiden
   // Ruft die Daten des aktuell authentifizierten Nutzers ab
@@ -302,10 +300,12 @@ export class UserService {
       .getValue()
       .find((user) => user.id === uid);
     return user ? user.email : '';
-  }  
+  }
 
   getPhotoURL(uid: string): string {
-    const user = this.allUserDataSubject.getValue().find((user) => user.id === uid);
+    const user = this.allUserDataSubject
+      .getValue()
+      .find((user) => user.id === uid);
     return user ? user.photoURL : '';
   }
 
@@ -317,6 +317,16 @@ export class UserService {
     if (newEmail) {
       updatedData.email = newEmail;
     }
+    return setDoc(
+      doc(this.firestore, `users/${uid}`),
+      updatedData,
+      { merge: true } // Verhindert, dass andere Daten überschrieben werden
+    );
+  }
+
+  saveNewProfileName(uid: string, newName: string) {
+    const updatedData: any = {};
+    updatedData.displayName = newName;
     return setDoc(
       doc(this.firestore, `users/${uid}`),
       updatedData,
@@ -359,9 +369,9 @@ export class UserService {
         const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
           data: {
             userId: userData.uid,
-            userName: userData.displayName,  
-            userPhotoURL: userData.photoURL,  
-            email: userData.email,  
+            userName: userData.displayName,
+            userPhotoURL: userData.photoURL,
+            email: userData.email,
           },
         });
       },
@@ -370,5 +380,4 @@ export class UserService {
       }
     );
   }
-  
 }

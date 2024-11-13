@@ -238,13 +238,19 @@ mat-icon {
       box-shadow: 0 0 0 1px var(--purple2-color);
     }
 
+    &:hover:disabled {
+      box-shadow: 0 0 0 1px var(--light-purple-color);
+      cursor: not-allowed;
+    }
+
     /* &:valid:not(:placeholder-shown):not(:focus) {
       box-shadow: 0 0 0 1px var(--purple3-color);
     } */
   }
 }
 
-textarea, input {
+textarea,
+input {
   font-family: var(--font-nunito) !important;
   font-size: 16px !important;
 }

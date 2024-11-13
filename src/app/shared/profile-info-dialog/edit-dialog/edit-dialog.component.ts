@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -31,6 +31,7 @@ import { AvatarDialogComponent } from '../avatar-dialog/avatar-dialog.component'
   styleUrl: './edit-dialog.component.scss',
 })
 export class EditDialogComponent {
+  @ViewChild('nameInput') inputElement!: ElementRef;
   editUserForm!: FormGroup;
   user: any;
   readonly dialogRef = inject(MatDialogRef<EditDialogComponent>);
@@ -38,15 +39,39 @@ export class EditDialogComponent {
   authService = inject(AuthService);
   formBuilder = inject(FormBuilder);
   errorMessage: string | null = '';
+  // changeNameActivator: boolean = false;
 
   constructor(public dialog: MatDialog) {}
 
   ngOnInit() {
     this.editUserForm = this.formBuilder.group({
-      name: ['', [this.fullNameValidator]],
-      email: ['', [Validators.email]],
-      password: [''],
+      name: [
+        {
+          value: '',
+          disabled: true,
+        },
+        [this.fullNameValidator],
+      ],
+      email: [
+        {
+          value: '',
+          disabled: true,
+        },
+        [Validators.email],
+      ],
+      password: [
+        {
+          value: '',
+          disabled: true,
+        },
+      ],
     });
+  }
+
+  ngAfterViewChecked() {
+    if (this.editUserForm.get('name')?.enabled) {
+      this.inputElement.nativeElement.focus();
+    }
   }
 
   fullNameValidator(control: any) {
@@ -106,6 +131,18 @@ export class EditDialogComponent {
       }
     } else if (newEmail === '') {
       this.userService.saveProfileChanges(this.user.uid, newName, newEmail);
+    }
+  }
+
+  saveNewName() {
+    const newName = this.formatDisplayName(this.nameControl.value);
+    if (newName) {
+      this.userService.saveNewProfileName(this.user.uid, newName);
+      this.user.displayName = newName;
+      this.nameControl.setValue('');
+      this.nameControl.disable();
+    } else {
+      this.nameControl.disable();
     }
   }
 
