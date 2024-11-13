@@ -1,11 +1,19 @@
 <section *ngFor="let group of groupedMessages">
   <app-date-of-message [date]="group.date"></app-date-of-message>
   <div *ngFor="let message of group.messages">
-    <ng-container *ngIf="isOwnMessage(message.user.userId); else otherUserMessage">
-      <app-own-private-message-template [message]="message"></app-own-private-message-template>
+    <ng-container *ngIf="isOwnMessage(message.userId); else otherUserMessage">
+      <app-own-private-message-template
+        [message]="message"
+        [displayName]="getUserData(message.userId).displayName"
+        [photoURL]="getUserData(message.userId).photoURL"
+      ></app-own-private-message-template>
     </ng-container>
     <ng-template #otherUserMessage>
-      <app-other-private-message-template [message]="message"></app-other-private-message-template>
+      <app-other-private-message-template
+        [message]="message"
+        [displayName]="getUserData(message.userId).displayName"
+        [photoURL]="getUserData(message.userId).photoURL"
+      ></app-other-private-message-template>
     </ng-template>
   </div>
 </section>

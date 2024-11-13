@@ -23,6 +23,33 @@
           (emojiClick)="addReaction(message.messageId, $event.emoji)"
         ></ngx-emoji>
       </div>
+      <div [matMenuTriggerFor]="emojiMenu">
+        <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
+      </div>
+      <div
+        (click)="
+          privateChatService.setActualMessage(message.messageId);
+          setEditMessageMenuOpened(true);
+          showEmojiContainer(2)
+        "
+        mat-button
+        [matMenuTriggerFor]="editMessageMenu"
+        #chooseChannelMenuTrigger="matMenuTrigger"
+        (click)="toggleBorder('editMessage')"
+      >
+        <mat-icon>more_vert</mat-icon>
+        <mat-menu
+          #editMessageMenu="matMenu"
+          xPosition="after"
+          (closed)="setEditMessageMenuOpened(false); hideEmojiContainer()"
+        >
+          <span
+            class="edit-message-text"
+            (click)="messageService.setEditMessageId(message.id)"
+            >Nachricht bearbeiten</span
+          >
+        </mat-menu>
+      </div>
     </div>
   </div>
 
@@ -34,14 +61,24 @@
       'message-container-hover': isEmojiContainerVisible === 2
     }"
   >
-    <img src="{{ message?.user?.photoURL }}" alt="Profile Picture" />
-    <div class="text-container">
-      <div class="name-and-time-own">
-        <span class="name">{{ message?.user?.userName }}</span>
-        <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
-      </div>
-      <span class="message-own">{{ message?.content }}</span>
-      <div class="emoji-container d-none"></div>
-    </div>
+    <img
+      src="{{ photoURL }}"
+      alt="Profile Picture"
+      (click)="userService.openProfileInfo(message?.userId)"
+    />
+    <app-own-private-message-show
+      [message]="message"
+      [displayName]="displayName"
+      *ngIf="messageService.editMessageId !== message.id"
+    ></app-own-private-message-show>
+    <app-own-private-message-edit
+      [message]="message"
+      [displayName]="displayName"
+      *ngIf="messageService.editMessageId === message.id"
+    ></app-own-private-message-edit>
   </div>
+
+  <mat-menu xPosition="after" #emojiMenu>
+    <app-emoji-picker [message]="message"></app-emoji-picker>
+  </mat-menu>
 </section>

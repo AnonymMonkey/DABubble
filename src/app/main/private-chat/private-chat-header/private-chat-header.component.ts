@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
@@ -6,15 +5,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ProfileInfoDialogComponent } from '../../../shared/profile-info-dialog/profile-info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../shared/services/user-service/user.service';
-import { PrivateChatService } from '../../../shared/services/private-chat-service/private-chat.service';
 
 @Component({
   selector: 'app-private-chat-header',
   standalone: true,
-  imports: [MatToolbarModule, MatMenuModule, ProfileInfoDialogComponent, NgIf],
+  imports: [MatToolbarModule, MatMenuModule],
   templateUrl: './private-chat-header.component.html',
   styleUrls: ['./private-chat-header.component.scss'],
-  encapsulation: ViewEncapsulation.None,
 })
 export class PrivateChatHeaderComponent implements OnInit {
   isMenuOpened: boolean = false;

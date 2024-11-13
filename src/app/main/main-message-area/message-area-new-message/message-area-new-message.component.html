@@ -20,6 +20,7 @@
           </mat-icon
         >
         <mat-icon
+        *ngIf="privateChatId === undefined"
           class="material-symbols-outlined"
           [matMenuTriggerFor]="mentionMenu"
           (click)="toggleBorder('mention')"
