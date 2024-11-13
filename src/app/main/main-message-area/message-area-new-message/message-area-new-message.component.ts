@@ -18,6 +18,7 @@ import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
 import { MatMenu, MatMenuModule } from '@angular/material/menu';
 import { MentionUserComponent } from '../../../shared/components/mention-user/mention-user.component';
 import { UploadMethodSelectorComponent } from '../../../shared/components/upload-method-selector/upload-method-selector.component';
+import { NgIf } from '@angular/common';
 
 const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   toFirestore(message: ChannelMessage): DocumentData {
@@ -46,7 +47,8 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
     PickerModule,
     PickerComponent,
     MentionUserComponent,
-    UploadMethodSelectorComponent
+    UploadMethodSelectorComponent,
+    NgIf
   ],
   templateUrl: './message-area-new-message.component.html',
   styleUrls: ['./message-area-new-message.component.scss'],
@@ -184,11 +186,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
         messageId: newMessageId,
         reactions: newMessage.reactions,
         time: newMessage.time,
-        user: {
-          userId: this.userId,
-          userName: this.userName,
-          photoURL: this.photoURL,
-        },
+        userId: this.userId,
       },
     });
 
@@ -202,11 +200,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
         messageId: newMessageId,
         reactions: newMessage.reactions,
         time: newMessage.time,
-        user: {
-          userId: this.userId,
-          userName: this.userName,
-          photoURL: this.photoURL,
-        },
+        userId: this.userId,
       },
     });
   }

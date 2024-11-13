@@ -1,0 +1,20 @@
+<section>
+    <div class="textarea-container">
+      <textarea
+        placeholder="{{ message.content }}"
+        id=""
+        [(ngModel)]="editedMessageContent"
+        (keydown.enter)="changeMessage(); $event.preventDefault()"
+      ></textarea>
+      <div class="icons-container">
+        <div class="left-icons">
+          <mat-icon class="material-symbols-outlined">sentiment_satisfied</mat-icon>
+        </div>
+        <div class="button-container">
+          <button class="button-secondary" (click)="clearInput()">Abbrechen</button>
+          <button class="button-primary" (click)="changeMessage()" [disabled]="isSaving">Speichern</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  

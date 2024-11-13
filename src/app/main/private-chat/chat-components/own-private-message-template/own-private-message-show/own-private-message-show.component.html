@@ -1,0 +1,8 @@
+<section class="text-container">
+  <div class="name-and-time-own">
+    <span class="name" (click)="userService.openProfileInfo(message?.userId)">{{ displayName }}</span>
+    <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
+  </div>
+  <span class="message-own">{{ message?.content }}</span>
+  <div class="emoji-container d-none"></div>
+</section>

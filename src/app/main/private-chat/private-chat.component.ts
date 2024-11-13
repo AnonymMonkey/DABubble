@@ -8,6 +8,7 @@ import { AsyncPipe, NgIf } from '@angular/common';
 import { UserService } from '../../shared/services/user-service/user.service';
 import { PrivateChatHistoryComponent } from './private-chat-history/private-chat-history.component';
 import { catchError, Observable, of, switchMap } from 'rxjs';
+import { PrivateChatService } from '../../shared/services/private-chat-service/private-chat.service';
 
 @Component({
   selector: 'app-private-chat',
@@ -29,10 +30,17 @@ export class PrivateChatComponent implements OnInit {
   privateChat$!: Observable<any>;
   hasMessages: boolean = false;
 
-  constructor(private route: ActivatedRoute, private userService: UserService) {}
+  constructor(private route: ActivatedRoute, private userService: UserService, private privateChatService: PrivateChatService) {}
 
   ngOnInit(): void {
     // Hier wird der switchMap verwendet, um die Route-Parameter zu verarbeiten
+    this.route.paramMap.subscribe((params) => {
+      const privateChatId = params.get('privateChatId');
+      if (privateChatId) {
+        this.privateChatService.setPrivateChatId(privateChatId);
+      }
+    });
+
     this.privateChat$ = this.route.paramMap.pipe(
       switchMap(params => {
         const privateChatId = params.get('privateChatId');

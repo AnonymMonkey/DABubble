@@ -9,13 +9,12 @@ import {
   AfterViewInit,
 } from '@angular/core';
 import { DateOfMessageComponent } from '../../main-message-area/chat-components/date-of-message/date-of-message.component';
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { OtherPrivateMessageTemplateComponent } from '../chat-components/other-private-message-template/other-private-message-template.component';
 import { OwnPrivateMessageTemplateComponent } from '../chat-components/own-private-message-template/own-private-message-template.component';
-import { PrivateChatPlaceholderComponent } from '../private-chat-placeholder/private-chat-placeholder.component';
-import { PrivateChatHeaderComponent } from '../private-chat-header/private-chat-header.component';
 import { UserService } from '../../../shared/services/user-service/user.service';
+import { UserData } from '../../../shared/models/user.model';
 
 @Component({
   selector: 'app-private-chat-history',
@@ -24,12 +23,9 @@ import { UserService } from '../../../shared/services/user-service/user.service'
     DateOfMessageComponent,
     NgFor,
     MatCardModule,
-    AsyncPipe,
     NgIf,
     OtherPrivateMessageTemplateComponent,
     OwnPrivateMessageTemplateComponent,
-    PrivateChatPlaceholderComponent,
-    PrivateChatHeaderComponent,
   ],
   templateUrl: './private-chat-history.component.html',
   styleUrls: ['./private-chat-history.component.scss'],
@@ -39,8 +35,8 @@ export class PrivateChatHistoryComponent
 {
   @Input() messages: any[] = []; // Erwartet ein Array von Nachrichten
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
-  privateChatId: string = '';
   groupedMessages: { date: string; messages: any[] }[] = [];
+  userCache: { [userId: string]: UserData } = {};
 
   constructor(private userService: UserService) {}
 
@@ -63,15 +59,15 @@ export class PrivateChatHistoryComponent
   private groupAndSortMessages(): void {
     const grouped: { [date: string]: any[] } = {};
 
-    // Nachrichten gruppieren und nach Datum sortieren
     this.messages
-      .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()) // Nachrichten nach Zeit sortieren
+      .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
       .forEach((message) => {
-        const date = new Date(message.time).toLocaleDateString(); // Verwende ein einheitliches Datumsformat
+        const date = new Date(message.time).toLocaleDateString();
         if (!grouped[date]) {
           grouped[date] = [];
         }
         grouped[date].push(message);
+        this.loadUserData(message.userId);
       });
 
     this.groupedMessages = Object.keys(grouped).map((date) => ({
@@ -80,14 +76,37 @@ export class PrivateChatHistoryComponent
     }));
   }
 
+  private loadUserData(userId: string): void {
+    if (!this.userCache[userId]) {
+      this.userService.getUserDataByUID(userId).subscribe(
+        (userData) => {
+          this.userCache[userId] = userData;
+        },
+        (error) => {
+          console.error('Fehler beim Laden der Benutzerdaten:', error);
+        }
+      );
+    }
+  }
+
+  getUserData(userId: string): UserData {
+    if (!this.userCache[userId]) {
+      this.userService.getUserDataByUID(userId).subscribe((userData) => {
+        this.userCache[userId] = userData;
+      });
+      return {} as UserData; // Platzhalter, falls Daten noch nicht geladen sind
+    }
+    return this.userCache[userId];
+  }
+
   private async scrollToBottom(): Promise<void> {
     if (this.chatContainer) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 50)); // Kurze Verzögerung, um DOM-Aktualisierung abzuwarten
+        await new Promise((resolve) => setTimeout(resolve, 50)); // Kurze Verzögerung, um DOM-Aktualisierung abzuwarten
         this.chatContainer.nativeElement.scrollTop =
           this.chatContainer.nativeElement.scrollHeight;
       } catch (err) {
-        console.error('Scroll Error:', err);
+        console.error('Scroll-Fehler:', err);
       }
     }
   }
