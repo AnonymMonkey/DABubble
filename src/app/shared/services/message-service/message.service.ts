@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ChannelMessage } from '../../models/channel-message.model';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { enableIndexedDbPersistence, Firestore } from '@angular/fire/firestore';
 import { ChannelService } from '../channel-service/channel.service';
 import { docData } from 'rxfire/firestore';
@@ -39,6 +39,47 @@ export class MessageService {
     await updateDoc(messageRef, { content: newContent });
     console.log('Nachricht erfolgreich aktualisiert');
   }
+
+  async updateMessageContentPrivateChat(privateChatId: string, messageId: string, newContent: string): Promise<void> {
+    const userId = this.userService.userId;
+
+    if (!userId || !privateChatId || !messageId) {
+        console.error('Fehlende Benutzer-ID, Private-Chat-ID oder Message-ID.');
+        return;
+    }
+
+    // Referenz für das Benutzerdokument im Firestore
+    const userDocRef = doc(this.firestore, `users/${userId}`);
+
+    try {
+        // Abrufen des Benutzerdokuments
+        const userDocSnapshot = await getDoc(userDocRef);
+
+        if (userDocSnapshot.exists()) {
+            // Aktuelle Daten des `privateChat`-Objekts abrufen
+            const privateChatData = userDocSnapshot.data()?.['privateChat'];
+            const messages = privateChatData?.[privateChatId]?.messages;
+
+            if (messages && messages[messageId]) {
+                // Nachricht aktualisieren
+                messages[messageId].content = newContent;
+
+                // Die Änderungen im Benutzerdokument speichern
+                await updateDoc(userDocRef, { [`privateChat.${privateChatId}.messages.${messageId}.content`]: newContent });
+            } else {
+                console.log('Nachricht existiert nicht.');
+            }
+        } else {
+            console.log('Benutzerdokument existiert nicht.');
+        }
+    } catch (error) {
+        console.error('Fehler beim Aktualisieren der Nachricht im Firestore:', error);
+        throw error;
+    }
+}
+
+
+
 
   setEditMessageId(messageId: string | null) {
     this.editMessageId = messageId;

@@ -8,23 +8,26 @@ export class ChannelMessage {
   reactions: { 
     emoji: any; 
     count: number; 
-    userIds: string[]; // Nur die userIds, die das Emoji gewählt haben
+    userIds: string[]; 
   }[] = [];
   time: string;
-  userId: string;  // Nur userId anstelle von einem kompletten user Objekt
-  thread: { [threadId: string]: ThreadMessage };  // Nur die userIds im Thread
+  userId: string;
+  thread: { [threadId: string]: ThreadMessage };
+  attachmentUrl?: string;  // Optionales Feld für die Anhänge (z.B. Bild oder PDF)
 
   constructor(
     content: string,
     userId: string,
     messageId: string,
-    time?: string
+    time?: string,
+    attachmentUrl?: string
   ) {
     this.content = content;
     this.messageId = messageId;
     this.time = time || new Date().toISOString();
-    this.userId = userId;  // Nur userId speichern
+    this.userId = userId;
     this.thread = {};
+    this.attachmentUrl = attachmentUrl;  // Setze URL des Anhangs
   }
 
   channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {

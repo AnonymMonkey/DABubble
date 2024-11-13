@@ -1,0 +1,12 @@
+<section (click)="$event.stopPropagation()">
+  <div class="members-container">
+    <div
+      class="member"
+      *ngFor="let user of mentionableUsers"
+      (click)="selectUser(user.userName)"
+    >
+      <img *ngIf="user.photoURL" [src]="user.photoURL" alt="Profile Picture" />
+      <span>{{ user.userName }}</span>
+    </div>
+  </div>
+</section>

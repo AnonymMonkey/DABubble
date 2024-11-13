@@ -13,7 +13,7 @@ import { MatMenu, MatMenuModule } from '@angular/material/menu';
 @Component({
   selector: 'app-thread-new-message',
   standalone: true,
-  imports: [FormsModule, MatIcon, MatMenuModule, PickerModule, EmojiComponent, MatMenu, PickerComponent],
+  imports: [FormsModule, MatIcon, MatMenuModule, PickerModule, MatMenu, PickerComponent],
   templateUrl: './thread-new-message.component.html',
   styleUrls: ['./thread-new-message.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

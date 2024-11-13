@@ -1,11 +1,11 @@
 <div class="message-container-wrapper">
-  <section #messageContainer *ngIf="(currentChannel$ | async) as currentChannel">
+  <section *ngIf="currentChannel$ | async as currentChannel">
     <!-- Placeholder anzeigen, wenn keine Nachrichten vorhanden sind -->
     <div *ngIf="groupedMessages.length === 0" class="placeholder">
       <div class="smiley">😊</div>
       <p>Beginne mit der ersten Nachricht</p>
     </div>
-    <ng-container>
+    <ng-container *ngIf="groupedMessages.length > 0">
       <div *ngFor="let messageGroup of groupedMessages" class="message-container">
         <app-date-of-message [date]="messageGroup.date"></app-date-of-message>
         <div *ngFor="let message of messageGroup.messages">
@@ -13,7 +13,6 @@
             *ngIf="message.userId !== currentUserId" 
             [message]="message">
           </app-other-message-template>
-
           <app-own-message-template 
             *ngIf="message.userId === currentUserId" 
             [message]="message">

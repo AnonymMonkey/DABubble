@@ -1,16 +1,24 @@
-import { Component, Input } from '@angular/core';
-import { DatePipe, NgClass, NgIf } from '@angular/common';
+import { Component, inject, Input } from '@angular/core';
+import { DatePipe, NgClass } from '@angular/common';
+import { UserService } from '../../../../shared/services/user-service/user.service';
+import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
+import { MatIcon } from '@angular/material/icon';
+import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
+import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
 
 @Component({
   selector: 'app-other-private-message-template',
   standalone: true,
-  imports: [NgClass, NgIf, DatePipe],
+  imports: [NgClass, DatePipe, EmojiComponent, MatIcon, MatMenu, MatMenuTrigger, EmojiPickerComponent],
   templateUrl: './other-private-message-template.component.html',
   styleUrl: './other-private-message-template.component.scss'
 })
 export class OtherPrivateMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
   @Input() message: any = '';
+  @Input() displayName: string = '';
+  @Input() photoURL: string = '';
+  public userService = inject(UserService);
 
   constructor() {}
 
@@ -39,5 +47,9 @@ export class OtherPrivateMessageTemplateComponent {
     }
   
     return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
+  }
+
+  addReaction(messageId: string, emoji: any) {
+    // this.userService.addReaction(messageId, emoji);
   }
 }

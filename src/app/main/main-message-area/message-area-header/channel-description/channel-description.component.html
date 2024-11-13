@@ -37,12 +37,12 @@
       Möchtest du den Channel # {{ currentChannel?.channelName }} wirklich
       verlassen?
     </p>
-    <p *ngIf="currentChannel?.channelName" (click)="$event.stopPropagation()">
+    <p *ngIf="currentChannel?.members?.length === 1" (click)="$event.stopPropagation()">
       Der Channel wird folgend nach deinem Austritt unwiderruflich gelöscht, da
       du das letzte Mitglied bist.
     </p>
     <div class="leave-channel-buttons">
-      <button mat-menu-item (click)="cancelLeave()" class="button-secondary">
+      <button mat-menu-item class="button-secondary">
         Abbrechen
       </button>
       <button mat-menu-item (click)="confirmLeave()" class="button-primary">

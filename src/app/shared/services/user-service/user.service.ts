@@ -29,6 +29,8 @@ import {
 import { AuthService } from '../auth-service/auth.service'; //NOTE - Muss auskommentiert werden
 import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Injectable({
   providedIn: 'root',
@@ -39,6 +41,7 @@ export class UserService {
   private tempUserData: Partial<UserData> = {}; // Temporäre Speicherung der Registrierungsdaten
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
   public userId!: string; // ID des aktuell angemeldeten Nutzers
+  private dialog = inject(MatDialog);
 
   //REVIEW - Hier versuche ich die Daten zentral in diesem service zu speichern,
   // sodass jede Komponente darauf zugreifen kann.
@@ -348,4 +351,24 @@ export class UserService {
       );
     }
   }
+
+  openProfileInfo(userId: any): void {
+    console.log(userId);
+    this.getUserDataByUID(userId).subscribe(
+      (userData) => {
+        const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
+          data: {
+            userId: userData.uid,
+            userName: userData.displayName,  
+            userPhotoURL: userData.photoURL,  
+            email: userData.email,  
+          },
+        });
+      },
+      (error) => {
+        console.error('Fehler beim Abrufen der Benutzerdaten:', error);
+      }
+    );
+  }
+  
 }

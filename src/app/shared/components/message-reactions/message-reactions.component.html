@@ -1,11 +1,28 @@
 <div class="added-emojis-container">
-  <span *ngFor="let reaction of message.reactions">
-    <ngx-emoji [emoji]="reaction.emoji" [size]="16" (mouseenter)="onEmojiHover(reaction)"></ngx-emoji>
+  <span
+    *ngFor="let reaction of message.reactions"
+    class="added-emoji"
+    (mouseenter)="hoveredReaction = reaction"
+    (mouseleave)="hoveredReaction = null"
+  >
+    <ngx-emoji [emoji]="reaction.emoji" [size]="16"></ngx-emoji>
     <span>{{ reaction.count }}</span>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item *ngFor="let user of reaction.users" (click)="viewUserProfile(user.id)">
-        {{ user.displayName }}
-      </button>
-    </mat-menu>
+    <div class="hover-line" [ngClass]="{ show: hoveredReaction === reaction }">
+      <ngx-emoji [emoji]="reaction.emoji" [size]="30"></ngx-emoji>
+      <div class="hover-line-users-container">
+        <div *ngFor="let user of getUserList(reaction)">
+          {{ user }}
+        </div>
+      </div>
+      <span>
+        {{
+          getUserList(reaction).length === 1
+            ? getUserList(reaction)[0] === 'Du'
+              ? 'hast reagiert.'
+              : 'hat reagiert.'
+            : 'haben reagiert.'
+        }}
+      </span>
+    </div>
   </span>
 </div>
