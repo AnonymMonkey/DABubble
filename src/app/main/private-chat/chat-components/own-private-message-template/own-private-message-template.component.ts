@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
+import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 
 @Component({
   selector: 'app-own-private-message-template',
   standalone: true,
-  imports: [DatePipe, NgClass, NgIf],
+  imports: [DatePipe, NgClass, EmojiComponent],
   templateUrl: './own-private-message-template.component.html',
   styleUrl: './own-private-message-template.component.scss'
 })
@@ -39,4 +40,6 @@ export class OwnPrivateMessageTemplateComponent {
   
     return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
   }
+
+  addReaction (messageId: string, emoji: any): void {}
 }

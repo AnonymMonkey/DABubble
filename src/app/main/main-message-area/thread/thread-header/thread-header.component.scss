@@ -25,14 +25,14 @@ div {
         font-size: 14px;
     }
 
-    svg {
+    mat-icon {
         color: var(--purple2-color);
         width: 16px;
         height: 16px;
     }
 }
 
-mat-icon {
+.close-icon {
     width: 24px;
     height: 24px;
     border-radius: 30px;

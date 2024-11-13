@@ -11,7 +11,7 @@ import { ThreadNewMessageComponent } from './thread-new-message/thread-new-messa
 @Component({
   selector: 'app-thread',
   standalone: true,
-  imports: [ThreadHeaderComponent, MessageAreaNewMessageComponent, ThreadChatHistoryComponent, ThreadNewMessageComponent],
+  imports: [ThreadHeaderComponent, ThreadChatHistoryComponent, ThreadNewMessageComponent],
   templateUrl: './thread.component.html',
   styleUrl: './thread.component.scss'
 })

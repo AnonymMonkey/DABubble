@@ -40,12 +40,13 @@
           showEmojiContainer(2)
         "
         mat-button
-        [matMenuTriggerFor]="chooseChannelMenu"
+        [matMenuTriggerFor]="editMessageMenu"
         #chooseChannelMenuTrigger="matMenuTrigger"
+        (click)="toggleBorder('editMessage')"
       >
         <mat-icon>more_vert</mat-icon>
         <mat-menu
-          #chooseChannelMenu="matMenu"
+          #editMessageMenu="matMenu"
           xPosition="after"
           (closed)="setEditMessageMenuOpened(false); hideEmojiContainer()"
         >

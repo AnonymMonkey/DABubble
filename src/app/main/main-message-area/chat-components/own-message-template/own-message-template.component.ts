@@ -23,7 +23,11 @@ export class OwnMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
   editMessageMenuOpened: boolean = false;
   messageService = inject(MessageService);
+  currentBorderRadius = '30px 30px 30px 30px';
   
+  get threadKeys(): string[] {
+    return Object.keys(this.message?.thread || {});
+  }
 
   constructor(public mainMessageArea: MainMessageAreaComponent, public channelService: ChannelService, public threadService: ThreadService
   ) {}
@@ -64,5 +68,19 @@ export class OwnMessageTemplateComponent {
   addReaction(messageId: string, emoji: any): void {
     this.messageService.setActualMessage(this.message);
     this.messageService.addOrChangeReaction(messageId, emoji);
+  }
+
+  toggleBorder(menuType: string) {
+    switch (menuType) {
+      case 'editMessage':
+        this.currentBorderRadius = '0px 30px 30px 30px';
+        break;
+      default:
+        this.currentBorderRadius = '0px 30px 30px 30px';
+    }
+    document.documentElement.style.setProperty(
+      '--border-radius',
+      this.currentBorderRadius
+    );
   }
 }

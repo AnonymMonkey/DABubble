@@ -1,8 +1,15 @@
+:host {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+}
+
 .text-container {
     display: flex;
     flex-direction: column;
     gap: 10px;
     align-items: flex-end;
+    width: 100%;
   }
   
   .name-and-time-own {
@@ -57,3 +64,9 @@
       font-size: 14px;
     }
   }
+
+  // .mention {
+  //   color: var(--purple3-color); /* Setzt die Farbe für Erwähnungen */
+  //   font-weight: bold; /* Optional: Setzt den Text in Fettdruck */
+  // }
+  

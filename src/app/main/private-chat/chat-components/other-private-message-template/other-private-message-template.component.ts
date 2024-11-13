@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { DatePipe, NgClass, NgIf } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-other-private-message-template',
   standalone: true,
-  imports: [NgClass, NgIf, DatePipe],
+  imports: [NgClass, DatePipe],
   templateUrl: './other-private-message-template.component.html',
   styleUrl: './other-private-message-template.component.scss'
 })
