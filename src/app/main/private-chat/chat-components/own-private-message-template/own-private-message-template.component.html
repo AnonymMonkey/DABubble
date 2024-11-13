@@ -45,7 +45,7 @@
         >
           <span
             class="edit-message-text"
-            (click)="messageService.setEditMessageId(message.id)"
+            (click)="messageService.setEditMessageId(message.messageId)"
             >Nachricht bearbeiten</span
           >
         </mat-menu>
@@ -69,16 +69,16 @@
     <app-own-private-message-show
       [message]="message"
       [displayName]="displayName"
-      *ngIf="messageService.editMessageId !== message.id"
+      *ngIf="messageService.editMessageId !== message.messageId"
     ></app-own-private-message-show>
     <app-own-private-message-edit
       [message]="message"
       [displayName]="displayName"
-      *ngIf="messageService.editMessageId === message.id"
+      *ngIf="messageService.editMessageId === message.messageId"
     ></app-own-private-message-edit>
   </div>
 
   <mat-menu xPosition="after" #emojiMenu>
-    <app-emoji-picker [message]="message"></app-emoji-picker>
+    <app-emoji-picker [message]="message" [component]="'privateChat'"></app-emoji-picker>
   </mat-menu>
 </section>

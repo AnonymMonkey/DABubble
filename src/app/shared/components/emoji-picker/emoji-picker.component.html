@@ -2,7 +2,7 @@
       title="Pick your emoji…"
       emoji="point_up"
       set="google"
-      (emojiClick)="addReaction(message.messageId, $event.emoji)"
+      (emojiClick)="addReaction(message.messageId, $event.emoji, component)"
       [totalFrequentLines]="2"
       [i18n]="{
         search: 'Suche Emojis',

@@ -52,11 +52,11 @@
         <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
       </div>
       <span class="message">{{ message?.content }}</span>
-      <div class="emoji-container d-none"></div>
+      <app-message-reactions [message]="message" *ngIf="message.reactions.length > 0"></app-message-reactions>
     </div>
   </div>
 
   <mat-menu xPosition="after" #emojiMenu>
-    <app-emoji-picker [message]="message"></app-emoji-picker>
+    <app-emoji-picker [message]="message" [component]="'privateChat'"></app-emoji-picker>
   </mat-menu>
 </section>

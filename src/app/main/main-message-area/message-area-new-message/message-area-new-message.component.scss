@@ -1,6 +1,7 @@
 ::ng-deep {
   .mat-mdc-menu-panel {
     overflow: hidden !important;
+    max-width: none !important;
   }
 
   emoji-mart-anchors {

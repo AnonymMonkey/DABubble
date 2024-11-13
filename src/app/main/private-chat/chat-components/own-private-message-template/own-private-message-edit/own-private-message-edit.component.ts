@@ -13,6 +13,8 @@ import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
 import { PrivateChatService } from '../../../../../shared/services/private-chat-service/private-chat.service';
+import { Firestore } from '@angular/fire/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 
 @Component({
   selector: 'app-own-private-message-edit',
@@ -30,6 +32,7 @@ export class OwnPrivateMessageEditComponent implements OnInit {
   private messageService = inject(MessageService);
   private messageSubscription!: Subscription;
   private privateChatService = inject(PrivateChatService);
+  private firestore = inject(Firestore);
 
   ngOnInit() {
     if (this.message) {
@@ -70,9 +73,25 @@ export class OwnPrivateMessageEditComponent implements OnInit {
     this.clearInput(false);
 
     try {
-      const privateChatId = this.privateChatService.privateChatId;
       const messageId = this.message.messageId;
 
+      // Benutzerdaten holen und privateChatId aufteilen, um Benutzer-IDs zu erhalten
+      const privateChatId = this.privateChatService.privateChatId;
+      if (!privateChatId) {
+        console.error('privateChatId is null or undefined');
+        return; // Hier kannst du eine geeignete Fehlerbehandlung einfügen
+      }
+      const [firstUserId, secondUserId] = privateChatId.split('_');
+
+      // Nachricht für den aktuellen Benutzer und den anderen Benutzer aktualisieren
+      await this.updateMessageInUserDocs(firstUserId, privateChatId, messageId);
+      await this.updateMessageInUserDocs(
+        secondUserId,
+        privateChatId,
+        messageId
+      );
+
+      // Nachricht in der Firestore-Datenbank aktualisieren
       await this.messageService.updateMessageContentPrivateChat(
         privateChatId as string,
         messageId,
@@ -80,11 +99,30 @@ export class OwnPrivateMessageEditComponent implements OnInit {
       );
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Nachricht:', error);
-      this.message.content = originalContent; 
+      this.message.content = originalContent; // Bei Fehler die ursprüngliche Nachricht wiederherstellen
     } finally {
       this.clearInput(true);
-      this.isSaving = false; 
-      this.temporaryMessageContent.emit(''); 
+      this.isSaving = false;
+      this.temporaryMessageContent.emit('');
+    }
+  }
+
+  async updateMessageInUserDocs(
+    userId: string,
+    privateChatId: string,
+    messageId: string
+  ) {
+    try {
+      const userDocRef = doc(this.firestore, `users/${userId}`);
+      await updateDoc(userDocRef, {
+        [`privateChat.${privateChatId}.messages.${messageId}.content`]:
+          this.editedMessageContent,
+      });
+    } catch (error) {
+      console.error(
+        `Fehler beim Aktualisieren der Nachricht für Benutzer ${userId}:`,
+        error
+      );
     }
   }
 

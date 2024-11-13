@@ -78,9 +78,6 @@ export class MessageService {
     }
 }
 
-
-
-
   setEditMessageId(messageId: string | null) {
     this.editMessageId = messageId;
   }
@@ -138,9 +135,4 @@ export class MessageService {
         complete: () => console.log('Benutzerdaten-Abonnement abgeschlossen.')
     });
 }
-
-
-
-
-
 }

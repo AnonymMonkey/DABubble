@@ -48,7 +48,7 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
     PickerComponent,
     MentionUserComponent,
     UploadMethodSelectorComponent,
-    NgIf
+    NgIf,
   ],
   templateUrl: './message-area-new-message.component.html',
   styleUrls: ['./message-area-new-message.component.scss'],
@@ -62,7 +62,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
   userName?: string;
   photoURL?: string;
   channel: Channel | undefined;
-  currentBorderRadius: string = '0px 30px 30px 30px';
+  currentBorderRadius: string = '30px 30px 30px 30px !important';
 
   constructor(
     private firestore: Firestore,
@@ -117,19 +117,23 @@ export class MessageAreaNewMessageComponent implements OnInit {
 
   async sendMessage() {
     if (!this.newMessageContent) return;
-
+  
+    // Sofort das Eingabefeld leeren
+    const messageContent = this.newMessageContent;
+    this.newMessageContent = '';
+  
     // Generiere eine Message-ID basierend auf dem Chat-Typ (private oder channel)
     const messageId = this.privateChatId
       ? MessageAreaNewMessageComponent.generatePrivateMessageId()
       : `msg_${Date.now()}`;
-
+  
     // Erstelle ein neues ChannelMessage-Objekt
     const newMessage = new ChannelMessage(
-      this.newMessageContent,
+      messageContent,  // Verwende den Inhalt aus dem Snapshot, bevor das Feld geleert wird
       this.userId || '', // Füge die User-ID hinzu (kann auch dynamisch bezogen werden)
       messageId
     );
-
+  
     if (this.privateChatId) {
       // Wenn privateChatId vorhanden ist, sende die private Nachricht
       await this.sendPrivateChatMessage(newMessage);
@@ -140,10 +144,8 @@ export class MessageAreaNewMessageComponent implements OnInit {
     } else {
       console.error('Weder privateChatId noch channelId ist definiert.');
     }
-
-    // Setze den Nachrichteninhalt zurück
-    this.newMessageContent = '';
   }
+  
 
   private async sendChannelMessage(newMessage: ChannelMessage) {
     const messagesRef = collection(
@@ -228,11 +230,11 @@ export class MessageAreaNewMessageComponent implements OnInit {
         this.currentBorderRadius = '30px 30px 30px 0px';
         break;
       default:
-        this.currentBorderRadius = '0px 30px 30px 30px';
+        this.currentBorderRadius = '30px 30px 30px 30px';
     }
     document.documentElement.style.setProperty(
       '--border-radius',
       this.currentBorderRadius
     );
-  }  
+  }
 }
