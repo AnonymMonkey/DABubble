@@ -1,15 +1,87 @@
-.added-emojis-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 5px;
+::ng-deep {
+  .mat-mdc-tooltip {
+    padding-left: 100px !important;
+  }
 
-    > span {
-        display: flex;
-        align-items: center;
-        border: 1px solid var(--light-purple-color);
-        border-radius: 20px;
-        padding: 0px 10px;
-        gap: 5px;
+  .mat-mdc-tooltip .mdc-tooltip__surface {
+    display: flex;
+    background-color: var(--purple1-color) !important;
+    white-space: pre-line;
+    gap: 5px;
+    padding: 5px 10px;
+    font-size: 16px !important;
+  }
+  .mat-tooltip ngx-emoji {
+    font-size: 50px; /* Größe des Emojis anpassen */
+    display: block;
+    margin-bottom: 10px; /* Etwas Abstand zwischen dem Emoji und den Benutzernamen */
+    text-align: center;
+  }
+
+  .mdc-tooltip--multiline .mdc-tooltip__surface {
+    text-align: center !important;
+  }
+}
+
+.added-emojis-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+
+  > span {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--light-purple-color);
+    border-radius: 20px;
+    padding: 0px 10px;
+    gap: 5px;
+    position: relative; /* Wichtig, damit die hover-line relativ zu diesem Element positioniert wird */
+  }
+}
+
+.added-emoji {
+  &:hover {
+    .hover-line {
+      display: flex !important; /* Zeigt die hover-line beim Hover an */
     }
+  }
+}
+
+.hover-line {
+  color: white;
+  z-index: 201;
+  position: absolute;
+  bottom: 25px; /* Stellt die vertikale Positionierung über das Emoji sicher */
+  left: 25px; /* Stellt sicher, dass es genau über dem Emoji ausgerichtet ist */
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--purple3-color);
+  border-radius: 30px 30px 30px 0px;
+  padding: 20px 10px;
+  width: fit-content;
+
+  > div {
+    width: max-content;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+
+    >div {
+      margin-left: -5px;
+    }
+  }
+
+  span {
+    width: max-content;
+    font-weight: 400;
+    font-size: 16px;
+  }
+}
+
+.show {
+  display: flex !important; /* Wird angewendet, wenn das Element angezeigt werden soll */
 }

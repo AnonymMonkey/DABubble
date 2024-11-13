@@ -1,14 +1,11 @@
-import { Component, ElementRef, Input, OnInit, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, AfterViewChecked, inject, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgFor } from '@angular/common';
 import { ChannelService } from '../../../shared/services/channel-service/channel.service';
-import { UserService } from '../../../shared/services/user-service/user.service';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subscription, tap } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { Channel } from '../../../shared/models/channel.model';
-import { DocumentData } from 'rxfire/firestore/interfaces';
 import { OtherMessageTemplateComponent } from '../chat-components/other-message-template/other-message-template.component';
 import { OwnMessageTemplateComponent } from '../chat-components/own-message-template/own-message-template.component';
 import { DateOfMessageComponent } from '../chat-components/date-of-message/date-of-message.component';
@@ -27,91 +24,87 @@ import { DateOfMessageComponent } from '../chat-components/date-of-message/date-
   templateUrl: './message-area-chat-history.component.html',
   styleUrls: ['./message-area-chat-history.component.scss'],
 })
-export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked {
+
+export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked, OnDestroy {
   @Input() currentUserId: string | undefined;
   currentChannel$?: Observable<Channel | undefined>;
   groupedMessages: any[] = [];
-  private shouldScroll: boolean = false;
-  showMessages: boolean = false; // Neue Variable
+  private shouldScroll: boolean = true;
+  firestore = inject(Firestore);
 
-  private usersData: BehaviorSubject<Map<string, any>> = new BehaviorSubject(new Map());
+  private usersData = new Map<string, any>();
+
+  private userSubscription?: Subscription;
+  private messageSubscription?: () => void;  // Firebase-Abmeldung
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
 
   constructor(
-    private firestore: Firestore,
     private channelService: ChannelService,
-    private userService: UserService
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    // Abonniere den aktuellen Channel und lade Nachrichten
     this.currentChannel$ = this.channelService.currentChannel$;
     this.currentChannel$.subscribe({
       next: (channel) => {
         if (channel) {
-          this.loadUsersData(channel.channelId);
+          this.channelService.loadUsersDataForChannel(channel.members);
           this.listenForMessages(channel.channelId);
         }
       },
-      error: (err) => {
-        console.error('Error loading channel:', err);
-      }
+      error: (err) => console.error('Error loading channel:', err),
     });
-  }
 
-  loadUsersData(channelId: string): void {
-    this.channelService.getChannelMembers(channelId).subscribe({
-      next: (members: any[]) => {
-        members.forEach((userId: any) => {
-          this.userService.getUserDataByUID(userId).pipe(
-            catchError((err) => {
-              console.error(`Fehler beim Laden der Daten für Benutzer ${userId}:`, err);
-              return of(null);
-            })
-          ).subscribe((userData) => {
-            if (userData) {
-              const updatedMap = this.usersData.value;
-              updatedMap.set(userId, userData);
-              this.usersData.next(updatedMap);
-            }
-          });
-        });
+    // Abonniere User-Daten und aktualisiere die Map
+    this.userSubscription = this.channelService.getUsersDataObservable().subscribe({
+      next: (usersMap) => {
+        if (usersMap) {
+          this.usersData = usersMap;
+        } else {
+          console.error('Leere oder ungültige User-Daten erhalten');
+        }
       },
-      error: (err) => {
-        console.error('Fehler beim Laden der Mitglieder:', err);
-      }
+      error: (err) => console.error('Fehler beim Laden der User-Daten:', err),
     });
   }
 
+  ngOnDestroy(): void {
+    // Vermeidung von Memory-Leaks: Abmeldung von Observables
+    this.userSubscription?.unsubscribe();
+    this.messageSubscription?.();  // Abmeldung vom Firestore
+  }
+
+  // Echtzeit-Nachrichten-Listener für den aktuellen Channel
   listenForMessages(channelId: string): void {
     const messagesCollectionRef = collection(this.firestore, `channels/${channelId}/messages`);
-    onSnapshot(messagesCollectionRef, (snapshot) => {
+    this.messageSubscription = onSnapshot(messagesCollectionRef, (snapshot) => {
       if (!snapshot.empty) {
-        const newMessages = snapshot.docs.map(doc => ({
+        const newMessages = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         this.groupMessagesByDate(newMessages);
+        this.shouldScroll = true;  // Aktiviert das automatische Scrollen bei neuen Nachrichten
       }
     });
   }
 
+  // Gruppierung der Nachrichten nach Datum und Anreicherung mit User-Daten
   groupMessagesByDate(messages: any[]): void {
     const grouped = messages.reduce((acc, message) => {
       const messageDate = new Date(message.time);
       const today = new Date();
       let dateString: string;
-      if (messageDate.toDateString() === today.toDateString()) {
-        dateString = 'Heute';
-      } else {
-        dateString = messageDate.toLocaleDateString();
-      }
 
-      if (!acc[dateString]) {
-        acc[dateString] = [];
-      }
+      dateString = (messageDate.toDateString() === today.toDateString())
+        ? 'Heute'
+        : messageDate.toLocaleDateString();
 
-      const userData = this.usersData.value.get(message.userId);
+      if (!acc[dateString]) acc[dateString] = [];
+
+      const userData = this.usersData.get(message.userId);
       const userName = userData?.displayName || 'Unbekannter Benutzer';
       const photoURL = userData?.photoURL || null;
 
@@ -124,12 +117,22 @@ export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked
       return acc;
     }, {});
 
-    this.groupedMessages = Object.keys(grouped).map((date) => ({
-      date,
-      messages: grouped[date],
-    }));
+    // Sortiere die Nachrichten innerhalb der Gruppen und dann die Gruppen selbst chronologisch aufsteigend
+    this.groupedMessages = Object.keys(grouped)
+      .map((date) => ({
+        date,
+        messages: grouped[date].sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime())
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    this.groupedMessages.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    this.updateMessages();  // Aktualisiere die Ansicht
+}
+
+
+  // Aktualisiert die Ansicht, wenn neue Nachrichten hinzukommen
+  updateMessages(): void {
+    this.groupedMessages = [...this.groupedMessages];  // Neue Referenz für Angular
+    this.cdr.detectChanges();  // Change Detection anstoßen
   }
 
   ngAfterViewChecked(): void {
@@ -139,6 +142,7 @@ export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked
     }
   }
 
+  // Scrollt die Nachrichtensicht nach unten
   scrollToBottom(): void {
     if (this.messageContainer?.nativeElement) {
       setTimeout(() => {

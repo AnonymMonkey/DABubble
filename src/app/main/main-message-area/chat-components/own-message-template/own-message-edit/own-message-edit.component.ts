@@ -1,7 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { MessageService } from '../../../../../shared/services/message-service/message.service';
 import { MatIcon } from '@angular/material/icon';
-import { NgIf } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-own-message-edit',
   standalone: true,
-  imports: [MatIcon, MatProgressSpinnerModule, NgIf, FormsModule],
+  imports: [MatIcon, MatProgressSpinnerModule, FormsModule],
   templateUrl: './own-message-edit.component.html',
   styleUrls: ['./own-message-edit.component.scss'],
 })

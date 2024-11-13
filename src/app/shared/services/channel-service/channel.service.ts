@@ -4,11 +4,14 @@ import {
   BehaviorSubject,
   Observable,
   catchError,
+  distinctUntilChanged,
   forkJoin,
   from,
   map,
   of,
+  shareReplay,
   switchMap,
+  tap,
 } from 'rxjs';
 import { Channel } from '../../models/channel.model';
 import { arrayUnion, getDocs, setDoc, updateDoc } from 'firebase/firestore';
@@ -29,6 +32,10 @@ export class ChannelService {
   public channelId: string = '';
   public actualThread: Array<string> = []; // Daten des aktuell ausgewählten Threads
   private userService = inject(UserService);
+
+  private usersData: BehaviorSubject<Map<string, any>> = new BehaviorSubject(
+    new Map()
+  );
 
   // Neues Observable für Channel-Daten
   public channelData$: Observable<Channel | undefined> = this.currentChannel$;
@@ -52,31 +59,30 @@ export class ChannelService {
   getChannelById(channelId: string): Observable<Channel | undefined> {
     const channelDocRef = doc(this.firestore, `channels/${channelId}`);
     return docData(channelDocRef).pipe(
-        map((docSnapshot: any) => {
-            if (docSnapshot) {
-                const channelData = docSnapshot as {
-                    admin: { userId: string };
-                    channelName: string;
-                    description: string;
-                    members: string[];  // Jetzt als string[]
-                    messages: { [messageId: string]: any };
-                };
-              
-                return new Channel(
-                    channelData.admin,
-                    channelId,
-                    channelData.channelName,
-                    channelData.description,
-                    channelData.members,  // Direkt als string[] übergeben
-                    channelData.messages
-                );
-            } else {
-                return undefined;  // Rückgabe `undefined`, falls keine Daten vorhanden sind
-            }
-        })
-    );
-}
+      map((docSnapshot: any) => {
+        if (docSnapshot) {
+          const channelData = docSnapshot as {
+            admin: { userId: string };
+            channelName: string;
+            description: string;
+            members: string[]; // Jetzt als string[]
+            messages: { [messageId: string]: any };
+          };
 
+          return new Channel(
+            channelData.admin,
+            channelId,
+            channelData.channelName,
+            channelData.description,
+            channelData.members, // Direkt als string[] übergeben
+            channelData.messages
+          );
+        } else {
+          return undefined; // Rückgabe `undefined`, falls keine Daten vorhanden sind
+        }
+      })
+    );
+  }
 
   // Methode zum Abrufen der Benutzerdaten
   getUsersData(members: { userId: string }[]): Observable<any[]> {
@@ -187,7 +193,7 @@ export class ChannelService {
         if (docSnapshot) {
           // Extrahiere die Mitglieder aus den Channel-Daten
           const channelData = docSnapshot as {
-            members: string[];  // Mitglieder als Array von User-IDs
+            members: string[]; // Mitglieder als Array von User-IDs
           };
           return channelData.members || []; // Rückgabe der Mitglieder oder ein leeres Array, falls keine vorhanden sind
         } else {
@@ -198,6 +204,37 @@ export class ChannelService {
         console.error('Fehler beim Abrufen der Mitglieder:', error);
         return of([]); // Im Falle eines Fehlers ein leeres Array zurückgeben
       })
+    );
+  }
+
+  // ChannelService
+  loadUsersDataForChannel(memberIds: string[]): void {
+    const userMap = new Map<string, any>();
+    memberIds.forEach((userId) => {
+      this.userService
+        .getUserDataByUID(userId)
+        .pipe(
+          catchError((err) => {
+            console.error(
+              `Fehler beim Laden der Daten für Benutzer ${userId}:`,
+              err
+            );
+            return of(null);
+          })
+        )
+        .subscribe((userData) => {
+          if (userData) {
+            userMap.set(userId, userData);
+            this.usersData.next(new Map(userMap));
+          }
+        });
+    });
+  }
+
+  // ChannelService
+  getUsersDataObservable(): Observable<Map<string, any>> {
+    return this.usersData.asObservable().pipe(
+      // tap((usersMap) => console.log('Aktualisierte Benutzer-Daten:', usersMap))
     );
   }
 }
