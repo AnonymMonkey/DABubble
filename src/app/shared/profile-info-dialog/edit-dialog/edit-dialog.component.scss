@@ -15,9 +15,17 @@
     align-items: center;
 
     mat-icon {
-      color: black;
+      height: 40px;
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 30px;
+
       &:hover {
         cursor: pointer;
+        color: var(--purple1-color);
+        background-color: var(--bg-color);
       }
     }
   }
@@ -42,15 +50,21 @@
 
     .name-edit {
       display: flex;
-      justify-content: flex-start;
+      justify-content: space-between;
       align-items: center;
-      gap: 18px;
+
+      .wrapper {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
 
       span {
         color: var(--purple3-color);
 
         &:hover {
           cursor: pointer;
+          font-weight: 700;
         }
       }
     }

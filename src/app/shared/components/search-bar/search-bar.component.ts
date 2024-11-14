@@ -43,7 +43,7 @@ export class SearchBarComponent {
   ngOnInit(): void {
     this.loadAllUserData();
     this.loadCurrentUserData();
-    this.loadAllChannelsData();
+    if (this.userData) this.loadAllChannelsData();
     this.filteredOptions = this.inputControl.valueChanges.pipe(
       startWith(''),
       map((value) => this.filterOptions(value || ''))

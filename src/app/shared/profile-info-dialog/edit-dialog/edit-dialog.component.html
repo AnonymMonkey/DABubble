@@ -12,11 +12,26 @@
   />
   <div class="profile-info-name">
     <div class="name-edit">
-      <mat-icon class="material-symbols-outlined">account_circle</mat-icon>
-      <h3>Vollständiger Name</h3>
+      <div class="wrapper">
+        <mat-icon class="material-symbols-outlined">account_circle</mat-icon>
+        <h3>Vollständiger Name</h3>
+      </div>
+
+      <span
+        *ngIf="
+          nameControl.disabled && nameControl.value === '';
+          else saveNameChanges
+        "
+        (click)="nameControl.enable()"
+        >Bearbeiten</span
+      >
+      <ng-template #saveNameChanges>
+        <span #saveNameChanges (click)="saveNewName()">Speichern</span>
+      </ng-template>
     </div>
     <div class="input-secondary">
       <input
+        #nameInput
         type="text"
         [formControl]="nameControl"
         placeholder="{{ user.displayName }}"
@@ -24,6 +39,8 @@
           'input-error': nameControl.invalid
         }"
         (keypress)="blockNumbers($event)"
+        (keydown.enter)="saveNewName()"
+        [ngStyle]="nameControl.enable"
       />
       <div *ngIf="nameControl.invalid" class="error-message">
         <ng-container *ngIf="nameControl.hasError('fullName')">
@@ -34,11 +51,25 @@
   </div>
   <div class="profile-info-name">
     <div class="name-edit">
-      <mat-icon>mail_outline</mat-icon>
-      <h3>E-Mail-Adresse</h3>
+      <div class="wrapper">
+        <mat-icon>mail_outline</mat-icon>
+        <h3>E-Mail-Adresse</h3>
+      </div>
+      <span
+        *ngIf="
+          emailControl.disabled && emailControl.value === '';
+          else saveEmailChanges
+        "
+        (click)="emailControl.enable(); passwordControl.enable()"
+        >Bearbeiten</span
+      >
+      <ng-template #saveEmailChanges>
+        <span (click)="saveNewEmail()">Speichern</span>
+      </ng-template>
     </div>
     <div class="input-secondary">
       <input
+        #emailInput
         type="text"
         [formControl]="emailControl"
         placeholder="{{ user.email }}"
@@ -50,16 +81,20 @@
         <ng-container> Ungültige E-Mail-Adresse </ng-container>
       </div>
       <input
+        #passwordInput
         type="password"
         [formControl]="passwordControl"
         placeholder="Bestätige dein Passwort"
         [required]="!emailControl.invalid && editUserForm.value.email !== ''"
-        *ngIf="!emailControl.invalid && editUserForm.value.email !== ''"
         [ngClass]="{
           'input-error': passwordControl.invalid && passwordControl.touched
         }"
+        (keydown.enter)="saveNewEmail()"
       />
-      <div *ngIf="errorMessage" class="error-message">
+      <div
+        *ngIf="errorMessage && passwordControl.value !== ''"
+        class="error-message"
+      >
         {{ errorMessage }}
       </div>
       <div
@@ -75,19 +110,5 @@
         </ng-container>
       </div>
     </div>
-  </div>
-
-  <div class="button-wrapper">
-    <button class="button-primary" (click)="closeDialog()">Abbrechen</button>
-    <button
-      class="button-primary"
-      (click)="applyChanges()"
-      [disabled]="
-        !editUserForm.valid ||
-        (editUserForm.value.name === '' && editUserForm.value.email === '')
-      "
-    >
-      Speichern
-    </button>
   </div>
 </mat-card>

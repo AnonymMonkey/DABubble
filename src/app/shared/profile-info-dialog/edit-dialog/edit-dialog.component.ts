@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -15,6 +15,8 @@ import { UserService } from '../../services/user-service/user.service';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AvatarDialogComponent } from '../avatar-dialog/avatar-dialog.component';
+import { NotificationService } from '../../services/notification-service/notification.service';
+import { EmailNotificationDialogComponent } from '../email-notification-dialog/email-notification-dialog.component';
 
 @Component({
   selector: 'app-edit-dialog',
@@ -31,22 +33,56 @@ import { AvatarDialogComponent } from '../avatar-dialog/avatar-dialog.component'
   styleUrl: './edit-dialog.component.scss',
 })
 export class EditDialogComponent {
+  @ViewChild('nameInput') nameInputElement!: ElementRef;
+  @ViewChild('emailInput') emailInputElement!: ElementRef;
+  @ViewChild('passwordInput') passwordInputElement!: ElementRef;
   editUserForm!: FormGroup;
   user: any;
   readonly dialogRef = inject(MatDialogRef<EditDialogComponent>);
   userService = inject(UserService);
   authService = inject(AuthService);
   formBuilder = inject(FormBuilder);
+  notificationService = inject(NotificationService);
   errorMessage: string | null = '';
 
   constructor(public dialog: MatDialog) {}
 
   ngOnInit() {
     this.editUserForm = this.formBuilder.group({
-      name: ['', [this.fullNameValidator]],
-      email: ['', [Validators.email]],
-      password: [''],
+      name: [
+        {
+          value: '',
+          disabled: true,
+        },
+        [this.fullNameValidator],
+      ],
+      email: [
+        {
+          value: '',
+          disabled: true,
+        },
+        [Validators.email],
+      ],
+      password: [
+        {
+          value: '',
+          disabled: true,
+        },
+      ],
     });
+  }
+
+  ngAfterViewChecked() {
+    if (this.editUserForm.get('name')?.enabled) {
+      this.nameInputElement.nativeElement.focus();
+    }
+    if (
+      this.editUserForm.get('email')?.enabled &&
+      this.editUserForm.get('email')?.value === ''
+    ) {
+      this.emailInputElement.nativeElement.focus();
+      this.passwordInputElement.nativeElement.value = '';
+    }
   }
 
   fullNameValidator(control: any) {
@@ -98,15 +134,52 @@ export class EditDialogComponent {
       this.errorMessage = null;
       try {
         await this.authService.changeEmail(newEmail, password);
-        this.userService.saveProfileChanges(this.user.uid, newName, newEmail);
-        this.dialogRef.close();
       } catch (error) {
         this.errorMessage = 'Falsches Passwort.';
-        throw error;
       }
     } else if (newEmail === '') {
       this.userService.saveProfileChanges(this.user.uid, newName, newEmail);
     }
+  }
+
+  saveNewName() {
+    const newName = this.formatDisplayName(this.nameControl.value);
+    if (newName) {
+      this.userService.saveNewProfileName(this.user.uid, newName);
+      this.user.displayName = newName;
+      this.nameControl.setValue('');
+      this.nameControl.disable();
+    } else {
+      this.nameControl.disable();
+    }
+  }
+
+  async saveNewEmail() {
+    const newEmail = this.emailControl.value;
+    const password = this.passwordControl.value;
+    if (newEmail) {
+      this.errorMessage = null;
+      try {
+        await this.authService.changeEmail(newEmail, password);
+        this.resetInputValues();
+        this.openEmailNotificationDialog(newEmail);
+      } catch (error) {
+        this.errorMessage = 'Falsches Passwort.';
+        setInterval(() => (this.errorMessage = null), 5000);
+      }
+    }
+  }
+
+  resetInputValues() {
+    this.emailControl.setValue('');
+    this.passwordControl.setValue('');
+    this.emailControl.disable();
+    this.passwordControl.disable();
+  }
+
+  openEmailNotificationDialog(newEmail: string) {
+    const dialogRef = this.dialog.open(EmailNotificationDialogComponent);
+    dialogRef.componentInstance.email = newEmail;
   }
 
   openEditAvatar(): void {
