@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   Auth,
   signInWithEmailAndPassword,
@@ -10,9 +10,8 @@ import {
   confirmPasswordReset,
   fetchSignInMethodsForEmail,
   User,
-  updateEmail,
 } from '@angular/fire/auth';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { authState } from 'rxfire/auth';
 import { inject } from '@angular/core';
 import { UserService } from '../user-service/user.service';
@@ -21,10 +20,12 @@ import { RoutingService } from '../routing-service/routing.service';
 import { UserData } from '../../models/user.model';
 import { NotificationService } from '../notification-service/notification.service';
 import { Firestore } from '@angular/fire/firestore';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import {
   EmailAuthProvider,
+  onAuthStateChanged,
   reauthenticateWithCredential,
+  updateEmail,
   verifyBeforeUpdateEmail,
 } from 'firebase/auth';
 
@@ -32,6 +33,7 @@ import {
   providedIn: 'root',
 })
 export class AuthService {
+  private authSubscription: Subscription | undefined;
   constructor(
     private firestore: Firestore,
     private auth: Auth = inject(Auth),
@@ -39,7 +41,39 @@ export class AuthService {
     private errorService: ErrorService,
     private routingService: RoutingService,
     private notificationService: NotificationService
-  ) {}
+  ) {
+    this.observeAuthChanges();
+  }
+
+  private observeAuthChanges() {
+    onAuthStateChanged(this.auth, async (user: User | null) => {
+      if (user) {
+        const userRef = doc(this.firestore, `users/${user.uid}`);
+
+        const updatedData = {
+          email: user.email,
+        };
+
+        try {
+          // Aktualisiert das Firestore-Dokument des Benutzers mit den neuen Daten
+          await setDoc(userRef, updatedData, { merge: true });
+          console.log('Benutzerprofil erfolgreich in Firestore aktualisiert.');
+        } catch (error) {
+          console.error(
+            'Fehler beim Aktualisieren des Benutzerprofils in Firestore:',
+            error
+          );
+        }
+      }
+    });
+  }
+
+  // Aufräumen des Auth-Observers, wenn der Service zerstört wird
+  ngOnDestroy() {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
+  }
 
   async checkEmailExistsInFirestore(email: string): Promise<boolean> {
     const usersCollection = collection(this.firestore, 'users');
@@ -248,12 +282,7 @@ export class AuthService {
       await verifyBeforeUpdateEmail(user!, newEmail);
     } catch (error) {
       // Logge den gesamten Fehler zur besseren Fehlerdiagnose
-      console.error(
-        'Fehler bei der Re-Authentifizierung oder E-Mail-Änderung:',
-        error
-      );
-
-      if ((error as any).code === 'auth/wrong-password') {
+      if ((error as any).code === 'auth/invalid-credential') {
         throw new Error('Falsches Passwort');
       } else if ((error as any).code === 'auth/user-mismatch') {
         throw new Error('Der Benutzer stimmt nicht überein.');

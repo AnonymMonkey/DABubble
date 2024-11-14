@@ -55,10 +55,21 @@
         <mat-icon>mail_outline</mat-icon>
         <h3>E-Mail-Adresse</h3>
       </div>
-      <span>Bearbeiten</span>
+      <span
+        *ngIf="
+          emailControl.disabled && emailControl.value === '';
+          else saveEmailChanges
+        "
+        (click)="emailControl.enable(); passwordControl.enable()"
+        >Bearbeiten</span
+      >
+      <ng-template #saveEmailChanges>
+        <span (click)="saveNewEmail()">Speichern</span>
+      </ng-template>
     </div>
     <div class="input-secondary">
       <input
+        #emailInput
         type="text"
         [formControl]="emailControl"
         placeholder="{{ user.email }}"
@@ -70,6 +81,7 @@
         <ng-container> Ungültige E-Mail-Adresse </ng-container>
       </div>
       <input
+        #passwordInput
         type="password"
         [formControl]="passwordControl"
         placeholder="Bestätige dein Passwort"
@@ -77,8 +89,12 @@
         [ngClass]="{
           'input-error': passwordControl.invalid && passwordControl.touched
         }"
+        (keydown.enter)="saveNewEmail()"
       />
-      <div *ngIf="errorMessage" class="error-message">
+      <div
+        *ngIf="errorMessage && passwordControl.value !== ''"
+        class="error-message"
+      >
         {{ errorMessage }}
       </div>
       <div
@@ -94,9 +110,5 @@
         </ng-container>
       </div>
     </div>
-  </div>
-
-  <div class="button-wrapper">
-    <button class="button-primary" (click)="closeDialog()">Abbrechen</button>
   </div>
 </mat-card>

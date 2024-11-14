@@ -15,8 +15,17 @@
     align-items: center;
 
     mat-icon {
+      height: 40px;
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 30px;
+
       &:hover {
         cursor: pointer;
+        color: var(--purple1-color);
+        background-color: var(--bg-color);
       }
     }
   }
@@ -43,6 +52,7 @@
 
         &:hover {
           cursor: pointer;
+          font-weight: 700;
         }
       }
     }
