@@ -46,6 +46,7 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenav', { read: ElementRef }) sidenavElement!: ElementRef;
+  
 
   constructor(
     private renderer: Renderer2,

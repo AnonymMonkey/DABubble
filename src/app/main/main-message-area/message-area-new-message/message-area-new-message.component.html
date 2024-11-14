@@ -19,6 +19,7 @@
           >sentiment_satisfied
           </mat-icon
         >
+        <!-- ; openAttachmentSidenav() -->
         <mat-icon
         *ngIf="privateChatId === undefined"
           class="material-symbols-outlined"
@@ -31,7 +32,7 @@
   </div>
 
   <mat-menu xPosition="after" #uploadMethodMenu yPosition="above">
-    <app-upload-method-selector></app-upload-method-selector>
+    <app-upload-method-selector (uploadSelected)="addDownloadLink($event)"></app-upload-method-selector>
   </mat-menu>
 
   <mat-menu xPosition="after" #emojiMenu yPosition="above">
@@ -54,4 +55,12 @@
   <mat-menu xPosition="after" #mentionMenu yPosition="above">
     <app-mention-user (mentionUser)="insertMention($event)"></app-mention-user>
   </mat-menu>
+
+  <mat-sidenav-container class="example-container">
+    <mat-sidenav #attachmentSidenav mode="side" position="end"
+      >
+      <app-attachment-preview></app-attachment-preview>
+    </mat-sidenav>
+    <mat-sidenav-content> </mat-sidenav-content>
+  </mat-sidenav-container>
 </section>
