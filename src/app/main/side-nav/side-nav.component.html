@@ -38,7 +38,10 @@
         class="button-secondary"
         routerLink="channel/{{ channel.channelId }}"
         routerLinkActive="active"
-        (click)="activeButtonService.setActiveButton(''); channelService.setChannel(channel.channelId)"
+        (click)="
+          activeButtonService.setActiveButton('');
+          channelService.setChannel(channel.channelId)
+        "
       >
         <mat-icon class="material-symbols-outlined">tag</mat-icon
         >{{ channel.channelName }}
@@ -87,7 +90,7 @@
 
       @for (user of allUserData; track $index) {
       <button
-        *ngIf="user.displayName != userData.displayName"
+        *ngIf="user.uid != userData.uid"
         class="button-secondary"
         (click)="openChatWithUser(user, userData.uid + '_' + user.uid)"
         [ngClass]="{ active: isActiveButton(userData.uid + '_' + user.uid) }"
