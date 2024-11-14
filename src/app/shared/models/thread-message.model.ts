@@ -10,19 +10,22 @@ export class ThreadMessage {
     count: number;
     userIds: string[]; 
   }[] = [];
+  attachmentUrl?: string;  // Optional für den Anhang
 
   constructor(
     content: string,
     userId: string,
     chatId: string,
     reactions: { emoji: string; count: number, userIds: string[] }[] = [],
-    time: string = new Date().toISOString()
+    time: string = new Date().toISOString(),
+    attachmentUrl?: string  // optionaler Parameter für den Anhang
   ) {
     this.content = content;
     this.messageId = ThreadMessage.generateUniqueMessageId();
     this.time = time;
     this.userId = userId;  // Nur userId speichern
     this.reactions = reactions;
+    this.attachmentUrl = attachmentUrl;  // Anhang URL speichern
   }
 
   // Methode zur Generierung einer ID mit Timestamp und zufälliger Zahl
@@ -33,8 +36,8 @@ export class ThreadMessage {
   }
 
   // Statische Methode, um ein Objekt mit der ID als Schlüssel zu erstellen
-  static createWithIdAsKey(content: string, userId: string, chatId: string, reactions: { emoji: string; count: number; userIds: string[] }[] = []): { [key: string]: ThreadMessage } {
-    const message = new ThreadMessage(content, userId, chatId, reactions);
+  static createWithIdAsKey(content: string, userId: string, chatId: string, reactions: { emoji: string; count: number; userIds: string[] }[] = [], attachmentUrl?: string): { [key: string]: ThreadMessage } {
+    const message = new ThreadMessage(content, userId, chatId, reactions, undefined, attachmentUrl);
     return {
       [message.messageId]: message
     };
@@ -53,6 +56,7 @@ export class ThreadMessage {
           count: reaction.count,
           userIds: reaction.userIds
         })), // Mappt die Reaktionen mit allen drei Feldern
+        attachmentUrl: message.attachmentUrl || null  // Speichert den Anhang-Link (optional)
       };
     },
     fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ThreadMessage {
@@ -62,7 +66,8 @@ export class ThreadMessage {
         data.userId,  // Nur userId anstelle des gesamten Benutzerobjekts
         snapshot.id,
         data.reactions || [],  // Falls keine Reaktionen vorhanden sind, wird ein leeres Array zurückgegeben
-        data.time
+        data.time,
+        data.attachmentUrl  // Holt die Attachment-URL aus den Daten
       );
     },
   };

@@ -1,4 +1,4 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewChild, ElementRef } from '@angular/core';
 import { ChannelMessage } from '../../../shared/models/channel-message.model';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +19,7 @@ import { MatMenu, MatMenuModule } from '@angular/material/menu';
 import { MentionUserComponent } from '../../../shared/components/mention-user/mention-user.component';
 import { UploadMethodSelectorComponent } from '../../../shared/components/upload-method-selector/upload-method-selector.component';
 import { NgIf } from '@angular/common';
+import { MatSidenav } from '@angular/material/sidenav';
 
 const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   toFirestore(message: ChannelMessage): DocumentData {
@@ -28,6 +29,7 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
       reactions: message.reactions,
       time: message.time,
       userId: message.userId,
+      attachmentUrl: message.attachmentUrl
     };
   },
   fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ChannelMessage {
@@ -63,6 +65,10 @@ export class MessageAreaNewMessageComponent implements OnInit {
   photoURL?: string;
   channel: Channel | undefined;
   currentBorderRadius: string = '30px 30px 30px 30px !important';
+  attachmentUrl: string = '';
+
+  @ViewChild('attachmentSidenav') attachmentSidenav!: MatSidenav;
+  @ViewChild('attachmentSidenav', { read: ElementRef }) sidenavElement!: ElementRef;
 
   constructor(
     private firestore: Firestore,
@@ -115,35 +121,39 @@ export class MessageAreaNewMessageComponent implements OnInit {
     return `msg_${timestamp}_${randomNumber}`;
   }
 
-  async sendMessage() {
-    if (!this.newMessageContent) return;
-  
-    // Sofort das Eingabefeld leeren
+   async sendMessage() {
+    if (!this.newMessageContent && !this.attachmentUrl) return;
+
+    // Nachricht sofort auslesen und Felder leeren
     const messageContent = this.newMessageContent;
     this.newMessageContent = '';
-  
-    // Generiere eine Message-ID basierend auf dem Chat-Typ (private oder channel)
+
+    // Generiere Message-ID
     const messageId = this.privateChatId
       ? MessageAreaNewMessageComponent.generatePrivateMessageId()
       : `msg_${Date.now()}`;
-  
-    // Erstelle ein neues ChannelMessage-Objekt
-    const newMessage = new ChannelMessage(
-      messageContent,  // Verwende den Inhalt aus dem Snapshot, bevor das Feld geleert wird
-      this.userId || '', // Füge die User-ID hinzu (kann auch dynamisch bezogen werden)
-      messageId
-    );
-  
+
+      const newMessage = new ChannelMessage(
+        messageContent,
+        this.userId || '',
+        messageId,
+        new Date().toISOString(),  // Zeit als ISO-String
+        this.attachmentUrl // attachmentUrl hinzufügen
+      );
+      
+
+    // Nachricht je nach Kontext (privat oder channel) senden
     if (this.privateChatId) {
-      // Wenn privateChatId vorhanden ist, sende die private Nachricht
       await this.sendPrivateChatMessage(newMessage);
     } else if (this.channelId) {
-      // Andernfalls, wenn channelId vorhanden ist, sende die Channel-Nachricht
       this.channel?.addMessage(messageId, newMessage);
       await this.sendChannelMessage(newMessage);
     } else {
       console.error('Weder privateChatId noch channelId ist definiert.');
     }
+
+    // Reset der attachmentUrl nach dem Senden
+    this.attachmentUrl = '';
   }
   
 
@@ -189,6 +199,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
         reactions: newMessage.reactions,
         time: newMessage.time,
         userId: this.userId,
+        attachmentUrl: newMessage.attachmentUrl
       },
     });
 
@@ -203,6 +214,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
         reactions: newMessage.reactions,
         time: newMessage.time,
         userId: this.userId,
+        attachmentUrl: newMessage.attachmentUrl
       },
     });
   }
@@ -236,5 +248,17 @@ export class MessageAreaNewMessageComponent implements OnInit {
       '--border-radius',
       this.currentBorderRadius
     );
+  }
+
+  openAttachmentSidenav() {
+    if (this.attachmentSidenav) {
+      this.attachmentSidenav.open();
+    } else {
+      console.error('attachmentSidenav ist nicht definiert!');
+    }
+  }
+
+  addDownloadLink(url: string) {
+    this.attachmentUrl = url;
   }
 }

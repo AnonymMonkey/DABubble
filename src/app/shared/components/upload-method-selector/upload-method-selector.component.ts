@@ -1,30 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { getStorage, ref, uploadBytes, UploadResult } from '@angular/fire/storage';
+import { getDownloadURL } from 'firebase/storage';
 
 @Component({
   selector: 'app-upload-method-selector',
   standalone: true,
-  imports: [],
   templateUrl: './upload-method-selector.component.html',
-  styleUrl: './upload-method-selector.component.scss'
+  styleUrls: ['./upload-method-selector.component.scss']
 })
 export class UploadMethodSelectorComponent {
+  @Output() uploadSelected = new EventEmitter<string>();
+  storage = getStorage(); // Firebase Storage-Instanz
+  private route = inject(ActivatedRoute); // Aktivierte Route
+
+  // Methode zum Öffnen des Datei-Dialogs und Festlegen des akzeptierten Typs
   openFileDialog(fileType: string) {
     let acceptType = '';
     if (fileType === 'document') {
-      acceptType = 'application/pdf,application/msword,...'; // Geben Sie hier unterstützte Dokumentformate an
+      acceptType = 'application/pdf,application/msword,...'; // Dokumentformate
     } else if (fileType === 'image') {
-      acceptType = 'image/*'; // Für Bilddateien
+      acceptType = 'image/*'; // Bilddateien
     }
-  
-    // Erstellen Sie ein unsichtbares Eingabefeld für den Datei-Upload
+
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = acceptType;
-  
-    // Zeigen Sie das Dateiauswahldialog an
     fileInput.click();
-  
-    // Verarbeiten Sie die Datei nach der Auswahl
+
     fileInput.onchange = () => {
       const file = fileInput.files?.[0];
       if (file && file.size <= 500 * 1024) {
@@ -34,34 +37,61 @@ export class UploadMethodSelectorComponent {
       }
     };
   }
-  
-  uploadFile(file: File) {
-    // Implementieren Sie den Uploadprozess
-    console.log('Datei wird hochgeladen:', file);
+
+  // Upload-Datei und dynamischer Pfad basierend auf Channel- oder PrivateChat-ID
+  async uploadFile(file: File) {
+    const channelId = this.route.snapshot.paramMap.get('channelId');
+    const privateChatId = this.route.snapshot.paramMap.get('privateChatId');
+
+    let storagePath = 'uploads/'; // Basis-Speicherpfad
+    if (channelId) {
+      storagePath = `channels/${channelId}/uploads/${file.name}`;
+    } else if (privateChatId) {
+      storagePath = `privatechats/${privateChatId}/uploads/${file.name}`;
+    }
+
+    const storageRef = ref(this.storage, storagePath);
+
+    try {
+      const snapshot: UploadResult = await uploadBytes(storageRef, file);
+      console.log('Datei erfolgreich hochgeladen:', snapshot);
+
+      // Download-URL abrufen
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log('Download-URL:', downloadURL);
+
+      // Download-URL an die Elternkomponente übermitteln
+      this.uploadSelected.emit(downloadURL);
+    } catch (error) {
+      console.error('Fehler beim Hochladen der Datei:', error);
+    }
   }
 
+  // Drag & Drop Events
   onDragOver(event: DragEvent) {
     event.preventDefault();
     const dropArea = event.currentTarget as HTMLElement;
     dropArea.classList.add('dragging');
   }
-  
+
   onDragLeave(event: DragEvent) {
     const dropArea = event.currentTarget as HTMLElement;
     dropArea.classList.remove('dragging');
   }
-  
+
   onDrop(event: DragEvent) {
     event.preventDefault();
     const dropArea = event.currentTarget as HTMLElement;
     dropArea.classList.remove('dragging');
-    
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       const file = files[0];
-      this.uploadFile(file); // Hier kannst du die gleiche Upload-Logik verwenden
+      if (file.size <= 500 * 1024) {
+        this.uploadFile(file);
+      } else {
+        console.error('Datei überschreitet das Größenlimit von 500 KB.');
+      }
     }
   }
-  
-
 }

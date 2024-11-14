@@ -51,6 +51,7 @@ export class ChannelMessage {
             },
           ])
         ),
+        attachmentUrl: message.attachmentUrl,  // Füge attachmentUrl hinzu
       };
     },
     fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ChannelMessage {
@@ -59,7 +60,8 @@ export class ChannelMessage {
         data['content'],
         data['userId'],  // Nur die userId wird verwendet
         snapshot.id,
-        data['time']
+        data['time'],
+        data['attachmentUrl'] // Hole attachmentUrl aus Firestore-Daten
       );
       message.reactions = (data['reactions'] || []).map((reaction: any) => ({
         emoji: reaction.emoji,
