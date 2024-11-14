@@ -13,14 +13,14 @@
         <ngx-emoji
           emoji="white_check_mark"
           [size]="16"
-          (emojiClick)="addReaction(message.messageId, $event.emoji)"
+          (emojiClick)="privateChatService.addReaction(message.messageId, $event.emoji)"
         ></ngx-emoji>
       </div>
       <div>
         <ngx-emoji
           emoji="raised_hands"
           [size]="16"
-          (emojiClick)="addReaction(message.messageId, $event.emoji)"
+          (emojiClick)="privateChatService.addReaction(message.messageId, $event.emoji)"
         ></ngx-emoji>
       </div>
       <div [matMenuTriggerFor]="emojiMenu">

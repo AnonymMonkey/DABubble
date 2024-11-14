@@ -6,6 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
 import { MessageReactionsComponent } from '../../../../shared/components/message-reactions/message-reactions.component';
+import { PrivateChatService } from '../../../../shared/services/private-chat-service/private-chat.service';
 
 @Component({
   selector: 'app-other-private-message-template',
@@ -20,6 +21,7 @@ export class OtherPrivateMessageTemplateComponent {
   @Input() displayName: string = '';
   @Input() photoURL: string = '';
   public userService = inject(UserService);
+  public privateChatService = inject(PrivateChatService);
 
   constructor() {}
 
