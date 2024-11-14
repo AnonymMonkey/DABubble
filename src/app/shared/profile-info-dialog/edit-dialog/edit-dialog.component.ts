@@ -126,22 +126,6 @@ export class EditDialogComponent {
       .join(' '); // Fügt die Wörter wieder zusammen
   }
 
-  async applyChanges() {
-    const newName = this.formatDisplayName(this.nameControl.value);
-    const newEmail = this.emailControl.value;
-    const password = this.passwordControl.value;
-    if (newEmail !== this.user.email) {
-      this.errorMessage = null;
-      try {
-        await this.authService.changeEmail(newEmail, password);
-      } catch (error) {
-        this.errorMessage = 'Falsches Passwort.';
-      }
-    } else if (newEmail === '') {
-      this.userService.saveProfileChanges(this.user.uid, newName, newEmail);
-    }
-  }
-
   saveNewName() {
     const newName = this.formatDisplayName(this.nameControl.value);
     if (newName) {
