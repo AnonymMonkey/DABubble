@@ -43,7 +43,6 @@ import { ChannelService } from '../../../shared/services/channel-service/channel
     MatInputModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    AsyncPipe,
   ],
   templateUrl: './add-users-to-new-channel-dialog.component.html',
   styleUrl: './add-users-to-new-channel-dialog.component.scss',
@@ -96,97 +95,103 @@ export class AddUsersToNewChannelDialogComponent {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   readonly currentUser = model('');
 
-  readonly users = signal<{ userId: string; userName: string; photoURL: string }[]>([]);
-
-  readonly allUsers: string[] = [];
+  readonly users = signal<
+    { userId: string; userName: string; photoURL: string }[]
+  >([]);
 
   readonly filteredUsers = computed(() => {
     const currentUser = this.currentUser().toLowerCase();
-  
+
     return currentUser
       ? this.newAllUserData.filter(
           (user) =>
             user.userName.toLowerCase().includes(currentUser) &&
-            !this.users().some((userInList) => userInList.userId === user.userId)  // Überprüfe userId
+            !this.users().some(
+              (userInList) => userInList.userId === user.userId
+            ) // Überprüfe userId
         )
       : this.newAllUserData.filter(
           (user) =>
-            !this.users().some((userInList) => userInList.userId === user.userId)  // Überprüfe userId
+            !this.users().some(
+              (userInList) => userInList.userId === user.userId
+            ) // Überprüfe userId
         );
   });
-  
 
   readonly announcer = inject(LiveAnnouncer);
 
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
-  
+
     // Finde den entsprechenden Benutzer basierend auf dem eingegebenen `userName`
     const selectedUser = this.newAllUserData.find(
       (user) => user.userName === value
     );
-  
+
     // Benutzer hinzufügen, wenn er existiert und noch nicht in `users` enthalten ist
     if (
       selectedUser &&
-      !this.users().some(user => user.userId === selectedUser.userId)  // Verhindern, dass der Benutzer doppelt hinzugefügt wird
+      !this.users().some((user) => user.userId === selectedUser.userId) // Verhindern, dass der Benutzer doppelt hinzugefügt wird
     ) {
-      this.users.update((users) => [...users, {
-        userId: selectedUser.userId,
-        userName: selectedUser.userName,
-        photoURL: selectedUser.photoURL
-      }]);  // Das komplette Benutzerobjekt hinzufügen
+      this.users.update((users) => [
+        ...users,
+        {
+          userId: selectedUser.userId,
+          userName: selectedUser.userName,
+          photoURL: selectedUser.photoURL,
+        },
+      ]); // Das komplette Benutzerobjekt hinzufügen
     }
-  
+
     // Input zurücksetzen
     this.currentUser.set('');
     if (event.input) {
       event.input.value = '';
     }
   }
-  
-  
 
   remove(user: { userId: string; userName: string; photoURL: string }): void {
     this.users.update((users) => {
-      const index = users.findIndex((f) => f.userId === user.userId);  // Suchen nach der userId
+      const index = users.findIndex((f) => f.userId === user.userId); // Suchen nach der userId
       if (index < 0) {
         return users;
       }
-  
+
       users.splice(index, 1);
       this.announcer.announce(`Removed ${user.userName}`);
       return [...users];
     });
   }
-  
-  
-  
 
   selected(event: MatAutocompleteSelectedEvent): void {
     // Finde den Benutzer, der der Auswahl entspricht
     const selectedUser = this.newAllUserData.find(
-      (user) => user.userName === event.option.viewValue
+      (user) => user.userId === event.option.value.userId
     );
-  
+
+    console.log(selectedUser);
+
     // Nur hinzufügen, wenn das Benutzerobjekt existiert und die userId noch nicht in der Liste ist
     if (
       selectedUser &&
-      !this.users().some(user => user.userId === selectedUser.userId)  // Überprüfen, ob der Benutzer bereits existiert
+      !this.users().some((user) => user.userId === selectedUser.userId) // Überprüfen, ob der Benutzer bereits existiert
     ) {
       // Benutzerobjekt hinzufügen, nicht nur die userId
       this.users.update((users) => [
         ...users,
-        { userId: selectedUser.userId, userName: selectedUser.userName, photoURL: selectedUser.photoURL }
+        {
+          userId: selectedUser.userId,
+          userName: selectedUser.userName,
+          photoURL: selectedUser.photoURL,
+        },
       ]);
     }
-  
+    // console.log(this.users());
+
     // Input zurücksetzen
     this.currentUser.set('');
     event.option.deselect();
   }
-  
-  
 
   test() {
     this.bindDialogDataToNewChannelData();
@@ -197,21 +202,11 @@ export class AddUsersToNewChannelDialogComponent {
       },
     });
   }
-
-  // bindDialogDataToNewChannelData() {
-  //   this.newChannelData.channelName = this.channelName;
-  //   this.newChannelData.description = this.description;
-  //   this.newChannelData.admin.userId = this.userData.uid;
-  //   this.newChannelData.admin.userName = this.userData.displayName;
-  //   this.newChannelData.admin.photoURL = this.userData.photoURL;
-  //   this.newChannelData.members = this.users();
-  // }
-
   //ANCHOR - Semir - Es werden nur noch die IDS zusätzlich eingefügt.
   bindDialogDataToNewChannelData() {
     this.newChannelData.channelName = this.channelName;
     this.newChannelData.description = this.description;
     this.newChannelData.admin.userId = this.userData.uid;
-    this.newChannelData.members = this.users().map((user) => user.userId);  // Nur die userIds speichern
+    this.newChannelData.members = this.users().map((user) => user.userId); // Nur die userIds speichern
   }
 }

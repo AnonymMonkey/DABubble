@@ -23,11 +23,11 @@
 
     <mat-form-field class="example-chip-list" *ngIf="radioValue === 2">
       <mat-chip-grid #chipGrid aria-label="Enter fruits">
-        @for (fruit of users(); track fruit) {
-        <mat-chip-row (removed)="remove(fruit)">
-          <img src="{{ fruit.photoURL }}" alt="" />
-          {{ fruit.userName }}
-          <button matChipRemove [attr.aria-label]="'remove ' + fruit">
+        @for (user of users(); track user) {
+        <mat-chip-row (removed)="remove(user)">
+          <img src="{{ user.photoURL }}" alt="" />
+          {{ user.userName }}
+          <button matChipRemove [attr.aria-label]="'remove ' + user">
             <mat-icon>close</mat-icon>
           </button>
         </mat-chip-row>
