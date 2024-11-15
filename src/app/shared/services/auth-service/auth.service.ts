@@ -96,6 +96,15 @@ export class AuthService {
     try {
       const userCredential = await signInAnonymously(this.auth);
       await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
+
+      //ANCHOR - Testdaten für den Gastnutzer
+      const guestUserData = new UserData(
+        userCredential.user,
+        'Guest'
+      ).formatDisplayName();
+
+      await this.userService.saveUserData(userCredential.user, guestUserData);
+
       this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
     } catch (error) {
       this.handleError(error);
