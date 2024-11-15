@@ -68,36 +68,6 @@ export class UserService {
     });
   }
 
-  //REVIEW - Ende
-
-  //NOTE - Der Constructor musste auch auskommentiert werden, da er nicht benutzt wird
-  // constructor(private authService: AuthService) {}
-
-  //NOTE - Hier musste ich auskommentieren, da ein Promise die Daten nur einmalig zurückgegeben wird
-  // Ruft alle online Nutzer aus der Realtime Database ab
-  // Gibt die Daten der Nutzer zurück, die aktuell als online markiert sind
-  // async getOnlineUsers(): Promise<any[]> {
-  //   const onlineUsersRef = ref(this.database, 'onlineUsers');
-  //   const snapshot = await get(onlineUsersRef);
-  //   if (snapshot.exists()) {
-  //     return Object.values(snapshot.val()); // Rückgabe der Liste der Online-Nutzer
-  //   }
-  //   throw new Error('Keine aktiven Nutzer gefunden');
-  // }
-
-  // getOnlineUsers(): Observable<any[]> {
-  //   const onlineUsersRef = ref(this.database, 'status');
-  //   return new Observable<any[]>((observer) => {
-  //     onValue(onlineUsersRef, (snapshot) => {
-  //       if (snapshot.exists()) {
-  //         observer.next(Object.values(snapshot.val())); // Rückgabe der Liste der Online-Nutzer
-  //       } else {
-  //         observer.error('Keine aktiven Nutzer gefunden');
-  //       }
-  //     });
-  //   });
-  // }
-
   getAllUsersOnlineStatus(): Observable<{ userId: string; online: boolean }[]> {
     const onlineUsersRef = ref(this.database, 'status');
     return new Observable<{ userId: string; online: boolean }[]>((observer) => {
@@ -120,17 +90,6 @@ export class UserService {
     });
   }
 
-  //NOTE - Musste ich auskommentieren, da ein Promise die Daten nur einmalig lädt
-  // Ruft die Daten eines Nutzers anhand seiner UID aus Firestore ab
-  // async getUserDataByUID(uid: string): Promise<any> {
-  //   const userDocRef = doc(this.firestore, `users/${uid}`);
-  //   const userDoc = await getDoc(userDocRef);
-  //   if (userDoc.exists()) {
-  //     return userDoc.data(); // Rückgabe der Daten des angeforderten Nutzers
-  //   }
-  //   throw new Error('Nutzer nicht gefunden');
-  // }
-
   //NOTE - Hier habe ich die vorherige Funktion in eine Observable umgeformt
   getUserDataByUID(userId: string): Observable<UserData> {
     const userDocRef = doc(this.firestore, `users/${userId}`);
@@ -147,22 +106,6 @@ export class UserService {
       })
     );
   }
-
-  //NOTE - Problem tritt auf, da sich auth.service und user.service überschneiden
-  // Ruft die Daten des aktuell authentifizierten Nutzers ab
-  // Benötigt den AuthService, um den aktuellen Benutzer zu ermitteln
-
-  // async getCurrentUserData(): Promise<any> {
-  //   const currentUser = await this.authService.getCurrentUser().toPromise();
-  //   if (currentUser?.uid) {
-  //     const userDocRef = doc(this.firestore, `users/${currentUser.uid}`);
-  //     const userDoc = await getDoc(userDocRef);
-  //     if (userDoc.exists()) {
-  //       return userDoc.data(); // Rückgabe der Daten des aktuellen Benutzers
-  //     }
-  //   }
-  //   throw new Error('Nutzer nicht gefunden oder nicht angemeldet');
-  // }
 
   // Temporäre Registrierungsdaten speichern
   // Diese Funktion wird verwendet, um während des Registrierungsprozesses Daten temporär zu speichern
@@ -213,27 +156,6 @@ export class UserService {
 
     return setDoc(userRef, { ...userData }, { merge: true });
   }
-
-  /*   async saveUserData(
-    user: User,
-    displayName?: string,
-    photoURL?: string
-  ): Promise<void> {
-    const userData = new UserData(user, displayName);
-    userData.lastLogin = serverTimestamp(); // Aktualisiert den letzten Login-Zeitpunkt
-
-    // Verwendet das übergebene Profilbild, falls verfügbar
-    userData.photoURL = photoURL || userData.photoURL; // Bevorzugt das Google-Profilbild, falls vorhanden
-
-    // Formatiert den Benutzernamen vor dem Speichern
-    userData.displayName = userData.formatDisplayName();
-
-    return setDoc(
-      doc(this.firestore, users/${user.uid}),
-      { ...userData },
-      { merge: true } // Zusammenführen mit bestehenden Daten, um nichts zu überschreiben
-    );
-  } */
 
   // Speichert den Avatar (Profilbild) eines Benutzers in Firestore
   async saveAvatar(userId: string, avatarUrl: string): Promise<void> {
@@ -309,21 +231,6 @@ export class UserService {
     return user ? user.photoURL : '';
   }
 
-  saveProfileChanges(uid: string, newName: string, newEmail: string) {
-    const updatedData: any = {};
-    if (newName) {
-      updatedData.displayName = newName;
-    }
-    if (newEmail) {
-      updatedData.email = newEmail;
-    }
-    return setDoc(
-      doc(this.firestore, `users/${uid}`),
-      updatedData,
-      { merge: true } // Verhindert, dass andere Daten überschrieben werden
-    );
-  }
-
   saveNewProfileName(uid: string, newName: string) {
     const updatedData: any = {};
     updatedData.displayName = newName;
@@ -332,34 +239,6 @@ export class UserService {
       updatedData,
       { merge: true } // Verhindert, dass andere Daten überschrieben werden
     );
-  }
-
-  async updateUserInChannels(userId: string, newUserName: any) {
-    try {
-      // 1. Sammlung `Channels` abfragen und Dokumente finden, die die userId enthalten
-      const channelsRef = collection(this.firestore, 'Channels');
-      const q = query(channelsRef, where('userId', '==', userId)); // Passen, falls userId anders gespeichert ist
-      const querySnapshot = await getDocs(q);
-      console.log(querySnapshot.docs);
-
-      // 2. Alle relevanten Dokumente durchlaufen und die Userdaten aktualisieren
-      for (const docSnapshot of querySnapshot.docs) {
-        const channelDocRef = doc(this.firestore, 'Channels', docSnapshot.id);
-
-        // 3. Nur die relevanten Felder aktualisieren
-        await updateDoc(channelDocRef, {
-          // Ersetze die Felder entsprechend den zu aktualisierenden Daten
-          userName: newUserName,
-          // Füge andere benötigte Felder hier hinzu
-        });
-      }
-      console.log('User-Daten in allen Kanälen erfolgreich aktualisiert');
-    } catch (error) {
-      console.error(
-        'Fehler beim Aktualisieren der User-Daten in Channels:',
-        error
-      );
-    }
   }
 
   openProfileInfo(userId: any): void {
