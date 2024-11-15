@@ -82,4 +82,20 @@ section {
     gap: 15px;
   }
 
+.attachment-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+app-attachment-preview {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
   

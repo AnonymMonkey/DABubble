@@ -11,15 +11,18 @@ import { Subscription } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute } from '@angular/router';
 import { PrivateChatService } from '../../../../../shared/services/private-chat-service/private-chat.service';
 import { Firestore } from '@angular/fire/firestore';
 import { doc, updateDoc } from 'firebase/firestore';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
+import { NgFor, NgIf } from '@angular/common';
+import { AttachmentPreviewComponent } from '../../../../../shared/components/attachment-preview/attachment-preview.component';
 
 @Component({
   selector: 'app-own-private-message-edit',
   standalone: true,
-  imports: [MatProgressSpinnerModule, FormsModule, MatIcon],
+  imports: [MatProgressSpinnerModule, FormsModule, MatIcon, MatMenuTrigger, MatMenuModule, PickerModule, PickerComponent, NgIf, NgFor, AttachmentPreviewComponent],
   templateUrl: './own-private-message-edit.component.html',
   styleUrl: './own-private-message-edit.component.scss',
 })
@@ -33,6 +36,7 @@ export class OwnPrivateMessageEditComponent implements OnInit {
   private messageSubscription!: Subscription;
   private privateChatService = inject(PrivateChatService);
   private firestore = inject(Firestore);
+  currentBorderRadius = '30px 30px 30px 30px';
 
   ngOnInit() {
     if (this.message) {
@@ -132,5 +136,24 @@ export class OwnPrivateMessageEditComponent implements OnInit {
     if (clearContent) {
       this.editedMessageContent = ''; // Nur leeren, wenn clearContent true ist
     }
+  }
+
+  addEmoji(event: any) {
+    const emoji = event.emoji.native || event.emoji;
+    this.editedMessageContent += emoji;
+  }
+
+  toggleBorder(menuType: string) {
+    switch (menuType) {
+      case 'emoji':
+        this.currentBorderRadius = '30px 30px 30px 30px';
+        break;
+      default:
+        this.currentBorderRadius = '30px 30px 30px 30px';
+    }
+    document.documentElement.style.setProperty(
+      '--border-radius',
+      this.currentBorderRadius
+    );
   }
 }

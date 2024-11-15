@@ -11,6 +11,7 @@ import { Firestore } from '@angular/fire/firestore';
 import { MessageService } from '../../../../shared/services/message-service/message.service';
 import { MessageReactionsComponent } from '../../../../shared/components/message-reactions/message-reactions.component';
 import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
+import { AttachmentPreviewComponent } from '../../../../shared/components/attachment-preview/attachment-preview.component';
 
 @Component({
   selector: 'app-other-message-template',
@@ -24,7 +25,9 @@ import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker
     EmojiComponent,
     MatMenuModule,
     MessageReactionsComponent,
-    EmojiPickerComponent
+    EmojiPickerComponent,
+    AttachmentPreviewComponent,
+    NgFor
   ],
   templateUrl: './other-message-template.component.html',
   styleUrl: './other-message-template.component.scss',

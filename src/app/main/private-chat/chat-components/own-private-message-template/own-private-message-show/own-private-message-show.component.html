@@ -1,8 +1,24 @@
 <section class="text-container">
   <div class="name-and-time-own">
-    <span class="name" (click)="userService.openProfileInfo(message?.userId)">{{ displayName }}</span>
+    <span class="name" (click)="userService.openProfileInfo(message?.userId)">{{
+      displayName
+    }}</span>
     <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
   </div>
-  <span class="message-own">{{ message?.content }}</span>
-  <app-message-reactions [message]="message" *ngIf="message.reactions.length > 0"></app-message-reactions>
+  <span class="message-own">
+    {{ message?.content }}
+    <div *ngIf="message?.attachmentUrls?.length > 0">
+      <a
+        *ngFor="let attachmentUrl of message.attachmentUrls"
+        [href]="attachmentUrl"
+      >
+        <app-attachment-preview [actualAttachmentUrls]="[attachmentUrl]">
+        </app-attachment-preview>
+      </a>
+    </div>
+  </span>
+  <app-message-reactions
+    [message]="message"
+    *ngIf="message.reactions.length > 0"
+  ></app-message-reactions>
 </section>

@@ -1,42 +1,65 @@
 <section>
-    <div class="image">
-      <!-- Bilddateien -->
-      <img *ngIf="fileType === 'image'" [src]="sanitizedUrl" alt="Attachment Image" />
-  
-      <!-- PDF-Dateien -->
-      <div class="embed-container" *ngIf="fileType === 'pdf'">
-        <embed
-          [src]="sanitizedUrl"
-          type="application/pdf"
-          width="100%"
-          height="100%"
-          frameborder="0"
-        />
-      </div>
-  
-      <!-- Word-Dokumente -->
-      <div class="embed-container" *ngIf="fileType === 'doc'">
-        <iframe
-          [src]="googleDocsViewerUrl"
-          width="100%"
-          height="100%"
-          frameborder="0"
-        ></iframe>
-      </div>
-  
-      <!-- Text- oder CSV-Dateien -->
-      <div *ngIf="fileType === 'text'">
-        <iframe [src]="sanitizedUrl" width="100%" height="100%"></iframe>
-      </div>
-  
-      <!-- Excel-Dateien -->
-      <div *ngIf="fileType === 'excel'">
-        <p>Dieses Excel-Dokument kann nicht direkt angezeigt werden.</p>
-        <a [href]="sanitizedUrl" target="_blank">Dokument herunterladen</a>
-      </div>
-  
-      <!-- Fallback für unbekannte Formate -->
-      <p *ngIf="fileType === 'unknown'">Dieses Dateiformat wird nicht unterstützt.</p>
+  <div
+    class="image"
+    *ngFor="let attachmentUrl of actualAttachmentUrls; let i = index"
+  >
+    <!-- Löschen-Button -->
+    <mat-icon
+      class="material-symbols-outlined close-icon"
+      (click)="deleteAttachment(attachmentUrl); $event.stopPropagation()"
+      >close</mat-icon
+    >
+
+    <!-- Bilddateien -->
+    <img
+      *ngIf="getFileType(attachmentUrl) === 'image'"
+      [src]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
+      alt="Attachment Image"
+    />
+
+    <!-- PDF-Dateien -->
+    <div class="embed-container" *ngIf="getFileType(attachmentUrl) === 'pdf'">
+      <embed
+        [src]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
+        type="application/pdf"
+        width="100%"
+        height="100%"
+        frameborder="0"
+      />
     </div>
-  </section>
-  
+
+    <!-- Word-Dokumente -->
+    <div class="embed-container" *ngIf="fileType === 'doc'">
+      <iframe
+        [src]="googleDocsViewerUrl"
+        width="100%"
+        height="100%"
+        frameborder="0"
+      ></iframe>
+    </div>
+
+    <!-- Text- oder CSV-Dateien -->
+    <div *ngIf="getFileType(attachmentUrl) === 'text'">
+      <iframe
+        [src]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
+        width="100%"
+        height="100%"
+      ></iframe>
+    </div>
+
+    <!-- Excel-Dateien -->
+    <div *ngIf="getFileType(attachmentUrl) === 'excel'">
+      <p>Dieses Excel-Dokument kann nicht direkt angezeigt werden.</p>
+      <a
+        [href]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
+        target="_blank"
+        >Dokument herunterladen</a
+      >
+    </div>
+
+    <!-- Fallback für unbekannte Formate -->
+    <p *ngIf="getFileType(attachmentUrl) === 'unknown'">
+      Dieses Dateiformat wird nicht unterstützt.
+    </p>
+  </div>
+</section>

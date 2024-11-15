@@ -145,6 +145,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
     );
   
     const attachmentsToSend = [...this.attachmentUrls];
+    this.attachmentSidenav.close();
     this.attachmentUrls = []; // Reset attachment URLs
   
     // Nachricht je nach Kontext (privat oder channel) senden
@@ -260,7 +261,11 @@ export class MessageAreaNewMessageComponent implements OnInit {
   }
 
   openAttachmentSidenav() {
-    this.attachmentSidenav.toggle();
+    this.attachmentSidenav.open();
+  }
+
+  closeAttachmentSidenav() {
+    this.attachmentSidenav.close();
   }
 
   addDownloadLink(url: string) {

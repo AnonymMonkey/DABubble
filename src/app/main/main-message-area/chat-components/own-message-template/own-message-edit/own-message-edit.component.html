@@ -8,7 +8,12 @@
     ></textarea>
     <div class="icons-container">
       <div class="left-icons">
-        <mat-icon class="material-symbols-outlined">sentiment_satisfied</mat-icon>
+        <mat-icon
+          class="material-symbols-outlined"
+          [matMenuTriggerFor]="emojiMenu"
+          (click)="toggleBorder('emoji')"
+          >sentiment_satisfied
+        </mat-icon>
       </div>
       <div class="button-container">
         <button class="button-secondary" (click)="clearInput()">Abbrechen</button>
@@ -16,4 +21,19 @@
       </div>
     </div>
   </div>
+
+  <mat-menu xPosition="after" #emojiMenu yPosition="above">
+    <emoji-mart
+      title="Pick your emoji…"
+      emoji="point_up"
+      set="apple"
+      (emojiClick)="addEmoji($event)"
+      [totalFrequentLines]="2"
+      [i18n]="{
+        search: 'Suche Emojis',
+        categories: { search: 'Suchergebnisse', recent: 'Neueste' }
+      }"
+    ></emoji-mart>
+  </mat-menu>
+  
 </section>
