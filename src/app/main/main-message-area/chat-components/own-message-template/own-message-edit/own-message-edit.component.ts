@@ -4,11 +4,13 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
 
 @Component({
   selector: 'app-own-message-edit',
   standalone: true,
-  imports: [MatIcon, MatProgressSpinnerModule, FormsModule],
+  imports: [MatIcon, MatProgressSpinnerModule, FormsModule, MatMenuTrigger, MatMenuModule, PickerComponent, PickerModule],
   templateUrl: './own-message-edit.component.html',
   styleUrls: ['./own-message-edit.component.scss'],
 })
@@ -19,6 +21,7 @@ export class OwnMessageEditComponent implements OnInit {
   isSaving = false;
   private messageService = inject(MessageService);
   private messageSubscription!: Subscription;
+  currentBorderRadius = '30px 30px 30px 30px';
 
   ngOnInit() {
     if (this.message) {
@@ -78,5 +81,24 @@ export class OwnMessageEditComponent implements OnInit {
     if (clearContent) {
       this.editedMessageContent = ''; // Nur leeren, wenn clearContent true ist
     }
+  }
+
+  addEmoji(event: any) {
+    const emoji = event.emoji.native || event.emoji;
+    this.editedMessageContent += emoji;
+  }
+
+  toggleBorder(menuType: string) {
+    switch (menuType) {
+      case 'emoji':
+        this.currentBorderRadius = '30px 30px 30px 30px';
+        break;
+      default:
+        this.currentBorderRadius = '30px 30px 30px 30px';
+    }
+    document.documentElement.style.setProperty(
+      '--border-radius',
+      this.currentBorderRadius
+    );
   }
 }  

@@ -34,7 +34,16 @@
         <span class="name" (click)="channelService.openProfileInfo(message)">{{ message?.userName }}</span>
         <span class="time">{{ message?.time | date: 'HH:mm' }} Uhr</span>
       </div>
-      <span class="message">{{ message?.content }}</span>
+      <span class="message">
+        {{ message?.content }}
+        <div *ngIf="message?.attachmentUrls?.length > 0">
+          <a *ngFor="let attachmentUrl of message.attachmentUrls" [href]="attachmentUrl">
+            <app-attachment-preview 
+              [actualAttachmentUrls]="[attachmentUrl]">
+            </app-attachment-preview>
+          </a>
+        </div>
+      </span>
      <app-message-reactions [message]="message" *ngIf="message.reactions.length > 0"></app-message-reactions>
       <div class="thread" *ngIf="message?.thread && threadKeys.length > 0">
         <span (click)="mainMessageArea.openSidenav(); threadService.setActualMessage(message)">
