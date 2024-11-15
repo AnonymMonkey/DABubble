@@ -79,6 +79,16 @@ export class AddUsersToNewChannelDialogComponent {
         });
       });
     });
+
+    this.users.update((users) => [
+      ...users,
+      {
+        userId: this.userData.uid,
+        userName: this.userData.displayName,
+        photoURL: this.userData.photoURL,
+      },
+    ]);
+
     this.newChannelData = new Channel();
   }
 
@@ -168,9 +178,6 @@ export class AddUsersToNewChannelDialogComponent {
     const selectedUser = this.newAllUserData.find(
       (user) => user.userId === event.option.value.userId
     );
-
-    console.log(selectedUser);
-
     // Nur hinzufügen, wenn das Benutzerobjekt existiert und die userId noch nicht in der Liste ist
     if (
       selectedUser &&
