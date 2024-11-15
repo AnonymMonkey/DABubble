@@ -43,6 +43,12 @@
     display: flex;
     color: var(--text-color); 
     width: fit-content;
+    flex-direction: column;
+
+    > div {
+      display: flex;
+      flex-wrap: wrap;
+    }
   }
 
   .thread-own {
@@ -64,6 +70,15 @@
       font-size: 14px;
     }
   }
+
+  app-attachment-preview {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
 
   // .mention {
   //   color: var(--purple3-color); /* Setzt die Farbe für Erwähnungen */
