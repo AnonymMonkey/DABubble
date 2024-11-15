@@ -19,7 +19,8 @@ import { MatMenu, MatMenuModule } from '@angular/material/menu';
 import { MentionUserComponent } from '../../../shared/components/mention-user/mention-user.component';
 import { UploadMethodSelectorComponent } from '../../../shared/components/upload-method-selector/upload-method-selector.component';
 import { NgIf } from '@angular/common';
-import { MatSidenav } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { AttachmentPreviewComponent } from '../../../shared/components/attachment-preview/attachment-preview.component';
 
 const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   toFirestore(message: ChannelMessage): DocumentData {
@@ -29,7 +30,7 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
       reactions: message.reactions,
       time: message.time,
       userId: message.userId,
-      attachmentUrl: message.attachmentUrl
+      attachmentUrls: message.attachmentUrls
     };
   },
   fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ChannelMessage {
@@ -51,6 +52,8 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
     MentionUserComponent,
     UploadMethodSelectorComponent,
     NgIf,
+    MatSidenavModule,
+    AttachmentPreviewComponent
   ],
   templateUrl: './message-area-new-message.component.html',
   styleUrls: ['./message-area-new-message.component.scss'],
@@ -65,7 +68,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
   photoURL?: string;
   channel: Channel | undefined;
   currentBorderRadius: string = '30px 30px 30px 30px !important';
-  attachmentUrl: string = '';
+  attachmentUrls: string[] = [];
 
   @ViewChild('attachmentSidenav') attachmentSidenav!: MatSidenav;
   @ViewChild('attachmentSidenav', { read: ElementRef }) sidenavElement!: ElementRef;
@@ -121,49 +124,53 @@ export class MessageAreaNewMessageComponent implements OnInit {
     return `msg_${timestamp}_${randomNumber}`;
   }
 
-   async sendMessage() {
-    if (!this.newMessageContent && !this.attachmentUrl) return;
-
+  async sendMessage() {
+    if (!this.newMessageContent && this.attachmentUrls.length === 0) return;
+  
     // Nachricht sofort auslesen und Felder leeren
     const messageContent = this.newMessageContent;
     this.newMessageContent = '';
-
+  
     // Generiere Message-ID
     const messageId = this.privateChatId
       ? MessageAreaNewMessageComponent.generatePrivateMessageId()
       : `msg_${Date.now()}`;
-
-      const newMessage = new ChannelMessage(
-        messageContent,
-        this.userId || '',
-        messageId,
-        new Date().toISOString(),  // Zeit als ISO-String
-        this.attachmentUrl // attachmentUrl hinzufügen
-      );
-      
-
+  
+    const newMessage = new ChannelMessage(
+      messageContent,
+      this.userId || '',
+      messageId,
+      new Date().toISOString(),  // Zeit als ISO-String
+      this.attachmentUrls // attachmentUrl hinzufügen
+    );
+  
+    const attachmentsToSend = [...this.attachmentUrls];
+    this.attachmentUrls = []; // Reset attachment URLs
+  
     // Nachricht je nach Kontext (privat oder channel) senden
     if (this.privateChatId) {
-      await this.sendPrivateChatMessage(newMessage);
+      await this.sendPrivateChatMessage(newMessage, attachmentsToSend);
     } else if (this.channelId) {
       this.channel?.addMessage(messageId, newMessage);
-      await this.sendChannelMessage(newMessage);
+      await this.sendChannelMessage(newMessage, attachmentsToSend);
     } else {
       console.error('Weder privateChatId noch channelId ist definiert.');
     }
-
-    // Reset der attachmentUrl nach dem Senden
-    this.attachmentUrl = '';
   }
   
+  
 
-  private async sendChannelMessage(newMessage: ChannelMessage) {
+  private async sendChannelMessage(newMessage: ChannelMessage, attachments: string[]) {
+    // Stelle sicher, dass die Anhänge in der Nachricht enthalten sind
+    newMessage.attachmentUrls = attachments;
+  
     const messagesRef = collection(
       this.firestore,
       `channels/${this.channelId}/messages`
     );
     try {
       const newMessageDocRef = doc(messagesRef, newMessage.messageId);
+      // Speichern der Nachricht zusammen mit den Anhängen in Firestore
       await setDoc(
         newMessageDocRef,
         channelMessageConverter.toFirestore(newMessage)
@@ -173,8 +180,10 @@ export class MessageAreaNewMessageComponent implements OnInit {
       console.error('Fehler beim Senden der Nachricht im Channel:', error);
     }
   }
+  
+  
 
-  private async sendPrivateChatMessage(newMessage: ThreadMessage) {
+  private async sendPrivateChatMessage(newMessage: ThreadMessage, attachments: string[]) {
     const [userId1, userId2] = this.privateChatId!.split('_');
     const isSelfMessage = this.userId === userId1;
 
@@ -199,7 +208,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
         reactions: newMessage.reactions,
         time: newMessage.time,
         userId: this.userId,
-        attachmentUrl: newMessage.attachmentUrl
+        attachmentUrls: attachments
       },
     });
 
@@ -214,7 +223,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
         reactions: newMessage.reactions,
         time: newMessage.time,
         userId: this.userId,
-        attachmentUrl: newMessage.attachmentUrl
+        attachmentUrls: attachments
       },
     });
   }
@@ -251,14 +260,14 @@ export class MessageAreaNewMessageComponent implements OnInit {
   }
 
   openAttachmentSidenav() {
-    if (this.attachmentSidenav) {
-      this.attachmentSidenav.open();
-    } else {
-      console.error('attachmentSidenav ist nicht definiert!');
-    }
+    this.attachmentSidenav.toggle();
   }
 
   addDownloadLink(url: string) {
-    this.attachmentUrl = url;
+    this.attachmentUrls = [...this.attachmentUrls, url];
+  }
+
+  removeAttachment(index: number) {
+    this.attachmentUrls.splice(index, 1); // URL aus dem Array entfernen
   }
 }

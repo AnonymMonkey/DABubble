@@ -54,14 +54,9 @@ export class UploadMethodSelectorComponent {
 
     try {
       const snapshot: UploadResult = await uploadBytes(storageRef, file);
-      console.log('Datei erfolgreich hochgeladen:', snapshot);
-
-      // Download-URL abrufen
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log('Download-URL:', downloadURL);
-
-      // Download-URL an die Elternkomponente übermitteln
       this.uploadSelected.emit(downloadURL);
+      
     } catch (error) {
       console.error('Fehler beim Hochladen der Datei:', error);
     }

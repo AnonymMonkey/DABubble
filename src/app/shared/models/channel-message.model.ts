@@ -13,21 +13,21 @@ export class ChannelMessage {
   time: string;
   userId: string;
   thread: { [threadId: string]: ThreadMessage };
-  attachmentUrl?: string;  // Optionales Feld für die Anhänge (z.B. Bild oder PDF)
+  attachmentUrls: string[] = [];  // Array von Anhängen (URLs)
 
   constructor(
     content: string,
     userId: string,
     messageId: string,
     time?: string,
-    attachmentUrl?: string
+    attachmentUrls?: string[]  // Array von URLs für Anhänge
   ) {
     this.content = content;
     this.messageId = messageId;
     this.time = time || new Date().toISOString();
     this.userId = userId;
     this.thread = {};
-    this.attachmentUrl = attachmentUrl;  // Setze URL des Anhangs
+    this.attachmentUrls = attachmentUrls || [];  // Setze die URLs des Anhangs (als Array)
   }
 
   channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
@@ -40,7 +40,7 @@ export class ChannelMessage {
           userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],  // Nur userIds
         })),
         time: message.time,
-        userId: message.userId,  // Nur die userId wird gespeichert
+        userId: message.userId,
         thread: Object.fromEntries(
           Object.entries(message.thread).map(([id, t]) => [
             id,
@@ -51,17 +51,17 @@ export class ChannelMessage {
             },
           ])
         ),
-        attachmentUrl: message.attachmentUrl,  // Füge attachmentUrl hinzu
+        attachmentUrls: message.attachmentUrls,  // Array der Anhänge (URLs)
       };
     },
     fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ChannelMessage {
       const data = snapshot.data() as DocumentData;
       const message = new ChannelMessage(
         data['content'],
-        data['userId'],  // Nur die userId wird verwendet
+        data['userId'],
         snapshot.id,
         data['time'],
-        data['attachmentUrl'] // Hole attachmentUrl aus Firestore-Daten
+        data['attachmentUrls'] || []  // Array von Anhängen holen (default auf leeres Array)
       );
       message.reactions = (data['reactions'] || []).map((reaction: any) => ({
         emoji: reaction.emoji,
@@ -73,7 +73,7 @@ export class ChannelMessage {
           id,
           new ThreadMessage(
             threadData.content,
-            threadData.userId,  // Nur userId im Thread
+            threadData.userId,
             threadData.time
           ),
         ])
