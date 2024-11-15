@@ -7,33 +7,42 @@
     ></textarea>
     <div class="icons-container">
       <div class="left-icons">
-        <mat-icon class="material-symbols-outlined"
-        [matMenuTriggerFor]="uploadMethodMenu"
-        (click)="toggleBorder('upload')"
-        >add</mat-icon>
+        <mat-icon
+          class="material-symbols-outlined"
+          [matMenuTriggerFor]="uploadMethodMenu"
+          (click)="toggleBorder('upload')"
+          >add</mat-icon
+        >
+        <!-- <mat-icon
+          class="material-symbols-outlined"
+          (click)="openAttachmentSidenav()"
+          >add</mat-icon
+        > -->
         <div class="grey-line"></div>
         <mat-icon
           class="material-symbols-outlined"
           [matMenuTriggerFor]="emojiMenu"
           (click)="toggleBorder('emoji')"
           >sentiment_satisfied
-          </mat-icon
-        >
+        </mat-icon>
         <!-- ; openAttachmentSidenav() -->
         <mat-icon
-        *ngIf="privateChatId === undefined"
+          *ngIf="privateChatId === undefined"
           class="material-symbols-outlined"
           [matMenuTriggerFor]="mentionMenu"
           (click)="toggleBorder('mention')"
-          >alternate_email</mat-icon>
+          >alternate_email</mat-icon
+        >
       </div>
       <mat-icon (click)="sendMessage()">send</mat-icon>
     </div>
   </div>
 
   <mat-menu xPosition="after" #uploadMethodMenu yPosition="above">
-    <app-upload-method-selector (uploadSelected)="addDownloadLink($event)"></app-upload-method-selector>
-  </mat-menu>
+    <app-upload-method-selector
+      (uploadSelected)="addDownloadLink($event); openAttachmentSidenav();"
+    ></app-upload-method-selector>
+  </mat-menu>  
 
   <mat-menu xPosition="after" #emojiMenu yPosition="above">
     <emoji-mart
@@ -58,9 +67,8 @@
 
   <mat-sidenav-container class="example-container">
     <mat-sidenav #attachmentSidenav mode="side" position="end"
-      >
-      <app-attachment-preview></app-attachment-preview>
+      ><app-attachment-preview [actualAttachmentUrls]="attachmentUrls"></app-attachment-preview>
     </mat-sidenav>
-    <mat-sidenav-content> </mat-sidenav-content>
+    <mat-sidenav-content></mat-sidenav-content>
   </mat-sidenav-container>
 </section>
