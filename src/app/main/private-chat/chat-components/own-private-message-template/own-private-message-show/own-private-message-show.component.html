@@ -12,7 +12,7 @@
         *ngFor="let attachmentUrl of message.attachmentUrls"
         [href]="attachmentUrl"
       >
-        <app-attachment-preview [actualAttachmentUrls]="[attachmentUrl]">
+        <app-attachment-preview [actualAttachmentUrls]="[attachmentUrl]" [message]="message">
         </app-attachment-preview>
       </a>
     </div>

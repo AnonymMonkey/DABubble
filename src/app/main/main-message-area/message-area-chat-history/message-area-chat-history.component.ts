@@ -50,6 +50,7 @@ export class MessageAreaChatHistoryComponent implements OnInit, AfterViewChecked
     this.currentChannel$.subscribe({
       next: (channel) => {
         if (channel) {
+          this.groupedMessages = [];
           this.channelService.loadUsersDataForChannel(channel.members);
           this.listenForMessages(channel.channelId);
         }

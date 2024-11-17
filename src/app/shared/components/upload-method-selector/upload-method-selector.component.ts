@@ -2,6 +2,7 @@ import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { getStorage, ref, uploadBytes, UploadResult } from '@angular/fire/storage';
 import { getDownloadURL } from 'firebase/storage';
+import { StorageService } from '../../services/storage-service/storage.service';
 
 @Component({
   selector: 'app-upload-method-selector',
@@ -13,6 +14,8 @@ export class UploadMethodSelectorComponent {
   @Output() uploadSelected = new EventEmitter<string>();
   storage = getStorage(); // Firebase Storage-Instanz
   private route = inject(ActivatedRoute); // Aktivierte Route
+
+  constructor(private storageService: StorageService) { }
 
   // Methode zum Öffnen des Datei-Dialogs und Festlegen des akzeptierten Typs
   openFileDialog(fileType: string) {
@@ -60,6 +63,8 @@ export class UploadMethodSelectorComponent {
     } catch (error) {
       console.error('Fehler beim Hochladen der Datei:', error);
     }
+
+    this.storageService.triggerCloseUploadMethodSelector();
   }
 
   // Drag & Drop Events

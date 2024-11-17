@@ -7,12 +7,16 @@ import {
   UploadResult,
 } from '@angular/fire/storage';
 import { deleteObject, getDownloadURL, listAll } from 'firebase/storage';
+import { Subject } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
 export class StorageService {
   userService = inject(UserService);
   storage = getStorage();
+  private closeAttachmentPreviewSubject = new Subject<void>();
+  private closeUploadMethodSelector = new Subject<void>();
+
 
   constructor() {}
 
@@ -46,5 +50,19 @@ export class StorageService {
     }
   }
   
-  
+  triggerCloseAttachmentPreview() {
+    this.closeAttachmentPreviewSubject.next();
+  }
+
+  onCloseAttachmentPreview() {
+    return this.closeAttachmentPreviewSubject.asObservable();
+  }
+
+  triggerCloseUploadMethodSelector() {
+    this.closeUploadMethodSelector.next();
+  }
+
+  onCloseUploadMethodSelector() {
+    return this.closeUploadMethodSelector.asObservable();
+  }
 }
