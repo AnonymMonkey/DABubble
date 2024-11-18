@@ -55,6 +55,10 @@ export class AddUsersToNewChannelDialogComponent {
     this.addUsersToChannel.newChannelData.channelName = this.channelName;
     this.addUsersToChannel.newChannelData.description = this.description;
 
-    this.addUsersToChannel.createNewChannel();
+    if (this.channelId === '') {
+      this.addUsersToChannel.createNewChannel();
+    } else {
+      this.addUsersToChannel.updateExistingChannel();
+    }
   }
 }

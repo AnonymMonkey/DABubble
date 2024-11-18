@@ -233,8 +233,17 @@ export class ChannelService {
 
   // ChannelService
   getUsersDataObservable(): Observable<Map<string, any>> {
-    return this.usersData.asObservable().pipe(
+    return this.usersData
+      .asObservable()
+      .pipe
       // tap((usersMap) => console.log('Aktualisierte Benutzer-Daten:', usersMap))
-    );
+      ();
+  }
+
+  addUserToChannel(userId: string, channelId: string): Promise<void> {
+    const channelDocRef = doc(this.firestore, `channels/${channelId}`);
+    return updateDoc(channelDocRef, {
+      members: arrayUnion(userId),
+    });
   }
 }

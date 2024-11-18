@@ -238,4 +238,12 @@ export class AddUsersToChannelComponent {
     this.newChannelData.admin.userId = this.userData.uid;
     this.newChannelData.members = this.users().map((user) => user.userId); // Nur die userIds speichern
   }
+
+  updateExistingChannel() {
+    const newUsers = this.users().map((user) => user.userId);
+    newUsers.forEach((userId) => {
+      this.channelService.addUserToChannel(userId, this.channelId);
+      this.userService.addNewChannelToUser(userId, this.channelId);
+    });
+  }
 }
