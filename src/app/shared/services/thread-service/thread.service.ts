@@ -34,8 +34,6 @@ export class ThreadService implements OnDestroy {
           if (snapshot.exists()) {
             const updatedMessage = snapshot.data() as ChannelMessage; // Konvertiere Snapshot zu ChannelMessage
             this.actualMessageSubject.next(updatedMessage);
-          } else {
-            console.log('Nachricht existiert nicht.');
           }
         }, (error) => {
           console.error('Fehler beim Abrufen der Nachricht:', error);

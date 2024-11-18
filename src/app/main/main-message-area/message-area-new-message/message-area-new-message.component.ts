@@ -15,12 +15,13 @@ import { ChannelService } from '../../../shared/services/channel-service/channel
 import { Channel } from '../../../shared/models/channel.model';
 import { ThreadMessage } from '../../../shared/models/thread-message.model';
 import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
-import { MatMenu, MatMenuModule } from '@angular/material/menu';
+import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MentionUserComponent } from '../../../shared/components/mention-user/mention-user.component';
 import { UploadMethodSelectorComponent } from '../../../shared/components/upload-method-selector/upload-method-selector.component';
 import { NgIf } from '@angular/common';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { AttachmentPreviewComponent } from '../../../shared/components/attachment-preview/attachment-preview.component';
+import { StorageService } from '../../../shared/services/storage-service/storage.service';
 
 const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   toFirestore(message: ChannelMessage): DocumentData {
@@ -71,13 +72,17 @@ export class MessageAreaNewMessageComponent implements OnInit {
   attachmentUrls: string[] = [];
 
   @ViewChild('attachmentSidenav') attachmentSidenav!: MatSidenav;
-  @ViewChild('attachmentSidenav', { read: ElementRef }) sidenavElement!: ElementRef;
+@ViewChild('attachmentSidenav', { read: ElementRef }) attachmentSidenavElement!: ElementRef;
+
+@ViewChild(MatMenuTrigger) uploadMethodMenuTrigger!: MatMenuTrigger;
+
 
   constructor(
     private firestore: Firestore,
     private userService: UserService,
     private route: ActivatedRoute,
-    private channelService: ChannelService
+    private channelService: ChannelService,
+    private storageService: StorageService
   ) {}
 
   ngOnInit() {
@@ -99,6 +104,14 @@ export class MessageAreaNewMessageComponent implements OnInit {
       }
 
       this.getUserData();
+    });
+
+    this.storageService.onCloseAttachmentPreview().subscribe(() => {
+      this.closeAttachmentSidenav();
+    });
+
+    this.storageService.onCloseUploadMethodSelector().subscribe(() => {
+      this.closeUploadMethodMenu();
     });
   }
 
@@ -265,9 +278,13 @@ export class MessageAreaNewMessageComponent implements OnInit {
   }
 
   closeAttachmentSidenav() {
+    if (this.attachmentUrls.length > 1) return;
     this.attachmentSidenav.close();
   }
 
+  closeUploadMethodMenu() {
+    this.uploadMethodMenuTrigger.closeMenu();
+  }
   addDownloadLink(url: string) {
     this.attachmentUrls = [...this.attachmentUrls, url];
   }
@@ -275,4 +292,10 @@ export class MessageAreaNewMessageComponent implements OnInit {
   removeAttachment(index: number) {
     this.attachmentUrls.splice(index, 1); // URL aus dem Array entfernen
   }
+
+  onAttachmentRemoved(removedUrl: string) {
+    this.attachmentUrls = this.attachmentUrls.filter(
+      (url) => url !== removedUrl
+    );
+  }  
 }

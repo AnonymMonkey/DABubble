@@ -6,56 +6,51 @@
     <!-- Löschen-Button -->
     <mat-icon
       class="material-symbols-outlined close-icon"
-      (click)="deleteAttachment(attachmentUrl); $event.stopPropagation()"
-      >close</mat-icon
+      (click)="onDeleteClick(attachmentUrl, $event)"
+      *ngIf="message?.userId === userService.userId || message === ''"
     >
+      close
+    </mat-icon>
 
     <!-- Bilddateien -->
     <img
       *ngIf="getFileType(attachmentUrl) === 'image'"
       [src]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
       alt="Attachment Image"
+      (click)="openAttachment(attachmentUrl, $event)"
     />
 
     <!-- PDF-Dateien -->
-    <div class="embed-container" *ngIf="getFileType(attachmentUrl) === 'pdf'">
-      <embed
-        [src]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
-        type="application/pdf"
-        width="100%"
-        height="100%"
-        frameborder="0"
-      />
-    </div>
+    <img
+      src="../../../../assets/icons/document_chat.png"
+      alt="PDF"
+      *ngIf="getFileType(attachmentUrl) === 'pdf'"
+      (click)="openAttachment(attachmentUrl, $event)"
+    />
 
     <!-- Word-Dokumente -->
-    <div class="embed-container" *ngIf="fileType === 'doc'">
-      <iframe
-        [src]="googleDocsViewerUrl"
-        width="100%"
-        height="100%"
-        frameborder="0"
-      ></iframe>
-    </div>
+    <img
+      src="../../../../assets/icons/doc.png"
+      alt="Word"
+      *ngIf="getFileType(attachmentUrl) === 'doc'"
+      (click)="openAttachment(attachmentUrl, $event)"
+    />
 
     <!-- Text- oder CSV-Dateien -->
-    <div *ngIf="getFileType(attachmentUrl) === 'text'">
-      <iframe
-        [src]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
-        width="100%"
-        height="100%"
-      ></iframe>
-    </div>
+    <img
+      src="../../../../assets/icons/text.png"
+      alt="Text/CSV"
+      *ngIf="getFileType(attachmentUrl) === 'text'"
+      (click)="openAttachment(attachmentUrl, $event)"
+    />
 
     <!-- Excel-Dateien -->
-    <div *ngIf="getFileType(attachmentUrl) === 'excel'">
-      <p>Dieses Excel-Dokument kann nicht direkt angezeigt werden.</p>
-      <a
-        [href]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
-        target="_blank"
-        >Dokument herunterladen</a
-      >
-    </div>
+    <img
+      src="../../../../assets/icons/excel.png"
+      alt="Excel"
+      *ngIf="getFileType(attachmentUrl) === 'excel'"
+      (click)="openAttachment(attachmentUrl, $event)"
+    />
 
     <!-- Fallback für unbekannte Formate -->
     <p *ngIf="getFileType(attachmentUrl) === 'unknown'">
