@@ -7,7 +7,6 @@
       [ngClass]="{
         'inner-add-emoji-container-show': isEmojiContainerVisible === 2
       }"
-      id="add-emoji-container1"
     >
       <div>
         <ngx-emoji
@@ -71,7 +70,7 @@
     <img
       src="{{ message.photoURL }}"
       alt="Profile Picture"
-      (click)="channelService.openProfileInfo(message)"
+      (click)="userService.openProfileInfo(message.userId)"
     />
     <app-own-message-show
       [message]="message"

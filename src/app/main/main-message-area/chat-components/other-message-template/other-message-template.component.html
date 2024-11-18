@@ -5,7 +5,6 @@
       (mouseover)="showEmojiContainer(1)"
       (mouseout)="hideEmojiContainer()"
       [ngClass]="{ 'inner-add-emoji-container-show': isEmojiContainerVisible === 1 }"
-      id="add-emoji-container2"
     >
       <div >
         <ngx-emoji emoji="white_check_mark" [size]="16" (emojiClick)="addReaction(message.messageId, $event.emoji)"></ngx-emoji>
@@ -28,10 +27,10 @@
     (mouseout)="hideEmojiContainer()"
     [ngClass]="{ 'message-container-hover': isEmojiContainerVisible === 1 }"
   >
-    <img src="{{ message?.photoURL }}" alt="Profile Picture" (click)="channelService.openProfileInfo(message?.user)" />
+    <img src="{{ message?.photoURL }}" alt="Profile Picture" (click)="userService.openProfileInfo(message?.userId)" />
     <div class="text-container">
       <div class="name-and-time">
-        <span class="name" (click)="channelService.openProfileInfo(message)">{{ message?.userName }}</span>
+        <span class="name" (click)="userService.openProfileInfo(message.userId)">{{ message?.userName }}</span>
         <span class="time">{{ message?.time | date: 'HH:mm' }} Uhr</span>
       </div>
       <span class="message">

@@ -2,10 +2,10 @@
   <div *ngIf="currentMessage">
     <!-- Zeige die aktuelle Nachricht -->
     <ng-container *ngIf="isCurrentUser(currentMessage); else otherUserMessage">
-      <app-own-private-message-template [message]="currentMessage"></app-own-private-message-template>
+      <app-own-thread-message-template [message]="currentMessage"></app-own-thread-message-template>
     </ng-container>
     <ng-template #otherUserMessage>
-      <app-other-private-message-template [message]="currentMessage"></app-other-private-message-template>
+      <app-other-thread-message-template [message]="currentMessage"></app-other-thread-message-template>
     </ng-template>
 
     <div class="reply-info">
@@ -17,10 +17,10 @@
     <ng-container *ngIf="currentMessage && currentMessage.thread">
       <div *ngFor="let threadMessage of currentMessage.thread | keyvalue">
         <ng-container *ngIf="threadMessage.value && isCurrentUserThread(threadMessage.value); else otherUserThreadMessage">
-          <app-own-private-message-template [message]="threadMessage.value"></app-own-private-message-template>
+          <app-own-thread-message-template [message]="threadMessage.value"></app-own-thread-message-template>
         </ng-container>
         <ng-template #otherUserThreadMessage>
-          <app-other-private-message-template [message]="threadMessage.value"></app-other-private-message-template>
+          <app-other-thread-message-template [message]="threadMessage.value"></app-other-thread-message-template>
         </ng-template>
       </div>
     </ng-container>

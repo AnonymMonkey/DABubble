@@ -9,6 +9,7 @@ export class Channel {
   description: string;
   members: string[] = [];  // Standardwert ist ein leeres Array
   messages: { [messageId: string]: ChannelMessage } = {};
+  usersLeft: string[] = [];
 
   constructor(
     admin: { userId: string } = { userId: '' },
@@ -16,7 +17,8 @@ export class Channel {
     channelName: string = '',
     description: string = '',
     members: string[] = [],  // Standardwert ist ein leeres Array
-    messages: { [messageId: string]: ChannelMessage } = {}
+    messages: { [messageId: string]: ChannelMessage } = {},
+    usersLeft: string[] = [],
   ) {
     this.admin = admin;
     this.channelId = channelId;
@@ -24,6 +26,7 @@ export class Channel {
     this.description = description;
     this.members = members;
     this.messages = messages;
+    this.usersLeft = usersLeft;
   }
 
   addMessage(messageId: string, message: ChannelMessage) {

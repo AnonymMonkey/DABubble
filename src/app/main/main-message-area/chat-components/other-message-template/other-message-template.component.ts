@@ -12,6 +12,7 @@ import { MessageService } from '../../../../shared/services/message-service/mess
 import { MessageReactionsComponent } from '../../../../shared/components/message-reactions/message-reactions.component';
 import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
 import { AttachmentPreviewComponent } from '../../../../shared/components/attachment-preview/attachment-preview.component';
+import { UserService } from '../../../../shared/services/user-service/user.service';
 
 @Component({
   selector: 'app-other-message-template',
@@ -45,7 +46,8 @@ export class OtherMessageTemplateComponent {
     public channelService: ChannelService,
     public threadService: ThreadService,
     private firestore: Firestore,
-    private messageService: MessageService
+    private messageService: MessageService,
+    public userService: UserService
   ) {}
 
   showEmojiContainer(id: number) {

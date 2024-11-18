@@ -100,7 +100,6 @@ export class ThreadNewMessageComponent {
       try {
         const threadDocRef = doc(this.firestore, `channels/${channelId}/messages/${currentMessage.messageId}`);
         const docSnapshot = await getDoc(threadDocRef);
-  
         if (!docSnapshot.exists()) {
           console.error('Das Dokument existiert nicht:', threadDocRef.path);
           return;
@@ -120,11 +119,7 @@ export class ThreadNewMessageComponent {
         await updateDoc(threadDocRef, {
           [`thread.${newMessage.messageId}`]: {
             content: newMessage.content,
-            user: [
-              {
-                userId: newMessage.userId,
-              },
-            ],
+            userId: newMessage.userId,
             time: newMessage.time,
             messageId: newMessage.messageId,
           },
