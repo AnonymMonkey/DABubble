@@ -1,35 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogRef,
-  MatDialogTitle,
-} from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { AddUsersToNewChannelDialogComponent } from '../add-users-to-new-channel-dialog/add-users-to-new-channel-dialog.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-create-channel-dialog',
   standalone: true,
-  imports: [
-    MatButtonModule,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogTitle,
-    MatDialogContent,
-    MatIcon,
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    CommonModule,
-  ],
+  imports: [MatButtonModule, MatIcon, FormsModule, CommonModule],
   templateUrl: './create-channel-dialog.component.html',
   styleUrl: './create-channel-dialog.component.scss',
 })

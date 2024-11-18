@@ -237,4 +237,12 @@ export class ChannelService {
   getUsersDataObservable(): Observable<Map<string, any>> {
     return this.usersData.asObservable().pipe();
   }
+
+
+  addUserToChannel(userId: string, channelId: string): Promise<void> {
+    const channelDocRef = doc(this.firestore, `channels/${channelId}`);
+    return updateDoc(channelDocRef, {
+      members: arrayUnion(userId),
+    });
+  }
 }

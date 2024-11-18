@@ -11,13 +11,12 @@ export class UserData {
   channels: string[] = []; // Liste der Channels, denen der Benutzer zugeordnet ist
   privateChat: { [chatId: string]: PrivateChat } = {};
 
-
   constructor(user: User, displayName?: string) {
     // Initialisiert die Benutzerdaten aus dem Firebase `User` Objekt
     this.uid = user.uid;
     this.email = user.email || ''; // Setzt die E-Mail-Adresse oder einen leeren String
     this.displayName = user.displayName || displayName || ''; // Setzt den Anzeigenamen, falls verfügbar
-    this.photoURL = user.photoURL || ''; // Setzt das Profilbild, falls verfügbar
+    this.photoURL = user.photoURL || 'assets/img/profile/placeholder-img.webp'; // Setzt das Profilbild, falls verfügbar
     this.lastLogin = Timestamp.now(); // Setzt den aktuellen Zeitpunkt als letzten Login
   }
 

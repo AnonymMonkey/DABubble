@@ -8,6 +8,7 @@ import {
 import { User } from 'firebase/auth';
 import { UserData } from '../../models/user.model';
 import {
+  arrayUnion,
   doc,
   getDoc,
   getDocs,
@@ -262,5 +263,10 @@ export class UserService {
         console.error('Fehler beim Abrufen der Benutzerdaten:', error);
       }
     );
+  }
+
+  addNewChannelToUser(userId: string, channelId: string): void {
+    const userDocRef = doc(this.firestore, `users/${userId}`);
+    updateDoc(userDocRef, { channels: arrayUnion(channelId) }); // Hinzufügen des Kanales zum Benutzer
   }
 }

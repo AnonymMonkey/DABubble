@@ -1,0 +1,52 @@
+<mat-form-field>
+  <mat-chip-grid #chipGrid>
+    @for (user of users(); track user) {
+    <mat-chip-row (removed)="remove(user)">
+      <img src="{{ user.photoURL }}" alt="" />
+      {{ user.userName }}
+      <button
+        *ngIf="user.userId !== userData.uid"
+        matChipRemove
+        [attr.aria-label]="'remove ' + user"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-chip-row>
+    }
+    <input
+      name="currentUser"
+      placeholder="User hinzufügen..."
+      #userInput
+      [(ngModel)]="currentUser"
+      [matChipInputFor]="chipGrid"
+      [matAutocomplete]="auto"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      (matChipInputTokenEnd)="add($event)"
+      [matChipInputAddOnBlur]="false"
+    />
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="selected($event)"
+    >
+      <ng-container *ngIf="!isLoading; else loading">
+        @for (user of filteredUsers(); track user) {
+        <mat-option [value]="user">
+          <div class="image-with-badge">
+            <img src="{{ user.photoURL }}" alt="" />
+            <div
+              class="badge"
+              [class.online]="userService.checkUserOnlineStatus(user.userId)"
+            ></div>
+          </div>
+          <p class="name">{{ user.userName }}</p>
+        </mat-option>
+        }
+      </ng-container>
+      <ng-template #loading>
+        <mat-option disabled>
+          <i>Daten werden geladen...</i>
+        </mat-option>
+      </ng-template>
+    </mat-autocomplete>
+  </mat-chip-grid>
+</mat-form-field>
