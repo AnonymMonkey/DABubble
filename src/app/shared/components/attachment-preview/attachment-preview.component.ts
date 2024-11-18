@@ -169,7 +169,6 @@ export class AttachmentPreviewComponent implements OnChanges {
           await updateDoc(userDocRef, {
             [`privateChat.${privateChatId}.messages.${messageId}.attachmentUrls`]: updatedUrls,
           });
-          console.log('Dokument für Benutzer erfolgreich aktualisiert:', updatedUrls);
         } else {
           console.log('Keine Übereinstimmung für die URL gefunden im Benutzer-Dokument.');
         }
@@ -201,8 +200,6 @@ export class AttachmentPreviewComponent implements OnChanges {
           const path = `privateChat.${privateChatId}.messages.${messageId}`;
           await updateDoc(userDocRef, { [path]: deleteField() });
           console.log(`Nachricht ${messageId} aus dem Benutzer-Dokument gelöscht.`);
-        } else {
-          console.log('Nachricht hat noch Inhalt oder Anhänge.');
         }
       } else {
         console.log('Benutzerdokument existiert nicht.');

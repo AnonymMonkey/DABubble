@@ -42,6 +42,7 @@ export class UserService {
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
   public userId!: string; // ID des aktuell angemeldeten Nutzers
   private dialog = inject(MatDialog);
+  private userDisplayMap = new Map<string, { displayName: string; photoURL: string }>();
 
   //REVIEW - Hier versuche ich die Daten zentral in diesem service zu speichern,
   // sodass jede Komponente darauf zugreifen kann.
@@ -53,6 +54,10 @@ export class UserService {
   public route: ActivatedRoute = inject(ActivatedRoute);
 
   allUsersOnlineStatus$: { userId: string; online: boolean }[] = [];
+
+  constructor() {
+    this.loadAllUserData();
+  }
 
   loadAllUserData(): void {
     const userCollection = collection(this.firestore, 'users'); // Referenz zur Collection 'users'
@@ -242,7 +247,6 @@ export class UserService {
   }
 
   openProfileInfo(userId: any): void {
-    console.log(userId);
     this.getUserDataByUID(userId).subscribe(
       (userData) => {
         const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {

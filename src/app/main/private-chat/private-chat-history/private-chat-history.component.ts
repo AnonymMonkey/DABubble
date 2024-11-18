@@ -7,6 +7,9 @@ import {
   ElementRef,
   ViewChild,
   AfterViewInit,
+  ChangeDetectorRef,
+  AfterViewChecked,
+  OnDestroy,
 } from '@angular/core';
 import { DateOfMessageComponent } from '../../main-message-area/chat-components/date-of-message/date-of-message.component';
 import { NgFor, NgIf } from '@angular/common';
@@ -31,29 +34,29 @@ import { UserData } from '../../../shared/models/user.model';
   styleUrls: ['./private-chat-history.component.scss'],
 })
 export class PrivateChatHistoryComponent
-  implements OnInit, OnChanges, AfterViewInit
-{
+  implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
+  
   @Input() messages: any[] = []; // Erwartet ein Array von Nachrichten
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
   groupedMessages: { date: string; messages: any[] }[] = [];
   userCache: { [userId: string]: UserData } = {};
+  scrollAllowed: boolean = true;
 
   constructor(private userService: UserService) {}
 
   ngOnInit(): void {
     this.groupAndSortMessages();
+  }
+
+  ngAfterViewChecked(): void {
     this.scrollToBottom();
+    this.scrollAllowed = false;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['messages'] && !changes['messages'].firstChange) {
       this.groupAndSortMessages();
-      this.scrollToBottom(); // Zum neuesten Nachrichtenblock scrollen
     }
-  }
-
-  ngAfterViewInit(): void {
-    this.scrollToBottom(); // Initiales Scrollen zum unteren Rand
   }
 
   private groupAndSortMessages(): void {
@@ -99,19 +102,20 @@ export class PrivateChatHistoryComponent
     return this.userCache[userId];
   }
 
-  private async scrollToBottom(): Promise<void> {
-    if (this.chatContainer) {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 50)); // Kurze Verzögerung, um DOM-Aktualisierung abzuwarten
-        this.chatContainer.nativeElement.scrollTop =
-          this.chatContainer.nativeElement.scrollHeight;
-      } catch (err) {
-        console.error('Scroll-Fehler:', err);
+  private scrollToBottom(): void {
+    if (this.chatContainer && this.scrollAllowed) {
+      const container = this.chatContainer.nativeElement;
+      if (container.scrollHeight !== container.scrollTop + container.clientHeight) {
+        container.scrollTop = container.scrollHeight;
       }
     }
   }
 
   isOwnMessage(userId: string): boolean {
     return userId === this.userService.userId;
+  }
+
+  ngOnDestroy(): void {
+    this.scrollAllowed = true;    
   }
 }

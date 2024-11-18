@@ -68,7 +68,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
   userName?: string;
   photoURL?: string;
   channel: Channel | undefined;
-  currentBorderRadius: string = '30px 30px 30px 30px !important';
+  currentBorderRadius: string = '30px 30px 30px 30px';
   attachmentUrls: string[] = [];
 
   @ViewChild('attachmentSidenav') attachmentSidenav!: MatSidenav;

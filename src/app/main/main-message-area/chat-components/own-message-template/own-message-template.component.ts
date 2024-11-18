@@ -10,6 +10,7 @@ import { OwnMessageEditComponent } from './own-message-edit/own-message-edit.com
 import { MessageService } from '../../../../shared/services/message-service/message.service';
 import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
+import { UserService } from '../../../../shared/services/user-service/user.service';
 
 @Component({
   selector: 'app-own-message-template',
@@ -23,6 +24,7 @@ export class OwnMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
   editMessageMenuOpened: boolean = false;
   messageService = inject(MessageService);
+  userService = inject(UserService);
   currentBorderRadius = '30px 30px 30px 30px';
   
   get threadKeys(): string[] {
@@ -31,6 +33,7 @@ export class OwnMessageTemplateComponent {
 
   constructor(public mainMessageArea: MainMessageAreaComponent, public channelService: ChannelService, public threadService: ThreadService
   ) {}
+  
   showEmojiContainer(id: number) {
     if (this.messageService.editMessageId === null) {
       this.isEmojiContainerVisible = id;

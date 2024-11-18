@@ -42,7 +42,7 @@ export class MessageAreaHeaderComponent implements OnInit {
   @ViewChild('addMemberMenuTrigger') addMemberMenuTrigger!: MatMenuTrigger;
 
   isMenuOpened: string = '';
-  currentBorderRadius: string = '0px 30px 30px 30px'; // Standardwert
+  currentBorderRadius: string = '30px 30px 30px 30px'; // Standardwert
   userService = inject(UserService);
 
   currentChannel: Channel | undefined;

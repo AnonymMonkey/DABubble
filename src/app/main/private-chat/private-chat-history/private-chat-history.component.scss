@@ -1,23 +1,25 @@
 :host {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  justify-content: flex-end;
 }
 
 .chat-container {
-  max-height: 100%;
+  height: 100%;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  // justify-content: flex-end;  // Automatisch nach unten scrollen
 }
 
 section {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
   color: black;
   font-family: var(--font-nunito);
   white-space: pre-wrap;
+  overflow-y: auto;
 
   div {
     width: 100%;

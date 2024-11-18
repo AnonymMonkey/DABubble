@@ -1,0 +1,44 @@
+<section>
+  <div class="add-emoji-container-own">
+    <div
+      class="inner-add-emoji-container"
+      (mouseover)="showEmojiContainer(2)"
+      (mouseout)="hideEmojiContainer()"
+      [ngClass]="{
+        'inner-add-emoji-container-show': isEmojiContainerVisible === 2
+      }"
+      id="add-emoji-container1"
+    >
+      <div [matMenuTriggerFor]="emojiMenu">
+        <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="message-container-own"
+    (mouseover)="showEmojiContainer(2)"
+    (mouseout)="hideEmojiContainer()"
+    [ngClass]="{
+      'message-container-hover': isEmojiContainerVisible === 2
+    }"
+  >
+    <img
+      src="{{ photoURL }}"
+      alt="Profile Picture"
+      (click)="userService.openProfileInfo(message?.userId)"
+    />
+    <app-own-thread-message-show
+      [message]="message"
+      *ngIf="messageService.editMessageId !== message.messageId"
+    ></app-own-thread-message-show>
+    <app-own-thread-message-edit
+      [message]="message"
+      *ngIf="messageService.editMessageId === message.messageId"
+    ></app-own-thread-message-edit>
+  </div>
+
+  <mat-menu xPosition="after" #emojiMenu>
+    <app-emoji-picker [message]="message" [component]="'privateChat'"></app-emoji-picker>
+  </mat-menu>
+</section>

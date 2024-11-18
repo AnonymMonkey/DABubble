@@ -2,16 +2,16 @@ import { Component, ElementRef, Input, ViewChild, OnInit, OnDestroy } from '@ang
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { ChannelMessage } from '../../../../shared/models/channel-message.model';
 import { ThreadMessage } from '../../../../shared/models/thread-message.model';
-import { OwnPrivateMessageTemplateComponent } from '../../../private-chat/chat-components/own-private-message-template/own-private-message-template.component';
-import { OtherPrivateMessageTemplateComponent } from '../../../private-chat/chat-components/other-private-message-template/other-private-message-template.component';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { OtherThreadMessageTemplateComponent } from './other-thread-message-template/other-thread-message-template.component';
+import { OwnThreadMessageTemplateComponent } from './own-thread-message-template/own-thread-message-template.component';
 
 @Component({
   selector: 'app-thread-chat-history',
   standalone: true,
-  imports: [OwnPrivateMessageTemplateComponent, OtherPrivateMessageTemplateComponent, NgIf, NgFor, CommonModule],
+  imports: [NgIf, NgFor, CommonModule, OtherThreadMessageTemplateComponent, OwnThreadMessageTemplateComponent],
   templateUrl: './thread-chat-history.component.html',
   styleUrls: ['./thread-chat-history.component.scss']
 })
@@ -45,10 +45,7 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
   }
 
   isCurrentUserThread(message: ThreadMessage): boolean {
-    if (Array.isArray(message.userId) && message.userId.length > 0) {
-      return message.userId === this.currentUserId;
-    }
-    return false; // Falls kein Benutzer vorhanden ist
+    return message.userId === this.currentUserId;
   }
 
   private scrollToBottom(): void {

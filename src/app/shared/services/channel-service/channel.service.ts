@@ -67,6 +67,7 @@ export class ChannelService {
             description: string;
             members: string[]; // Jetzt als string[]
             messages: { [messageId: string]: any };
+            usersLeft: string[];
           };
 
           return new Channel(
@@ -75,7 +76,8 @@ export class ChannelService {
             channelData.channelName,
             channelData.description,
             channelData.members, // Direkt als string[] übergeben
-            channelData.messages
+            channelData.messages,
+            channelData.usersLeft
           );
         } else {
           return undefined; // Rückgabe `undefined`, falls keine Daten vorhanden sind
@@ -208,33 +210,31 @@ export class ChannelService {
   }
 
   // ChannelService
-  loadUsersDataForChannel(memberIds: string[]): void {
-    const userMap = new Map<string, any>();
-    memberIds.forEach((userId) => {
-      this.userService
-        .getUserDataByUID(userId)
-        .pipe(
-          catchError((err) => {
-            console.error(
-              `Fehler beim Laden der Daten für Benutzer ${userId}:`,
-              err
-            );
-            return of(null);
-          })
-        )
-        .subscribe((userData) => {
-          if (userData) {
-            userMap.set(userId, userData);
-            this.usersData.next(new Map(userMap));
-          }
+  loadUsersDataForChannel(members: string[], usersLeft?: string[]): void {
+    const allUserIds = new Set([...members, ...(usersLeft || [])]);
+
+    // Greife auf die aktuelle Map zu
+    const currentUsersMap = this.usersData.value;
+
+    allUserIds.forEach((userId) => {
+      if (!currentUsersMap.has(userId)) {
+        this.userService.getUserDataByUID(userId).subscribe({
+          next: (userData) => {
+            if (userData) {
+              // Aktualisiere die Map und setze den neuen Zustand
+              currentUsersMap.set(userId, userData);
+              this.usersData.next(new Map(currentUsersMap)); // Erstelle eine neue Map-Instanz
+            }
+          },
+          error: (err) =>
+            console.error(`Fehler beim Laden von Benutzer ${userId}:`, err),
         });
+      }
     });
   }
 
   // ChannelService
   getUsersDataObservable(): Observable<Map<string, any>> {
-    return this.usersData.asObservable().pipe(
-      // tap((usersMap) => console.log('Aktualisierte Benutzer-Daten:', usersMap))
-    );
+    return this.usersData.asObservable().pipe();
   }
 }
