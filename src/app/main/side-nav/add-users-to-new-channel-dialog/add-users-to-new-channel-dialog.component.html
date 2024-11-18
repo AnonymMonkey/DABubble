@@ -21,8 +21,8 @@
 
     <!-- ################ -->
 
-    <mat-form-field class="example-chip-list" *ngIf="radioValue === 2">
-      <mat-chip-grid #chipGrid aria-label="Enter fruits">
+    <!-- <mat-form-field class="example-chip-list" *ngIf="radioValue === 2">
+      <mat-chip-grid #chipGrid>
         @for (user of users(); track user) {
         <mat-chip-row (removed)="remove(user)">
           <img src="{{ user.photoURL }}" alt="" />
@@ -65,7 +65,12 @@
           }
         </mat-autocomplete>
       </mat-chip-grid>
-    </mat-form-field>
+    </mat-form-field> -->
+
+    <app-add-users-to-channel
+      *ngIf="radioValue === 2"
+      [channelId]="channelId"
+    ></app-add-users-to-channel>
 
     <!-- ################ -->
   </mat-dialog-content>
@@ -75,7 +80,7 @@
       class="button-primary"
       mat-button
       mat-dialog-close
-      (click)="test()"
+      (click)="create()"
     >
       Erstellen
     </button>
