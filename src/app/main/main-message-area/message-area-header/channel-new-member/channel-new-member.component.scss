@@ -226,75 +226,68 @@
   }
 }
 
-
 section {
-    color: black;
-    font-family: var(--font-nunito);
-    width: 100%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    gap: 20px;
-    padding: 10px 20px;
-  }
+  color: black;
+  font-family: var(--font-nunito);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 20px;
+}
 
-  .headline {
-    width: 100%;
+.headline {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 200px;
+
+  mat-icon {
+    height: 40px;
+    width: 40px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 200px;
-  
+    justify-content: center;
+    border-radius: 30px;
+
+    &:hover {
+      cursor: pointer;
+      background-color: var(--bg-color);
+      color: var(--purple3-color);
+    }
+  }
+}
+
+h2 {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+}
+
+.channel-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: flex-start;
+  color: var(--purple2-color);
+
+  div {
+    display: flex;
+    align-items: center;
+
     mat-icon {
-      height: 40px;
-      width: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 30px;
-  
-      &:hover {
-        cursor: pointer;
-        background-color: var(--bg-color);
-        color: var(--purple3-color);
-      }
+      width: 16px;
+      height: 16px;
+      color: var(--purple2-color);
     }
   }
+}
 
-  h2 {
-    font-size: 24px !important;
-    font-weight: 700 !important;
-    margin: 0 !important;
-  }
-
-  .channel-name {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    justify-content: flex-start;
-    color: var(--purple2-color);
-
-    div {
-      display: flex;
-      align-items: center;
-
-      mat-icon {
-        width: 16px;
-        height: 16px;
-        color: var(--purple2-color);
-      }
-    }
-  }
-
-  .button-container {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-
-    button {
-      padding: 12px 20px;
-      border: unset;
-      background-color: var(--grey-color) !important;
-    }
-  }
+.button-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}

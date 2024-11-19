@@ -21,52 +21,6 @@
 
     <!-- ################ -->
 
-    <!-- <mat-form-field class="example-chip-list" *ngIf="radioValue === 2">
-      <mat-chip-grid #chipGrid>
-        @for (user of users(); track user) {
-        <mat-chip-row (removed)="remove(user)">
-          <img src="{{ user.photoURL }}" alt="" />
-          {{ user.userName }}
-          <button
-            *ngIf="user.userId !== userData.uid"
-            matChipRemove
-            [attr.aria-label]="'remove ' + user"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
-        </mat-chip-row>
-        }
-        <input
-          name="currentUser"
-          placeholder="User hinzufügen..."
-          #fruitInput
-          [(ngModel)]="currentUser"
-          [matChipInputFor]="chipGrid"
-          [matAutocomplete]="auto"
-          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-          (matChipInputTokenEnd)="add($event)"
-          [matChipInputAddOnBlur]="false"
-        />
-        <mat-autocomplete
-          #auto="matAutocomplete"
-          (optionSelected)="selected($event)"
-        >
-          @for (user of filteredUsers(); track user) {
-          <mat-option [value]="user">
-            <div class="image-with-badge">
-              <img src="{{ user.photoURL }}" alt="" />
-              <div
-                class="badge"
-                [class.online]="userService.checkUserOnlineStatus(user.userId)"
-              ></div>
-            </div>
-            <p class="name">{{ user.userName }}</p>
-          </mat-option>
-          }
-        </mat-autocomplete>
-      </mat-chip-grid>
-    </mat-form-field> -->
-
     <app-add-users-to-channel
       *ngIf="radioValue === 2"
       [channelId]="channelId"
