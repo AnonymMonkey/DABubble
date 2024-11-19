@@ -2,7 +2,7 @@
   <div class="name-and-time-own">
     <span
       class="name"
-      (click)="channelService.openProfileInfo(message?.user)"
+      (click)="userService.openProfileInfo(message?.userId)"
       >{{ message?.userName }}</span
     >
     <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
@@ -28,7 +28,7 @@
     <span
       (click)="
         mainMessageArea.openSidenav();
-        threadService.setActualMessage(message.thread)
+        threadService.setActualMessage(message)
       "
     >
       {{ threadKeys.length }}

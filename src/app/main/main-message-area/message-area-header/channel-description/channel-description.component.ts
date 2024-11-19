@@ -13,7 +13,7 @@ import { ChannelService } from '../../../../shared/services/channel-service/chan
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { Firestore, doc, updateDoc, arrayRemove, collection } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { deleteDoc, getDoc } from 'firebase/firestore';
+import { arrayUnion, deleteDoc, getDoc } from 'firebase/firestore';
 
 
 @Component({
@@ -68,8 +68,10 @@ export class ChannelDescriptionComponent implements OnInit {
       const channelDocRef = doc(this.firestore, `channels/${channelId}`);
       await updateDoc(channelDocRef, {
         members: arrayRemove(currentUserId),
+        // Hinzufügen des Benutzers zu den "verlassenen" Benutzern
+        usersLeft: arrayUnion(currentUserId),  // Array der Benutzer, die den Channel verlassen haben
       });
-      console.log('Benutzer aus Channel-Mitgliedern entfernt');
+      console.log('Benutzer aus Channel-Mitgliedern entfernt und zu usersLeft hinzugefügt');
   
       // Entfernen des Channels aus der Liste der Channels des Benutzers
       const userDocRef = doc(this.firestore, `users/${currentUserId}`);
@@ -95,6 +97,5 @@ export class ChannelDescriptionComponent implements OnInit {
     } catch (error) {
       console.error('Fehler beim Verlassen des Channels:', error);
     }
-  }
-  
+  }  
 }

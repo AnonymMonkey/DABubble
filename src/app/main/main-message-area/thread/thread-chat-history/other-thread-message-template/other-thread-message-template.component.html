@@ -1,0 +1,71 @@
+<section>
+    <div class="add-emoji-container">
+      <div
+        class="inner-add-emoji-container"
+        (mouseover)="showEmojiContainer(1)"
+        (mouseout)="hideEmojiContainer()"
+        [ngClass]="{
+          'inner-add-emoji-container-show': isEmojiContainerVisible === 1
+        }"
+        id="add-emoji-container2"
+      >
+        <div>
+          <ngx-emoji
+            emoji="white_check_mark"
+            [size]="16"
+            (emojiClick)="privateChatService.addReaction(message.messageId, $event.emoji)"
+          ></ngx-emoji>
+        </div>
+        <div>
+          <ngx-emoji
+            emoji="raised_hands"
+            [size]="16"
+            (emojiClick)="privateChatService.addReaction(message.messageId, $event.emoji)"
+          ></ngx-emoji>
+        </div>
+        <div [matMenuTriggerFor]="emojiMenu">
+          <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
+        </div>
+      </div>
+    </div>
+  
+    <div
+      class="message-container"
+      (mouseover)="showEmojiContainer(1)"
+      (mouseout)="hideEmojiContainer()"
+      [ngClass]="{
+        'message-container-hover': isEmojiContainerVisible === 1
+      }"
+    >
+      <img
+        src="{{ photoURL }}"
+        alt="Profile Picture"
+        (click)="userService.openProfileInfo(message?.userId)"
+      />
+      <div class="text-container">
+        <div class="name-and-time">
+          <span
+            class="name"
+            (click)="userService.openProfileInfo(message?.userId)"
+            >{{ displayName }}</span
+          >
+          <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
+        </div>
+        <span class="message">{{ message?.content }}
+          <div *ngIf="message?.attachmentUrls?.length > 0">
+            <a *ngFor="let attachmentUrl of message.attachmentUrls" [href]="attachmentUrl">
+              <app-attachment-preview 
+                [actualAttachmentUrls]="[attachmentUrl]" [message]="message">
+              </app-attachment-preview>
+            </a>
+          </div>
+        </span>
+        <app-message-reactions [message]="message" *ngIf="message.reactions > 0"></app-message-reactions>
+      </div>
+    </div>
+  
+    <mat-menu xPosition="after" #emojiMenu>
+      <app-emoji-picker [message]="message" [component]="'privateChat'"></app-emoji-picker>
+    </mat-menu>
+  </section>
+  

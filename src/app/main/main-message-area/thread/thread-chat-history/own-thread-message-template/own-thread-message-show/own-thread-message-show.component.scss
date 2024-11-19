@@ -1,0 +1,54 @@
+.text-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  
+  .name-and-time-own {
+    height: 25px;
+    display: flex;
+    flex-direction: row-reverse; /* add this */
+    gap: 30px;
+    position: relative;
+  }
+  
+  .name {
+    font-weight: 700 !important;
+  
+    &:hover {
+      cursor: pointer;
+      color: var(--purple3-color);
+    }
+  }
+  
+  .time {
+    color: var(--grey-color);
+    font-size: 14px;
+    align-self: center;
+  }
+  
+  .message-own {
+    border-radius: 30px 0px 30px 30px;
+    background-color: var(--purple2-color);
+    padding: 10px 20px;
+    position: relative;
+    display: flex;
+    color: var(--text-color);
+    width: fit-content;
+    flex-direction: column;
+  
+    > div {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
+  
+  app-attachment-preview {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  

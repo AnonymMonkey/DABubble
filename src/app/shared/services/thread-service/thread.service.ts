@@ -43,10 +43,12 @@ export class ThreadService implements OnDestroy {
   }
 
   setActualMessage(message: ChannelMessage): void {
-    if (message !== this.actualMessageSubject.value) {
-      this.actualMessageSubject.next(message);
+    if (!message || message.messageId === this.actualMessageSubject.value?.messageId) {
+      return; // Ignoriere, wenn die Nachricht identisch ist
     }
+    this.actualMessageSubject.next(message);
   }
+  
 
   unsubscribe(): void {
     if (this.unsubscribeActualMessage) {

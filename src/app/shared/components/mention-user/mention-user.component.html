@@ -9,4 +9,7 @@
       <span>{{ user.userName }}</span>
     </div>
   </div>
+  <div *ngIf="mentionableUsers.length === 0" class="placeholder">
+    <p>Keine weiteren Benutzer gefunden</p>
+  </div>
 </section>

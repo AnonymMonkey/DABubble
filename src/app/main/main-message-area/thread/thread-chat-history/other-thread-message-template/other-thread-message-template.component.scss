@@ -7,10 +7,30 @@ section {
     color: black;
     font-family: var(--font-nunito);
     white-space: pre-wrap;
-
-    mat-icon {
-      color: var(--black-color);
-    }
+  }
+  
+  .chat-history-daily-container-other-people {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  
+  .chat-history-daily-container-own {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /** add this */
+    justify-content: flex-start;
+  }
+  
+  .date-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 20px 0px 20px;
   }
   
   .first-line,
@@ -64,7 +84,7 @@ section {
     opacity: 1 !important;
     cursor: pointer;
   }
- 
+  
   .message-container {
     width: 100%;
     display: flex;
@@ -91,10 +111,6 @@ section {
     width: 70px;
     height: 70px;
     border-radius: 100px;
-
-    &:hover {
-      cursor: pointer;
-    }
   }
   
   .text-container {
@@ -118,7 +134,7 @@ section {
       color: var(--purple3-color);
     }
   }
-
+  
   .time {
     color: var(--grey-color);
     font-size: 14px;
@@ -132,6 +148,11 @@ section {
     position: relative;
     display: flex;
     width: fit-content;
+    flex-direction: column;
+    > div {
+      display: flex;
+      flex-wrap: wrap;
+    }
   }
   
   .thread {
@@ -152,3 +173,12 @@ section {
       font-size: 14px;
     }
   }
+  
+  app-attachment-preview {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  

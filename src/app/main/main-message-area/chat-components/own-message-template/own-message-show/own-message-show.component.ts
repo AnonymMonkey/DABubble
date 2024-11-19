@@ -5,6 +5,7 @@ import { ThreadService } from '../../../../../shared/services/thread-service/thr
 import { MainMessageAreaComponent } from '../../../main-message-area.component';
 import { MessageReactionsComponent } from '../../../../../shared/components/message-reactions/message-reactions.component';
 import { AttachmentPreviewComponent } from '../../../../../shared/components/attachment-preview/attachment-preview.component';
+import { UserService } from '../../../../../shared/services/user-service/user.service';
 
 @Component({
   selector: 'app-own-message-show',
@@ -16,6 +17,7 @@ import { AttachmentPreviewComponent } from '../../../../../shared/components/att
 export class OwnMessageShowComponent {
   @Input() message: any;
   public channelService = inject(ChannelService);
+  public userService = inject(UserService);
   public threadService = inject(ThreadService);
   public mainMessageArea = inject(MainMessageAreaComponent);
   get threadKeys(): string[] {

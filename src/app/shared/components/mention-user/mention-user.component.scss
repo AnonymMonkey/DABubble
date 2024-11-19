@@ -43,3 +43,20 @@ section {
       color: var(--purple3-color);
     }
   }
+
+  .placeholder {
+    width: 100%;
+    display: flex;
+
+    p {
+      display: flex;
+      align-items: center;
+      border-radius: 30px;
+      padding: 5px 20px;
+      width: fit-content;
+    }
+  }
+  
+ 
+   
+  

@@ -1,4 +1,4 @@
-<div class="message-container-wrapper">
+<div class="message-container-wrapper" #messageContainerWrapper>
   <section *ngIf="currentChannel$ | async as currentChannel">
     <!-- Placeholder anzeigen, wenn keine Nachrichten vorhanden sind -->
     <div *ngIf="groupedMessages.length === 0" class="placeholder">
