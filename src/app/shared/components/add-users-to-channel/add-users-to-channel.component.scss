@@ -88,8 +88,8 @@
     padding-inline: 30px;
   }
 
-  div.mat-mdc-autocomplete-panel {
-    width: 60% !important;
+  .cdk-overlay-pane:has(.mat-mdc-autocomplete-panel) {
+    width: auto !important;
   }
 
   .mat-mdc-option.mdc-list-item {

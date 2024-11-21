@@ -11,14 +11,10 @@
   </div>
   <div class="dialog-wrapper">
     <mat-dialog-content>
-      <!-- ################ -->
-
       <app-add-users-to-channel
         [channelId]="channelId"
         (usersEmpty)="handleUsersEmpty($event)"
       ></app-add-users-to-channel>
-
-      <!-- ################ -->
     </mat-dialog-content>
     <mat-dialog-actions [align]="'end'">
       <div class="button-container">

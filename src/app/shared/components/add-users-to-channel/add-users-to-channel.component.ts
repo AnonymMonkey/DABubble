@@ -15,7 +15,6 @@ import {
   EventEmitter,
   inject,
   Input,
-  model,
   Output,
   signal,
   SimpleChanges,
