@@ -49,40 +49,6 @@ export class MessageService {
     return docData(messageDocRef, { idField: 'messageId' });
   }
 
-  async updateChannelMessageContent(
-    channelId: string,
-    messageId: string,
-    newContent: string
-  ): Promise<void> {
-    const messageRef = doc(
-      this.firestore,
-      `channels/${channelId}/messages/${messageId}`
-    );
-    try {
-      await updateDoc(messageRef, { content: newContent });
-      console.log('Nachricht erfolgreich aktualisiert');
-    } catch (error) {
-      console.error('Fehler beim Aktualisieren der Nachricht:', error);
-      throw error;
-    }
-  }
-
-  async deleteChannelMessage(
-    channelId: string,
-    messageId: string
-  ): Promise<void> {
-    try {
-      const messageRef = doc(
-        this.firestore,
-        `channels/${channelId}/messages/${messageId}`
-      );
-      await deleteDoc(messageRef);
-    } catch (error) {
-      console.error('Fehler beim Löschen der Nachricht:', error);
-      throw error; // Fehler weitergeben
-    }
-  }
-
   async updateMessageContentPrivateChat(
     privateChatId: string,
     messageId: string,
@@ -219,16 +185,26 @@ export class MessageService {
     }
   }
 
-  async deleteMessageInThread(
-    channelId: string,
-    messageId: string,
-    threadId: string
+  async updateMessageThreadOrChannel(
+    path: string,
+    newContent: string
   ): Promise<void> {
-    console.log(channelId, messageId, threadId);
+    const messageRef = doc(this.firestore, path);
+    try {
+      await updateDoc(messageRef, { content: newContent });
+    } catch (error) {
+      console.error('Fehler beim Aktualisieren der Nachricht:', error);
+      throw error;
+    }
+  }
+
+  async deleteMessageInThreadOrChannel(
+    path: string,
+  ): Promise<void> {
     try {
       const threadMessageRef = doc(
         this.firestore,
-        `channels/${channelId}/messages/${messageId}/thread/${threadId}`
+        path
       );
       await deleteDoc(threadMessageRef);
     } catch (error) {

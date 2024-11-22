@@ -284,22 +284,20 @@ export class AttachmentPreviewComponent implements OnChanges {
     // Wenn keine channelId und privateChatId vorhanden sind, abbrechen
     if (!this.channelId && !this.privateChatId) return;
     const isMessageEmpty =
-      this.message?.content === ' ' && this.message?.attachmentUrls?.length === 1;  
+      this.message?.content === ' ' &&
+      this.message?.attachmentUrls?.length === 1;
     if (isMessageEmpty) {
       try {
         // Wenn sowohl channelId und messageId vorhanden sind, löschen wir die Nachricht im Thread
         if (this.channelId && this.messageId) {
-          await this.messageService.deleteMessageInThread(
-            this.channelId,
-            this.threadService.actualMessageSubject.value?.messageId!,
-            this.messageId!
-          );
+          const path = `channels/${this.channelId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${this.messageId}`;
+          await this.messageService.deleteMessageInThreadOrChannel(path);
         }
         // Wenn nur channelId und messageId nicht vorhanden sind, löschen wir die Nachricht im Channel
         else if (this.channelId && !this.messageId) {
-          await this.messageService.deleteChannelMessage(
-            this.channelId,
-            this.message.messageId!
+          const path = `channels/${this.channelId}/messages/${this.message.messageId}`;
+          await this.messageService.deleteMessageInThreadOrChannel(
+            path
           );
         }
         // Wenn nur privateChatId vorhanden ist, löschen wir die Nachricht im Private Chat

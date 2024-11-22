@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { EmojiPickerComponent } from '../../../../../shared/components/emoji-picker/emoji-picker.component';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatIcon } from '@angular/material/icon';
@@ -26,7 +26,7 @@ import { OwnThreadMessageEditComponent } from './own-thread-message-edit/own-thr
   templateUrl: './own-thread-message-template.component.html',
   styleUrl: './own-thread-message-template.component.scss',
 })
-export class OwnThreadMessageTemplateComponent implements OnInit {
+export class OwnThreadMessageTemplateComponent implements OnInit, OnChanges {
   @Input() message: any;
   photoURL: string = '';
   isEmojiContainerVisible: number = 0;
@@ -36,6 +36,8 @@ export class OwnThreadMessageTemplateComponent implements OnInit {
   public threadService = inject(ThreadService);
   currentBorderRadius = '30px 30px 30px 30px';
   public privateChatService = inject(PrivateChatService);
+  emojiContainerVisible: { [messageId: string]: boolean } = {};
+  menuOpenStatus: { [messageId: string]: boolean } = {};
 
   constructor() {}
 
@@ -49,15 +51,17 @@ export class OwnThreadMessageTemplateComponent implements OnInit {
     }
   }
 
-  showEmojiContainer(id: number) {
-    if (this.messageService.editMessageId === null) {
-      this.isEmojiContainerVisible = id;
+  showEmojiContainer(messageId: string) {
+    // Emoji-Container nur anzeigen, wenn keine Edit-Komponente aktiv ist
+    if (this.messageService.editMessageId !== messageId) {
+      this.emojiContainerVisible[messageId] = true;
     }
   }
-
-  hideEmojiContainer() {
-    if (!this.editMessageMenuOpened) {
-      this.isEmojiContainerVisible = 0;
+  
+  hideEmojiContainer(messageId: string) {
+    // Emoji-Container nur ausblenden, wenn keine Edit-Komponente aktiv ist
+    if (this.messageService.editMessageId !== messageId) {
+      this.emojiContainerVisible[messageId] = false;
     }
   }
 
@@ -67,6 +71,16 @@ export class OwnThreadMessageTemplateComponent implements OnInit {
     }
   }
 
+  onMenuOpened(messageId: string): void {
+    this.menuOpenStatus[messageId] = true;
+    this.emojiContainerVisible[messageId] = true;
+  }
+
+  onMenuClosed(messageId: string): void {
+    this.menuOpenStatus[messageId] = false;
+    this.hideEmojiContainer(messageId);
+  }
+
   // Eine Methode, die auf Änderungen reagiert
   handleMessageChange(newMessage: any) {
     // Füge deine Logik hinzu, wenn die Nachricht geändert wurde
@@ -74,6 +88,15 @@ export class OwnThreadMessageTemplateComponent implements OnInit {
       this.userService.getUserDataByUID(newMessage.userId).subscribe((data) => {
         this.photoURL = data.photoURL;
       });
+    }
+  }
+
+  setEditMessageMenuOpened(value: boolean, messageId: string) {
+    this.editMessageMenuOpened = value;
+  
+    if (!value) {
+      // Zustand des Emoji-Containers vollständig zurücksetzen
+      this.emojiContainerVisible[messageId] = false;
     }
   }
 
@@ -96,10 +119,6 @@ export class OwnThreadMessageTemplateComponent implements OnInit {
   }
 
   addReaction(messageId: string, emoji: any): void {}
-
-  setEditMessageMenuOpened(boolean: boolean) {
-    this.editMessageMenuOpened = boolean;
-  }
 
   toggleBorder(menuType: string) {
     switch (menuType) {

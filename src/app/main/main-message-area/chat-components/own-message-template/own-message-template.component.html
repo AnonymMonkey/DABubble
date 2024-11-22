@@ -3,10 +3,12 @@
     <div
       class="inner-add-emoji-container"
       (mouseover)="showEmojiContainer(message.messageId)"
-      (mouseout)="scheduleHideEmojiContainer(message.messageId)"
+      (mouseout)="hideEmojiContainer(message.messageId)"
       [ngClass]="{
         'inner-add-emoji-container-show':
-          emojiContainerVisible[message.messageId] && isDataLoaded
+          emojiContainerVisible[message.messageId] &&
+          isDataLoaded &&
+          messageService.editMessageId !== message.messageId
       }"
     >
       <div>
@@ -48,7 +50,11 @@
         <mat-menu #editMessageMenu="matMenu">
           <span
             class="edit-message-text"
-            (click)="messageService.setEditMessageId(message.id)"
+            (click)="
+              messageService.setEditMessageId(message.messageId);
+              toggleBorder('editMessage');
+              setEditMessageMenuOpened(true, message.messageId)
+            "
           >
             Nachricht bearbeiten
           </span>
@@ -63,7 +69,9 @@
     (mouseout)="hideEmojiContainer(message.messageId)"
     [ngClass]="{
       'message-container-hover':
-        emojiContainerVisible[message.messageId] && isDataLoaded
+        emojiContainerVisible[message.messageId] &&
+        isDataLoaded &&
+        messageService.editMessageId !== message.messageId
     }"
   >
     <img

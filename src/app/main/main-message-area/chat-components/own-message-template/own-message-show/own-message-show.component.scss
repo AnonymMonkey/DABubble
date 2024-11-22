@@ -5,83 +5,81 @@
 }
 
 .text-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-end;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.name-and-time-own {
+  height: 25px;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 30px;
+  position: relative;
+}
+
+.name {
+  font-weight: 700 !important;
+
+  &:hover {
+    cursor: pointer;
+    color: var(--purple3-color);
   }
-  
-  .name-and-time-own {
-    height: 25px;
+}
+
+.time {
+  color: var(--grey-color);
+  font-size: 14px;
+  align-self: center;
+}
+
+.message-own {
+  border-radius: 30px 0px 30px 30px;
+  background-color: var(--purple2-color);
+  padding: 10px 15px;
+  position: relative;
+  display: flex;
+  color: var(--text-color);
+  width: fit-content;
+  flex-direction: column;
+
+  > div {
     display: flex;
-    flex-direction: row-reverse; 
-    gap: 30px;
-    position: relative;
+    flex-wrap: wrap;
   }
-  
-  .name {
-    font-weight: 700 !important;
-  
+}
+
+.thread-own {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-end; /* add this */
+
+  span:first-of-type {
+    color: var(--purple3-color);
+
     &:hover {
-      cursor: pointer;
-      color: var(--purple3-color);
+      font-weight: 700 !important;
     }
   }
 
-  .time {
+  span:last-of-type {
     color: var(--grey-color);
     font-size: 14px;
-    align-self: center;
   }
+}
 
-  .message-own {
-    border-radius: 30px 0px 30px 30px;
-    background-color: var(--purple2-color); 
-    padding: 10px 20px;
-    position: relative;
-    display: flex;
-    color: var(--text-color); 
-    width: fit-content;
-    flex-direction: column;
+app-attachment-preview {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    > div {
-      display: flex;
-      flex-wrap: wrap;
-    }
-  }
-
-  .thread-own {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    justify-content: flex-end; /* add this */
-  
-    span:first-of-type {
-      color: var(--purple3-color);
-  
-      &:hover {
-        font-weight: 700 !important;
-      }
-    }
-  
-    span:last-of-type {
-      color: var(--grey-color);
-      font-size: 14px;
-    }
-  }
-
-  app-attachment-preview {
-    width: 150px;
-    height: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-
-  // .mention {
-  //   color: var(--purple3-color); /* Setzt die Farbe für Erwähnungen */
-  //   font-weight: bold; /* Optional: Setzt den Text in Fettdruck */
-  // }
-  
+// .mention {
+//   color: var(--purple3-color); /* Setzt die Farbe für Erwähnungen */
+//   font-weight: bold; /* Optional: Setzt den Text in Fettdruck */
+// }

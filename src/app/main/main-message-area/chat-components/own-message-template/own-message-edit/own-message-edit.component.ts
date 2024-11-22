@@ -61,19 +61,17 @@ export class OwnMessageEditComponent implements OnInit {
   
     const originalContent = this.message.content;
     this.message.content = this.editedMessageContent;
-  
+    
     this.clearInput(false); // Bearbeitungsmodus sofort verlassen, aber Inhalt beibehalten
-  
     try {
-      if (!this.editedMessageContent.trim() && !(this.message.attachmentUrls || this.message.attachmentUrls.length > 0)) {
-        await this.messageService.deleteChannelMessage(
-          this.channelService.channelId,  // Kanal-ID übergeben
-          this.message.messageId          // Nachrichten-ID übergeben
-        );
+      const path = 'channels/' + this.channelService.channelId + '/messages/' + this.message.messageId;
+      if (!this.editedMessageContent.trim() && (this.message.attachmentUrls.length === 0)) {
+        await this.messageService.deleteMessageInThreadOrChannel(
+          path  
+        )
       } else {
-        await this.messageService.updateChannelMessageContent(
-          this.channelService.channelId, // Kanal-ID übergeben
-          this.message.messageId,
+        await this.messageService.updateMessageThreadOrChannel(
+          path,
           this.editedMessageContent
         );
       }
