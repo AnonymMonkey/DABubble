@@ -22,7 +22,7 @@ import { Channel } from '../../shared/models/channel.model';
 import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../shared/services/user-service/user.service';
 import { PrivateChatService } from '../../shared/services/private-chat-service/private-chat.service';
-import { A } from '@angular/cdk/keycodes';
+import { MatBadgeModule } from '@angular/material/badge';
 import { ActiveChatButtonService } from '../../shared/services/profile-chat-button-service/active-chat-button.service';
 
 @Component({
@@ -37,6 +37,7 @@ import { ActiveChatButtonService } from '../../shared/services/profile-chat-butt
     CommonModule,
     ClickStopPropagationDirective,
     RouterModule,
+    MatBadgeModule,
   ],
   templateUrl: './side-nav.component.html',
   styleUrl: './side-nav.component.scss',
@@ -95,6 +96,7 @@ export class SideNavComponent {
         }
       });
     });
+    console.log(this.allChannelsData);
   }
 
   loadOnlineStatus() {

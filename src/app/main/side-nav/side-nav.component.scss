@@ -25,11 +25,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: black !important;
+  mat-icon {
+    color: black !important;
+  }
 
   &:hover {
     color: var(--purple3-color) !important;
     background-color: var(--light-purple-color2) !important;
+  }
+
+  &:hover mat-icon {
+    color: var(--purple3-color) !important;
   }
 
   &:active {
@@ -64,8 +70,17 @@
         align-items: center;
         gap: 8px;
         justify-content: center;
+
+        mat-icon {
+          color: black !important;
+        }
+
         &:hover {
           color: var(--purple1-color);
+        }
+
+        &:hover mat-icon {
+          color: var(--purple1-color) !important;
         }
       }
       .material-symbols-outlined {
@@ -96,6 +111,10 @@
       margin-bottom: 8px;
       gap: 10px;
 
+      mat-icon {
+        color: black !important;
+      }
+
       &:hover {
         color: var(--purple1-color) !important;
         background-color: var(--bg-color) !important;
@@ -104,6 +123,10 @@
         p {
           cursor: pointer;
         }
+      }
+
+      &:hover mat-icon {
+        color: var(--purple1-color) !important;
       }
 
       &:hover .material-symbols-outlined {
@@ -122,6 +145,10 @@
       cursor: pointer;
       p {
         cursor: pointer;
+      }
+
+      mat-icon {
+        color: var(--purple1-color) !important;
       }
     }
 
