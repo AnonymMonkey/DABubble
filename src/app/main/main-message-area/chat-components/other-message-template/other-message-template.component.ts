@@ -123,8 +123,9 @@ export class OtherMessageTemplateComponent implements OnInit {
   }
 
   addReaction(messageId: string, emoji: any): void {
+    let path = 'channels/' + this.channelService.channelId + '/messages/' + messageId;
     this.messageService.setActualMessage(this.message);
-    this.messageService.addOrChangeReaction(messageId, emoji);
+    this.messageService.addOrChangeReactionChannelOrThread(emoji, path);
   }
 
   toggleBorder(menuType: string) {

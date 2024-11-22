@@ -52,15 +52,13 @@ export class OwnThreadMessageTemplateComponent implements OnInit, OnChanges {
   }
 
   showEmojiContainer(messageId: string) {
-    // Emoji-Container nur anzeigen, wenn keine Edit-Komponente aktiv ist
     if (this.messageService.editMessageId !== messageId) {
       this.emojiContainerVisible[messageId] = true;
     }
   }
   
   hideEmojiContainer(messageId: string) {
-    // Emoji-Container nur ausblenden, wenn keine Edit-Komponente aktiv ist
-    if (this.messageService.editMessageId !== messageId) {
+    if (this.messageService.editMessageId !== messageId && !this.menuOpenStatus[messageId]) {
       this.emojiContainerVisible[messageId] = false;
     }
   }
