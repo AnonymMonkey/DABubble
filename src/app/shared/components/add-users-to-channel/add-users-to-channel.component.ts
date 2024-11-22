@@ -12,16 +12,19 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
+  EventEmitter,
   inject,
   Input,
-  model,
+  Output,
   signal,
+  SimpleChanges,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Channel } from '../../models/channel.model';
 import { UserData } from '../../models/user.model';
 import { UserService } from '../../services/user-service/user.service';
 import { ChannelService } from '../../services/channel-service/channel.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-add-users-to-channel',
@@ -47,17 +50,30 @@ export class AddUsersToChannelComponent {
   newChannelData!: Channel;
   @Input() channelId: string = '';
   isLoading = true;
+  @Output() usersEmpty = new EventEmitter<boolean>();
 
-  newAllUserData: { userId: string; userName: string; photoURL: string }[] = [];
+  newAllUserData = signal<
+    { userId: string; userName: string; photoURL: string }[]
+  >([]);
 
-  constructor() {}
+  constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.newChannelData = new Channel();
     this.initializeUserData();
+    this.initializeData();
+    this.updateUsers();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['channelId']) {
+      this.initializeData();
+    }
+  }
+
+  initializeData() {
     this.initializeChannelData();
     this.initializeAllUserData();
-    this.updateUsers();
   }
 
   initializeUserData(): void {
@@ -82,11 +98,13 @@ export class AddUsersToChannelComponent {
   initializeAllUserData(): void {
     if (!this.channelId) {
       this.userService.allUserData$.subscribe((data) => {
-        this.newAllUserData = data.map((element) => ({
-          userId: element.uid,
-          userName: element.displayName,
-          photoURL: element.photoURL,
-        }));
+        this.newAllUserData.set(
+          data.map((element) => ({
+            userId: element.uid,
+            userName: element.displayName,
+            photoURL: element.photoURL,
+          }))
+        );
       });
       this.isLoading = false;
     }
@@ -94,15 +112,17 @@ export class AddUsersToChannelComponent {
 
   filterAvailableUsers(): void {
     this.userService.allUserData$.subscribe((data) => {
-      this.newAllUserData = data
-        .filter(
-          (element) => !this.newChannelData.members.includes(element.uid) // Filtern
-        )
-        .map((element) => ({
-          userId: element.uid,
-          userName: element.displayName,
-          photoURL: element.photoURL,
-        }));
+      this.newAllUserData.set(
+        data
+          .filter(
+            (element) => !this.newChannelData.members.includes(element.uid) // Filtern
+          )
+          .map((element) => ({
+            userId: element.uid,
+            userName: element.displayName,
+            photoURL: element.photoURL,
+          }))
+      );
     });
     this.isLoading = false;
   }
@@ -119,10 +139,15 @@ export class AddUsersToChannelComponent {
     ]);
   }
 
+  checkUsersArray(): void {
+    const isEmpty = this.users().length === 0;
+    this.usersEmpty.emit(isEmpty);
+  }
+
   //NOTE - Hier werden die chips angezeigt
 
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  readonly currentUser = model('');
+  currentUser = signal<string>('');
 
   readonly users = signal<
     { userId: string; userName: string; photoURL: string }[]
@@ -135,20 +160,19 @@ export class AddUsersToChannelComponent {
 
     const currentUser = this.currentUser().toLowerCase();
 
-    return currentUser
-      ? this.newAllUserData.filter(
-          (user) =>
-            user.userName.toLowerCase().includes(currentUser) &&
-            !this.users().some(
-              (userInList) => userInList.userId === user.userId
-            )
-        )
-      : this.newAllUserData.filter(
-          (user) =>
-            !this.users().some(
-              (userInList) => userInList.userId === user.userId
-            )
+    return this.newAllUserData().filter((user) => {
+      const isAlreadyInList = this.users().some(
+        (userInList) => userInList.userId === user.userId
+      );
+
+      if (currentUser) {
+        return (
+          user.userName.toLowerCase().includes(currentUser) && !isAlreadyInList
         );
+      } else {
+        return !isAlreadyInList;
+      }
+    });
   });
 
   readonly announcer = inject(LiveAnnouncer);
@@ -157,7 +181,7 @@ export class AddUsersToChannelComponent {
     const value = (event.value || '').trim();
 
     // Finde den entsprechenden Benutzer basierend auf dem eingegebenen `userName`
-    const selectedUser = this.newAllUserData.find(
+    const selectedUser = this.newAllUserData().find(
       (user) => user.userName === value
     );
 
@@ -194,11 +218,12 @@ export class AddUsersToChannelComponent {
       this.announcer.announce(`Removed ${user.userName}`);
       return [...users];
     });
+    this.checkUsersArray();
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
     // Finde den Benutzer, der der Auswahl entspricht
-    const selectedUser = this.newAllUserData.find(
+    const selectedUser = this.newAllUserData().find(
       (user) => user.userId === event.option.value.userId
     );
     // Nur hinzufügen, wenn das Benutzerobjekt existiert und die userId noch nicht in der Liste ist
@@ -216,7 +241,7 @@ export class AddUsersToChannelComponent {
         },
       ]);
     }
-    // console.log(this.users());
+    this.checkUsersArray();
 
     // Input zurücksetzen
     this.currentUser.set('');

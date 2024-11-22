@@ -10,58 +10,11 @@
     <span>{{ currentChannel?.channelName }}</span>
   </div>
   <div class="dialog-wrapper">
-    <!-- <div class="header-wrapper">
-      <h3>Channel erstellen</h3>
-      <mat-icon (click)="dialogRef.close()">close</mat-icon>
-    </div> -->
     <mat-dialog-content>
-      <!-- ################ -->
-
-      <mat-form-field class="example-chip-list">
-        <mat-chip-grid #chipGrid aria-label="Enter fruits">
-          @for (fruit of users(); track fruit) {
-          <mat-chip-row (removed)="remove(fruit)">
-            <img src="{{ fruit.photoURL }}" alt="" />
-            {{ fruit.userName }}
-            <button matChipRemove [attr.aria-label]="'remove ' + fruit">
-              <mat-icon>close</mat-icon>
-            </button>
-          </mat-chip-row>
-          }
-            <input
-              name="currentUser"
-              placeholder="User hinzufügen..."
-              #fruitInput
-              [(ngModel)]="currentUser"
-              [matChipInputFor]="chipGrid"
-              [matAutocomplete]="auto"
-              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-              (matChipInputTokenEnd)="add($event)"
-              [matChipInputAddOnBlur]="false"
-            />
-          <mat-autocomplete
-            #auto="matAutocomplete"
-            (optionSelected)="selected($event)"
-          >
-            @for (user of filteredUsers(); track user) {
-            <mat-option [value]="user">
-              <div class="image-with-badge">
-                <img src="{{ user.photoURL }}" alt="" />
-                <div
-                  class="badge"
-                  [class.online]="
-                    userService.checkUserOnlineStatus(user.userId)
-                  "
-                ></div>
-              </div>
-              <p class="name">{{ user.userName }}</p>
-            </mat-option>
-            }
-          </mat-autocomplete>
-        </mat-chip-grid>
-      </mat-form-field>
-
-      <!-- ################ -->
+      <app-add-users-to-channel
+        [channelId]="channelId"
+        (usersEmpty)="handleUsersEmpty($event)"
+      ></app-add-users-to-channel>
     </mat-dialog-content>
     <mat-dialog-actions [align]="'end'">
       <div class="button-container">
@@ -70,7 +23,7 @@
           class="button-primary"
           mat-button
           mat-dialog-close
-          (click)="test()"
+          (click)="create()"
         >
           Hinzufügen
         </button>
