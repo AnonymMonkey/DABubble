@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit } from '@angular/core';
 import { MainMessageAreaComponent } from '../../main-message-area.component';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
@@ -24,11 +24,12 @@ import { UserService } from '../../../../shared/services/user-service/user.servi
     MatMenuTrigger,
     OwnMessageShowComponent,
     OwnMessageEditComponent,
-    EmojiPickerComponent,  ],
+    EmojiPickerComponent,
+  ],
   templateUrl: './own-message-template.component.html',
   styleUrl: './own-message-template.component.scss',
 })
-export class OwnMessageTemplateComponent {
+export class OwnMessageTemplateComponent implements OnChanges, OnInit {
   @Input() message: any;
   isEmojiContainerVisible: number = 0;
   editMessageMenuOpened: boolean = false;
@@ -37,7 +38,6 @@ export class OwnMessageTemplateComponent {
   currentBorderRadius = '30px 30px 30px 30px';
   isDataLoaded: boolean = false;
   emojiContainerVisible: { [messageId: string]: boolean } = {};
-  hideTimeouts: { [messageId: string]: any } = {};
   menuOpenStatus: { [messageId: string]: boolean } = {};
   photoURL: string = '';
 
@@ -63,6 +63,12 @@ export class OwnMessageTemplateComponent {
     }
   }
 
+  ngOnChanges(): void {
+    if (this.messageService.editMessageId !== this.message.id) {
+      this.emojiContainerVisible[this.message.messageId] = false;
+    }
+  }
+
   isMenuOpen(messageId: string): boolean {
     return !!this.menuOpenStatus[messageId];
   }
@@ -71,37 +77,31 @@ export class OwnMessageTemplateComponent {
     return this.isDataLoaded;
   }
 
+  showEmojiContainer(messageId: string) {
+    // Emoji-Container nur anzeigen, wenn keine Edit-Komponente aktiv ist
+    if (this.messageService.editMessageId !== messageId) {
+      this.emojiContainerVisible[messageId] = true;
+    }
+  }
+  
   hideEmojiContainer(messageId: string) {
-    if (
-      !this.editMessageMenuOpened &&
-      !this.menuOpenStatus[messageId]
-    ) {
+    // Emoji-Container nur ausblenden, wenn keine Edit-Komponente aktiv ist
+    if (this.messageService.editMessageId !== messageId) {
       this.emojiContainerVisible[messageId] = false;
     }
   }
   
-  scheduleHideEmojiContainer(messageId: string) {
-    clearTimeout(this.hideTimeouts[messageId]);
-    this.hideTimeouts[messageId] = setTimeout(() => {
-      this.hideEmojiContainer(messageId);
-    }, 200); // Optionaler Timeout, um sicherzustellen, dass keine Konflikte auftreten.
-  }
-  
-  showEmojiContainer(messageId: string) {
-    clearTimeout(this.hideTimeouts[messageId]);
-    this.emojiContainerVisible[messageId] = true;
-  }
-  
+
   onMenuOpened(messageId: string): void {
     this.menuOpenStatus[messageId] = true;
     this.emojiContainerVisible[messageId] = true;
   }
-  
+
   onMenuClosed(messageId: string): void {
     this.menuOpenStatus[messageId] = false;
-    this.scheduleHideEmojiContainer(messageId);
+    this.hideEmojiContainer(messageId);
   }
-  
+
   // Neuer Logikteil
   keepEmojiContainerVisible(messageId: string): void {
     if (!this.menuOpenStatus[messageId]) {
@@ -125,8 +125,13 @@ export class OwnMessageTemplateComponent {
     return 'Keine Antworten';
   }
 
-  setEditMessageMenuOpened(value: boolean) {
+  setEditMessageMenuOpened(value: boolean, messageId: string) {
     this.editMessageMenuOpened = value;
+  
+    if (!value) {
+      // Zustand des Emoji-Containers vollständig zurücksetzen
+      this.emojiContainerVisible[messageId] = false;
+    }
   }
 
   addReaction(messageId: string, emoji: any): void {
@@ -150,5 +155,4 @@ export class OwnMessageTemplateComponent {
       this.currentBorderRadius
     );
   }
-
 }

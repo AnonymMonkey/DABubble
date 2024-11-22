@@ -10,9 +10,13 @@
 
     <!-- Informationen zu Antworten -->
     <div class="reply-info">
-      <span>{{ (currentMessage.thread | keyvalue)?.length }} Antworten</span>
+      <span>
+        {{ threadMessages.length }} 
+        {{ threadMessages.length === 1 ? 'Antwort' : 'Antworten' }}
+      </span>
       <hr class="reply-divider">
     </div>
+    
   </div>
 
   <!-- Unterer Bereich: Liste aller Thread-Nachrichten -->

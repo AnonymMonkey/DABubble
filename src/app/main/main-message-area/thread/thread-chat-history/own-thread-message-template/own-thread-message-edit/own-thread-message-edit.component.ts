@@ -1,5 +1,13 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
@@ -8,10 +16,11 @@ import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
 import { AttachmentPreviewComponent } from '../../../../../../shared/components/attachment-preview/attachment-preview.component';
 import { MessageService } from '../../../../../../shared/services/message-service/message.service';
 import { Subscription } from 'rxjs';
-import { PrivateChatService } from '../../../../../../shared/services/private-chat-service/private-chat.service';
 import { Firestore } from '@angular/fire/firestore';
 import { deleteField, doc, updateDoc } from 'firebase/firestore';
 import { UserService } from '../../../../../../shared/services/user-service/user.service';
+import { ChannelService } from '../../../../../../shared/services/channel-service/channel.service';
+import { ThreadService } from '../../../../../../shared/services/thread-service/thread.service';
 
 @Component({
   selector: 'app-own-thread-message-edit',
@@ -39,10 +48,11 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
   isSaving = false;
   private messageService = inject(MessageService);
   private messageSubscription!: Subscription;
-  private privateChatService = inject(PrivateChatService);
   private firestore = inject(Firestore);
   private userService = inject(UserService);
   currentBorderRadius = '30px 30px 30px 30px';
+  private channelService = inject(ChannelService);
+  private threadService = inject(ThreadService);
 
   ngOnInit() {
     if (this.message) {
@@ -74,61 +84,70 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
   }
 
   async changeMessage() {
-    this.isSaving = true;
+    this.isSaving = true; // Ladeindikator aktivieren
     this.temporaryMessageContent.emit(this.editedMessageContent);
 
-    // Überprüfen, ob die Nachricht keinen Inhalt mehr hat oder keine URLs
-    if (
-      !this.editedMessageContent.trim() &&
-      !this.containsUrls(this.editedMessageContent)
-    ) {
-      await this.deleteMessage();
-      return;
-    }
-
     if (this.editedMessageContent === this.message.content) {
-      this.clearInput(false);
+      this.clearInput(false); // Bearbeitungsmodus verlassen, aber Inhalt behalten
       return;
     }
 
     const originalContent = this.message.content;
     this.message.content = this.editedMessageContent;
 
-    this.clearInput(false);
-
+    this.clearInput(false); // Bearbeitungsmodus verlassen
     try {
-      const messageId = this.message.messageId;
-
-      // Benutzerdaten holen und privateChatId aufteilen, um Benutzer-IDs zu erhalten
-      const privateChatId = this.privateChatService.privateChatId;
-      if (!privateChatId) {
-        console.error('privateChatId is null or undefined');
-        return; // Hier kannst du eine geeignete Fehlerbehandlung einfügen
+      const channelPath = 'channels/' + this.channelService.channelId + '/messages/' + this.message.messageId;
+      const threadPath = 'channels/' + this.channelService.channelId + '/messages/' + this.threadService.actualMessageSubject.value?.messageId + '/thread/' + this.message.messageId;
+      if (!this.editedMessageContent.trim() && !this.hasAttachments()) {
+        if (
+          this.message.messageId.startsWith('thread_') &&
+          this.threadService.actualMessageSubject.value?.messageId
+        ) {
+          await this.messageService.deleteMessageInThreadOrChannel(
+           threadPath
+          );
+        } else if (this.message.messageId.startsWith('message_')) {
+          await this.messageService.deleteMessageInThreadOrChannel(
+            channelPath
+          );
+        }
+      } else {
+        if (
+          this.message.messageId.startsWith('thread_') &&
+          this.threadService.actualMessageSubject.value?.messageId
+        ) {
+          this.messageService.updateMessageThreadOrChannel(
+            threadPath,
+            this.editedMessageContent
+          );
+        } else if (this.message.messageId.startsWith('message_')) {
+          await this.messageService.updateMessageThreadOrChannel(
+            channelPath,
+            this.editedMessageContent
+          );
+        }
       }
-      const [firstUserId, secondUserId] = privateChatId.split('_');
-
-      // Nachricht für den aktuellen Benutzer und den anderen Benutzer aktualisieren
-      await this.updateMessageInUserDocs(firstUserId, privateChatId, messageId);
-      await this.updateMessageInUserDocs(
-        secondUserId,
-        privateChatId,
-        messageId
-      );
-
-      // Nachricht in der Firestore-Datenbank aktualisieren
-      await this.messageService.updateMessageContentPrivateChat(
-        privateChatId as string,
-        messageId,
-        this.editedMessageContent
-      );
     } catch (error) {
-      console.error('Fehler beim Aktualisieren der Nachricht:', error);
-      this.message.content = originalContent; // Bei Fehler die ursprüngliche Nachricht wiederherstellen
+      this.message.content = originalContent; // Ursprünglichen Inhalt zurücksetzen
+      console.error('Fehler beim Ändern der Nachricht:', error);
     } finally {
-      this.clearInput(true);
       this.isSaving = false;
       this.temporaryMessageContent.emit('');
     }
+  }
+
+  getMessagePath(): string {
+    const basePath = `channels/${this.channelService.channelId}/messages`;
+    if (this.message.messageId.startsWith('thread_')) {
+      const threadId = this.threadService.actualMessageSubject.value?.messageId;
+      return `${basePath}/${threadId}/thread/${this.message.messageId}`;
+    }
+    return `${basePath}/${this.message.messageId}`;
+  }
+
+  hasAttachments(): boolean {
+    return !!this.message.attachmentUrls?.length;
   }
 
   // Funktion, um zu prüfen, ob der Text URLs enthält
@@ -138,34 +157,7 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
   }
 
   // Löscht die Nachricht, wenn sie keinen Inhalt und keine URLs mehr hat
-  async deleteMessage() {
-    try {
-      const messageId = this.message?.messageId;
-      const privateChatId = this.privateChatService.privateChatId;
-      const [firstUserId, secondUserId] = privateChatId!.split('_');
-
-      // Lösche die Nachricht aus den Benutzerdokumenten
-      await this.deleteMessageFromUserDocs(
-        firstUserId,
-        privateChatId!,
-        messageId
-      );
-      await this.deleteMessageFromUserDocs(
-        secondUserId,
-        privateChatId!,
-        messageId
-      );
-
-      // Lösche die Nachricht aus der Firestore-Datenbank
-      await this.messageService.deleteMessage(privateChatId!, messageId);
-    } catch (error) {
-      console.error('Fehler beim Löschen der Nachricht:', error);
-    } finally {
-      this.clearInput(true);
-      this.isSaving = false;
-      this.temporaryMessageContent.emit('');
-    }
-  }
+  async deleteMessage() {}
 
   // Löscht die Nachricht aus einem Benutzerdokument
   async deleteMessageFromUserDocs(

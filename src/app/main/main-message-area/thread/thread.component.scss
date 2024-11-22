@@ -19,6 +19,8 @@ app-thread-chat-history {
     flex-grow: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    flex-direction: column;
+    justify-content: flex-start;
 }
   
 app-message-area-new-message {

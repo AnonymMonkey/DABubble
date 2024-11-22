@@ -22,6 +22,7 @@ import { MentionUserComponent } from '../../../../shared/components/mention-user
 import { UploadMethodSelectorComponent } from '../../../../shared/components/upload-method-selector/upload-method-selector.component';
 import { StorageService } from '../../../../shared/services/storage-service/storage.service';
 import { ChannelMessage } from '../../../../shared/models/channel-message.model';
+import { UserService } from '../../../../shared/services/user-service/user.service';
 
 @Component({
   selector: 'app-thread-new-message',
@@ -58,7 +59,8 @@ export class ThreadNewMessageComponent implements OnInit {
     private threadService: ThreadService,
     private firestore: Firestore,
     private channelService: ChannelService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -102,7 +104,7 @@ export class ThreadNewMessageComponent implements OnInit {
         // Neues Thread-Dokument erstellen
         const newMessage = new ThreadMessage(
           this.newMessageContent.trim() || ' ', // Leerer Text wird durch Leerzeichen ersetzt
-          currentMessage.userId,
+          this.userService.userId,
           newThreadId,
           [], // Leere Reaktionen
           new Date().toISOString(),
@@ -123,7 +125,7 @@ export class ThreadNewMessageComponent implements OnInit {
         const threadDocRef = doc(threadCollectionRef, newThreadId); // Ein neues Thread-Dokument mit der ID `newThreadId`
         await setDoc(threadDocRef, {
           content: newMessage.content,
-          userId: newMessage.userId,
+          userId: this.userService.userId,
           time: newMessage.time,
           messageId: newMessage.messageId,
           attachmentUrls: attachmentsToSend,
