@@ -17,12 +17,23 @@
       <span>
         {{
           getUserList(reaction).length === 1
-            ? getUserList(reaction)[0] === 'Du'
-              ? 'hast reagiert.'
-              : 'hat reagiert.'
-            : 'haben reagiert.'
+            ? getUserList(reaction)[0] === "Du"
+              ? "hast reagiert."
+              : "hat reagiert."
+            : "haben reagiert."
         }}
       </span>
     </div>
   </span>
+  <mat-icon
+    class="material-symbols-outlined add-reaction"
+    [matMenuTriggerFor]="emojiMenu"
+    >add_reaction</mat-icon
+  >
+  <mat-menu xPosition="after" #emojiMenu>
+    <app-emoji-picker
+      [message]="message"
+      [component]="'channel'"
+    ></app-emoji-picker>
+  </mat-menu>
 </div>

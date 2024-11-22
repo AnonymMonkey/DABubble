@@ -4,13 +4,15 @@ import { UserService } from '../../services/user-service/user.service';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 
 @Component({
   selector: 'app-message-reactions',
   standalone: true,
   templateUrl: './message-reactions.component.html',
   styleUrls: ['./message-reactions.component.scss'],
-  imports: [EmojiComponent, MatMenuModule, NgFor, MatTooltipModule, NgClass],
+  imports: [EmojiComponent, MatMenuModule, NgFor, MatTooltipModule, NgClass, MatIcon, EmojiPickerComponent],
 })
 export class MessageReactionsComponent implements OnInit {
   @Input() message: any;
@@ -20,7 +22,6 @@ export class MessageReactionsComponent implements OnInit {
   constructor(private userService: UserService) {}
 
   ngOnInit(): void {
-    // Initialisieren der Reaktionen mit User-Daten
     this.loadReactionUsers();
   }
 

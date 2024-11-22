@@ -85,3 +85,11 @@
 .show {
   display: flex !important; /* Wird angewendet, wenn das Element angezeigt werden soll */
 }
+
+.add-reaction {
+  color: var(--black-color);
+
+  &:hover {
+    cursor: pointer;
+  }
+}
