@@ -237,6 +237,13 @@ export class UserService {
     return user ? user.photoURL : '';
   }
 
+  getDisplayName(uid: string): string {
+    const user = this.allUserDataSubject
+      .getValue()
+      .find((user) => user.id === uid);
+    return user ? user.displayName : '';
+  }
+
   saveNewProfileName(uid: string, newName: string) {
     const updatedData: any = {};
     updatedData.displayName = newName;

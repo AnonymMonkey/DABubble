@@ -15,9 +15,18 @@ import { UserService } from '../../../../shared/services/user-service/user.servi
 @Component({
   selector: 'app-own-message-template',
   standalone: true,
-  imports: [NgClass, NgIf, MatIcon, EmojiComponent, MatMenu, MatMenuTrigger, OwnMessageShowComponent, OwnMessageEditComponent, EmojiPickerComponent],
+  imports: [
+    NgClass,
+    NgIf,
+    MatIcon,
+    EmojiComponent,
+    MatMenu,
+    MatMenuTrigger,
+    OwnMessageShowComponent,
+    OwnMessageEditComponent,
+    EmojiPickerComponent,  ],
   templateUrl: './own-message-template.component.html',
-  styleUrl: './own-message-template.component.scss'
+  styleUrl: './own-message-template.component.scss',
 })
 export class OwnMessageTemplateComponent {
   @Input() message: any;
@@ -26,46 +35,98 @@ export class OwnMessageTemplateComponent {
   messageService = inject(MessageService);
   userService = inject(UserService);
   currentBorderRadius = '30px 30px 30px 30px';
-  
+  isDataLoaded: boolean = false;
+  emojiContainerVisible: { [messageId: string]: boolean } = {};
+  hideTimeouts: { [messageId: string]: any } = {};
+  menuOpenStatus: { [messageId: string]: boolean } = {};
+  photoURL: string = '';
+
   get threadKeys(): string[] {
     return Object.keys(this.message?.thread || {});
   }
 
-  constructor(public mainMessageArea: MainMessageAreaComponent, public channelService: ChannelService, public threadService: ThreadService
+  constructor(
+    public mainMessageArea: MainMessageAreaComponent,
+    public channelService: ChannelService,
+    public threadService: ThreadService
   ) {}
-  
-  showEmojiContainer(id: number) {
-    if (this.messageService.editMessageId === null) {
-      this.isEmojiContainerVisible = id;
+
+  ngOnInit(): void {
+    this.isDataLoaded = true;
+
+    if (this.message) {
+      this.userService
+        .getUserDataByUID(this.message.userId)
+        .subscribe((data) => {
+          this.photoURL = data.photoURL;
+        });
     }
   }
 
-  hideEmojiContainer() {
-    if (!this.editMessageMenuOpened) {
-      this.isEmojiContainerVisible = 0;
+  isMenuOpen(messageId: string): boolean {
+    return !!this.menuOpenStatus[messageId];
+  }
+
+  toggleHoverEffect() {
+    return this.isDataLoaded;
+  }
+
+  hideEmojiContainer(messageId: string) {
+    if (
+      !this.editMessageMenuOpened &&
+      !this.menuOpenStatus[messageId]
+    ) {
+      this.emojiContainerVisible[messageId] = false;
+    }
+  }
+  
+  scheduleHideEmojiContainer(messageId: string) {
+    clearTimeout(this.hideTimeouts[messageId]);
+    this.hideTimeouts[messageId] = setTimeout(() => {
+      this.hideEmojiContainer(messageId);
+    }, 200); // Optionaler Timeout, um sicherzustellen, dass keine Konflikte auftreten.
+  }
+  
+  showEmojiContainer(messageId: string) {
+    clearTimeout(this.hideTimeouts[messageId]);
+    this.emojiContainerVisible[messageId] = true;
+  }
+  
+  onMenuOpened(messageId: string): void {
+    this.menuOpenStatus[messageId] = true;
+    this.emojiContainerVisible[messageId] = true;
+  }
+  
+  onMenuClosed(messageId: string): void {
+    this.menuOpenStatus[messageId] = false;
+    this.scheduleHideEmojiContainer(messageId);
+  }
+  
+  // Neuer Logikteil
+  keepEmojiContainerVisible(messageId: string): void {
+    if (!this.menuOpenStatus[messageId]) {
+      this.emojiContainerVisible[messageId] = true;
     }
   }
 
   getLastReplyTime(messages: any[]): string {
-    // Nimm die letzte Nachricht aus dem Array
     const lastMessage = messages[messages.length - 1];
-  
+
     if (lastMessage && lastMessage.time) {
-      // Formatiere die Zeit (Hier anpassen, falls nötig)
       const date = new Date(lastMessage.time);
       const options: Intl.DateTimeFormatOptions = {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false, // Für 24-Stunden-Format, ändern auf true für 12-Stunden-Format
+        hour12: false,
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
-  
-    return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
+
+    return 'Keine Antworten';
   }
 
-  setEditMessageMenuOpened(boolean: boolean) {
-    this.editMessageMenuOpened = boolean;
+  setEditMessageMenuOpened(value: boolean) {
+    this.editMessageMenuOpened = value;
   }
 
   addReaction(messageId: string, emoji: any): void {
@@ -78,6 +139,9 @@ export class OwnMessageTemplateComponent {
       case 'editMessage':
         this.currentBorderRadius = '0px 30px 30px 30px';
         break;
+      case 'emoji':
+        this.currentBorderRadius = '30px 30px 30px 30px';
+        break;
       default:
         this.currentBorderRadius = '0px 30px 30px 30px';
     }
@@ -86,4 +150,5 @@ export class OwnMessageTemplateComponent {
       this.currentBorderRadius
     );
   }
+
 }

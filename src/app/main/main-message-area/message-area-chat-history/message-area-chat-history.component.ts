@@ -20,6 +20,7 @@ import { OtherMessageTemplateComponent } from '../chat-components/other-message-
 import { OwnMessageTemplateComponent } from '../chat-components/own-message-template/own-message-template.component';
 import { DateOfMessageComponent } from '../chat-components/date-of-message/date-of-message.component';
 import { UserService } from '../../../shared/services/user-service/user.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-message-area-chat-history',
@@ -52,18 +53,22 @@ export class MessageAreaChatHistoryComponent
   @ViewChild('messageContainerWrapper') messageContainer!: ElementRef;
 
   constructor(
-    private channelService: ChannelService,
+    public channelService: ChannelService,
     private cdr: ChangeDetectorRef,
-    private userService: UserService
+    private userService: UserService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    // Abonniere den aktuellen Channel und lade Nachrichten
     this.currentChannel$ = this.channelService.currentChannel$;
-    this.currentChannel$.subscribe({
+    this.loadChatHistory();
+  }
+
+  loadChatHistory(): void {
+    this.currentChannel$?.subscribe({
       next: (channel) => {
         if (channel) {
-          this.groupedMessages = [];
+          this.groupedMessages = []; // Löscht alte Nachrichten
           this.channelService.loadUsersDataForChannel(
             channel.members,
             channel.usersLeft
@@ -72,56 +77,39 @@ export class MessageAreaChatHistoryComponent
         }
       },
       error: (err) => console.error('Fehler beim Laden des Channels:', err),
+      complete: () => {
+        this.checkLoadingComplete();
+      },
     });
 
-    // Abonniere User-Daten und aktualisiere die Map
     this.userSubscription = this.channelService
       .getUsersDataObservable()
       .subscribe({
         next: (usersMap) => {
           if (usersMap) {
-            let hasChanges = false;
-            usersMap.forEach((userData, userId) => {
-              if (!this.usersData.has(userId)) {
-                this.usersData.set(userId, userData);
-                hasChanges = true;
-              } else {
-                const existingData = this.usersData.get(userId);
-                if (
-                  existingData.displayName !== userData.displayName ||
-                  existingData.photoURL !== userData.photoURL
-                ) {
-                  this.usersData.set(userId, userData);
-                  hasChanges = true;
-                }
-              }
-            });
-
-            if (hasChanges) {
-              this.groupMessagesByDate(this.getAllMessages()); // Gruppiere erneut
-            }
-          } else {
-            console.error('Leere oder ungültige User-Daten erhalten');
+            this.usersData = usersMap;
+            this.checkLoadingComplete();
           }
         },
         error: (err) => console.error('Fehler beim Laden der User-Daten:', err),
       });
+  }
 
-      this.scrollToBottom();
+  private checkLoadingComplete(): void {
+    if (this.groupedMessages.length > 0 && this.usersData.size > 0) {
+      this.channelService.loading = false;
+    }
   }
 
   ngAfterViewChecked(): void {
     if (this.shouldScroll) {
       this.scrollToBottom();
-      this.shouldScroll = false;
     }
   }
-  
 
   getAllMessages(): any[] {
-    return this.groupedMessages.flatMap(group => group.messages);
+    return this.groupedMessages.flatMap((group) => group.messages);
   }
-  
 
   ngOnDestroy(): void {
     this.userSubscription?.unsubscribe();
@@ -166,27 +154,27 @@ export class MessageAreaChatHistoryComponent
       const messageDate = new Date(message.time);
       const today = new Date();
       let dateString: string;
-  
+
       dateString =
         messageDate.toDateString() === today.toDateString()
           ? 'Heute'
           : messageDate.toLocaleDateString();
-  
+
       if (!acc[dateString]) acc[dateString] = [];
-  
+
       const userData = this.usersData.get(message.userId);
       const userName = userData ? userData.displayName : 'Unbekannter Benutzer';
       const photoURL = userData ? userData.photoURL : null;
-  
+
       acc[dateString].push({
         ...message,
         userName,
         photoURL,
       });
-  
+
       return acc;
     }, {});
-  
+
     this.groupedMessages = Object.keys(grouped)
       .map((date) => ({
         date,
@@ -196,10 +184,9 @@ export class MessageAreaChatHistoryComponent
         ),
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  
+
     this.cdr.detectChanges(); // Change Detection anstoßen
   }
-  
 
   // Aktualisiert die Ansicht, wenn neue Nachrichten hinzukommen
   updateMessages(): void {
@@ -210,15 +197,11 @@ export class MessageAreaChatHistoryComponent
   // Scrollt die Nachrichtensicht nach unten
   scrollToBottom(): void {
     if (this.messageContainer?.nativeElement) {
-      // Sofortiges Scrollen ohne Verzögerung
       this.messageContainer.nativeElement.scrollTop =
         this.messageContainer.nativeElement.scrollHeight;
-  
-      // Wenn es eine neue Nachricht gibt, scrollen wir etwas schneller, z. B. durch eine geringe Verzögerung
       if (this.shouldScroll) {
         this.shouldScroll = false; // Verhindert weiteres Scrollen
       }
     }
   }
-  
 }

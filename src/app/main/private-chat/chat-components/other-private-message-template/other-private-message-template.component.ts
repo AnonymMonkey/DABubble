@@ -21,6 +21,7 @@ export class OtherPrivateMessageTemplateComponent {
   @Input() message: any = '';
   @Input() displayName: string = '';
   @Input() photoURL: string = '';
+  isMenuOpen: boolean = false;
   public userService = inject(UserService);
   public privateChatService = inject(PrivateChatService);
 
@@ -32,6 +33,17 @@ export class OtherPrivateMessageTemplateComponent {
   }
 
   hideEmojiContainer() {
+    if (!this.isMenuOpen) {
+      this.isEmojiContainerVisible = 0;
+    }
+  }
+
+  menuOpened() {
+    this.isMenuOpen = true;
+  }
+
+  menuClosed() {
+    this.isMenuOpen = false;
     this.isEmojiContainerVisible = 0;
   }
 

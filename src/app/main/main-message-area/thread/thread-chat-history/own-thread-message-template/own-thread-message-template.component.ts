@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, SimpleChanges } from '@angular/core';
 import { EmojiPickerComponent } from '../../../../../shared/components/emoji-picker/emoji-picker.component';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatIcon } from '@angular/material/icon';
@@ -13,9 +13,18 @@ import { OwnThreadMessageEditComponent } from './own-thread-message-edit/own-thr
 @Component({
   selector: 'app-own-thread-message-template',
   standalone: true,
-  imports: [NgClass, NgIf, MatIcon, MatMenu, MatMenuTrigger, EmojiPickerComponent, OwnThreadMessageShowComponent, OwnThreadMessageEditComponent],
+  imports: [
+    NgClass,
+    NgIf,
+    MatIcon,
+    MatMenu,
+    MatMenuTrigger,
+    EmojiPickerComponent,
+    OwnThreadMessageShowComponent,
+    OwnThreadMessageEditComponent,
+  ],
   templateUrl: './own-thread-message-template.component.html',
-  styleUrl: './own-thread-message-template.component.scss'
+  styleUrl: './own-thread-message-template.component.scss',
 })
 export class OwnThreadMessageTemplateComponent implements OnInit {
   @Input() message: any;
@@ -32,9 +41,11 @@ export class OwnThreadMessageTemplateComponent implements OnInit {
 
   ngOnInit() {
     if (this.message) {
-     this.userService.getUserDataByUID(this.message.userId).subscribe((data) => {
-       this.photoURL = data.photoURL;
-     });
+      this.userService
+        .getUserDataByUID(this.message.userId)
+        .subscribe((data) => {
+          this.photoURL = data.photoURL;
+        });
     }
   }
 
@@ -50,10 +61,26 @@ export class OwnThreadMessageTemplateComponent implements OnInit {
     }
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['message'] && !changes['message'].firstChange) {
+      this.handleMessageChange(changes['message'].currentValue);
+    }
+  }
+
+  // Eine Methode, die auf Änderungen reagiert
+  handleMessageChange(newMessage: any) {
+    // Füge deine Logik hinzu, wenn die Nachricht geändert wurde
+    if (newMessage && newMessage.userId) {
+      this.userService.getUserDataByUID(newMessage.userId).subscribe((data) => {
+        this.photoURL = data.photoURL;
+      });
+    }
+  }
+
   getLastReplyTime(messages: any[]): string {
     // Nimm die letzte Nachricht aus dem Array
     const lastMessage = messages[messages.length - 1];
-  
+
     if (lastMessage && lastMessage.time) {
       // Formatiere die Zeit (Hier anpassen, falls nötig)
       const date = new Date(lastMessage.time);
@@ -64,11 +91,11 @@ export class OwnThreadMessageTemplateComponent implements OnInit {
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
-  
+
     return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
   }
 
-  addReaction (messageId: string, emoji: any): void {}
+  addReaction(messageId: string, emoji: any): void {}
 
   setEditMessageMenuOpened(boolean: boolean) {
     this.editMessageMenuOpened = boolean;

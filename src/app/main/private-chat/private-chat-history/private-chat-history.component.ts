@@ -17,7 +17,6 @@ import { MatCardModule } from '@angular/material/card';
 import { OtherPrivateMessageTemplateComponent } from '../chat-components/other-private-message-template/other-private-message-template.component';
 import { OwnPrivateMessageTemplateComponent } from '../chat-components/own-private-message-template/own-private-message-template.component';
 import { UserService } from '../../../shared/services/user-service/user.service';
-import { UserData } from '../../../shared/models/user.model';
 
 @Component({
   selector: 'app-private-chat-history',
@@ -34,34 +33,31 @@ import { UserData } from '../../../shared/models/user.model';
   styleUrls: ['./private-chat-history.component.scss'],
 })
 export class PrivateChatHistoryComponent
-  implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
-  
+  implements OnInit, OnChanges, OnDestroy
+{
   @Input() messages: any[] = []; // Erwartet ein Array von Nachrichten
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
   groupedMessages: { date: string; messages: any[] }[] = [];
-  userCache: { [userId: string]: UserData } = {};
   scrollAllowed: boolean = true;
 
-  constructor(private userService: UserService) {}
+  constructor(public userService: UserService) {}
 
   ngOnInit(): void {
     this.groupAndSortMessages();
   }
 
-  ngAfterViewChecked(): void {
-    this.scrollToBottom();
-    this.scrollAllowed = false;
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['messages'] && !changes['messages'].firstChange) {
+      // Überschreibe die alten Nachrichten mit den neuen
+      this.messages = changes['messages'].currentValue;
       this.groupAndSortMessages();
     }
-  }
+  }  
 
   private groupAndSortMessages(): void {
     const grouped: { [date: string]: any[] } = {};
-
+  
+    // Sortiere Nachrichten nach der Zeit (älteste zuerst)
     this.messages
       .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
       .forEach((message) => {
@@ -70,45 +66,15 @@ export class PrivateChatHistoryComponent
           grouped[date] = [];
         }
         grouped[date].push(message);
-        this.loadUserData(message.userId);
       });
-
-    this.groupedMessages = Object.keys(grouped).map((date) => ({
-      date,
-      messages: grouped[date],
-    }));
-  }
-
-  private loadUserData(userId: string): void {
-    if (!this.userCache[userId]) {
-      this.userService.getUserDataByUID(userId).subscribe(
-        (userData) => {
-          this.userCache[userId] = userData;
-        },
-        (error) => {
-          console.error('Fehler beim Laden der Benutzerdaten:', error);
-        }
-      );
-    }
-  }
-
-  getUserData(userId: string): UserData {
-    if (!this.userCache[userId]) {
-      this.userService.getUserDataByUID(userId).subscribe((userData) => {
-        this.userCache[userId] = userData;
-      });
-      return {} as UserData; // Platzhalter, falls Daten noch nicht geladen sind
-    }
-    return this.userCache[userId];
-  }
-
-  private scrollToBottom(): void {
-    if (this.chatContainer && this.scrollAllowed) {
-      const container = this.chatContainer.nativeElement;
-      if (container.scrollHeight !== container.scrollTop + container.clientHeight) {
-        container.scrollTop = container.scrollHeight;
-      }
-    }
+  
+    // Gruppierte Nachrichten erstellen und umkehren, sodass die ältesten Gruppen zuerst kommen
+    this.groupedMessages = Object.keys(grouped)
+      .map((date) => ({
+        date,
+        messages: grouped[date],
+      }))
+      .reverse(); // Umkehren der Reihenfolge der Gruppen
   }
 
   isOwnMessage(userId: string): boolean {
@@ -116,6 +82,6 @@ export class PrivateChatHistoryComponent
   }
 
   ngOnDestroy(): void {
-    this.scrollAllowed = true;    
+    this.scrollAllowed = true;
   }
 }

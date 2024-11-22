@@ -29,6 +29,7 @@ export class OwnPrivateMessageTemplateComponent {
   public threadService = inject(ThreadService);
   currentBorderRadius = '30px 30px 30px 30px';
   public privateChatService = inject(PrivateChatService);
+  isMenuOpen: boolean = false;
 
   constructor() {}
   showEmojiContainer(id: number) {
@@ -38,9 +39,18 @@ export class OwnPrivateMessageTemplateComponent {
   }
 
   hideEmojiContainer() {
-    if (!this.editMessageMenuOpened) {
+    if (!this.editMessageMenuOpened && !this.isMenuOpen) {
       this.isEmojiContainerVisible = 0;
     }
+  }
+
+  onMenuOpened() {
+    this.isMenuOpen = true;
+  }
+
+  onMenuClosed() {
+    this.isMenuOpen = false;
+    this.isEmojiContainerVisible = 0;
   }
 
   getLastReplyTime(messages: any[]): string {
@@ -71,6 +81,9 @@ export class OwnPrivateMessageTemplateComponent {
     switch (menuType) {
       case 'editMessage':
         this.currentBorderRadius = '0px 30px 30px 30px';
+        break;
+      case 'emoji':
+        this.currentBorderRadius = '30px 30px 30px 30px';
         break;
       default:
         this.currentBorderRadius = '0px 30px 30px 30px';

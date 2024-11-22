@@ -4,18 +4,38 @@
       class="inner-add-emoji-container"
       (mouseover)="showEmojiContainer(1)"
       (mouseout)="hideEmojiContainer()"
-      [ngClass]="{ 'inner-add-emoji-container-show': isEmojiContainerVisible === 1 }"
+      [ngClass]="{
+        'inner-add-emoji-container-show':
+          isEmojiContainerVisible === 1 || isMenuOpen
+      }"
     >
-      <div >
-        <ngx-emoji emoji="white_check_mark" [size]="16" (emojiClick)="addReaction(message.messageId, $event.emoji)"></ngx-emoji>
+      <div>
+        <ngx-emoji
+          emoji="white_check_mark"
+          [size]="16"
+          (emojiClick)="addReaction(message.messageId, $event.emoji)"
+        ></ngx-emoji>
       </div>
       <div>
-        <ngx-emoji emoji="raised_hands" [size]="16" (emojiClick)="addReaction(message.messageId, $event.emoji)"></ngx-emoji>
+        <ngx-emoji
+          emoji="raised_hands"
+          [size]="16"
+          (emojiClick)="addReaction(message.messageId, $event.emoji)"
+        ></ngx-emoji>
       </div>
-      <div [matMenuTriggerFor]="emojiMenu">
+      <div
+        [matMenuTriggerFor]="emojiMenu"
+        (menuOpened)="menuOpened()"
+        (menuClosed)="menuClosed()"
+        (click)="toggleBorder('emoji')"
+      >
         <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
       </div>
-      <div (click)="mainMessageArea.openSidenav(); threadService.setActualMessage(message)">
+      <div
+        (click)="
+          mainMessageArea.openSidenav(); threadService.setActualMessage(message)
+        "
+      >
         <mat-icon class="material-symbols-outlined">comment</mat-icon>
       </div>
     </div>
@@ -25,34 +45,60 @@
     class="message-container"
     (mouseover)="showEmojiContainer(1)"
     (mouseout)="hideEmojiContainer()"
-    [ngClass]="{ 'message-container-hover': isEmojiContainerVisible === 1 }"
+    [ngClass]="{
+      'message-container-hover': isEmojiContainerVisible === 1 || isMenuOpen
+    }"
   >
-    <img src="{{ message?.photoURL }}" alt="Profile Picture" (click)="userService.openProfileInfo(message?.userId)" />
+    <img
+      src="{{ photoURL }}"
+      alt="Profile Picture"
+      (click)="userService.openProfileInfo(message?.userId)"
+    />
     <div class="text-container">
       <div class="name-and-time">
-        <span class="name" (click)="userService.openProfileInfo(message.userId)">{{ message?.userName }}</span>
-        <span class="time">{{ message?.time | date: 'HH:mm' }} Uhr</span>
+        <span
+          class="name"
+          (click)="userService.openProfileInfo(message.userId)"
+          >{{ displayName }}</span
+        >
+        <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
       </div>
       <span class="message">
         {{ message?.content }}
         <div *ngIf="message?.attachmentUrls?.length > 0">
-          <a *ngFor="let attachmentUrl of message.attachmentUrls" [href]="attachmentUrl">
-            <app-attachment-preview 
-              [actualAttachmentUrls]="[attachmentUrl]" [message]="message">
-            </app-attachment-preview>
+          <a
+            *ngFor="let attachmentUrl of message.attachmentUrls"
+            [href]="attachmentUrl"
+          >
+            <app-attachment-preview
+              [actualAttachmentUrls]="[attachmentUrl]"
+              [message]="message"
+            ></app-attachment-preview>
           </a>
         </div>
       </span>
-     <app-message-reactions [message]="message" *ngIf="message.reactions.length > 0"></app-message-reactions>
-      <div class="thread" *ngIf="message?.thread && threadKeys.length > 0">
-        <span (click)="mainMessageArea.openSidenav(); threadService.setActualMessage(message)">
-          {{ threadKeys.length }} {{ threadKeys.length === 1 ? 'Antwort' : 'Antworten' }}
+      <app-message-reactions
+        [message]="message"
+        *ngIf="message.reactions.length > 0"
+      ></app-message-reactions>
+      <div class="thread" [ngClass]="{'d-none': !threadMessages?.length}" *ngIf="threadMessages$ | async as threadMessages">
+        <span
+          (click)="
+            mainMessageArea.openSidenav();
+            threadService.setActualMessage(message)
+          "
+        >
+          {{ (threadMessages$ | async)?.length }}
+          {{ (threadMessages$ | async)?.length === 1 ? "Antwort" : "Antworten" }}
         </span>
-        <span>Letzte Antwort: {{ getLastReplyTime(message.thread) }}</span>
-      </div>
+        <span>Letzte Antwort: {{ getLastReplyTime(threadMessages) }}</span>
+      </div>      
     </div>
   </div>
   <mat-menu xPosition="after" #emojiMenu>
-    <app-emoji-picker [message]="message" [component]="'channel'"></app-emoji-picker>
+    <app-emoji-picker
+      [message]="message"
+      [component]="'channel'"
+    ></app-emoji-picker>
   </mat-menu>
 </section>

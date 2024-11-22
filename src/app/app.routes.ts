@@ -10,6 +10,7 @@ import { NewPasswordComponent } from './landing-page/login/reset-password/new-pa
 import { MainMessageAreaComponent } from './main/main-message-area/main-message-area.component';
 import { PrivateChatComponent } from './main/private-chat/private-chat.component';
 import { NewMessagePlaceholderComponent } from './main/new-message-placeholder/new-message-placeholder.component';
+import { ThreadComponent } from './main/main-message-area/thread/thread.component';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent }, // Standardmäßig Login anzeigen
@@ -23,11 +24,18 @@ export const routes: Routes = [
     path: 'main/:uid',
     component: MainComponent,
     children: [
-      { path: 'channel/:channelId', component: MainMessageAreaComponent }, // Route für einen spezifischen Channel
-      { path: 'privatechat/:privateChatId', component: PrivateChatComponent }, // Route für einen spezifischen PrivateChat
-      { path : '', component: NewMessagePlaceholderComponent},
+      { path: 'channel/:channelId', component: MainMessageAreaComponent, children: [
+        // Hier wird der Thread als untergeordnete Route vom Channel behandelt
+        {
+          path: 'thread/:messageId',
+          component: ThreadComponent,  // Die Komponente, die den Thread anzeigt
+        },
+      ]},
+      { path: 'privatechat/:privateChatId', component: PrivateChatComponent },
+      { path: '', component: NewMessagePlaceholderComponent },
     ],
   },
+  
 
   // Impressum und Datenschutz als eigene Routen
   { path: 'imprint', component: ImprintComponent },

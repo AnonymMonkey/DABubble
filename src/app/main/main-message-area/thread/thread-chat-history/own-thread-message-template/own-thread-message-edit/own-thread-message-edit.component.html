@@ -1,7 +1,7 @@
 <section>
     <div class="textarea-container">
       <textarea
-        placeholder="{{ message.content }}"
+        placeholder="{{ message?.content }}"
         id="editedMessageContent"
         [(ngModel)]="editedMessageContent"
         (keydown.enter)="changeMessage(); $event.preventDefault()"
@@ -23,7 +23,7 @@
     </div>
     <div *ngIf="message?.attachmentUrls?.length > 0" class="attachment-container">
       <a
-        *ngFor="let attachmentUrl of message.attachmentUrls"
+        *ngFor="let attachmentUrl of message?.attachmentUrls"
         [href]="attachmentUrl"
       >
         <app-attachment-preview [actualAttachmentUrls]="[attachmentUrl]" [message]="message">

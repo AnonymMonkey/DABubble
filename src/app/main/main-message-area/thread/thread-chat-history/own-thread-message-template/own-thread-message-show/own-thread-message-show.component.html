@@ -3,7 +3,7 @@
       <span
         class="name"
         (click)="userService.openProfileInfo(message?.userId)"
-        >{{ displayName }}</span
+        >{{ displayName || 'Lädt...' }}</span
       >
       <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
     </div>
@@ -12,7 +12,7 @@
       <div *ngIf="message?.attachmentUrls?.length > 0">
         <a *ngFor="let attachmentUrl of message.attachmentUrls" [href]="attachmentUrl">
           <app-attachment-preview 
-            [actualAttachmentUrls]="[attachmentUrl]" [message]="message">
+            [actualAttachmentUrls]="[attachmentUrl]" [message]="message" [messageId]="message.messageId">
           </app-attachment-preview>
         </a>
       </div>

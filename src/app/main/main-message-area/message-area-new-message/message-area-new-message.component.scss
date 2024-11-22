@@ -105,14 +105,13 @@ textarea {
   display: flex;
   justify-content: space-between;
   color: var(--grey-color);
+}
 
-  > mat-icon {
-    color: var(--purple1-color);
-
-    &:hover {
-      cursor: pointer;
-      color: var(--purple2-color);
-    }
+.send-icon {
+  color: var(--purple1-color);
+  &:hover {
+    cursor: pointer;
+    color: var(--purple2-color);
   }
 }
 
