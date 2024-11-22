@@ -1,4 +1,4 @@
-<section (click)="$event.stopPropagation()">
+<section (click)="$event.stopPropagation(); closeAutocomplete()">
   <div class="headline">
     <h2>Leute hinzufügen</h2>
     <mat-icon (click)="header.closeMenu('add-member')">close</mat-icon>
@@ -10,10 +10,11 @@
     <span>{{ currentChannel?.channelName }}</span>
   </div>
   <div class="dialog-wrapper">
-    <mat-dialog-content>
+    <mat-dialog-content (click)="$event.stopPropagation()">
       <app-add-users-to-channel
         [channelId]="channelId"
         (usersEmpty)="handleUsersEmpty($event)"
+        [closeAutocompleteEmitter]="closeAutocompleteEmitter"
       ></app-add-users-to-channel>
     </mat-dialog-content>
     <mat-dialog-actions [align]="'end'">

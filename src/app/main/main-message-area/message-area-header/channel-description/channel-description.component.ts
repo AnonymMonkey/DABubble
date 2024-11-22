@@ -100,7 +100,6 @@ export class ChannelDescriptionComponent implements OnInit {
       await updateDoc(userDocRef, {
         channels: arrayRemove(channelId),
       });
-      console.log('Channel aus Benutzer-Channels entfernt');
   
       // Löschen der Nachrichten im Channel (Unterkollektion messages)
       const messagesCollectionRef = collection(
