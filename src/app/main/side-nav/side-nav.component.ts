@@ -61,15 +61,14 @@ export class SideNavComponent {
     this.userService.allUserData$.subscribe((data) => {
       this.allUserData = data;
     });
-    this.loadAllChannelsData();
     this.loadOnlineStatus();
   }
 
-  // ngOnChanges(changes: SimpleChanges): void {
-  //   if (changes['userData']) {
-  //     this.loadAllChannelsData();
-  //   }
-  // }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['userData']) {
+      this.loadAllChannelsData();
+    }
+  }
 
   openCreateChannelDialog(): void {
     this.dialog.open(CreateChannelDialogComponent, {
