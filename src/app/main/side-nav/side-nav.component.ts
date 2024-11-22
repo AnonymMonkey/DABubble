@@ -65,11 +65,11 @@ export class SideNavComponent {
     this.loadOnlineStatus();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['userData']) {
-      this.loadAllChannelsData();
-    }
-  }
+  // ngOnChanges(changes: SimpleChanges): void {
+  //   if (changes['userData']) {
+  //     this.loadAllChannelsData();
+  //   }
+  // }
 
   openCreateChannelDialog(): void {
     this.dialog.open(CreateChannelDialogComponent, {
@@ -96,7 +96,6 @@ export class SideNavComponent {
         }
       });
     });
-    console.log(this.allChannelsData);
   }
 
   loadOnlineStatus() {

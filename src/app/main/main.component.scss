@@ -19,6 +19,10 @@
     border: none !important;
     filter: drop-shadow(-4px 4px 7px rgba(0, 0, 0, 0.2));
 
+    mat-icon {
+      color: black !important;
+    }
+
     &:hover {
       filter: drop-shadow(-5px 5px 6px rgba(0, 0, 0, 0.2));
       cursor: pointer;
@@ -27,6 +31,10 @@
     &:hover p {
       color: var(--purple1-color) !important;
       cursor: pointer;
+    }
+
+    &:hover mat-icon {
+      color: var(--purple1-color) !important;
     }
 
     p {
