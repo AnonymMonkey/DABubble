@@ -11,7 +11,11 @@
       }"
       id="add-emoji-container1"
     >
-      <div [matMenuTriggerFor]="emojiMenu">
+      <div
+        [matMenuTriggerFor]="emojiMenu"
+        (menuOpened)="onMenuOpened(message.messageId)"
+        (menuClosed)="onMenuClosed(message.messageId)"
+      >
         <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
       </div>
       <div
@@ -42,8 +46,9 @@
     (mouseover)="showEmojiContainer(message.messageId)"
     (mouseout)="hideEmojiContainer(message.messageId)"
     [ngClass]="{
-      'message-container-hover':  emojiContainerVisible[message.messageId] &&
-      messageService.editMessageId !== message.messageId + '_thread'
+      'message-container-hover':
+        emojiContainerVisible[message.messageId] &&
+        messageService.editMessageId !== message.messageId + '_thread'
     }"
   >
     <img
@@ -64,7 +69,7 @@
   <mat-menu xPosition="after" #emojiMenu>
     <app-emoji-picker
       [message]="message"
-      [component]="'privateChat'"
+      [component]="'channel'"
     ></app-emoji-picker>
   </mat-menu>
 </section>

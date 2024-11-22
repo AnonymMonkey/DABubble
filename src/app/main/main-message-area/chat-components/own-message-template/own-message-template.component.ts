@@ -78,15 +78,13 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit {
   }
 
   showEmojiContainer(messageId: string) {
-    // Emoji-Container nur anzeigen, wenn keine Edit-Komponente aktiv ist
     if (this.messageService.editMessageId !== messageId) {
       this.emojiContainerVisible[messageId] = true;
     }
   }
   
   hideEmojiContainer(messageId: string) {
-    // Emoji-Container nur ausblenden, wenn keine Edit-Komponente aktiv ist
-    if (this.messageService.editMessageId !== messageId) {
+    if (this.messageService.editMessageId !== messageId && !this.menuOpenStatus[messageId]) {
       this.emojiContainerVisible[messageId] = false;
     }
   }
@@ -135,8 +133,9 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit {
   }
 
   addReaction(messageId: string, emoji: any): void {
+    let path = 'channels/' + this.channelService.channelId + '/messages/' + messageId;
     this.messageService.setActualMessage(this.message);
-    this.messageService.addOrChangeReaction(messageId, emoji);
+    this.messageService.addOrChangeReactionChannelOrThread(emoji, path);
   }
 
   toggleBorder(menuType: string) {

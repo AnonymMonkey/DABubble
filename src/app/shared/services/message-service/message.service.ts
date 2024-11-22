@@ -107,16 +107,20 @@ export class MessageService {
     }
   }
 
-  async addOrChangeReaction(messageId: string, emoji: any): Promise<void> {
-    const messageRef = doc(
-      this.firestore,
-      `channels/${this.channelService.channelId}/messages/${messageId}`
-    );
+  async addOrChangeReactionChannelOrThread(
+    emoji: any,
+    path: string
+  ): Promise<void> {
+    const messageRef = doc(this.firestore, path);
     const currentMessage = this.actualMessageSubject.value;
 
     if (!currentMessage) {
       console.error('Aktuelle Nachricht nicht gefunden.');
       return;
+    }
+
+    if (!currentMessage.reactions) {
+      currentMessage.reactions = [];
     }
 
     this.userService.userData$.subscribe({
@@ -130,7 +134,6 @@ export class MessageService {
           return;
         }
 
-        // Emoji-Vergleich anpassen: Vergleiche z.B. anhand von `shortName`
         const existingReaction = currentMessage.reactions.find(
           (r) => r.emoji.shortName === emoji.shortName
         );
@@ -198,14 +201,9 @@ export class MessageService {
     }
   }
 
-  async deleteMessageInThreadOrChannel(
-    path: string,
-  ): Promise<void> {
+  async deleteMessageInThreadOrChannel(path: string): Promise<void> {
     try {
-      const threadMessageRef = doc(
-        this.firestore,
-        path
-      );
+      const threadMessageRef = doc(this.firestore, path);
       await deleteDoc(threadMessageRef);
     } catch (error) {
       console.error('Fehler beim Löschen der Nachricht im Thread:', error);
