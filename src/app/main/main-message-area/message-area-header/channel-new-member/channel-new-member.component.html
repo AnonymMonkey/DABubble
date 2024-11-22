@@ -22,6 +22,7 @@
         <button
           [disabled]="invalid"
           class="button-primary"
+          [ngClass]="{ 'button-disabled': invalid, 'button-enabled': !invalid }"
           mat-button
           mat-dialog-close
           (click)="create()"
