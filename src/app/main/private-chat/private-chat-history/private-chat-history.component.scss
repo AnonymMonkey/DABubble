@@ -1,15 +1,15 @@
 :host {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  overflow-y: auto;
+  height: 100%;
 }
 
 .chat-container {
-  height: 100%;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  // justify-content: flex-end;  // Automatisch nach unten scrollen
+  position: relative;
 }
 
 section {
@@ -19,8 +19,6 @@ section {
   color: black;
   font-family: var(--font-nunito);
   white-space: pre-wrap;
-  overflow-y: auto;
-
   div {
     width: 100%;
   }

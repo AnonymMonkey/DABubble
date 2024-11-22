@@ -22,14 +22,15 @@ section {
   .reply-info {
     display: flex;
     align-items: center;
-    margin: 10px 0; /* Abstand nach oben und unten */
+    margin: 10px 20px;
+    color: var(--light-purple-color);
   }
   
   .reply-divider {
     flex-grow: 1; /* Füllt den verfügbaren Platz */
     border: none; /* Entfernt Standardrahmen */
     height: 1px; /* Höhe des Strichs */
-    background-color: gray; /* Farbe des Strichs */
+    background-color: var(--light-purple-color); /* Farbe des Strichs */
     margin-left: 10px; /* Abstand zwischen Text und Strich */
   }
   

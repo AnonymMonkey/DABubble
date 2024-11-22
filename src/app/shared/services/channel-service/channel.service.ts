@@ -32,25 +32,32 @@ export class ChannelService {
   public channelId: string = '';
   public actualThread: Array<string> = []; // Daten des aktuell ausgewählten Threads
   private userService = inject(UserService);
+  loading: boolean = true;
 
   private usersData: BehaviorSubject<Map<string, any>> = new BehaviorSubject(
     new Map()
   );
 
   // Neues Observable für Channel-Daten
-  public channelData$: Observable<Channel | undefined> = this.currentChannel$;
+  public channelData$: Observable<Channel | undefined> = this.currentChannel$.pipe(
+    shareReplay(1) // Verhindert, dass bei jedem Wechsel des Channels die Daten neu geladen werden müssen
+  );
+  
 
   constructor(private firestore: Firestore, public dialog: MatDialog) {}
 
   // Methode zum Laden eines Channels und Speichern im Subject
   setChannel(channelId: string): void {
     this.channelId = channelId;
+    this.loading = true; // Ladezustand aktivieren
     this.getChannelById(channelId).subscribe({
       next: (channel) => {
-        this.currentChannelSubject.next(channel); // Setze den Channel im BehaviorSubject
+        this.currentChannelSubject.next(channel); // Channel setzen
+        this.loading = false; // Ladezustand deaktivieren
       },
       error: (error) => {
         console.error('Fehler beim Laden des Channels:', error);
+        this.loading = false; // Ladezustand deaktivieren bei Fehler
       },
     });
   }

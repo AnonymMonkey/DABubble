@@ -30,11 +30,11 @@
     />
     <app-own-thread-message-show
       [message]="message"
-      *ngIf="messageService.editMessageId !== message.messageId"
+      *ngIf="messageService.editMessageId !== message?.messageId"
     ></app-own-thread-message-show>
     <app-own-thread-message-edit
       [message]="message"
-      *ngIf="messageService.editMessageId === message.messageId"
+      *ngIf="messageService.editMessageId === message?.messageId"
     ></app-own-thread-message-edit>
   </div>
 

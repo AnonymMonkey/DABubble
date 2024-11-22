@@ -1,7 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ChannelMessage } from '../../models/channel-message.model';
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import {
+  deleteDoc,
+  deleteField,
+  doc,
+  getDoc,
+  updateDoc,
+} from 'firebase/firestore';
 import { enableIndexedDbPersistence, Firestore } from '@angular/fire/firestore';
 import { ChannelService } from '../channel-service/channel.service';
 import { docData } from 'rxfire/firestore';
@@ -44,9 +50,9 @@ export class MessageService {
   }
 
   async updateChannelMessageContent(
-    channelId: string,  
-    messageId: string,  
-    newContent: string   
+    channelId: string,
+    messageId: string,
+    newContent: string
   ): Promise<void> {
     const messageRef = doc(
       this.firestore,
@@ -57,13 +63,19 @@ export class MessageService {
       console.log('Nachricht erfolgreich aktualisiert');
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Nachricht:', error);
-      throw error; 
+      throw error;
     }
   }
 
-  async deleteChannelMessage(channelId: string, messageId: string): Promise<void> {
+  async deleteChannelMessage(
+    channelId: string,
+    messageId: string
+  ): Promise<void> {
     try {
-      const messageRef = doc(this.firestore, `channels/${channelId}/messages/${messageId}`);
+      const messageRef = doc(
+        this.firestore,
+        `channels/${channelId}/messages/${messageId}`
+      );
       await deleteDoc(messageRef);
     } catch (error) {
       console.error('Fehler beim Löschen der Nachricht:', error);
@@ -185,18 +197,42 @@ export class MessageService {
     });
   }
 
-  async deleteMessage(privateChatId: string, messageId: string) {
+  async deleteMessage(privateChatId: string, messageId: string): Promise<void> {
     try {
-      // Referenz zur Nachricht in Firestore
-      const messageDocRef = doc(
-        this.firestore,
-        `privateChats/${privateChatId}/messages/${messageId}`
-      );
-
-      // Löscht das Dokument der Nachricht
-      await deleteDoc(messageDocRef);
+      const [user1Id, user2Id] = privateChatId.split('_');
+      const user1DocRef = doc(this.firestore, `users/${user1Id}`);
+      const user2DocRef = doc(this.firestore, `users/${user2Id}`);
+      await Promise.all([
+        updateDoc(user1DocRef, {
+          [`privateChat.${privateChatId}.messages.${messageId}`]: deleteField(),
+        }),
+        updateDoc(user2DocRef, {
+          [`privateChat.${privateChatId}.messages.${messageId}`]: deleteField(),
+        }),
+      ]);
     } catch (error) {
-      console.error('Fehler beim Löschen der Nachricht:', error);
+      console.error(
+        'Fehler beim Löschen der Nachricht bei beiden Nutzern:',
+        error
+      );
+      throw error;
+    }
+  }
+
+  async deleteMessageInThread(
+    channelId: string,
+    messageId: string,
+    threadId: string
+  ): Promise<void> {
+    console.log(channelId, messageId, threadId);
+    try {
+      const threadMessageRef = doc(
+        this.firestore,
+        `channels/${channelId}/messages/${messageId}/thread/${threadId}`
+      );
+      await deleteDoc(threadMessageRef);
+    } catch (error) {
+      console.error('Fehler beim Löschen der Nachricht im Thread:', error);
       throw error;
     }
   }

@@ -23,7 +23,7 @@
           (emojiClick)="privateChatService.addReaction(message.messageId, $event.emoji)"
         ></ngx-emoji>
       </div>
-      <div [matMenuTriggerFor]="emojiMenu">
+      <div [matMenuTriggerFor]="emojiMenu" (menuOpened)="menuOpened()" (menuClosed)="menuClosed()">
         <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
       </div>
     </div>

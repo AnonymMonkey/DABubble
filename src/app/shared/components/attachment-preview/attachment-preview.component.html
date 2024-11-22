@@ -4,13 +4,13 @@
     *ngFor="let attachmentUrl of actualAttachmentUrls; let i = index"
   >
     <!-- Löschen-Button -->
-    <mat-icon
-      class="material-symbols-outlined close-icon"
+    <div
+      class="close-icon"
       (click)="onDeleteClick(attachmentUrl, $event)"
       *ngIf="message?.userId === userService.userId || message === ''"
     >
-      close
-    </mat-icon>
+      <mat-icon class="material-symbols-outlined"> delete </mat-icon>
+    </div>
 
     <!-- Bilddateien -->
     <img

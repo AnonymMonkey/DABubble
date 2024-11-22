@@ -140,7 +140,7 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
   // Löscht die Nachricht, wenn sie keinen Inhalt und keine URLs mehr hat
   async deleteMessage() {
     try {
-      const messageId = this.message.messageId;
+      const messageId = this.message?.messageId;
       const privateChatId = this.privateChatService.privateChatId;
       const [firstUserId, secondUserId] = privateChatId!.split('_');
 

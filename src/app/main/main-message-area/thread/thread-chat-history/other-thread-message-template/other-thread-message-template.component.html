@@ -47,7 +47,7 @@
           <span
             class="name"
             (click)="userService.openProfileInfo(message?.userId)"
-            >{{ displayName }}</span
+            >{{ displayName || 'Lädt...' }}</span
           >
           <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
         </div>
@@ -60,7 +60,7 @@
             </a>
           </div>
         </span>
-        <app-message-reactions [message]="message" *ngIf="message.reactions > 0"></app-message-reactions>
+        <app-message-reactions [message]="message" *ngIf="message"></app-message-reactions>
       </div>
     </div>
   

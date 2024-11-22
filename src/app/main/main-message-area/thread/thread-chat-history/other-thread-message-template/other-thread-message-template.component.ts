@@ -8,6 +8,7 @@ import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatIcon } from '@angular/material/icon';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import { AttachmentPreviewComponent } from '../../../../../shared/components/attachment-preview/attachment-preview.component';
+import { filter, map, Subject, Subscription, take, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-other-thread-message-template',
@@ -23,16 +24,45 @@ export class OtherThreadMessageTemplateComponent implements OnInit {
   photoURL: string = '';
   public userService = inject(UserService);
   public privateChatService = inject(PrivateChatService);
+  private subscriptions: Subscription[] = [];
 
   constructor() {}
 
   ngOnInit() {
     if (this.message) {
-     this.userService.getUserDataByUID(this.message.userId).subscribe((data) => {
-       this.displayName = data.displayName;
-       this.photoURL = data.photoURL;
-     });
+      this.userService
+        .getUserDataByUID(this.message.userId)
+        .subscribe((data) => {
+          this.photoURL = data.photoURL;
+          this.displayName = data.displayName;
+        });
     }
+  }
+
+  cleanupSubscriptions() {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+    this.subscriptions = [];
+  }
+  
+  ngOnDestroy() {
+    this.cleanupSubscriptions(); // Abo aufräumen, wenn Komponente zerstört wird
+  }
+
+  loadUserData(userId: string) {
+    // Alte Abos beenden, bevor ein neues startet
+    this.cleanupSubscriptions();
+  
+    const subscription = this.userService.allUserData$
+      .pipe(
+        map((allUsers) => allUsers.find(user => user.uid === userId)),
+        filter(userData => !!userData) // Überspringe ungültige Daten
+      )
+      .subscribe((userData) => {
+        this.displayName = userData.displayName;
+        this.photoURL = userData.photoURL;
+      });
+  
+    this.subscriptions.push(subscription);
   }
 
   showEmojiContainer(id: number) {

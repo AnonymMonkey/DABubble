@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { getStorage, ref, uploadBytes, UploadResult } from '@angular/fire/storage';
 import { getDownloadURL } from 'firebase/storage';
@@ -12,6 +12,7 @@ import { StorageService } from '../../services/storage-service/storage.service';
 })
 export class UploadMethodSelectorComponent {
   @Output() uploadSelected = new EventEmitter<string>();
+  @Input() messageId: string | undefined;
   storage = getStorage(); // Firebase Storage-Instanz
   private route = inject(ActivatedRoute); // Aktivierte Route
 
@@ -41,15 +42,21 @@ export class UploadMethodSelectorComponent {
     };
   }
 
-  // Upload-Datei und dynamischer Pfad basierend auf Channel- oder PrivateChat-ID
+  // Upload-Datei und dynamischer Pfad basierend auf Channel- oder PrivateChat-ID und optional der messageId
   async uploadFile(file: File) {
     const channelId = this.route.snapshot.paramMap.get('channelId');
     const privateChatId = this.route.snapshot.paramMap.get('privateChatId');
+    const messageId = this.messageId;
 
     let storagePath = 'uploads/'; // Basis-Speicherpfad
-    if (channelId) {
+    if (messageId) {
+      // Wenn eine messageId vorhanden ist, speichern wir die Datei in einem Ordner für diese Nachricht
+      storagePath = `channels/${channelId}/messages/${messageId}/uploads/${file.name}`;
+    } else if (channelId) {
+      // Wenn eine channelId vorhanden ist, speichern wir die Datei im Channel-Ordner
       storagePath = `channels/${channelId}/uploads/${file.name}`;
     } else if (privateChatId) {
+      // Wenn eine privateChatId vorhanden ist, speichern wir die Datei im Private-Chat-Ordner
       storagePath = `privatechats/${privateChatId}/uploads/${file.name}`;
     }
 

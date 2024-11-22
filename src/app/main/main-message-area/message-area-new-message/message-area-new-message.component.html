@@ -34,15 +34,24 @@
           >alternate_email</mat-icon
         >
       </div>
-      <mat-icon (click)="sendMessage()">send</mat-icon>
+      <mat-icon
+  (click)="sendMessage()"
+  [ngClass]="{
+    'send-icon': newMessageContent.trim() !== '' || attachmentUrls.length > 0
+  }"
+>
+  send
+</mat-icon>
+    
+    
     </div>
   </div>
 
   <mat-menu xPosition="after" #uploadMethodMenu yPosition="above">
     <app-upload-method-selector
-      (uploadSelected)="addDownloadLink($event); openAttachmentSidenav();"
+      (uploadSelected)="addDownloadLink($event); openAttachmentSidenav()"
     ></app-upload-method-selector>
-  </mat-menu>  
+  </mat-menu>
 
   <mat-menu xPosition="after" #emojiMenu yPosition="above">
     <emoji-mart
@@ -67,7 +76,10 @@
 
   <mat-sidenav-container class="example-container">
     <mat-sidenav #attachmentSidenav mode="side" position="end"
-      ><app-attachment-preview [actualAttachmentUrls]="attachmentUrls" (attachmentRemoved)="onAttachmentRemoved($event)"></app-attachment-preview>
+      ><app-attachment-preview
+        [actualAttachmentUrls]="attachmentUrls"
+        (attachmentRemoved)="onAttachmentRemoved($event)"
+      ></app-attachment-preview>
     </mat-sidenav>
     <mat-sidenav-content></mat-sidenav-content>
   </mat-sidenav-container>

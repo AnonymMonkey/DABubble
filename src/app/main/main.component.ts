@@ -10,6 +10,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { UserService } from '../shared/services/user-service/user.service';
 import { UserData } from '../shared/models/user.model';
 import { Subscription } from 'rxjs';
+import { ThreadComponent } from './main-message-area/thread/thread.component';
 
 @Component({
   selector: 'app-main',

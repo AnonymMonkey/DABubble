@@ -65,7 +65,7 @@ export class OwnMessageEditComponent implements OnInit {
     this.clearInput(false); // Bearbeitungsmodus sofort verlassen, aber Inhalt beibehalten
   
     try {
-      if (!this.editedMessageContent.trim() && !(this.message.attachmentUrls && this.message.attachmentUrls.length > 0)) {
+      if (!this.editedMessageContent.trim() && !(this.message.attachmentUrls || this.message.attachmentUrls.length > 0)) {
         await this.messageService.deleteChannelMessage(
           this.channelService.channelId,  // Kanal-ID übergeben
           this.message.messageId          // Nachrichten-ID übergeben

@@ -1,75 +1,182 @@
+::ng-deep {
+  .mat-mdc-menu-panel {
+    overflow: hidden !important;
+    max-width: none !important;
+    border-radius: 30px;
+  }
+
+  emoji-mart-anchors {
+    width: 100%;
+  }
+
+  .emoji-mart-anchors {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .emoji-mart-search {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    input {
+      width: 100%;
+      height: 30px;
+    }
+
+    label {
+      display: none;
+    }
+
+    button {
+      position: absolute;
+      right: 10px;
+      height: 25px;
+      width: 25px;
+      padding: 0 !important;
+      align-self: center;
+    }
+  }
+
+  .emoji-mart-scroll {
+    display: flex;
+    flex-direction: column;
+    max-height: 245px;
+    overflow-y: scroll;
+    color: var(--black-color);
+  }
+
+  .emoji-mart-bar {
+    display: flex;
+    color: var(--black-color);
+  }
+
+  .emoji-mart-preview {
+    padding-left: 5px;
+  }
+
+  .emoji-mart-preview-emoji {
+    margin-bottom: -9px;
+    margin-top: 2px;
+  }
+
+  .emoji-mart-preview-data {
+    display: none;
+  }
+}
+
 section {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-    padding: 20px 20px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  padding: 20px 20px;
+  flex-direction: row;
+}
+
+.textarea-container {
+  flex-grow: 1;
+  height: 100%;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 20px;
+  border-radius: 20px;
+  border: 1px solid var(--light-purple-color);
+}
+
+textarea {
+  width: 100%;
+  height: 65%;
+  resize: none;
+  outline: none;
+  border: none;
+  padding: 20px 10px;
+}
+
+.icons-container {
+  width: 100%;
+  height: 35%;
+  display: flex;
+  justify-content: space-between;
+  color: var(--grey-color);
+}
+
+.send-icon {
+  color: var(--purple1-color);
+
+  &:hover {
+    cursor: pointer;
+    color: var(--purple2-color);
   }
-  
-  .textarea-container {
-    width: 100%;
-    height: 100%;
-    min-height: 150px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0px 20px;
-    border-radius: 20px;
-    border: 1px solid var(--light-purple-color);
-  }
-  
-  textarea {
-    width: 100%;
-    height: 65%;
-    resize: none;
-    outline: none;
-    border: none;
-    padding: 20px 10px;
-  }
-  
-  .icons-container {
-    width: 100%;
-    height: 35%;
-    display: flex;
-    justify-content: space-between;
-    color: var(--grey-color);
-  
-    > mat-icon {
-      color: var(--purple1-color);
-  
-      &:hover {
-        cursor: pointer;
-        color: var(--purple2-color);
-      }
-    }
-  }
-  
-  .grey-line {
+}
+
+.grey-line {
+  height: 40px;
+  width: 1px;
+  background-color: var(--light-purple-color);
+}
+
+.left-icons {
+  display: flex;
+  gap: 10px;
+
+  > mat-icon {
     height: 40px;
-    width: 1px;
-    background-color: var(--light-purple-color);
-  }
-  
-  .left-icons {
+    width: 40px;
     display: flex;
-    gap: 10px;
-  
-    > mat-icon {
-      height: 40px;
-      width: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 30px;
-  
-      &:hover {
-        cursor: pointer;
-        background-color: var(--bg-color);
-        color: var(--purple3-color);
-      }
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+
+    &:hover {
+      cursor: pointer;
+      background-color: var(--bg-color);
+      color: var(--purple3-color);
     }
   }
-  
+}
+
+.emoji-picker-container {
+  position: absolute;
+  z-index: 1000;
+  bottom: 80px; /* Oder ein Wert, der den Picker über dem Textbereich platziert */
+  left: 0;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: 350px;
+}
+
+mat-sidenav-container {
+  border-radius: 30px;
+  right: auto;
+  left: 0px;
+  height: 100%;
+}
+
+mat-sidenav {
+  width: 200px;
+  background-color: var(--text-color);
+  box-shadow: 0px 2px 2px 0px #00000014;
+}
+
+mat-sidenav-content {
+  height: 100%;
+  width: 0;
+  border-radius: 30px;
+}
+
+app-attachment-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 20px;
+}

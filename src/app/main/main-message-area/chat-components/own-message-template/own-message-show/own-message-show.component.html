@@ -3,7 +3,7 @@
     <span
       class="name"
       (click)="userService.openProfileInfo(message?.userId)"
-      >{{ message?.userName }}</span
+      >{{ displayName }}</span
     >
     <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
   </div>
@@ -24,16 +24,14 @@
     [message]="message"
     *ngIf="message.reactions.length > 0"
   ></app-message-reactions>
-  <div class="thread-own" *ngIf="message?.thread && threadKeys.length > 0">
-    <span
-      (click)="
-        mainMessageArea.openSidenav();
-        threadService.setActualMessage(message)
-      "
+  <div class="thread-own" [ngClass]="{'d-none': !threadMessages?.length}" *ngIf="threadMessages$ | async as threadMessages" #thread>
+    <span 
+      *ngIf="threadMessages.length > 0"
+      (click)="mainMessageArea.openSidenav(); threadService.setActualMessage(message)"
     >
-      {{ threadKeys.length }}
-      {{ threadKeys.length === 1 ? "Antwort" : "Antworten" }}
+      {{ threadMessages.length}}
+      {{ threadMessages.length === 1 ? "Antwort" : "Antworten" }}
     </span>
-    <span>Letzte Antwort: {{ getLastReplyTime(message.thread) }}</span>
+    <span *ngIf="threadMessages.length > 0">Letzte Antwort: {{ getLastReplyTime(threadMessages) }}</span>
   </div>
 </section>
