@@ -5,8 +5,10 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import {
+  MatAutocomplete,
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
+  MatAutocompleteTrigger,
 } from '@angular/material/autocomplete';
 import { CommonModule } from '@angular/common';
 import {
@@ -18,6 +20,7 @@ import {
   Output,
   signal,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Channel } from '../../models/channel.model';
@@ -38,6 +41,8 @@ import { ActivatedRoute } from '@angular/router';
     MatAutocompleteModule,
     CommonModule,
     MatIconModule,
+    MatAutocompleteTrigger,
+    MatAutocomplete,
   ],
   templateUrl: './add-users-to-channel.component.html',
   styleUrl: './add-users-to-channel.component.scss',
@@ -51,6 +56,8 @@ export class AddUsersToChannelComponent {
   @Input() channelId: string = '';
   isLoading = true;
   @Output() usersEmpty = new EventEmitter<boolean>();
+  @Input() closeAutocompleteEmitter!: EventEmitter<void>;
+  @ViewChild(MatAutocompleteTrigger) autoTrigger!: MatAutocompleteTrigger;
 
   newAllUserData = signal<
     { userId: string; userName: string; photoURL: string }[]
@@ -63,6 +70,10 @@ export class AddUsersToChannelComponent {
     this.initializeUserData();
     this.initializeData();
     this.updateUsers();
+
+    this.closeAutocompleteEmitter.subscribe(() => {
+      this.closeAutocomplete();
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -270,5 +281,9 @@ export class AddUsersToChannelComponent {
       this.channelService.addUserToChannel(userId, this.channelId);
       this.userService.addNewChannelToUser(userId, this.channelId);
     });
+  }
+
+  closeAutocomplete(): void {
+    this.autoTrigger.closePanel();
   }
 }

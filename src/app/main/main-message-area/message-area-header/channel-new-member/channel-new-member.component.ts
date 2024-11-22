@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
 import { MessageAreaHeaderComponent } from '../message-area-header.component';
 import { MatIcon } from '@angular/material/icon';
 import { Channel } from '../../../../shared/models/channel.model';
@@ -28,6 +28,7 @@ export class ChannelNewMemberComponent {
   channelId: string = '';
   invalid: boolean = true;
   channelService = inject(ChannelService);
+  @Output() closeAutocompleteEmitter = new EventEmitter<void>();
 
   constructor(
     public header: MessageAreaHeaderComponent,
@@ -47,7 +48,6 @@ export class ChannelNewMemberComponent {
 
   handleUsersEmpty(isEmpty: boolean): void {
     this.invalid = isEmpty;
-    console.log(this.invalid);
   }
 
   create() {
@@ -56,5 +56,12 @@ export class ChannelNewMemberComponent {
     } else {
       this.addUsersToChannel.updateExistingChannel();
     }
+    this.closeAutocomplete();
+    this.header.closeMenu('add-member');
   }
+
+  closeAutocomplete(): void {
+    this.closeAutocompleteEmitter.emit(); 
+  }
+
 }
