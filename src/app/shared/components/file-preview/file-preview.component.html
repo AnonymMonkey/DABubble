@@ -1,0 +1,44 @@
+<section [ngSwitch]="fileType" class="image">
+  <!-- Bilddateien -->
+  <img
+    *ngSwitchCase="'image'"
+    [src]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
+    alt="Attachment Image"
+    (click)="onClick($event)"
+  />
+
+  <!-- PDF-Dateien -->
+  <img
+    *ngSwitchCase="'pdf'"
+    src="assets/icons/document_chat.png"
+    alt="PDF"
+    (click)="onClick($event)"
+  />
+
+  <!-- Word-Dokumente -->
+  <img
+    *ngSwitchCase="'doc'"
+    src="assets/icons/doc.png"
+    alt="Word"
+    (click)="onClick($event)"
+  />
+
+  <!-- Text- oder CSV-Dateien -->
+  <img
+    *ngSwitchCase="'text'"
+    src="assets/icons/text.png"
+    alt="Text/CSV"
+    (click)="onClick($event)"
+  />
+
+  <!-- Excel-Dateien -->
+  <img
+    *ngSwitchCase="'excel'"
+    src="assets/icons/excel.png"
+    alt="Excel"
+    (click)="onClick($event)"
+  />
+
+  <!-- Fallback -->
+  <p *ngSwitchDefault>Dieses Dateiformat wird nicht unterstützt.</p>
+</section>
