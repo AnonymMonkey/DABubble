@@ -1,60 +1,43 @@
 <section>
-  <div
-    class="image"
-    *ngFor="let attachmentUrl of actualAttachmentUrls; let i = index"
-  >
-    <!-- Löschen-Button -->
-    <div
-      class="close-icon"
-      (click)="onDeleteClick(attachmentUrl, $event)"
-      *ngIf="message?.userId === userService.userId || message === ''"
-    >
-      <mat-icon class="material-symbols-outlined"> delete </mat-icon>
+  <div *ngIf="!message">
+    <mat-icon class="material-symbols-outlined arrow-left" *ngIf="actualAttachmentUrls.length > 1" (click)="changeAttachment(-1)">chevron_left</mat-icon>
+    <div class="image-container">
+      <div
+        class="close-icon"
+        (click)="onDeleteClick(actualAttachmentUrl, $event)"
+        *ngIf="canDelete(message)"
+      >
+        <mat-icon class="material-symbols-outlined"> delete </mat-icon>
+      </div>
+
+      <div class="image">
+        <app-file-preview
+          [attachmentUrl]="actualAttachmentUrl"
+          (click)="openAttachment(actualAttachmentUrl, $event)"
+        ></app-file-preview>
+      </div>
     </div>
+    <mat-icon class="material-symbols-outlined arrow-right" *ngIf="actualAttachmentUrls.length > 1" (click)="changeAttachment(1)">chevron_right</mat-icon>
+  </div>
 
-    <!-- Bilddateien -->
-    <img
-      *ngIf="getFileType(attachmentUrl) === 'image'"
-      [src]="sanitizer.bypassSecurityTrustResourceUrl(attachmentUrl)"
-      alt="Attachment Image"
-      (click)="openAttachment(attachmentUrl, $event)"
-    />
+  <div *ngIf="message" class="image-container">
+    <div
+      *ngFor="let attachmentUrl of actualAttachmentUrls; let i = index"
+      class="image"
+    >
+      <div
+        class="close-icon"
+        (click)="onDeleteClick(attachmentUrl, $event)"
+        *ngIf="canDelete(message)"
+      >
+        <mat-icon class="material-symbols-outlined"> delete </mat-icon>
+      </div>
 
-    <!-- PDF-Dateien -->
-    <img
-      src="../../../../assets/icons/document_chat.png"
-      alt="PDF"
-      *ngIf="getFileType(attachmentUrl) === 'pdf'"
-      (click)="openAttachment(attachmentUrl, $event)"
-    />
-
-    <!-- Word-Dokumente -->
-    <img
-      src="../../../../assets/icons/doc.png"
-      alt="Word"
-      *ngIf="getFileType(attachmentUrl) === 'doc'"
-      (click)="openAttachment(attachmentUrl, $event)"
-    />
-
-    <!-- Text- oder CSV-Dateien -->
-    <img
-      src="../../../../assets/icons/text.png"
-      alt="Text/CSV"
-      *ngIf="getFileType(attachmentUrl) === 'text'"
-      (click)="openAttachment(attachmentUrl, $event)"
-    />
-
-    <!-- Excel-Dateien -->
-    <img
-      src="../../../../assets/icons/excel.png"
-      alt="Excel"
-      *ngIf="getFileType(attachmentUrl) === 'excel'"
-      (click)="openAttachment(attachmentUrl, $event)"
-    />
-
-    <!-- Fallback für unbekannte Formate -->
-    <p *ngIf="getFileType(attachmentUrl) === 'unknown'">
-      Dieses Dateiformat wird nicht unterstützt.
-    </p>
+      <!-- Nutzung der neuen FilePreviewComponent -->
+      <app-file-preview
+        [attachmentUrl]="attachmentUrl"
+        (click)="openAttachment(attachmentUrl, $event)"
+      ></app-file-preview>
+    </div>
   </div>
 </section>

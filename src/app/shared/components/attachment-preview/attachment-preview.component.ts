@@ -5,6 +5,7 @@ import {
   Input,
   OnChanges,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -22,23 +23,26 @@ import {
 import { UserService } from '../../services/user-service/user.service';
 import { MessageService } from '../../services/message-service/message.service';
 import { ThreadService } from '../../services/thread-service/thread.service';
+import { FilePreviewComponent } from '../file-preview/file-preview.component';
 
 @Component({
   selector: 'app-attachment-preview',
   standalone: true,
-  imports: [NgIf, MatIcon, NgFor],
+  imports: [NgIf, MatIcon, NgFor, FilePreviewComponent],
   templateUrl: './attachment-preview.component.html',
   styleUrls: ['./attachment-preview.component.scss'],
 })
-export class AttachmentPreviewComponent implements OnChanges {
+export class AttachmentPreviewComponent {
   @Input() messageId: string | undefined;
   @Input() actualAttachmentUrls: string[] = []; // Array der unsicheren URLs
-  @Input() message: any = ''; // Nachrichtentext
+  @Input() message: any | undefined; // Nachrichtentext
   @Output() attachmentRemoved = new EventEmitter<string>(); // Event für entferntes Attachment
   googleDocsViewerUrl: SafeResourceUrl = ''; // Google Docs Viewer für Word-Dokumente
   private storage = getStorage(); // Firebase Storage-Referenz
   private channelId: string | undefined;
   private privateChatId: string | undefined;
+  public actualAttachmentUrl: string = '';
+  public currentAttachmentIndex: number = 0;
 
   constructor(
     public sanitizer: DomSanitizer,
@@ -57,26 +61,11 @@ export class AttachmentPreviewComponent implements OnChanges {
     });
   }
 
-  ngOnChanges() {
-    this.prepareGoogleDocsViewerUrl();
-  }
-
-  // Ermittelt den Dateityp und setzt ggf. Google Docs Viewer URL
-  private prepareGoogleDocsViewerUrl() {
-    if (this.actualAttachmentUrls.length > 0) {
-      const latestUrl =
-        this.actualAttachmentUrls[this.actualAttachmentUrls.length - 1];
-      const fileType = this.getFileType(latestUrl);
-
-      if (fileType === 'doc') {
-        const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(
-          latestUrl
-        )}&embedded=true`;
-        this.googleDocsViewerUrl =
-          this.sanitizer.bypassSecurityTrustResourceUrl(viewerUrl);
-      } else {
-        this.googleDocsViewerUrl = '';
-      }
+  ngOnChanges(): void {
+    if (!this.message && this.actualAttachmentUrls.length > 0) {
+      this.currentAttachmentIndex = this.actualAttachmentUrls.length - 1; // Setze auf den höchsten Index
+      this.actualAttachmentUrl =
+        this.actualAttachmentUrls[this.currentAttachmentIndex];
     }
   }
 
@@ -85,23 +74,6 @@ export class AttachmentPreviewComponent implements OnChanges {
     event.preventDefault();
     event.stopPropagation();
     window.open(fileUrl, '_blank');
-  }
-
-  // Ermittelt den Dateityp anhand der URL
-  public getFileType(url: string): string {
-    const filename = decodeURIComponent(
-      url.split('/').pop()?.split('?')[0] || ''
-    );
-    const extension = filename.split('.').pop()?.toLowerCase();
-
-    if (!extension) return 'unknown';
-    if (['pdf'].includes(extension)) return 'pdf';
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension))
-      return 'image';
-    if (['doc', 'docx'].includes(extension)) return 'doc';
-    if (['txt', 'csv'].includes(extension)) return 'text';
-    if (['xlsx', 'xls'].includes(extension)) return 'excel';
-    return 'unknown';
   }
 
   // Extrahiert den Dateipfad aus der URL
@@ -119,7 +91,7 @@ export class AttachmentPreviewComponent implements OnChanges {
     event.preventDefault();
     event.stopPropagation();
     this.deleteAttachment(attachmentUrl);
-    if (this.message === '')
+    if (this.message === undefined && this.actualAttachmentUrls.length === 1)
       this.storageService.triggerCloseAttachmentPreview();
   }
 
@@ -299,5 +271,26 @@ export class AttachmentPreviewComponent implements OnChanges {
         console.error('Fehler beim Löschen der Nachricht:', error);
       }
     }
+  }
+
+  canDelete(message: any): boolean {
+    return message?.userId === this.userService.userId || !message;
+  }
+
+  changeAttachment(direction: number): void {
+    // Neuen Index berechnen
+    let newIndex = this.currentAttachmentIndex + direction;
+
+    // Zirkuläre Navigation: Springe vom Ende zum Anfang und umgekehrt
+    if (newIndex < 0) {
+      newIndex = this.actualAttachmentUrls.length - 1; // Gehe zum letzten Element
+    } else if (newIndex >= this.actualAttachmentUrls.length) {
+      newIndex = 0; // Gehe zum ersten Element
+    }
+
+    // Index und URL aktualisieren
+    this.currentAttachmentIndex = newIndex;
+    this.actualAttachmentUrl =
+      this.actualAttachmentUrls[this.currentAttachmentIndex];
   }
 }
