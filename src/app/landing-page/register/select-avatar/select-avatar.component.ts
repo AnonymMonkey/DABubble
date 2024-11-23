@@ -10,6 +10,8 @@ import { RoutingService } from '../../../shared/services/routing-service/routing
 import { UserData } from '../../../shared/models/user.model';
 import { firstValueFrom } from 'rxjs';
 import { ErrorService } from '../../../shared/services/error-service/error.service';
+import { getStorage } from '@angular/fire/storage';
+import { StorageService } from '../../../shared/services/storage-service/storage.service';
 
 @Component({
   selector: 'app-select-avatar',
@@ -19,14 +21,18 @@ import { ErrorService } from '../../../shared/services/error-service/error.servi
   styleUrls: ['./select-avatar.component.scss'],
 })
 export class SelectAvatarComponent implements OnInit {
+  storage = getStorage();
   selectedAvatar: string | null = null; // Initial kein Avatar ausgewählt
   displayName: string = ''; // Leerer String für Benutzername
   email: string = ''; // E-Mail für Registrierung
   password: string = ''; // Passwort für Registrierung
+  isUploading = false; // Status des Uploads
+  tempStoragePath: string | null = null; // Temporärer Speicherpfad
 
   constructor(
     private userService: UserService,
     private authService: AuthService, // AuthService für Registrierung
+    private storageService: StorageService,
     private notificationService: NotificationService,
     private routingService: RoutingService,
     private errorService: ErrorService
@@ -52,30 +58,77 @@ export class SelectAvatarComponent implements OnInit {
     this.selectedAvatar = avatar;
   }
 
-  // Weiterleitung und Registrierung abschließen
+  // Datei auswählen und temporär hochladen
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      if (!file.type.startsWith('image/')) {
+        console.error('Nur Bilder können hochgeladen werden.');
+        return;
+      }
+
+      this.isUploading = true;
+
+      try {
+        // Nutze die E-Mail direkt im Pfad
+        const email = this.email; // Ohne Änderungen
+        const path = `users/${email}/uploads/${file.name}`;
+
+        // Datei hochladen
+        this.selectedAvatar = await this.storageService.uploadFileRawPath(
+          path,
+          file
+        );
+        console.log('Avatar hochgeladen:', this.selectedAvatar);
+      } catch (error) {
+        console.error('Fehler beim Hochladen des Avatars:', error);
+      } finally {
+        this.isUploading = false;
+      }
+    }
+  }
+
+  /*   async uploadAvatar(file: File): Promise<string> {
+    try {
+      const email = this.userService.getTempRegistrationData().email;
+      const path = `temp/${email}/uploads/${file.name}`;
+      const downloadUrl = await this.storageService.uploadFile(path, file);
+
+      console.log('Avatar hochgeladen:', downloadUrl);
+      return file.name; // Rückgabe: nur der Dateiname
+    } catch (error) {
+      console.error('Fehler beim Hochladen des Avatars:', error);
+      throw error;
+    }
+  } */
+
+  // Registrierung abschließen
   async completeRegistration() {
     try {
-      // Zuerst die Registrierung abschließen
       await this.authService.register(
         this.email,
         this.password,
         this.displayName
       );
-
-      // Hol den aktuellen Benutzer nach der Registrierung
       const currentUser = await firstValueFrom(
         this.authService.getCurrentUser()
       );
 
       if (this.selectedAvatar && currentUser?.uid) {
-        // Speichere das ausgewählte Avatar-Bild in Firestore unter dem aktuellen Benutzer-UID
+        // Speichere die temporäre Avatar-URL direkt in Firestore
         await this.userService.saveAvatar(currentUser.uid, this.selectedAvatar);
+        console.log(
+          'Avatar erfolgreich in Firestore gespeichert:',
+          this.selectedAvatar
+        );
       }
 
       this.notificationService.showNotification('Konto erfolgreich erstellt!');
-      // this.routingService.navigateToMain();
     } catch (error) {
       this.errorService.logError(error);
+      console.error('Fehler bei der Registrierung:', error);
     }
   }
 

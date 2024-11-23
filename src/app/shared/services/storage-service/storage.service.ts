@@ -36,7 +36,8 @@ export class StorageService {
       // Lade die neue Datei hoch
       await uploadBytes(storageRef, file);
     } catch (error) {
-      console.error('Fehler beim Hochladen der Datei:', error);
+      console.error('Fehler beim Verschieben der Datei:', error);
+      throw error;
     }
   }
 
