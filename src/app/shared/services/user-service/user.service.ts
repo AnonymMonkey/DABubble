@@ -22,6 +22,7 @@ import {
 import {
   get,
   getDatabase,
+  off,
   onDisconnect,
   onValue,
   ref,
@@ -32,6 +33,7 @@ import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { RoutingService } from '../routing-service/routing.service';
 
 @Injectable({
   providedIn: 'root',
@@ -43,7 +45,10 @@ export class UserService {
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
   public userId!: string; // ID des aktuell angemeldeten Nutzers
   private dialog = inject(MatDialog);
-  private userDisplayMap = new Map<string, { displayName: string; photoURL: string }>();
+  private userDisplayMap = new Map<
+    string,
+    { displayName: string; photoURL: string }
+  >();
 
   //REVIEW - Hier versuche ich die Daten zentral in diesem service zu speichern,
   // sodass jede Komponente darauf zugreifen kann.
@@ -56,7 +61,7 @@ export class UserService {
 
   allUsersOnlineStatus$: { userId: string; online: boolean }[] = [];
 
-  constructor() {
+  constructor(private routingService: RoutingService) {
     this.loadAllUserData();
   }
 
@@ -169,11 +174,18 @@ export class UserService {
       console.error('Kein Avatar-URL bereitgestellt!');
       return;
     }
-    return setDoc(
-      doc(this.firestore, `users/${userId}`),
-      { photoURL: avatarUrl }, // Speichert das ausgewählte Profilbild
-      { merge: true } // Verhindert, dass andere Daten überschrieben werden
-    );
+
+    try {
+      await setDoc(
+        doc(this.firestore, `users/${userId}`),
+        { photoURL: avatarUrl },
+        { merge: true } // Verhindert, dass andere Daten überschrieben werden
+      );
+      console.log('Avatar-URL erfolgreich gespeichert:', avatarUrl);
+    } catch (error) {
+      console.error('Fehler beim Speichern des Avatars:', error);
+      throw error;
+    }
   }
 
   // Setzt den Online-Status des Benutzers in der Realtime Database
