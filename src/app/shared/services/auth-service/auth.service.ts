@@ -20,7 +20,15 @@ import { RoutingService } from '../routing-service/routing.service';
 import { UserData } from '../../models/user.model';
 import { NotificationService } from '../notification-service/notification.service';
 import { Firestore } from '@angular/fire/firestore';
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
 import {
   EmailAuthProvider,
   onAuthStateChanged,
@@ -28,21 +36,62 @@ import {
   updateEmail,
   verifyBeforeUpdateEmail,
 } from 'firebase/auth';
+import { getDatabase, ref, set } from 'firebase/database';
+import { StorageService } from '../storage-service/storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private authSubscription: Subscription | undefined;
+  private database = getDatabase();
   constructor(
     private firestore: Firestore,
     private auth: Auth = inject(Auth),
     private userService: UserService,
+    private storageService: StorageService,
     private errorService: ErrorService,
     private routingService: RoutingService,
     private notificationService: NotificationService
   ) {
     this.observeAuthChanges();
+
+    // Event-Listener für das Schließen/Aktualisieren der Seite
+    window.addEventListener('beforeunload', this.handlePageUnload.bind(this));
+  }
+
+  // Aufräumen des Auth-Observers, wenn der Service zerstört wird
+  ngOnDestroy() {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe(); // Bestehende Subscription aufräumen
+    }
+
+    // Entferne den Event-Listener für `beforeunload`
+    window.removeEventListener(
+      'beforeunload',
+      this.handlePageUnload.bind(this)
+    );
+  }
+
+  private async handlePageUnload(): Promise<void> {
+    const currentUser = this.auth.currentUser;
+
+    if (currentUser) {
+      try {
+        const userDocRef = doc(this.firestore, `users/${currentUser.uid}`);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data() as UserData;
+
+          if (userData.displayName === 'Guest') {
+            await this.guestLogout(currentUser.uid);
+          }
+        }
+      } catch (error) {
+        console.error('Fehler beim HandlePageUnload:', error);
+      }
+    }
   }
 
   private observeAuthChanges() {
@@ -66,13 +115,6 @@ export class AuthService {
         }
       }
     });
-  }
-
-  // Aufräumen des Auth-Observers, wenn der Service zerstört wird
-  ngOnDestroy() {
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
-    }
   }
 
   async checkEmailExistsInFirestore(email: string): Promise<boolean> {
@@ -214,6 +256,7 @@ export class AuthService {
         userCredential.user,
         formattedDisplayName
       );
+
       this.notificationService.showNotification('Konto erfolgreich erstellt!'); // Zeigt eine Erfolgsbenachrichtigung an
       this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
     } catch (error) {
@@ -239,17 +282,85 @@ export class AuthService {
       const currentUser = this.auth.currentUser;
 
       if (currentUser) {
-        try {
-          await this.userService.setOnlineStatus(currentUser.uid, false); // Setzt den Online-Status auf offline
-        } catch (statusError) {
-          console.error('Fehler beim Setzen des Online-Status:', statusError);
+        const userDocRef = doc(this.firestore, `users/${currentUser.uid}`);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data() as UserData;
+
+          if (userData.displayName === 'Guest') {
+            // Gastnutzer-Logout
+            await this.guestLogout(currentUser.uid);
+          } else {
+            // Normaler Nutzer-Logout
+            await this.userService.setOnlineStatus(currentUser.uid, false);
+          }
+        }
+
+        await this.auth.signOut(); // Melde den Nutzer ab
+        this.routingService.navigateToLogin(); // Navigiere zur Login-Seite
+      }
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async guestLogout(userId: string): Promise<void> {
+    debugger;
+    try {
+      debugger;
+      const userDocRef = doc(this.firestore, `users/${userId}`);
+      const userSnapshot = await getDoc(userDocRef);
+
+      if (!userSnapshot.exists()) {
+        console.warn('Gastnutzer nicht gefunden.');
+        return;
+      }
+
+      /*       const userData = userSnapshot.data() as UserData;
+
+      // Extrahiere alle privateChats
+      if (userData.privateChat) {
+        const privateChatIds = Object.keys(userData.privateChat);
+
+        // Iteriere durch alle privateChat-IDs
+        for (const chatId of privateChatIds) {
+          const userIds = chatId.split('_'); // Trenne die IDs
+          const otherUserId = userIds.find((id) => id !== userId); // Finde die ID, die nicht die des Gasts ist
+
+          if (otherUserId) {
+            console.log(
+              `Leite Nutzer ${otherUserId} weiter zu /main/${otherUserId}`
+            );
+            this.routingService.navigateToMain(otherUserId); // Weiterleitung
+          }
         }
       }
 
-      await this.auth.signOut(); // Meldet den Benutzer ab
-      this.routingService.navigateToLogin(); // Navigiert zur Login-Seite
+      console.log('Weiterleitung abgeschlossen. Lösche nun den Gastnutzer.'); */
+
+      // Lösche den Gastnutzer
+      await this.deleteGuestData(userId);
+      console.log('Gastnutzer erfolgreich gelöscht.');
     } catch (error) {
-      this.handleError(error);
+      console.error('Fehler beim Löschen des Gastnutzers:', error);
+    }
+  }
+
+  private async deleteGuestData(userId: string): Promise<void> {
+    try {
+      // Lösche den Gastnutzer aus Firestore
+      const userDocRef = doc(this.firestore, `users/${userId}`);
+      await deleteDoc(userDocRef);
+
+      // Lösche den Gastnutzer aus der Realtime Database
+      const userStatusRef = ref(this.database, `status/${userId}`);
+      await set(userStatusRef, null);
+
+      console.log(`Daten des Gastnutzers ${userId} erfolgreich gelöscht.`);
+    } catch (error) {
+      console.error('Fehler beim Löschen der Daten des Gastnutzers:', error);
+      throw error;
     }
   }
 
