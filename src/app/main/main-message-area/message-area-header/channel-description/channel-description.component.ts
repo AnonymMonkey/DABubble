@@ -74,34 +74,23 @@ export class ChannelDescriptionComponent implements OnInit {
   async leaveChannel(): Promise<void> {
     const currentUserId = this.userService.userId;
     const channelId = this.currentChannel?.channelId;
-  
+
     if (!currentUserId || !channelId) {
       console.error('Benutzer-ID oder Channel-ID fehlt.');
       return;
     }
-  
+
     try {
-      // Route wechseln, bevor weitere Datenbankoperationen durchgeführt werden
       await this.router.navigate([`/main/${currentUserId}`]);
-  
-      // Entfernen des Benutzers aus dem Channel-Mitglieder-Array
       const channelDocRef = doc(this.firestore, `channels/${channelId}`);
       await updateDoc(channelDocRef, {
         members: arrayRemove(currentUserId),
-        // Hinzufügen des Benutzers zu den "verlassenen" Benutzern
         usersLeft: arrayUnion(currentUserId),
       });
-      console.log(
-        'Benutzer aus Channel-Mitgliedern entfernt und zu usersLeft hinzugefügt'
-      );
-  
-      // Entfernen des Channels aus der Liste der Channels des Benutzers
       const userDocRef = doc(this.firestore, `users/${currentUserId}`);
       await updateDoc(userDocRef, {
         channels: arrayRemove(channelId),
       });
-  
-      // Löschen der Nachrichten im Channel (Unterkollektion messages)
       const messagesCollectionRef = collection(
         this.firestore,
         `channels/${channelId}/messages`
@@ -111,21 +100,13 @@ export class ChannelDescriptionComponent implements OnInit {
         deleteDoc(doc.ref)
       );
       await Promise.all(deleteMessagesPromises);
-      console.log('Alle Nachrichten im Channel wurden gelöscht.');
-  
-      // Überprüfen, ob es keine Mitglieder mehr im Channel gibt
       const channelSnapshot = await getDoc(channelDocRef);
       const members = channelSnapshot.data()?.['members'] || [];
-  
       if (members.length === 0) {
         await deleteDoc(channelDocRef);
-        console.log(
-          'Channel wurde gelöscht, da keine Mitglieder mehr vorhanden sind'
-        );
       }
     } catch (error) {
       console.error('Fehler beim Verlassen des Channels:', error);
     }
   }
-  
 }

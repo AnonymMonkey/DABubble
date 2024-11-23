@@ -31,7 +31,7 @@
         (menuClosed)="onMenuClosed(message.messageId)"
         (click)="toggleBorder('emoji')"
       >
-        <mat-icon class="material-symbols-outlined" >add_reaction</mat-icon>
+        <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
       </div>
       <div
         (click)="
@@ -57,6 +57,26 @@
             "
           >
             Nachricht bearbeiten
+          </span>
+        </mat-menu>
+      </div>
+      <div
+        mat-button
+        [matMenuTriggerFor]="deleteMessageMenu"
+        (menuOpened)="onMenuOpened(message.messageId)"
+        (menuClosed)="onMenuClosed(message.messageId)"
+      >
+        <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        <mat-menu #deleteMessageMenu="matMenu">
+          <span
+            class="edit-message-text"
+            (click)="
+              deleteMessage(message);
+              toggleBorder('deleteMessage');
+              setEditMessageMenuOpened(true, message.messageId)
+            "
+          >
+            Nachricht löschen
           </span>
         </mat-menu>
       </div>
