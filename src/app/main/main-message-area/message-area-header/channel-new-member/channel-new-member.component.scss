@@ -287,3 +287,11 @@ h2 {
   display: flex;
   justify-content: flex-end;
 }
+
+.button-disabled {
+  cursor: not-allowed !important;
+}
+
+.button-enabled:hover {
+  cursor: pointer;
+}
