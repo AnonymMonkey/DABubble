@@ -1,6 +1,11 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { getStorage, ref, uploadBytes, UploadResult } from '@angular/fire/storage';
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  UploadResult,
+} from '@angular/fire/storage';
 import { getDownloadURL } from 'firebase/storage';
 import { StorageService } from '../../services/storage-service/storage.service';
 
@@ -8,7 +13,7 @@ import { StorageService } from '../../services/storage-service/storage.service';
   selector: 'app-upload-method-selector',
   standalone: true,
   templateUrl: './upload-method-selector.component.html',
-  styleUrls: ['./upload-method-selector.component.scss']
+  styleUrls: ['./upload-method-selector.component.scss'],
 })
 export class UploadMethodSelectorComponent {
   @Output() uploadSelected = new EventEmitter<string>();
@@ -16,7 +21,7 @@ export class UploadMethodSelectorComponent {
   storage = getStorage(); // Firebase Storage-Instanz
   private route = inject(ActivatedRoute); // Aktivierte Route
 
-  constructor(private storageService: StorageService) { }
+  constructor(private storageService: StorageService) {}
 
   // Methode zum Öffnen des Datei-Dialogs und Festlegen des akzeptierten Typs
   openFileDialog(fileType: string) {
@@ -47,31 +52,45 @@ export class UploadMethodSelectorComponent {
     const channelId = this.route.snapshot.paramMap.get('channelId');
     const privateChatId = this.route.snapshot.paramMap.get('privateChatId');
     const messageId = this.messageId;
-
+  
     let storagePath = 'uploads/'; // Basis-Speicherpfad
     if (messageId) {
-      // Wenn eine messageId vorhanden ist, speichern wir die Datei in einem Ordner für diese Nachricht
-      storagePath = `channels/${channelId}/messages/${messageId}/uploads/${file.name}`;
+      storagePath = `channels/${channelId}/messages/${messageId}/uploads/`;
     } else if (channelId) {
-      // Wenn eine channelId vorhanden ist, speichern wir die Datei im Channel-Ordner
-      storagePath = `channels/${channelId}/uploads/${file.name}`;
+      storagePath = `channels/${channelId}/uploads/`;
     } else if (privateChatId) {
-      // Wenn eine privateChatId vorhanden ist, speichern wir die Datei im Private-Chat-Ordner
-      storagePath = `privatechats/${privateChatId}/uploads/${file.name}`;
+      storagePath = `privatechats/${privateChatId}/uploads/`;
     }
-
-    const storageRef = ref(this.storage, storagePath);
-
+  
+    // Bereinigung des Dateinamens
+    const sanitizedFileName = file.name
+      .replace(/\s+/g, '_') // Leerzeichen durch Unterstriche ersetzen
+      .replace(/[^a-zA-Z0-9._-]/g, '_'); // Sonderzeichen durch Unterstriche ersetzen
+  
+    // Einzigartigen Dateinamen mit Timestamp erstellen
+    const uniqueFileName = await this.storageService.getUniqueFileName(
+      storagePath,
+      sanitizedFileName
+    );
+  
+    // Speicherreferenz mit dem bereinigten Dateinamen
+    const storageRef = ref(
+      this.storage,
+      `${storagePath}${encodeURIComponent(uniqueFileName)}`
+    );
+  
     try {
-      const snapshot: UploadResult = await uploadBytes(storageRef, file);
+      // Datei hochladen
+      const snapshot = await uploadBytes(storageRef, file);
+  
+      // Download-URL abrufen
       const downloadURL = await getDownloadURL(snapshot.ref);
-      this.uploadSelected.emit(downloadURL);
-      
+      this.uploadSelected.emit(downloadURL); // Die URL wird zurückgegeben
     } catch (error) {
       console.error('Fehler beim Hochladen der Datei:', error);
     }
-
-    this.storageService.triggerCloseUploadMethodSelector();
+  
+    this.storageService.triggerCloseUploadMethodSelector(); // Methode aufrufen, um den Upload-Selector zu schließen
   }
 
   // Drag & Drop Events

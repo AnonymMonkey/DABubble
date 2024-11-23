@@ -6,6 +6,7 @@ import {
   ref,
   uploadBytes,
   UploadResult,
+  getMetadata,
 } from '@angular/fire/storage';
 import { deleteObject, getDownloadURL, listAll } from 'firebase/storage';
 import { Subject } from 'rxjs';
@@ -121,7 +122,6 @@ export class StorageService {
   /*   async deleteExistingFiles(folderPath: string): Promise<void> {
     const encodedFolderPath = encodeURIComponent(folderPath);
     const folderRef = ref(this.storage, encodedFolderPath);
-
     try {
       const listResult = await listAll(folderRef);
       if (!listResult.items.length) {
@@ -141,7 +141,6 @@ export class StorageService {
   /*   async clearTempFiles(email: string): Promise<void> {
     const tempPath = `temp/${email}/uploads/`;
     const folderRef = ref(this.storage, tempPath);
-
     try {
       console.log('Pfad ist:' + tempPath);
       console.log('Ref ist:' + folderRef);
@@ -150,7 +149,6 @@ export class StorageService {
         console.log('Keine temporären Dateien zum Löschen gefunden.');
         return;
       }
-
       const deletePromises = listResult.items.map((itemRef) =>
         deleteObject(itemRef)
       );
@@ -160,6 +158,38 @@ export class StorageService {
       console.error('Fehler beim Löschen temporärer Dateien:', error);
     }
   } */
+
+  async deleteSpecificFile(fileUrl: string) {
+    const filePath = this.extractFilePathFromUrl(fileUrl);
+    const fileRef = ref(this.storage, filePath);
+
+    try {
+      await deleteObject(fileRef);
+    } catch (error) {
+      console.error('Fehler beim Löschen der Datei:', error);
+    }
+  }
+
+  private extractFilePathFromUrl(fileUrl: string): string {
+    const baseUrl = 'https://firebasestorage.googleapis.com/v0/b/';
+    const decodedUrl = decodeURIComponent(fileUrl);
+
+    const pathStartIndex = decodedUrl.indexOf('/o/') + 3;
+    const pathEndIndex = decodedUrl.indexOf('?');
+    return decodedUrl.substring(pathStartIndex, pathEndIndex);
+  }
+
+  async getUniqueFileName(path: string, fileName: string): Promise<string> {
+    const fileNameParts = fileName.split('.');
+    const baseName = fileNameParts.slice(0, -1).join('.');
+    const extension = fileNameParts[fileNameParts.length - 1];
+  
+    // Timestamp hinzufügen, um die Eindeutigkeit sicherzustellen
+    const timestamp = Date.now(); // Oder new Date().getTime()
+    let uniqueName = `${baseName}_${timestamp}.${extension}`;
+  
+    return uniqueName;
+  }
 
   triggerCloseAttachmentPreview() {
     this.closeAttachmentPreviewSubject.next();

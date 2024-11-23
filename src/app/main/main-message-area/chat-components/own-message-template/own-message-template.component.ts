@@ -11,6 +11,7 @@ import { MessageService } from '../../../../shared/services/message-service/mess
 import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import { UserService } from '../../../../shared/services/user-service/user.service';
+import { StorageService } from '../../../../shared/services/storage-service/storage.service';
 
 @Component({
   selector: 'app-own-message-template',
@@ -48,7 +49,8 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit {
   constructor(
     public mainMessageArea: MainMessageAreaComponent,
     public channelService: ChannelService,
-    public threadService: ThreadService
+    public threadService: ThreadService,
+    public storageService: StorageService
   ) {}
 
   ngOnInit(): void {
@@ -82,13 +84,15 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit {
       this.emojiContainerVisible[messageId] = true;
     }
   }
-  
+
   hideEmojiContainer(messageId: string) {
-    if (this.messageService.editMessageId !== messageId && !this.menuOpenStatus[messageId]) {
+    if (
+      this.messageService.editMessageId !== messageId &&
+      !this.menuOpenStatus[messageId]
+    ) {
       this.emojiContainerVisible[messageId] = false;
     }
   }
-  
 
   onMenuOpened(messageId: string): void {
     this.menuOpenStatus[messageId] = true;
@@ -125,7 +129,7 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit {
 
   setEditMessageMenuOpened(value: boolean, messageId: string) {
     this.editMessageMenuOpened = value;
-  
+
     if (!value) {
       // Zustand des Emoji-Containers vollständig zurücksetzen
       this.emojiContainerVisible[messageId] = false;
@@ -133,13 +137,17 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit {
   }
 
   addReaction(messageId: string, emoji: any): void {
-    let path = 'channels/' + this.channelService.channelId + '/messages/' + messageId;
+    let path =
+      'channels/' + this.channelService.channelId + '/messages/' + messageId;
     this.messageService.setActualMessage(this.message);
     this.messageService.addOrChangeReactionChannelOrThread(emoji, path);
   }
 
   toggleBorder(menuType: string) {
     switch (menuType) {
+      case 'deleteMessage':
+        this.currentBorderRadius = '0px 30px 30px 30px';
+        break;
       case 'editMessage':
         this.currentBorderRadius = '0px 30px 30px 30px';
         break;
@@ -153,5 +161,15 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit {
       '--border-radius',
       this.currentBorderRadius
     );
+  }
+
+  deleteMessage(message: any) {
+    const path = `channels/${this.channelService.channelId}/messages/${message.messageId}`;
+    if (message.attachmentUrls && message.attachmentUrls.length > 0) {
+      for (const url of message.attachmentUrls) {
+        this.storageService.deleteSpecificFile(url);
+      }
+    }
+    this.messageService.deleteMessageInThreadOrChannel(path);
   }
 }

@@ -104,24 +104,21 @@ export class ThreadService implements OnDestroy {
     ) {
       return;
     }
-  
+
     const threadMessagesRef = collection(
       this.firestore,
       `channels/${this.channelService.channelId}/messages/${this.actualMessageSubject.value.messageId}/thread`
     );
-  
+
     try {
-      const snapshot = await getDocs(threadMessagesRef);  
-      if (snapshot.empty) {
-        console.log('Keine Thread-Nachrichten gefunden.');
-      } else {
+      const snapshot = await getDocs(threadMessagesRef);
+      if (!snapshot.empty) {
         const messages: ThreadMessage[] = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
           messages.push(data as ThreadMessage);
-          console.log(doc.id, ' => ', data);
         });
-  
+
         // Hier kannst du die Nachrichten in eine Variable zuweisen, z.B. über ein Subject oder eine Service-Methode
         this.threadMessagesSubject.next(messages);
       }
