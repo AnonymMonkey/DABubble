@@ -6,6 +6,7 @@ import {
   ref,
   uploadBytes,
   UploadResult,
+  getMetadata,
 } from '@angular/fire/storage';
 import { deleteObject, getDownloadURL, listAll } from 'firebase/storage';
 import { Subject } from 'rxjs';
@@ -118,7 +119,7 @@ export class StorageService {
     }
   }
 
-    /*   async deleteExistingFiles(folderPath: string): Promise<void> {
+  /*   async deleteExistingFiles(folderPath: string): Promise<void> {
     const encodedFolderPath = encodeURIComponent(folderPath);
     const folderRef = ref(this.storage, encodedFolderPath);
     try {
@@ -182,40 +183,12 @@ export class StorageService {
     const fileNameParts = fileName.split('.');
     const baseName = fileNameParts.slice(0, -1).join('.');
     const extension = fileNameParts[fileNameParts.length - 1];
-    let uniqueName = fileName;
-    let counter = 0;
-
-    // Debugging-Ausgabe: Überprüfe den Anfangsdateinamen
-    console.log(`Initial fileName: ${uniqueName}`);
-
-    // Überprüfen, ob der Dateiname bereits existiert
-    while (await this.fileExists(`${path}${uniqueName}`)) {
-      counter++;
-      uniqueName = `${baseName}(${counter}).${extension}`;
-
-      // Debugging-Ausgabe: Überprüfe den neuen Dateinamen in jeder Schleifeniteration
-      console.log(`Checking for file: ${path}${uniqueName}`);
-    }
-
-    // Debugging-Ausgabe: Überprüfe den endgültigen Dateinamen
-    console.log(`Unique file name: ${uniqueName}`);
+  
+    // Timestamp hinzufügen, um die Eindeutigkeit sicherzustellen
+    const timestamp = Date.now(); // Oder new Date().getTime()
+    let uniqueName = `${baseName}_${timestamp}.${extension}`;
+  
     return uniqueName;
-  }
-
-  // Methode zur Überprüfung, ob eine Datei existiert
-  async fileExists(path: string): Promise<boolean> {
-    try {
-      const fileRef = ref(this.storage, path); // Hier rufst du ref() korrekt auf
-      await getDownloadURL(fileRef); // Hole die Download-URL der Datei
-      return true; // Datei existiert
-    } catch (error: any) {
-      if (error.code === 'storage/object-not-found') {
-        return false; // Datei existiert nicht
-      }
-      // Fehlerbehandlung für andere Fehler
-      console.error('Fehler beim Prüfen der Datei:', error);
-      return false;
-    }
   }
 
   triggerCloseAttachmentPreview() {

@@ -71,9 +71,11 @@ export class AddUsersToChannelComponent {
     this.initializeData();
     this.updateUsers();
 
-    this.closeAutocompleteEmitter.subscribe(() => {
-      this.closeAutocomplete();
-    });
+    if (this.closeAutocompleteEmitter) {
+      this.closeAutocompleteEmitter.subscribe(() => {
+        this.closeAutocomplete();
+      });
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {

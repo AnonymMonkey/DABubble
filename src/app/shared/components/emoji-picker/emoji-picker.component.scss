@@ -1,6 +1,6 @@
 ::ng-deep {
     .mat-mdc-menu-panel {
         max-width: none !important;
-        border-radius: 30px;
+        border-radius: var(--border-radius) !important;
     }
 }

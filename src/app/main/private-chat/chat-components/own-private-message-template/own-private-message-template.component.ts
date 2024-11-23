@@ -10,13 +10,26 @@ import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker
 import { MatIcon } from '@angular/material/icon';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { PrivateChatService } from '../../../../shared/services/private-chat-service/private-chat.service';
+import { deleteField, doc, updateDoc } from 'firebase/firestore';
+import { Firestore } from '@angular/fire/firestore';
+import { StorageService } from '../../../../shared/services/storage-service/storage.service';
 
 @Component({
   selector: 'app-own-private-message-template',
   standalone: true,
-  imports: [NgClass, EmojiComponent, OwnPrivateMessageEditComponent, NgIf, OwnPrivateMessageShowComponent, MatMenu, EmojiPickerComponent, MatMenuTrigger, MatIcon],
+  imports: [
+    NgClass,
+    EmojiComponent,
+    OwnPrivateMessageEditComponent,
+    NgIf,
+    OwnPrivateMessageShowComponent,
+    MatMenu,
+    EmojiPickerComponent,
+    MatMenuTrigger,
+    MatIcon,
+  ],
   templateUrl: './own-private-message-template.component.html',
-  styleUrl: './own-private-message-template.component.scss'
+  styleUrl: './own-private-message-template.component.scss',
 })
 export class OwnPrivateMessageTemplateComponent {
   @Input() message: any;
@@ -25,9 +38,10 @@ export class OwnPrivateMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
   public userService = inject(UserService);
   public messageService = inject(MessageService);
+  private storageService = inject(StorageService);
   editMessageMenuOpened: boolean = false;
   public threadService = inject(ThreadService);
-  currentBorderRadius = '30px 30px 30px 30px';
+  currentBorderRadius = '0px 30px 30px 30px';
   public privateChatService = inject(PrivateChatService);
   isMenuOpen: boolean = false;
 
@@ -56,7 +70,7 @@ export class OwnPrivateMessageTemplateComponent {
   getLastReplyTime(messages: any[]): string {
     // Nimm die letzte Nachricht aus dem Array
     const lastMessage = messages[messages.length - 1];
-  
+
     if (lastMessage && lastMessage.time) {
       // Formatiere die Zeit (Hier anpassen, falls nötig)
       const date = new Date(lastMessage.time);
@@ -67,11 +81,9 @@ export class OwnPrivateMessageTemplateComponent {
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
-  
+
     return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
   }
-
-  addReaction (messageId: string, emoji: any): void {}
 
   setEditMessageMenuOpened(boolean: boolean) {
     this.editMessageMenuOpened = boolean;
@@ -79,6 +91,9 @@ export class OwnPrivateMessageTemplateComponent {
 
   toggleBorder(menuType: string) {
     switch (menuType) {
+      case 'deleteMessage':
+        this.currentBorderRadius = '0px 30px 30px 30px';
+        break;
       case 'editMessage':
         this.currentBorderRadius = '0px 30px 30px 30px';
         break;
@@ -92,5 +107,16 @@ export class OwnPrivateMessageTemplateComponent {
       '--border-radius',
       this.currentBorderRadius
     );
+  }
+
+  async deleteMessage(message: any) {
+    const privateChatId = this.privateChatService.privateChatId;
+    const path = `privateChats/${privateChatId}/messages/${message.messageId}`;
+    if (message.attachmentUrls && message.attachmentUrls.length > 0) {
+      for (const url of message.attachmentUrls) {
+        this.storageService.deleteSpecificFile(url);
+      }
+    }
+    this.messageService.deleteMessage(privateChatId!, message.messageId);
   }
 }

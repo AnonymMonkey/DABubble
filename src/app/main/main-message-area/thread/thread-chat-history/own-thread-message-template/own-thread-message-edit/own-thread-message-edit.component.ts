@@ -94,7 +94,6 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
 
     const originalContent = this.message.content;
     this.message.content = this.editedMessageContent;
-
     this.clearInput(false); // Bearbeitungsmodus verlassen
     try {
       const channelPath = 'channels/' + this.channelService.channelId + '/messages/' + this.message.messageId;
@@ -107,7 +106,7 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
           await this.messageService.deleteMessageInThreadOrChannel(
            threadPath
           );
-        } else if (this.message.messageId.startsWith('message_')) {
+        } else if (this.message.messageId.startsWith('msg_')) {
           await this.messageService.deleteMessageInThreadOrChannel(
             channelPath
           );
@@ -121,7 +120,7 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
             threadPath,
             this.editedMessageContent
           );
-        } else if (this.message.messageId.startsWith('message_')) {
+        } else if (this.message.messageId.startsWith('msg_')) {
           await this.messageService.updateMessageThreadOrChannel(
             channelPath,
             this.editedMessageContent

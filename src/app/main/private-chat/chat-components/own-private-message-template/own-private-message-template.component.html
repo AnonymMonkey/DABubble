@@ -13,19 +13,26 @@
         <ngx-emoji
           emoji="white_check_mark"
           [size]="16"
-          (emojiClick)="privateChatService.addReaction(message.messageId, $event.emoji)"
+          (emojiClick)="
+            privateChatService.addReaction(message.messageId, $event.emoji)
+          "
         ></ngx-emoji>
       </div>
       <div>
         <ngx-emoji
           emoji="raised_hands"
           [size]="16"
-          (emojiClick)="privateChatService.addReaction(message.messageId, $event.emoji)"
+          (emojiClick)="
+            privateChatService.addReaction(message.messageId, $event.emoji)
+          "
         ></ngx-emoji>
       </div>
-      <div [matMenuTriggerFor]="emojiMenu" (menuOpened)="onMenuOpened()"
-      (menuClosed)="onMenuClosed()"
-      (click)="toggleBorder('emoji')">
+      <div
+        [matMenuTriggerFor]="emojiMenu"
+        (menuOpened)="onMenuOpened()"
+        (menuClosed)="onMenuClosed()"
+        (click)="toggleBorder('emoji')"
+      >
         <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
       </div>
       <div
@@ -37,7 +44,7 @@
         mat-button
         [matMenuTriggerFor]="editMessageMenu"
         #chooseChannelMenuTrigger="matMenuTrigger"
-        (click)="toggleBorder('editMessage')"
+        (click)="toggleBorder('deleteMessage')"
       >
         <mat-icon>more_vert</mat-icon>
         <mat-menu
@@ -50,6 +57,26 @@
             (click)="messageService.setEditMessageId(message.messageId)"
             >Nachricht bearbeiten</span
           >
+        </mat-menu>
+      </div>
+      <div
+        mat-button
+        [matMenuTriggerFor]="deleteMessageMenu"
+        (menuOpened)="onMenuOpened()"
+        (menuClosed)="onMenuClosed()"
+        (click)="toggleBorder('deleteMessage')"
+      >
+        <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        <mat-menu #deleteMessageMenu="matMenu">
+          <span
+            class="edit-message-text"
+            (click)="
+              deleteMessage(message);
+              setEditMessageMenuOpened(true)
+            "
+          >
+            Nachricht löschen
+          </span>
         </mat-menu>
       </div>
     </div>
@@ -81,6 +108,9 @@
   </div>
 
   <mat-menu xPosition="after" #emojiMenu>
-    <app-emoji-picker [message]="message" [component]="'privateChat'"></app-emoji-picker>
+    <app-emoji-picker
+      [message]="message"
+      [component]="'privateChat'"
+    ></app-emoji-picker>
   </mat-menu>
 </section>

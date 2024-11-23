@@ -13,11 +13,6 @@
           (click)="toggleBorder('upload')"
           >add</mat-icon
         >
-        <!-- <mat-icon
-          class="material-symbols-outlined"
-          (click)="openAttachmentSidenav()"
-          >add</mat-icon
-        > -->
         <div class="grey-line"></div>
         <mat-icon
           class="material-symbols-outlined"
@@ -35,15 +30,14 @@
         >
       </div>
       <mat-icon
-  (click)="sendMessage()"
-  [ngClass]="{
-    'send-icon': newMessageContent.trim() !== '' || attachmentUrls.length > 0
-  }"
->
-  send
-</mat-icon>
-    
-    
+        (click)="sendMessage()"
+        [ngClass]="{
+          'send-icon':
+            newMessageContent.trim() !== '' || attachmentUrls.length > 0
+        }"
+      >
+        send
+      </mat-icon>
     </div>
   </div>
 

@@ -104,8 +104,6 @@ export class MessageAreaNewMessageComponent implements OnInit {
           .subscribe((channel) => {
             if (channel) {
               this.channel = channel;
-            } else {
-              console.error('Channel existiert nicht.');
             }
           });
       }

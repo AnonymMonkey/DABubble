@@ -45,6 +45,7 @@ export class ChannelDescriptionComponent implements OnInit {
   userService = inject(UserService);
   firestore = inject(Firestore);
   router = inject(Router);
+  currentBorderRadius: string = '30px 30px 30px 30px';
 
   constructor(
     public header: MessageAreaHeaderComponent,
@@ -108,5 +109,19 @@ export class ChannelDescriptionComponent implements OnInit {
     } catch (error) {
       console.error('Fehler beim Verlassen des Channels:', error);
     }
+  }
+
+  toggleBorder(menuType: string) {
+    switch (menuType) {
+      case 'leave-channel':
+        this.currentBorderRadius = '30px 30px 30px 30px';
+        break;
+      default:
+        this.currentBorderRadius = '30px 30px 30px 30px';
+    }
+    document.documentElement.style.setProperty(
+      '--border-radius',
+      this.currentBorderRadius
+    );
   }
 }

@@ -52,7 +52,7 @@ export class UploadMethodSelectorComponent {
     const channelId = this.route.snapshot.paramMap.get('channelId');
     const privateChatId = this.route.snapshot.paramMap.get('privateChatId');
     const messageId = this.messageId;
-
+  
     let storagePath = 'uploads/'; // Basis-Speicherpfad
     if (messageId) {
       storagePath = `channels/${channelId}/messages/${messageId}/uploads/`;
@@ -61,37 +61,35 @@ export class UploadMethodSelectorComponent {
     } else if (privateChatId) {
       storagePath = `privatechats/${privateChatId}/uploads/`;
     }
+  
     // Bereinigung des Dateinamens
     const sanitizedFileName = file.name
       .replace(/\s+/g, '_') // Leerzeichen durch Unterstriche ersetzen
       .replace(/[^a-zA-Z0-9._-]/g, '_'); // Sonderzeichen durch Unterstriche ersetzen
-    // Einzigartigen Dateinamen erstellen
+  
+    // Einzigartigen Dateinamen mit Timestamp erstellen
     const uniqueFileName = await this.storageService.getUniqueFileName(
       storagePath,
       sanitizedFileName
     );
+  
     // Speicherreferenz mit dem bereinigten Dateinamen
     const storageRef = ref(
       this.storage,
       `${storagePath}${encodeURIComponent(uniqueFileName)}`
     );
+  
     try {
       // Datei hochladen
       const snapshot = await uploadBytes(storageRef, file);
-      const fileExists = await this.storageService.fileExists(
-        `${storagePath}${encodeURIComponent(uniqueFileName)}`
-      );
-      if (!fileExists) {
-        throw new Error('Datei wurde nach dem Upload nicht gefunden.');
-      }
-
+  
       // Download-URL abrufen
       const downloadURL = await getDownloadURL(snapshot.ref);
       this.uploadSelected.emit(downloadURL); // Die URL wird zurückgegeben
     } catch (error) {
       console.error('Fehler beim Hochladen der Datei:', error);
     }
-
+  
     this.storageService.triggerCloseUploadMethodSelector(); // Methode aufrufen, um den Upload-Selector zu schließen
   }
 

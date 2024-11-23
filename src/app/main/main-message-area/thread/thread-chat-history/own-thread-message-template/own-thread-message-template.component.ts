@@ -1,4 +1,11 @@
-import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { EmojiPickerComponent } from '../../../../../shared/components/emoji-picker/emoji-picker.component';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatIcon } from '@angular/material/icon';
@@ -9,6 +16,9 @@ import { ThreadService } from '../../../../../shared/services/thread-service/thr
 import { PrivateChatService } from '../../../../../shared/services/private-chat-service/private-chat.service';
 import { OwnThreadMessageShowComponent } from './own-thread-message-show/own-thread-message-show.component';
 import { OwnThreadMessageEditComponent } from './own-thread-message-edit/own-thread-message-edit.component';
+import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
+import { StorageService } from '../../../../../shared/services/storage-service/storage.service';
+import { MainMessageAreaComponent } from '../../../main-message-area.component';
 
 @Component({
   selector: 'app-own-thread-message-template',
@@ -34,12 +44,15 @@ export class OwnThreadMessageTemplateComponent implements OnInit, OnChanges {
   public messageService = inject(MessageService);
   editMessageMenuOpened: boolean = false;
   public threadService = inject(ThreadService);
+  private channelService = inject(ChannelService);
+  private storageService = inject(StorageService);
   currentBorderRadius = '30px 30px 30px 30px';
   public privateChatService = inject(PrivateChatService);
   emojiContainerVisible: { [messageId: string]: boolean } = {};
   menuOpenStatus: { [messageId: string]: boolean } = {};
 
-  constructor() {}
+  constructor(private mainMessageArea: MainMessageAreaComponent
+  ) {}
 
   ngOnInit() {
     if (this.message) {
@@ -56,9 +69,12 @@ export class OwnThreadMessageTemplateComponent implements OnInit, OnChanges {
       this.emojiContainerVisible[messageId] = true;
     }
   }
-  
+
   hideEmojiContainer(messageId: string) {
-    if (this.messageService.editMessageId !== messageId && !this.menuOpenStatus[messageId]) {
+    if (
+      this.messageService.editMessageId !== messageId &&
+      !this.menuOpenStatus[messageId]
+    ) {
       this.emojiContainerVisible[messageId] = false;
     }
   }
@@ -91,7 +107,7 @@ export class OwnThreadMessageTemplateComponent implements OnInit, OnChanges {
 
   setEditMessageMenuOpened(value: boolean, messageId: string) {
     this.editMessageMenuOpened = value;
-  
+
     if (!value) {
       // Zustand des Emoji-Containers vollständig zurücksetzen
       this.emojiContainerVisible[messageId] = false;
@@ -130,5 +146,21 @@ export class OwnThreadMessageTemplateComponent implements OnInit, OnChanges {
       '--border-radius',
       this.currentBorderRadius
     );
+  }
+
+  deleteMessage(message: any) {
+    const channelPath = `channels/${this.channelService.channelId}/messages/${message.messageId}`;
+    const threadPath = `channels/${this.channelService.channelId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${message.messageId}`;
+    if (message.attachmentUrls && message.attachmentUrls.length > 0) {
+      for (const url of message.attachmentUrls) {
+        this.storageService.deleteSpecificFile(url);
+      }
+    }
+    if (this.message.messageId.startsWith('thread_')) {
+      this.messageService.deleteMessageInThreadOrChannel(threadPath);
+    } else if (this.message.messageId.startsWith('msg_')) {
+      this.messageService.deleteMessageInThreadOrChannel(channelPath);
+      this.mainMessageArea.closeSidenav();
+    }
   }
 }
