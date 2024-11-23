@@ -170,6 +170,21 @@ export class StorageService {
     }
   }
 
+  async deletePreviousFile(folderPath: string) {
+    const folderRef = ref(this.storage, folderPath);
+
+    try {
+      const listResult = await listAll(folderRef);
+      if (listResult.items.length !== 0) {
+        const fileRef = ref(this.storage, listResult.items[0].fullPath);
+        deleteObject(fileRef);
+        return;
+      }
+    } catch (error) {
+      console.error('Fehler beim Löschen der Dateien:', error);
+    }
+  }
+
   private extractFilePathFromUrl(fileUrl: string): string {
     const baseUrl = 'https://firebasestorage.googleapis.com/v0/b/';
     const decodedUrl = decodeURIComponent(fileUrl);
@@ -183,11 +198,11 @@ export class StorageService {
     const fileNameParts = fileName.split('.');
     const baseName = fileNameParts.slice(0, -1).join('.');
     const extension = fileNameParts[fileNameParts.length - 1];
-  
+
     // Timestamp hinzufügen, um die Eindeutigkeit sicherzustellen
     const timestamp = Date.now(); // Oder new Date().getTime()
     let uniqueName = `${baseName}_${timestamp}.${extension}`;
-  
+
     return uniqueName;
   }
 

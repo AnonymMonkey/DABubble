@@ -166,6 +166,8 @@
   img {
     height: 50px;
     width: 50px;
+    object-fit: cover;
+    object-position: top;
     border-radius: 50%;
   }
 

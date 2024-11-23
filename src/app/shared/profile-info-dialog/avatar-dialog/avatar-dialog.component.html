@@ -56,7 +56,16 @@
     </div>
     <div class="upload-avatar">
       <p>Eigenes Bild verwenden</p>
-      <button mat-flat-button class="button-secondary">Datei hochladen</button>
+      <input
+        type="file"
+        id="file-upload"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+        hidden
+      />
+      <label for="file-upload" mat-flat-button class="button-secondary">
+        Datei hochladen
+      </label>
     </div>
   </div>
 

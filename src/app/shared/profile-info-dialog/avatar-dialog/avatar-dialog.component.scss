@@ -83,7 +83,8 @@
       width: 200px;
       height: 200px;
       border-radius: 100px;
-
+      object-fit: cover;
+      object-position: top;
       display: flex;
       justify-content: center;
       align-items: center;
