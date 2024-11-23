@@ -241,36 +241,25 @@ export class AttachmentPreviewComponent implements OnChanges {
   ) {
     try {
       const docRef = doc(this.firestore, docPath);
-      console.log(`Prüfe Dokument: ${docPath}`);
-
       const docSnapshot = await getDoc(docRef);
 
       if (docSnapshot.exists()) {
         const data = docSnapshot.data();
 
-        // Prüfen, ob 'messageId' definiert ist, bevor du es als Schlüssel verwendest
-        if (this.messageId) {
-          // Hier gehen wir direkt von einer ChannelMessage aus und nicht von einem Thread
-          const attachmentUrls = data['attachmentUrls'] || [];
+        const attachmentUrls = data['attachmentUrls'] || [];
 
-          // Entferne die gewünschte URL
-          const updatedUrls = attachmentUrls.filter(
-            (url: string) => url !== fileUrl
-          );
+        // Entferne die gewünschte URL
+        const updatedUrls = attachmentUrls.filter(
+          (url: string) => url !== fileUrl
+        );
 
-          if (updatedUrls.length !== attachmentUrls.length) {
-            await updateDoc(docRef, {
-              attachmentUrls: updatedUrls,
-            });
-            console.log('Dokument erfolgreich aktualisiert:', updatedUrls);
-          } else {
-            console.log('Keine Übereinstimmung für die URL gefunden.');
-          }
+        if (updatedUrls.length !== attachmentUrls.length) {
+          await updateDoc(docRef, {
+            attachmentUrls: updatedUrls,
+          });
         } else {
-          console.log('messageId ist nicht definiert');
+          console.log('Keine Übereinstimmung für die URL gefunden.');
         }
-      } else {
-        console.log('Dokument existiert nicht.');
       }
     } catch (error) {
       console.error(
@@ -284,8 +273,9 @@ export class AttachmentPreviewComponent implements OnChanges {
     // Wenn keine channelId und privateChatId vorhanden sind, abbrechen
     if (!this.channelId && !this.privateChatId) return;
     const isMessageEmpty =
-      this.message?.content === ' ' &&
-      this.message?.attachmentUrls?.length === 1;
+      this.message?.content === ' ' ||
+      (this.message?.content === '' &&
+        this.message?.attachmentUrls?.length <= 1);
     if (isMessageEmpty) {
       try {
         // Wenn sowohl channelId und messageId vorhanden sind, löschen wir die Nachricht im Thread
@@ -296,9 +286,7 @@ export class AttachmentPreviewComponent implements OnChanges {
         // Wenn nur channelId und messageId nicht vorhanden sind, löschen wir die Nachricht im Channel
         else if (this.channelId && !this.messageId) {
           const path = `channels/${this.channelId}/messages/${this.message.messageId}`;
-          await this.messageService.deleteMessageInThreadOrChannel(
-            path
-          );
+          await this.messageService.deleteMessageInThreadOrChannel(path);
         }
         // Wenn nur privateChatId vorhanden ist, löschen wir die Nachricht im Private Chat
         else if (this.privateChatId) {

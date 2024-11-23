@@ -74,9 +74,13 @@ export class MessageAreaChatHistoryComponent
             channel.usersLeft
           );
           this.listenForMessages(channel.channelId);
+        } else {
+          this.groupedMessages = []; // Keine Channel-Daten, also leeren
+          this.cdr.detectChanges(); // Ansicht aktualisieren
         }
       },
       error: (err) => console.error('Fehler beim Laden des Channels:', err),
+
       complete: () => {
         this.checkLoadingComplete();
       },
@@ -138,7 +142,10 @@ export class MessageAreaChatHistoryComponent
       `channels/${channelId}/messages`
     );
     this.messageSubscription = onSnapshot(messagesCollectionRef, (snapshot) => {
-      if (!snapshot.empty) {
+      if (snapshot.empty) {
+        this.groupedMessages = []; // Leere Nachrichtengruppe
+        this.cdr.detectChanges(); // Ansicht aktualisieren
+      } else {
         const newMessages = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),

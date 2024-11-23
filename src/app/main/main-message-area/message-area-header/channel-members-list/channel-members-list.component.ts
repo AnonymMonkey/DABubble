@@ -20,6 +20,8 @@ export class ChannelMembersListComponent implements OnInit {
   membersWithData: any[] = []; 
   isChannelLoaded = false;
 
+  currentBorderRadius: string = '30px 30px 30px 30px';
+
   constructor(
     public header: MessageAreaHeaderComponent,
     public channelService: ChannelService,
@@ -125,5 +127,20 @@ export class ChannelMembersListComponent implements OnInit {
     event.stopPropagation();
     this.header.closeMenu('member-list');
     this.header.openMenu('add-member');
+    this.toggleBorder('add-member');
+  }
+
+  toggleBorder(menuType: string) {
+    switch (menuType) {
+      case 'add-member':
+        this.currentBorderRadius = '30px 0px 30px 30px';
+        break;
+      default:
+        this.currentBorderRadius = '0px 30px 30px 30px';
+    }
+    document.documentElement.style.setProperty(
+      '--border-radius',
+      this.currentBorderRadius
+    );
   }
 }
