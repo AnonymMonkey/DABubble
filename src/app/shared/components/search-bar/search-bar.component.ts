@@ -63,7 +63,7 @@ export class SearchBarComponent {
   }
 
   loadAllChannelsData(): void {
-    this.allChannelsData = []; // Initialisiere die Liste neu
+    // this.allChannelsData = []; // Initialisiere die Liste neu
 
     this.userData.channels.forEach((channelId) => {
       this.channelService.getChannelById(channelId).subscribe((channelData) => {
@@ -101,8 +101,11 @@ export class SearchBarComponent {
       return combinedOptions.filter((option) => {
         if ('channelName' in option) {
           return option.channelName.toLowerCase().includes(input.toLowerCase());
-        } else if ('displayName' in option) {
-          return option.displayName.toLowerCase().includes(input.toLowerCase());
+        } else if ('displayName' in option || 'email' in option) {
+          return (
+            option.displayName.toLowerCase().includes(input.toLowerCase()) ||
+            option.email.toLowerCase().includes(input.toLowerCase())
+          );
         }
         return false;
       });
