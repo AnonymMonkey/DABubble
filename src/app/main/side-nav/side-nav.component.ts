@@ -48,7 +48,7 @@ export class SideNavComponent {
   readonly panelOpenState = signal(false);
   public channelService = inject(ChannelService);
   @Input() userData!: UserData;
-  allChannelsData: Channel[] = [];
+  @Input() allChannelsData: Channel[] = [];
   userService = inject(UserService);
   privateChatService = inject(PrivateChatService);
   allUserData: UserData[] = [];
@@ -64,36 +64,9 @@ export class SideNavComponent {
     this.loadOnlineStatus();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['userData']) {
-      this.loadAllChannelsData();
-    }
-  }
-
   openCreateChannelDialog(): void {
     this.dialog.open(CreateChannelDialogComponent, {
       panelClass: 'create-channel-dialog',
-    });
-  }
-
-  loadAllChannelsData(): void {
-    this.allChannelsData = []; // Initialisiere die Liste neu
-
-    this.userData.channels.forEach((channelId) => {
-      this.channelService.getChannelById(channelId).subscribe((channelData) => {
-        if (!channelData) return;
-        const existingIndex = this.allChannelsData.findIndex(
-          (c) => c.channelId === channelData.channelId
-        );
-
-        if (existingIndex > -1) {
-          // Aktualisiere das bestehende Channel-Datenobjekt
-          this.allChannelsData[existingIndex] = channelData;
-        } else {
-          // Füge den Channel hinzu, wenn er noch nicht existiert
-          this.allChannelsData.push(channelData);
-        }
-      });
     });
   }
 

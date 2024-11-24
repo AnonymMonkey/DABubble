@@ -4,7 +4,11 @@
     <mat-chip-row (removed)="remove(user)">
       <img src="{{ user.photoURL }}" alt="" />
       {{ user.userName }}
-      <button matChipRemove [attr.aria-label]="'remove ' + user">
+      <button
+        matChipRemove
+        *ngIf="user.userId != userData.uid"
+        [attr.aria-label]="'remove ' + user"
+      >
         <mat-icon>close</mat-icon>
       </button>
     </mat-chip-row>
