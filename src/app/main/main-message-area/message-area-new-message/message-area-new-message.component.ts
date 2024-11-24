@@ -82,6 +82,8 @@ export class MessageAreaNewMessageComponent implements OnInit {
   @ViewChild('attachmentSidenav', { read: ElementRef })
   attachmentSidenavElement!: ElementRef;
 
+  @ViewChild('editableMessage', { static: false }) editableMessage!: ElementRef;
+
   @ViewChild(MatMenuTrigger) uploadMethodMenuTrigger!: MatMenuTrigger;
 
   constructor(
@@ -120,6 +122,80 @@ export class MessageAreaNewMessageComponent implements OnInit {
     });
   }
 
+  onKeyDown(event: KeyboardEvent) {
+    const key = event.key;
+    event.preventDefault();
+
+    if (key.length === 1) {
+      this.newMessageContent += key;
+    }
+
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      this.newMessageContent = this.newMessageContent.slice(0, -1);
+    }
+  }
+
+  onPaste(event: ClipboardEvent) {
+    event.preventDefault(); // Verhindert das Standardverhalten des Browsers (Text direkt einfügen)
+
+    console.log('Paste Event ausgelöst'); // Überprüfung, ob das Event ausgelöst wird
+
+    // Versuche, den Text aus der Zwischenablage zu bekommen
+    const pastedText = event.clipboardData?.getData('text');
+    console.log('Pasted Text:', pastedText); // Debugging des eingefügten Textes
+
+    if (pastedText) {
+      // Hole das contenteditable-Element
+      const editableDiv = event.target as HTMLElement;
+
+      // Füge den eingefügten Text zum neuen Inhalt hinzu
+      const currentContent = editableDiv.innerHTML;
+      const cursorPosition = this.getCursorPosition(editableDiv); // Position des Cursors
+
+      // Text vor und nach der Cursorposition
+      const textBefore = currentContent.substring(0, cursorPosition);
+      const textAfter = currentContent.substring(cursorPosition);
+
+      // Erstelle den neuen Inhalt mit dem eingefügten Text
+      const newContent = textBefore + pastedText + textAfter;
+
+      // Aktualisiere den Inhalt des divs
+      editableDiv.innerHTML = newContent;
+
+      // Setze die neue Nachricht
+      this.newMessageContent = newContent;
+    }
+  }
+
+  getCursorPosition(editableDiv: HTMLElement): number {
+    const selection = window.getSelection();
+    const range = selection?.getRangeAt(0);
+
+    if (range) {
+      const preCursor = editableDiv.innerHTML.substring(0, range.startOffset);
+      return preCursor.length;
+    }
+
+    return 0; // Default: Anfang des Textes
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault(); // Standardaktion verhindern, damit der Drop funktioniert
+  }
+
+  // Für das Ablegen des Textes
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+
+    // Zugriff auf die Daten, die während des Ziehens abgelegt wurden
+    const text = event.dataTransfer?.getData('text/plain');
+
+    if (text) {
+      // Füge den Text zum Nachrichteninhalt hinzu
+      this.newMessageContent += text;
+    }
+  }
+
   getUserData() {
     if (!this.userId) return;
 
@@ -147,6 +223,7 @@ export class MessageAreaNewMessageComponent implements OnInit {
 
     // Nachricht sofort auslesen und Felder leeren
     const messageContent = this.newMessageContent;
+    this.editableMessage.nativeElement.innerHTML = '';
     this.newMessageContent = '';
 
     // Generiere Message-ID
@@ -250,13 +327,12 @@ export class MessageAreaNewMessageComponent implements OnInit {
   }
 
   addEmoji(event: any) {
-    console.log('Emoji selected:', event);
     const emoji = event.emoji.native || event.emoji;
     this.newMessageContent += emoji;
   }
 
   insertMention(userName: string): void {
-    const mention = `@${userName} `;
+    const mention = ` <span class="mention">@${userName}</span> `;
     this.newMessageContent += mention;
   }
 
