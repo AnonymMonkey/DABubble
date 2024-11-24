@@ -1,4 +1,11 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { MessageService } from '../../../../../shared/services/message-service/message.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -7,13 +14,26 @@ import { FormsModule } from '@angular/forms';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
 import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
-import { Firestore } from '@angular/fire/firestore';
-import { getFirestore, doc, deleteDoc, getDoc, collection } from 'firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  deleteDoc,
+  getDoc,
+  collection,
+} from 'firebase/firestore';
 
 @Component({
   selector: 'app-own-message-edit',
   standalone: true,
-  imports: [MatIcon, MatProgressSpinnerModule, FormsModule, MatMenuTrigger, MatMenuModule, PickerComponent, PickerModule],
+  imports: [
+    MatIcon,
+    MatProgressSpinnerModule,
+    FormsModule,
+    MatMenuTrigger,
+    MatMenuModule,
+    PickerComponent,
+    PickerModule,
+  ],
   templateUrl: './own-message-edit.component.html',
   styleUrls: ['./own-message-edit.component.scss'],
 })
@@ -24,7 +44,6 @@ export class OwnMessageEditComponent implements OnInit {
   isSaving = false;
   private messageService = inject(MessageService);
   private channelService = inject(ChannelService);
-  private firestore = inject(Firestore);
   private messageSubscription!: Subscription;
   currentBorderRadius = '30px 30px 30px 30px';
 
@@ -42,33 +61,40 @@ export class OwnMessageEditComponent implements OnInit {
   }
 
   subscribeToMessageUpdates(messageId: string) {
-    this.messageSubscription = this.messageService.getMessageUpdates(messageId).subscribe((updatedMessage) => {
-      if (updatedMessage) {
-        this.message = updatedMessage;
-        this.editedMessageContent = updatedMessage.content;
-      }
-    });
+    this.messageSubscription = this.messageService
+      .getMessageUpdates(messageId)
+      .subscribe((updatedMessage) => {
+        if (updatedMessage) {
+          this.message = updatedMessage;
+          this.editedMessageContent = updatedMessage.content;
+        }
+      });
   }
 
   async changeMessage() {
     this.isSaving = true; // Ladeindikator aktivieren
     this.temporaryMessageContent.emit(this.editedMessageContent); // Temporären Text senden
-  
+
     if (this.editedMessageContent === this.message.content) {
       this.clearInput(false); // Bearbeitungsmodus sofort verlassen, aber Inhalt beibehalten
       return;
     }
-  
+
     const originalContent = this.message.content;
     this.message.content = this.editedMessageContent;
-    
+
     this.clearInput(false); // Bearbeitungsmodus sofort verlassen, aber Inhalt beibehalten
     try {
-      const path = 'channels/' + this.channelService.channelId + '/messages/' + this.message.messageId;
-      if (!this.editedMessageContent.trim() && (this.message.attachmentUrls.length === 0)) {
-        await this.messageService.deleteMessageInThreadOrChannel(
-          path  
-        )
+      const path =
+        'channels/' +
+        this.channelService.channelId +
+        '/messages/' +
+        this.message.messageId;
+      if (
+        !this.editedMessageContent.trim() &&
+        this.message.attachmentUrls.length === 0
+      ) {
+        await this.messageService.deleteMessageInThreadOrChannel(path);
       } else {
         await this.messageService.updateMessageThreadOrChannel(
           path,
@@ -85,12 +111,15 @@ export class OwnMessageEditComponent implements OnInit {
   }
 
   // Lösche die Nachricht
-  async deleteChannelMessage(channelId: string, messageId: string): Promise<void> {
+  async deleteChannelMessage(
+    channelId: string,
+    messageId: string
+  ): Promise<void> {
     const db = getFirestore(); // Firestore-Instanz erhalten
-  
+
     // Nachrichtendokument aus der Sammlung holen
     const messageDocRef = doc(db, 'channels', channelId, 'messages', messageId);
-  
+
     try {
       // Überprüfen, ob die Nachricht existiert
       const messageDoc = await getDoc(messageDocRef);
@@ -105,7 +134,7 @@ export class OwnMessageEditComponent implements OnInit {
       throw error;
     }
   }
-  
+
   // Ändere clearInput so, dass es optional den Inhalt löscht
   clearInput(clearContent: boolean = true) {
     this.messageService.setEditMessageId(null); // Verlässt den Bearbeitungsmodus

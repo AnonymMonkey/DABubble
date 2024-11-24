@@ -58,7 +58,7 @@
       </span>
       <app-message-reactions
         [message]="message"
-        *ngIf="message"
+        *ngIf="message?.reactions?.length > 0"
       ></app-message-reactions>
     </div>
   </div>

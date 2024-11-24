@@ -105,6 +105,11 @@ textarea {
   display: flex;
   justify-content: space-between;
   color: var(--grey-color);
+
+  > mat-icon {
+    height: 40px;
+    width: 40px;
+  }
 }
 
 .send-icon {

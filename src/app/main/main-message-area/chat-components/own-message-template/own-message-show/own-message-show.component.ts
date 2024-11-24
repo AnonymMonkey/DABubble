@@ -12,7 +12,7 @@ import {
   collection,
   collectionData,
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-own-message-show',
@@ -38,6 +38,7 @@ export class OwnMessageShowComponent implements OnInit {
   private firestore = inject(Firestore);
   displayName: string = '';
   public threadMessages$: Observable<any[]> | undefined; // Observable für die Thread-Nachrichten
+  private userDataSubscription: Subscription | undefined;
 
   constructor() {}
 
@@ -49,11 +50,26 @@ export class OwnMessageShowComponent implements OnInit {
       );
     }
     if (this.message) {
-      this.userService
-        .getUserDataByUID(this.message.userId)
-        .subscribe((data) => {
-          this.displayName = data.displayName;
-        });
+      this.loadUserData(this.message.userId);
+    }
+  }
+
+  loadUserData(userId: string): void {
+    this.userDataSubscription = this.userService.userDataMap$.subscribe(
+      (userDataMap) => {
+        const userData = userDataMap.get(userId);
+        if (userData) {
+          this.displayName = userData.displayName;
+        } else {
+          this.displayName = 'Gast';
+        }
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) {
+      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
     }
   }
 

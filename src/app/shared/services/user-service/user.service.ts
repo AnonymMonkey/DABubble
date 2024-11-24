@@ -34,6 +34,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { RoutingService } from '../routing-service/routing.service';
+import { DocumentData } from 'rxfire/firestore/interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -59,10 +60,21 @@ export class UserService {
   userData$ = this.userDataSubject.asObservable(); // Observable für andere Komponenten
   public route: ActivatedRoute = inject(ActivatedRoute);
 
+  private userDataMap = new Map<string, UserData>(); // Zentrale Map für Benutzerdaten
+  private userDataMapSubject = new BehaviorSubject<Map<string, UserData>>(
+    this.userDataMap
+  ); // Observable für Updates
+
+  get userDataMap$() {
+    return this.userDataMapSubject.asObservable();
+  }
+
   allUsersOnlineStatus$: { userId: string; online: boolean }[] = [];
 
   constructor(private routingService: RoutingService) {
     this.loadAllUserData();
+    this.loadAllUserDataToMap();
+    this.listenToUserDataChanges();
   }
 
   loadAllUserData(): void {
@@ -72,11 +84,74 @@ export class UserService {
     });
   }
 
+  loadAllUserDataToMap(): void {
+    const userCollection = collection(this.firestore, 'users');
+
+    collectionData(userCollection, { idField: 'uid' })
+      .pipe(
+        map((docs: DocumentData[]) =>
+          docs.map(
+            (doc) =>
+              new UserData({
+                uid: doc['uid'],
+                email: doc['email'],
+                displayName: doc['displayName'],
+                photoURL: doc['photoURL'],
+              } as User)
+          )
+        )
+      )
+      .subscribe((data: UserData[]) => {
+        data.forEach((user) => this.userDataMap.set(user.uid, user));
+        this.userDataMapSubject.next(new Map(this.userDataMap));
+      });
+  }
+
   loadUserDataByUID(uid: string): void {
     const userDoc = doc(this.firestore, `users/${uid}`); // Referenz auf das spezifische Dokument
     docData(userDoc, { idField: 'id' }).subscribe((data) => {
       this.userDataSubject.next(data); // Setzt die Benutzerdaten
     });
+  }
+
+  listenToUserDataChanges(): void {
+    const userCollection = collection(this.firestore, 'users'); // Referenz zur 'users'-Collection
+
+    onSnapshot(userCollection, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        const userId = change.doc.id; // Die ID des betroffenen Benutzers
+        const userData = change.doc.data() as UserData; // Die aktualisierten Daten
+
+        if (change.type === 'added' || change.type === 'modified') {
+          // Nutzer hinzufügen oder aktualisieren
+          this.userDataMap.set(userId, userData);
+        } else if (change.type === 'removed') {
+          // Nutzer aus der Map entfernen
+          this.userDataMap.delete(userId);
+        }
+
+        // Die Map nur dann aktualisieren, wenn es Änderungen gibt
+        this.userDataMapSubject.next(new Map(this.userDataMap));
+      });
+    });
+  }
+
+  getUserDataById(
+    userId: string
+  ): { photoURL: string; displayName: string } | null {
+    return this.userDataMapSubject.getValue().get(userId) || null;
+  }
+
+  getUserDataOrFallback(userId: string): {
+    photoURL: string;
+    displayName: string;
+  } {
+    return (
+      this.getUserDataById(userId) || {
+        photoURL: 'src/assets/img/profile/placeholder-img.webp',
+        displayName: 'Gast',
+      }
+    );
   }
 
   getAllUsersOnlineStatus(): Observable<{ userId: string; online: boolean }[]> {

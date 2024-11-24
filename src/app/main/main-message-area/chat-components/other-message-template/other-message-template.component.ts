@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MainMessageAreaComponent } from '../../main-message-area.component';
 import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
@@ -13,7 +13,7 @@ import { MessageReactionsComponent } from '../../../../shared/components/message
 import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
 import { AttachmentPreviewComponent } from '../../../../shared/components/attachment-preview/attachment-preview.component';
 import { UserService } from '../../../../shared/services/user-service/user.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-other-message-template',
@@ -36,16 +36,17 @@ import { Observable } from 'rxjs';
   templateUrl: './other-message-template.component.html',
   styleUrl: './other-message-template.component.scss',
 })
-export class OtherMessageTemplateComponent implements OnInit {
+export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
   isEmojiContainerVisible: number = 0;
   emojis: string = '';
   @Input() message: any = '';
   isMenuOpen: boolean = false;
   currentBorderRadius = '30px 30px 30px 30px';
-  public threadMessages$: Observable<any[]> | undefined; 
-  public loading: boolean = false; 
+  public threadMessages$: Observable<any[]> | undefined;
+  public loading: boolean = false;
   photoURL: string = '';
   displayName: string = '';
+  private userDataSubscription: Subscription | undefined;
 
   constructor(
     public mainMessageArea: MainMessageAreaComponent,
@@ -64,13 +65,23 @@ export class OtherMessageTemplateComponent implements OnInit {
       );
     }
     if (this.message) {
-      this.userService
-        .getUserDataByUID(this.message.userId)
-        .subscribe((data) => {
-          this.photoURL = data.photoURL;
-          this.displayName = data.displayName;
-        });
+      this.loadUserData(this.message.userId);
     }
+  }
+
+  loadUserData(userId: string): void {
+    this.userDataSubscription = this.userService.userDataMap$.subscribe(
+      (userDataMap) => {
+        const userData = userDataMap.get(userId);
+        if (userData) {
+          this.photoURL = userData.photoURL;
+          this.displayName = userData.displayName;
+        } else {
+          this.photoURL = 'src/assets/img/profile/placeholder-img.webp';
+          this.displayName = 'Gast';
+        }
+      }
+    );
   }
 
   // Methode zum Abrufen der Thread-Nachrichten aus der Firestore-Unterkollektion
@@ -123,7 +134,8 @@ export class OtherMessageTemplateComponent implements OnInit {
   }
 
   addReaction(messageId: string, emoji: any): void {
-    let path = 'channels/' + this.channelService.channelId + '/messages/' + messageId;
+    let path =
+      'channels/' + this.channelService.channelId + '/messages/' + messageId;
     this.messageService.setActualMessage(this.message);
     this.messageService.addOrChangeReactionChannelOrThread(emoji, path);
   }
@@ -140,5 +152,11 @@ export class OtherMessageTemplateComponent implements OnInit {
       '--border-radius',
       this.currentBorderRadius
     );
+  }
+
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) {
+      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
+    }
   }
 }

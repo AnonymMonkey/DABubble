@@ -3,6 +3,7 @@ import {
   inject,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
 } from '@angular/core';
@@ -19,6 +20,7 @@ import { OwnThreadMessageEditComponent } from './own-thread-message-edit/own-thr
 import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
 import { StorageService } from '../../../../../shared/services/storage-service/storage.service';
 import { MainMessageAreaComponent } from '../../../main-message-area.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-own-thread-message-template',
@@ -36,7 +38,7 @@ import { MainMessageAreaComponent } from '../../../main-message-area.component';
   templateUrl: './own-thread-message-template.component.html',
   styleUrl: './own-thread-message-template.component.scss',
 })
-export class OwnThreadMessageTemplateComponent implements OnInit, OnChanges {
+export class OwnThreadMessageTemplateComponent implements OnInit, OnChanges, OnDestroy {
   @Input() message: any;
   photoURL: string = '';
   isEmojiContainerVisible: number = 0;
@@ -50,17 +52,31 @@ export class OwnThreadMessageTemplateComponent implements OnInit, OnChanges {
   public privateChatService = inject(PrivateChatService);
   emojiContainerVisible: { [messageId: string]: boolean } = {};
   menuOpenStatus: { [messageId: string]: boolean } = {};
+  private userDataSubscription: Subscription | undefined;
 
   constructor(private mainMessageArea: MainMessageAreaComponent
   ) {}
 
   ngOnInit() {
     if (this.message) {
-      this.userService
-        .getUserDataByUID(this.message.userId)
-        .subscribe((data) => {
-          this.photoURL = data.photoURL;
-        });
+      this.loadUserData(this.message.userId);
+    }
+  }
+
+  loadUserData(userId: string): void {
+    this.userDataSubscription = this.userService.userDataMap$.subscribe((userDataMap) => {
+      const userData = userDataMap.get(userId);
+      if (userData) {
+        this.photoURL = userData.photoURL;
+      } else {
+        this.photoURL = 'src/assets/img/profile/placeholder-img.webp';
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) {
+      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
     }
   }
 

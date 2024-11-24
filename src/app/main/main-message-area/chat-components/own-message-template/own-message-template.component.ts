@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { MainMessageAreaComponent } from '../../main-message-area.component';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
@@ -12,6 +12,7 @@ import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { StorageService } from '../../../../shared/services/storage-service/storage.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-own-message-template',
@@ -30,7 +31,7 @@ import { StorageService } from '../../../../shared/services/storage-service/stor
   templateUrl: './own-message-template.component.html',
   styleUrl: './own-message-template.component.scss',
 })
-export class OwnMessageTemplateComponent implements OnChanges, OnInit {
+export class OwnMessageTemplateComponent implements OnChanges, OnInit, OnDestroy {
   @Input() message: any;
   isEmojiContainerVisible: number = 0;
   editMessageMenuOpened: boolean = false;
@@ -41,6 +42,7 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit {
   emojiContainerVisible: { [messageId: string]: boolean } = {};
   menuOpenStatus: { [messageId: string]: boolean } = {};
   photoURL: string = '';
+  private userDataSubscription: Subscription | undefined;
 
   get threadKeys(): string[] {
     return Object.keys(this.message?.thread || {});
@@ -57,17 +59,32 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit {
     this.isDataLoaded = true;
 
     if (this.message) {
-      this.userService
-        .getUserDataByUID(this.message.userId)
-        .subscribe((data) => {
-          this.photoURL = data.photoURL;
-        });
+      this.loadUserData(this.message.userId);
     }
+  }
+
+  loadUserData(userId: string): void {
+    this.userDataSubscription = this.userService.userDataMap$.subscribe(
+      (userDataMap) => {
+        const userData = userDataMap.get(userId);
+        if (userData) {
+          this.photoURL = userData.photoURL;
+        } else {
+          this.photoURL = 'src/assets/img/profile/placeholder-img.webp';
+        }
+      }
+    );
   }
 
   ngOnChanges(): void {
     if (this.messageService.editMessageId !== this.message.id) {
       this.emojiContainerVisible[this.message.messageId] = false;
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) {
+      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
     }
   }
 
