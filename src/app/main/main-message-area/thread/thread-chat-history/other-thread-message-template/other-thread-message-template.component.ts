@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { UserService } from '../../../../../shared/services/user-service/user.service';
 import { PrivateChatService } from '../../../../../shared/services/private-chat-service/private-chat.service';
 import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
@@ -7,8 +7,7 @@ import { EmojiPickerComponent } from '../../../../../shared/components/emoji-pic
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatIcon } from '@angular/material/icon';
 import { AttachmentPreviewComponent } from '../../../../../shared/components/attachment-preview/attachment-preview.component';
-import { filter, map, Subject, Subscription, take, takeUntil } from 'rxjs';
-import { MessageService } from '../../../../../shared/services/message-service/message.service';
+import { filter, map, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-other-thread-message-template',
@@ -28,7 +27,7 @@ import { MessageService } from '../../../../../shared/services/message-service/m
   templateUrl: './other-thread-message-template.component.html',
   styleUrl: './other-thread-message-template.component.scss',
 })
-export class OtherThreadMessageTemplateComponent implements OnInit {
+export class OtherThreadMessageTemplateComponent implements OnInit, OnDestroy {
   isEmojiContainerVisible: number = 0;
   @Input() message: any = '';
   displayName: string = '';
@@ -37,47 +36,34 @@ export class OtherThreadMessageTemplateComponent implements OnInit {
   public privateChatService = inject(PrivateChatService);
   private subscriptions: Subscription[] = [];
   isMenuOpen: boolean = false;
-  private messageService = inject(MessageService);
+  private userDataSubscription: Subscription | undefined;
 
   constructor() {}
 
   ngOnInit() {
     if (this.message) {
-      this.userService
-        .getUserDataByUID(this.message.userId)
-        .subscribe((data) => {
-          this.photoURL = data.photoURL;
-          this.displayName = data.displayName;
-        });
+      this.loadUserData(this.message.userId);
     }
   }
 
-  cleanupSubscriptions() {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
-    this.subscriptions = [];
-  }
-
-  ngOnDestroy() {
-    this.cleanupSubscriptions(); // Abo aufräumen, wenn Komponente zerstört wird
-  }
-
-  loadUserData(userId: string) {
-    // Alte Abos beenden, bevor ein neues startet
-    this.cleanupSubscriptions();
-
-    const subscription = this.userService.allUserData$
-      .pipe(
-        map((allUsers) => allUsers.find((user) => user.uid === userId)),
-        filter((userData) => !!userData) // Überspringe ungültige Daten
-      )
-      .subscribe((userData) => {
-        this.displayName = userData.displayName;
+  loadUserData(userId: string): void {
+    this.userDataSubscription = this.userService.userDataMap$.subscribe((userDataMap) => {
+      const userData = userDataMap.get(userId);
+      if (userData) {
         this.photoURL = userData.photoURL;
-      });
-
-    this.subscriptions.push(subscription);
+        this.displayName = userData.displayName;
+      } else {
+        this.photoURL = 'src/assets/img/profile/placeholder-img.webp';
+        this.displayName = 'Gast';
+      }
+    });
   }
 
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) {
+      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
+    }
+  }
   menuOpened(): void {
     this.isMenuOpen = true;
   }

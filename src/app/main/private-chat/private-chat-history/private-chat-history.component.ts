@@ -48,7 +48,6 @@ export class PrivateChatHistoryComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['messages'] && !changes['messages'].firstChange) {
-      // Überschreibe die alten Nachrichten mit den neuen
       this.messages = changes['messages'].currentValue;
       this.groupAndSortMessages();
     }
