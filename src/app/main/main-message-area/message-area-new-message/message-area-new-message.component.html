@@ -3,6 +3,7 @@
     <textarea
       placeholder="Nachricht an #Entwicklerteam"
       [(ngModel)]="newMessageContent"
+      (ngModelChange)="updateFormattedContent()"
       (keydown.enter)="sendMessage(); $event.preventDefault()"
     ></textarea>
     <div class="icons-container">

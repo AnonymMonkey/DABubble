@@ -4,6 +4,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   ViewChild,
   ElementRef,
+  OnDestroy,
 } from '@angular/core';
 import { ChannelMessage } from '../../../shared/models/channel-message.model';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,6 +29,7 @@ import { NgClass, NgIf } from '@angular/common';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { AttachmentPreviewComponent } from '../../../shared/components/attachment-preview/attachment-preview.component';
 import { StorageService } from '../../../shared/services/storage-service/storage.service';
+import { Subscription } from 'rxjs';
 
 const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   toFirestore(message: ChannelMessage): DocumentData {
@@ -67,8 +69,9 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   styleUrls: ['./message-area-new-message.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class MessageAreaNewMessageComponent implements OnInit {
+export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   newMessageContent = '';
+  formattedMessageContent = '';
   channelId?: string;
   privateChatId?: string;
   userId?: string;
@@ -77,6 +80,8 @@ export class MessageAreaNewMessageComponent implements OnInit {
   channel: Channel | undefined;
   currentBorderRadius: string = '30px 30px 30px 30px';
   attachmentUrls: string[] = [];
+  userDataSubscription: Subscription = new Subscription();
+  displayNames: string[] = [];
 
   @ViewChild('attachmentSidenav') attachmentSidenav!: MatSidenav;
   @ViewChild('attachmentSidenav', { read: ElementRef })
@@ -111,6 +116,15 @@ export class MessageAreaNewMessageComponent implements OnInit {
       this.getUserData();
     });
 
+    this.userDataSubscription = this.userService.userDataMap$.subscribe(
+      (userDataMap) => {
+        this.displayNames = [];
+        userDataMap.forEach((userData) => {
+          this.displayNames.push(userData.displayName);
+        });
+      }
+    );
+
     this.storageService.onCloseAttachmentPreview().subscribe(() => {
       this.closeAttachmentSidenav();
     });
@@ -120,9 +134,14 @@ export class MessageAreaNewMessageComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) {
+      this.userDataSubscription.unsubscribe();
+    }
+  }
+
   getUserData() {
     if (!this.userId) return;
-
     this.userService.getUserDataByUID(this.userId).subscribe({
       next: (userData) => {
         this.userName = userData?.displayName;
@@ -154,8 +173,13 @@ export class MessageAreaNewMessageComponent implements OnInit {
       ? MessageAreaNewMessageComponent.generatePrivateMessageId()
       : `msg_${Date.now()}`;
 
+    // Wenn es sich um eine Channel-Nachricht handelt und @ vorhanden ist, Erwähnungen mit span umwickeln
+    // const processedMessageContent = this.channelId
+    //   ? this.replaceMentionsWithSpan(messageContent)
+    //   : messageContent;
+
     const newMessage = new ChannelMessage(
-      messageContent,
+      this.formattedMessageContent || messageContent, // Verwende den bearbeiteten Nachrichtentext, falls @ vorhanden
       this.userId || '',
       messageId,
       new Date().toISOString(), // Zeit als ISO-String
@@ -253,11 +277,16 @@ export class MessageAreaNewMessageComponent implements OnInit {
     console.log('Emoji selected:', event);
     const emoji = event.emoji.native || event.emoji;
     this.newMessageContent += emoji;
+    this.formattedMessageContent += emoji;
   }
 
-  insertMention(userName: string): void {
-    const mention = `@${userName} `;
+  insertMention(originalMention: string): void {
+    const mention = originalMention.replace(
+      /<span class="mention">(.*?)<\/span>/g,
+      '$1'
+    );
     this.newMessageContent += mention;
+    this.updateFormattedContent();
   }
 
   toggleBorder(menuType: string) {
@@ -305,4 +334,54 @@ export class MessageAreaNewMessageComponent implements OnInit {
       (url) => url !== removedUrl
     );
   }
+
+  updateFormattedContent(): void {
+    // Kopiere den aktuellen Inhalt und konvertiere Mentions in `<span>`-Tags
+    this.formattedMessageContent = this.newMessageContent;
+  
+    // Konvertiere Erwähnungen (beginnen mit `@`) in `<span>`-Tags
+    this.formattedMessageContent = this.formattedMessageContent.replace(
+      /@([a-zA-Z0-9_äöüßÄÖÜ\s]+)/g,
+      '<span class="mention">@$1</span>'
+    );
+  }
+  
+  
+
+  // replaceMentionsWithSpan(messageContent: string): string {
+  //   const mentionPattern = /@([a-zA-Z0-9_äöüßÄÖÜ\s]+)/g; // Regulärer Ausdruck für @Benutzernamen
+
+  //   let updatedMessage = messageContent;
+  //   let match;
+
+  //   // Durchsuche den gesamten Text nach @Benutzernamen
+  //   while ((match = mentionPattern.exec(messageContent)) !== null) {
+  //     const mentionText = match[0]; // Vollständige Erwähnung (@username)
+  //     const userName = match[1]; // Nur der Benutzername (username ohne @)
+
+  //     // Hier holst du dir die vollständigen Benutzerdaten
+  //     const user = this.getUserDataByUserName(userName);
+
+  //     if (user) {
+  //       // Ersetze @username durch ein span-Tag mit der Klasse 'mention'
+  //       updatedMessage = updatedMessage.replace(
+  //         mentionText,
+  //         `<span class="mention">@${userName}</span>`
+  //       );
+  //     }
+  //   }
+
+  //   return updatedMessage;
+  // }
+
+  // getUserDataByUserName(userName: string) {
+  //   console.log('Suche nach Benutzer:', userName);
+  //   // Stelle sicher, dass userName keine führenden oder nachgestellten Leerzeichen enthält
+  //   const normalizedUserName = userName.trim().toLowerCase();
+
+  //   // Suche den Benutzer anhand des Displaynamens in deinen Benutzerdaten
+  //   return this.displayNames.find(
+  //     (user) => user.toLowerCase() === normalizedUserName
+  //   );
+  // }
 }

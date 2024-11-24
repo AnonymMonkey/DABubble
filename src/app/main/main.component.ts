@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { HeaderComponent } from './header/header.component';
-import { MainMessageAreaComponent } from './main-message-area/main-message-area.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +9,6 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { UserService } from '../shared/services/user-service/user.service';
 import { UserData } from '../shared/models/user.model';
 import { Subscription } from 'rxjs';
-import { ThreadComponent } from './main-message-area/thread/thread.component';
 
 @Component({
   selector: 'app-main',
@@ -28,11 +26,12 @@ import { ThreadComponent } from './main-message-area/thread/thread.component';
   styleUrl: './main.component.scss',
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MainComponent {
+export class MainComponent implements OnInit, OnDestroy{
   userId!: string;
   userData!: UserData;
   subscription!: Subscription;
   userService = inject(UserService);
+  private userDataSubscription: Subscription | undefined;
 
   constructor(private route: ActivatedRoute) {
     this.route.params.subscribe((params) => {
@@ -44,15 +43,34 @@ export class MainComponent {
   ngOnInit() {
     this.userService.loadAllUserData();
     this.userService.loadUserDataByUID(this.userId);
-    this.userService.userData$.subscribe((data) => {
-      this.userData = data; // Empfange die Benutzerdaten
-    });
+    // this.userService.userData$.subscribe((data) => {
+    //   this.userData = data; // Empfange die Benutzerdaten
+    // });
+
+    this.loadUserData(this.userId);
 
     this.checkUserStatusOnReload(this.userId);
+  }
+
+  loadUserData(userId: string): void {
+    this.userDataSubscription = this.userService.userDataMap$.subscribe(
+      (userDataMap) => {
+        const userData = userDataMap.get(userId);
+        if (userData) {
+          this.userData = userData;
+        }
+      }
+    );
   }
 
   // Beispielaufruf beim Reload
   async checkUserStatusOnReload(userId: string): Promise<void> {
     await this.userService.setOnlineStatus(userId, true, true); // Hier wird onReload auf true gesetzt
+  }
+
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) {
+      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
+    }
   }
 }

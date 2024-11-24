@@ -77,7 +77,7 @@ export class SideNavComponent {
   }
 
   loadAllChannelsData(): void {
-    this.allChannelsData = []; // Initialisiere die Liste neu
+    // this.allChannelsData = []; // Initialisiere die Liste neu
 
     this.userData.channels.forEach((channelId) => {
       this.channelService.getChannelById(channelId).subscribe((channelData) => {
