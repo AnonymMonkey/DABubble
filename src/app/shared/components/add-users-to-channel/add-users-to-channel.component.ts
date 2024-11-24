@@ -27,7 +27,7 @@ import { Channel } from '../../models/channel.model';
 import { UserData } from '../../models/user.model';
 import { UserService } from '../../services/user-service/user.service';
 import { ChannelService } from '../../services/channel-service/channel.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-users-to-channel',
@@ -58,6 +58,7 @@ export class AddUsersToChannelComponent {
   @Output() usersEmpty = new EventEmitter<boolean>();
   @Input() closeAutocompleteEmitter!: EventEmitter<void>;
   @ViewChild(MatAutocompleteTrigger) autoTrigger!: MatAutocompleteTrigger;
+  router = inject(Router);
 
   newAllUserData = signal<
     { userId: string; userName: string; photoURL: string }[]
@@ -264,7 +265,11 @@ export class AddUsersToChannelComponent {
   createNewChannel() {
     this.bindDialogDataToNewChannelData();
     this.channelService.createChannel(this.newChannelData).subscribe({
-      next: (channelId) => {},
+      next: (channelId) => {
+        this.router.navigate([
+          `/main/${this.userData.uid}/channel/${channelId}`,
+        ]);
+      },
       error: (error) => {
         console.error('Fehler beim Erstellen des Channels:', error);
       },
