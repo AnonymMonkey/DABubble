@@ -11,6 +11,8 @@ import { UserService } from '../shared/services/user-service/user.service';
 import { UserData } from '../shared/models/user.model';
 import { Subscription } from 'rxjs';
 import { ThreadComponent } from './main-message-area/thread/thread.component';
+import { Channel } from '../shared/models/channel.model';
+import { ChannelService } from '../shared/services/channel-service/channel.service';
 
 @Component({
   selector: 'app-main',
@@ -33,6 +35,8 @@ export class MainComponent {
   userData!: UserData;
   subscription!: Subscription;
   userService = inject(UserService);
+  allChannelsData: Channel[] = [];
+  public channelService = inject(ChannelService);
 
   constructor(private route: ActivatedRoute) {
     this.route.params.subscribe((params) => {
@@ -46,9 +50,33 @@ export class MainComponent {
     this.userService.loadUserDataByUID(this.userId);
     this.userService.userData$.subscribe((data) => {
       this.userData = data; // Empfange die Benutzerdaten
+      if (this.userData) {
+        this.loadAllChannelsData();
+      }
     });
 
     this.checkUserStatusOnReload(this.userId);
+  }
+
+  loadAllChannelsData(): void {
+    this.allChannelsData = []; // Initialisiere die Liste neu
+
+    this.userData.channels.forEach((channelId) => {
+      this.channelService.getChannelById(channelId).subscribe((channelData) => {
+        if (!channelData) return;
+        const existingIndex = this.allChannelsData.findIndex(
+          (c) => c.channelId === channelData.channelId
+        );
+
+        if (existingIndex > -1) {
+          // Aktualisiere das bestehende Channel-Datenobjekt
+          this.allChannelsData[existingIndex] = channelData;
+        } else {
+          // Füge den Channel hinzu, wenn er noch nicht existiert
+          this.allChannelsData.push(channelData);
+        }
+      });
+    });
   }
 
   // Beispielaufruf beim Reload
