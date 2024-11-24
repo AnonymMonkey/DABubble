@@ -48,7 +48,7 @@ export class SideNavComponent {
   readonly panelOpenState = signal(false);
   public channelService = inject(ChannelService);
   @Input() userData!: UserData;
-  @Input() allChannelsData: Channel[] = [];
+  @Input() allChannelsData!: Map<string, Channel>;
   userService = inject(UserService);
   privateChatService = inject(PrivateChatService);
   allUserData: UserData[] = [];

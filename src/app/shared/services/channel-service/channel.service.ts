@@ -14,12 +14,13 @@ import {
   tap,
 } from 'rxjs';
 import { Channel } from '../../models/channel.model';
-import { arrayUnion, getDocs, setDoc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, getDocs, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
 import { UserData } from '../../models/user.model';
 import { ChannelMessage } from '../../models/channel-message.model';
 import { UserService } from '../user-service/user.service';
+import { collectionData } from 'rxfire/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -34,17 +35,80 @@ export class ChannelService {
   private userService = inject(UserService);
   loading: boolean = true;
 
+  private channelDataMap = new Map<string, Channel>(); // Zentrale Map für Channels
+  private channelDataMapSubject = new BehaviorSubject<Map<string, Channel>>(
+    this.channelDataMap
+  ); // Observable für Updates
+
+  get channelDataMap$() {
+    return this.channelDataMapSubject.asObservable();
+  }
+
   private usersData: BehaviorSubject<Map<string, any>> = new BehaviorSubject(
     new Map()
   );
 
   // Neues Observable für Channel-Daten
-  public channelData$: Observable<Channel | undefined> = this.currentChannel$.pipe(
-    shareReplay(1) // Verhindert, dass bei jedem Wechsel des Channels die Daten neu geladen werden müssen
-  );
-  
+  public channelData$: Observable<Channel | undefined> =
+    this.currentChannel$.pipe(
+      shareReplay(1) // Verhindert, dass bei jedem Wechsel des Channels die Daten neu geladen werden müssen
+    );
 
-  constructor(private firestore: Firestore, public dialog: MatDialog) {}
+  constructor(private firestore: Firestore, public dialog: MatDialog) {
+    this.loadAllChannels();
+    this.listenToChannelChanges();
+  }
+
+  loadAllChannels(): void {
+    const channelCollection = collection(this.firestore, 'channels'); // Referenz zur Collection 'channels'
+
+    collectionData(channelCollection, { idField: 'channelId' }).subscribe((data) => {
+      data.forEach((channelData) => {
+        const channel = new Channel(
+          channelData['admin'], 
+          channelData['channelId'],
+          channelData['channelName'],
+          channelData['description'],
+          channelData['members'],
+          channelData['messages'],
+          channelData['usersLeft']
+        );
+        this.channelDataMap.set(channel.channelId, channel);
+      });
+      this.channelDataMapSubject.next(new Map(this.channelDataMap)); // Update der Map
+    });
+  }
+
+  listenToChannelChanges(): void {
+    const channelCollection = collection(this.firestore, 'channels'); // Referenz zur 'channels'-Collection
+
+    onSnapshot(channelCollection, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        const channelId = change.doc.id; // Die ID des betroffenen Channels
+        const channelData = change.doc.data(); // Die aktualisierten Daten
+
+        if (change.type === 'added' || change.type === 'modified') {
+          // Channel hinzufügen oder aktualisieren
+          const updatedChannel = new Channel(
+            channelData['admin'], 
+            channelId, 
+            channelData['channelName'],
+            channelData['description'],
+            channelData['members'],
+            channelData['messages'],
+            channelData['usersLeft']
+          );
+          this.channelDataMap.set(channelId, updatedChannel);
+        } else if (change.type === 'removed') {
+          // Channel aus der Map entfernen
+          this.channelDataMap.delete(channelId);
+        }
+
+        // Die Map nur dann aktualisieren, wenn es Änderungen gibt
+        this.channelDataMapSubject.next(new Map(this.channelDataMap));
+      });
+    });
+  }
 
   // Methode zum Laden eines Channels und Speichern im Subject
   setChannel(channelId: string): void {
@@ -244,7 +308,6 @@ export class ChannelService {
   getUsersDataObservable(): Observable<Map<string, any>> {
     return this.usersData.asObservable().pipe();
   }
-
 
   addUserToChannel(userId: string, channelId: string): Promise<void> {
     const channelDocRef = doc(this.firestore, `channels/${channelId}`);

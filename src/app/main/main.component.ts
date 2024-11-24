@@ -10,7 +10,7 @@ import { UserService } from '../shared/services/user-service/user.service';
 import { UserData } from '../shared/models/user.model';
 import { Channel } from '../shared/models/channel.model';
 import { ChannelService } from '../shared/services/channel-service/channel.service';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-main',
@@ -28,13 +28,18 @@ import { Subscription } from 'rxjs';
   styleUrl: './main.component.scss',
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MainComponent implements OnInit, OnDestroy{
+export class MainComponent implements OnInit, OnDestroy {
   userId!: string;
   userData!: UserData;
   userService = inject(UserService);
-  allChannelsData: Channel[] = [];
+  allChannelsData = new Map<string, Channel>();
+  private allChannelsSubject = new BehaviorSubject<Map<string, Channel>>(
+    this.allChannelsData
+  );
+  allChannelsData$ = this.allChannelsSubject.asObservable();
   public channelService = inject(ChannelService);
   private userDataSubscription: Subscription | undefined;
+  private channelSubscription: Subscription | undefined;
 
   constructor(private route: ActivatedRoute) {
     this.route.params.subscribe((params) => {
@@ -63,23 +68,18 @@ export class MainComponent implements OnInit, OnDestroy{
   }
 
   loadAllChannelsData(): void {
-    this.allChannelsData = []; // Initialisiere die Liste neu
-    this.userData.channels.forEach((channelId) => {
-      this.channelService.getChannelById(channelId).subscribe((channelData) => {
-        if (!channelData) return;
-        const existingIndex = this.allChannelsData.findIndex(
-          (c) => c.channelId === channelData.channelId
-        );
-
-        if (existingIndex > -1) {
-          // Aktualisiere das bestehende Channel-Datenobjekt
-          this.allChannelsData[existingIndex] = channelData;
-        } else {
-          // Füge den Channel hinzu, wenn er noch nicht existiert
-          this.allChannelsData.push(channelData);
-        }
-      });
-    });
+    this.channelSubscription = this.channelService.channelDataMap$.subscribe(
+      (channels) => {
+        const userChannels = new Map<string, Channel>();
+        this.userData.channels.forEach((channelId) => {
+          const channel = channels.get(channelId);
+          if (channel) {
+            userChannels.set(channelId, channel);
+          }
+        });
+        this.allChannelsData = userChannels;
+      }
+    );
   }
 
   // Beispielaufruf beim Reload
@@ -89,7 +89,10 @@ export class MainComponent implements OnInit, OnDestroy{
 
   ngOnDestroy(): void {
     if (this.userDataSubscription) {
-      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
+      this.userDataSubscription.unsubscribe();
+    }
+    if (this.channelSubscription) {  // Subscription für channels auch beenden
+      this.channelSubscription.unsubscribe();
     }
   }
 }

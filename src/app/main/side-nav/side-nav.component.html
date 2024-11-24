@@ -33,20 +33,19 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
 
-      @for (channel of allChannelsData; track $index) {
       <button
+        *ngFor="let channel of allChannelsData | keyvalue"
         class="button-secondary"
-        routerLink="channel/{{ channel.channelId }}"
+        routerLink="channel/{{ channel.value.channelId }}"
         routerLinkActive="active"
         (click)="
           activeButtonService.setActiveButton('');
-          channelService.setChannel(channel.channelId)
+          channelService.setChannel(channel.value.channelId)
         "
       >
         <mat-icon class="material-symbols-outlined">tag</mat-icon
-        >{{ channel.channelName }}
+        >{{ channel.value.channelName }}
       </button>
-      }
       <button
         class="button-secondary footer-button"
         (click)="openCreateChannelDialog()"
