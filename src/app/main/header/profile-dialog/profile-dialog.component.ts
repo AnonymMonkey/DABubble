@@ -7,7 +7,7 @@ import { AuthService } from '../../../shared/services/auth-service/auth.service'
 @Component({
   selector: 'app-profile-dialog',
   standalone: true,
-  imports: [MatCardModule, ProfileInfoDialogComponent],
+  imports: [MatCardModule],
   templateUrl: './profile-dialog.component.html',
   styleUrl: './profile-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
