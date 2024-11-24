@@ -46,13 +46,6 @@ export class MainComponent {
   ngOnInit() {
     this.userService.loadAllUserData();
     this.userService.loadUserDataByUID(this.userId);
-    // this.userService.userData$.subscribe((data) => {
-    //   this.userData = data; // Empfange die Benutzerdaten
-    //   if (this.userData) {
-    //     this.loadAllChannelsData();
-    //   }
-    // });
-
     this.loadUserData(this.userId);
     this.checkUserStatusOnReload(this.userId);
   }
@@ -70,8 +63,6 @@ export class MainComponent {
   }
 
   loadAllChannelsData(): void {
-    // this.allChannelsData = []; // Initialisiere die Liste neu
-
     this.userData.channels.forEach((channelId) => {
       this.channelService.getChannelById(channelId).subscribe((channelData) => {
         if (!channelData) return;
