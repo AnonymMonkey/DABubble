@@ -37,6 +37,6 @@ export class RoutingService {
   }
 
   navigateToPrivacyPolicy(): void {
-    this.router.navigate(['/privacy policy']);
+    this.router.navigate(['/privacy-policy']);
   }
 }
