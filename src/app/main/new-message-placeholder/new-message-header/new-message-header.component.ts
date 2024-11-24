@@ -7,8 +7,6 @@ import { SearchBarComponent } from '../../../shared/components/search-bar/search
   standalone: true,
   imports: [MatToolbarModule, SearchBarComponent],
   templateUrl: './new-message-header.component.html',
-  styleUrl: './new-message-header.component.scss'
+  styleUrl: './new-message-header.component.scss',
 })
-export class NewMessageHeaderComponent {
-
-}
+export class NewMessageHeaderComponent {}

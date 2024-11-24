@@ -43,11 +43,6 @@ export class SearchBarComponent {
   ngOnInit(): void {
     this.loadAllUserData();
     this.loadCurrentUserData();
-    if (this.userData) this.loadAllChannelsData();
-    this.filteredOptions = this.inputControl.valueChanges.pipe(
-      startWith(''),
-      map((value) => this.filterOptions(value || ''))
-    );
   }
 
   loadAllUserData(): void {
@@ -59,11 +54,18 @@ export class SearchBarComponent {
   loadCurrentUserData(): void {
     this.userService.userData$.subscribe((data) => {
       this.userData = data;
+      if (this.userData) {
+        this.loadAllChannelsData();
+        this.filteredOptions = this.inputControl.valueChanges.pipe(
+          startWith(''),
+          map((value) => this.filterOptions(value || ''))
+        );
+      }
     });
   }
 
   loadAllChannelsData(): void {
-    // this.allChannelsData = []; // Initialisiere die Liste neu
+    this.allChannelsData = []; // Initialisiere die Liste neu
 
     this.userData.channels.forEach((channelId) => {
       this.channelService.getChannelById(channelId).subscribe((channelData) => {
