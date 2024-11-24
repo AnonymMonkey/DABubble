@@ -1,48 +1,46 @@
 <section>
-    <div class="textarea-container">
-      <textarea
-        placeholder="{{ message.content }}"
-        id="editedMessageContent"
-        [(ngModel)]="editedMessageContent"
-        (keydown.enter)="changeMessage(); $event.preventDefault()"
-      ></textarea>
-      <div class="icons-container">
-        <div class="left-icons">
-          <mat-icon
+  <div class="textarea-container">
+    <textarea
+      placeholder="{{ message.content }}"
+      id="editedMessageContent"
+      [(ngModel)]="editedMessageContent"
+      (keydown.enter)="changeMessage(); $event.preventDefault()"
+    ></textarea>
+    <div class="icons-container">
+      <div class="left-icons">
+        <mat-icon
           class="material-symbols-outlined"
           [matMenuTriggerFor]="emojiMenu"
           (click)="toggleBorder('emoji')"
           >sentiment_satisfied
         </mat-icon>
-        </div>
-        <div class="button-container">
-          <button class="button-secondary" (click)="clearInput()">Abbrechen</button>
-          <button class="button-primary" (click)="changeMessage()" [disabled]="isSaving">Speichern</button>
-        </div>
+      </div>
+      <div class="button-container">
+        <button class="button-secondary" (click)="clearInput()">
+          Abbrechen
+        </button>
+        <button
+          class="button-primary"
+          (click)="changeMessage()"
+          [disabled]="isSaving"
+        >
+          Speichern
+        </button>
       </div>
     </div>
-    <div *ngIf="message?.attachmentUrls?.length > 0" class="attachment-container">
-      <a
-        *ngFor="let attachmentUrl of message.attachmentUrls"
-        [href]="attachmentUrl"
-      >
-        <app-attachment-preview [actualAttachmentUrls]="[attachmentUrl]" [message]="message">
-        </app-attachment-preview>
-      </a>
-    </div>
+  </div>
 
-    <mat-menu xPosition="after" #emojiMenu yPosition="above">
-      <emoji-mart
-        title="Pick your emoji…"
-        emoji="point_up"
-        set="apple"
-        (emojiClick)="addEmoji($event)"
-        [totalFrequentLines]="2"
-        [i18n]="{
-          search: 'Suche Emojis',
-          categories: { search: 'Suchergebnisse', recent: 'Neueste' }
-        }"
-      ></emoji-mart>
-    </mat-menu>
-  </section>
-  
+  <mat-menu xPosition="after" #emojiMenu yPosition="above">
+    <emoji-mart
+      title="Pick your emoji…"
+      emoji="point_up"
+      set="apple"
+      (emojiClick)="addEmoji($event)"
+      [totalFrequentLines]="2"
+      [i18n]="{
+        search: 'Suche Emojis',
+        categories: { search: 'Suchergebnisse', recent: 'Neueste' }
+      }"
+    ></emoji-mart>
+  </mat-menu>
+</section>

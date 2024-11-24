@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MessageAreaHeaderComponent } from '../message-area-header.component';
 import { Channel } from '../../../../shared/models/channel.model';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import { NgFor, NgIf } from '@angular/common';
 import { UserService } from '../../../../shared/services/user-service/user.service';
-import { forkJoin, map, Observable, of } from 'rxjs';
+import { forkJoin, map, Observable, of, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-channel-members-list',
@@ -14,11 +14,12 @@ import { forkJoin, map, Observable, of } from 'rxjs';
   templateUrl: './channel-members-list.component.html',
   styleUrls: ['./channel-members-list.component.scss'],
 })
-export class ChannelMembersListComponent implements OnInit {
+export class ChannelMembersListComponent implements OnInit, OnDestroy {
   currentChannel: Channel | undefined;
   currentUserId: string | undefined;
   membersWithData: any[] = [];
   isChannelLoaded = false;
+  private userDataSubscription: Subscription | undefined;
 
   currentBorderRadius: string = '30px 30px 30px 30px';
 
@@ -52,53 +53,43 @@ export class ChannelMembersListComponent implements OnInit {
     ) {
       return;
     }
-
-    // Leere das Array zu Beginn
+  
     this.membersWithData = [];
-
-    // Ein Set verwenden, um doppelte Benutzer zu verhindern
     const seenUserIds = new Set<string>();
-
-    // Iteriere über jedes Mitglied in der Liste
-    this.currentChannel.members.forEach((userId) => {
-      // Wenn der userId bereits im Set ist, überspringe ihn
-      if (seenUserIds.has(userId)) {
-        return;
-      }
-
-      // Füge die userId zum Set hinzu, um doppelte IDs zu vermeiden
-      seenUserIds.add(userId);
-
-      // Hole Benutzerdaten für jedes Mitglied
-      this.userService.getUserDataByUID(userId).subscribe({
-        next: (userData) => {
-          if (userData) {
-            // Stelle sicher, dass der Benutzer nicht bereits in der Liste vorhanden ist
-            if (!this.membersWithData.some((user) => user.userId === userId)) {
-              this.membersWithData.push({
-                userId,
-                userName: `${userData.displayName}`,
-                photoURL: userData.photoURL,
-              });
-            }
-          } else {
-            console.error('Benutzerdaten für userId nicht gefunden:', userId);
-            // Füge auch hier nur hinzu, wenn der Benutzer nicht schon existiert
-            if (!this.membersWithData.some((user) => user.userId === userId)) {
-              this.membersWithData.push({
-                userId,
-                userName: 'Unbekannter Benutzer',
-                photoURL: null,
-              });
-            }
+  
+    // Abo für das Abrufen von Benutzerdaten
+    this.userDataSubscription = this.userService.userDataMap$.subscribe({
+      next: (userDataMap) => {
+        this.currentChannel?.members.forEach((userId) => {
+          if (seenUserIds.has(userId)) {
+            return;
           }
-        },
-        error: (error) => {
-          console.error('Fehler beim Abrufen der Benutzerdaten:', error);
-        },
-      });
+          seenUserIds.add(userId);
+  
+          const userData = userDataMap.get(userId) || {
+            displayName: 'Unbekannter Benutzer',
+            photoURL: 'src/assets/img/profile/placeholder-img.webp', // Placeholder für Foto
+          };
+  
+          this.membersWithData.push({
+            userId,
+            userName: userData.displayName,
+            photoURL: userData.photoURL,
+          });
+        });
+      },
+      error: (error) => {
+        console.error('Fehler beim Abrufen der Benutzerdaten:', error);
+      },
     });
   }
+  
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) {
+      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
+    }
+  }
+  
 
   get sortedMembers() {
     if (!this.membersWithData || this.membersWithData.length === 0) return [];

@@ -1,37 +1,50 @@
 <section class="text-container">
   <div class="name-and-time-own">
-    <span
-      class="name"
-      (click)="userService.openProfileInfo(message?.userId)"
-      >{{ displayName || "Lädt..." }}</span
-    >
+    <span class="name" (click)="userService.openProfileInfo(message?.userId)">{{
+      displayName || "Lädt..."
+    }}</span>
     <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
   </div>
   <span class="message-own">
-    {{ message?.content }}
-    <div *ngIf="message?.attachmentUrls?.length > 0">
-      <a *ngFor="let attachmentUrl of message.attachmentUrls" [href]="attachmentUrl">
-        <app-attachment-preview 
-          [actualAttachmentUrls]="[attachmentUrl]" [message]="message">
+    <p>{{ message?.content }}</p>
+    <div
+      *ngIf="message?.attachmentUrls?.length > 0"
+      class="attachment-container"
+    >
+      <a
+        *ngFor="let attachmentUrl of message.attachmentUrls"
+        [href]="attachmentUrl"
+      >
+        <app-attachment-preview
+          [actualAttachmentUrls]="[attachmentUrl]"
+          [message]="message"
+        >
         </app-attachment-preview>
       </a>
     </div>
   </span>
-  
-  
 
   <app-message-reactions
     [message]="message"
     *ngIf="message.reactions.length > 0"
   ></app-message-reactions>
-  <div class="thread-own" [ngClass]="{'d-none': !threadMessages?.length}" *ngIf="threadMessages$ | async as threadMessages" #thread>
-    <span 
+  <div
+    class="thread-own"
+    [ngClass]="{ 'd-none': !threadMessages?.length }"
+    *ngIf="threadMessages$ | async as threadMessages"
+    #thread
+  >
+    <span
       *ngIf="threadMessages.length > 0"
-      (click)="mainMessageArea.openSidenav(); threadService.setActualMessage(message)"
+      (click)="
+        mainMessageArea.openSidenav(); threadService.setActualMessage(message)
+      "
     >
-      {{ threadMessages.length}}
+      {{ threadMessages.length }}
       {{ threadMessages.length === 1 ? "Antwort" : "Antworten" }}
     </span>
-    <span *ngIf="threadMessages.length > 0">Letzte Antwort: {{ getLastReplyTime(threadMessages) }}</span>
+    <span *ngIf="threadMessages.length > 0"
+      >Letzte Antwort: {{ getLastReplyTime(threadMessages) }}</span
+    >
   </div>
 </section>

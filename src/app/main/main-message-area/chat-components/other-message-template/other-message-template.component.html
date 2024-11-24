@@ -64,8 +64,11 @@
         <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
       </div>
       <span class="message">
-        {{ message?.content }}
-        <div *ngIf="message?.attachmentUrls?.length > 0">
+        <p>{{ message?.content }}</p>
+        <div
+          *ngIf="message?.attachmentUrls?.length > 0"
+          class="attachment-container"
+        >
           <a
             *ngFor="let attachmentUrl of message.attachmentUrls"
             [href]="attachmentUrl"
@@ -81,7 +84,11 @@
         [message]="message"
         *ngIf="message.reactions.length > 0"
       ></app-message-reactions>
-      <div class="thread" [ngClass]="{'d-none': !threadMessages?.length}" *ngIf="threadMessages$ | async as threadMessages">
+      <div
+        class="thread"
+        [ngClass]="{ 'd-none': !threadMessages?.length }"
+        *ngIf="threadMessages$ | async as threadMessages"
+      >
         <span
           (click)="
             mainMessageArea.openSidenav();
@@ -89,10 +96,12 @@
           "
         >
           {{ (threadMessages$ | async)?.length }}
-          {{ (threadMessages$ | async)?.length === 1 ? "Antwort" : "Antworten" }}
+          {{
+            (threadMessages$ | async)?.length === 1 ? "Antwort" : "Antworten"
+          }}
         </span>
         <span>Letzte Antwort: {{ getLastReplyTime(threadMessages) }}</span>
-      </div>      
+      </div>
     </div>
   </div>
   <mat-menu xPosition="after" #emojiMenu>

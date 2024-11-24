@@ -8,8 +8,8 @@
       <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
     </div>
     <span class="message-own">
-      {{ message?.content }}
-      <div *ngIf="message?.attachmentUrls?.length > 0">
+      <p>{{ message?.content }}</p>
+      <div *ngIf="message?.attachmentUrls?.length > 0" class="attachment-container">
         <a *ngFor="let attachmentUrl of message.attachmentUrls" [href]="attachmentUrl">
           <app-attachment-preview 
             [actualAttachmentUrls]="[attachmentUrl]" [message]="message" [messageId]="message.messageId">
