@@ -38,11 +38,12 @@
     color: var(--text-color);
     width: fit-content;
     flex-direction: column;
+    gap: 10px;
   
     > p {
       display: flex;
       justify-content: flex-end;
-      padding-bottom: 10px;
+      padding-right: 5px;
     }
   }
   
