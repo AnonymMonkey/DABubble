@@ -8,7 +8,7 @@ import { NgFor, NgIf } from '@angular/common';
   standalone: true,
   imports: [NgFor, NgIf],
   templateUrl: './mention-user.component.html',
-  styleUrl: './mention-user.component.scss'
+  styleUrl: './mention-user.component.scss',
 })
 export class MentionUserComponent {
   @Output() mentionUser = new EventEmitter<string>();
@@ -33,8 +33,8 @@ export class MentionUserComponent {
           const membersExcludingCurrentUser = channel.members.filter(
             (userId) => userId !== this.currentUserId
           );
-  
-          this.mentionableUsers = [];  // Liste zurücksetzen
+
+          this.mentionableUsers = []; // Liste zurücksetzen
           membersExcludingCurrentUser.forEach((userId) => {
             this.userService.getUserDataByUID(userId).subscribe({
               next: (userData) => {
@@ -61,12 +61,15 @@ export class MentionUserComponent {
       },
       error: (error) => {
         console.error('Fehler beim Abrufen des Kanals:', error);
-      }
+      },
     });
   }
-  
 
   selectUser(userName: string): void {
-    this.mentionUser.emit(userName);
+    // Erstelle den unsichtbaren Textmarker
+    const mentionText: string =`<span class="mention">@${userName}</span>`;
+
+    // Sende den Marker als Output an die übergeordnete Komponente
+    this.mentionUser.emit(mentionText);
   }
 }

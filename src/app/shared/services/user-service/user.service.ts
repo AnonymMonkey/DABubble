@@ -46,10 +46,6 @@ export class UserService {
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
   public userId!: string; // ID des aktuell angemeldeten Nutzers
   private dialog = inject(MatDialog);
-  private userDisplayMap = new Map<
-    string,
-    { displayName: string; photoURL: string }
-  >();
 
   //REVIEW - Hier versuche ich die Daten zentral in diesem service zu speichern,
   // sodass jede Komponente darauf zugreifen kann.

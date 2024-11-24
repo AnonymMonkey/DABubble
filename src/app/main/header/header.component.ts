@@ -13,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UserData } from '../../shared/models/user.model';
 import { CommonModule } from '@angular/common';
 import { SearchBarComponent } from '../../shared/components/search-bar/search-bar.component';
+import { debugErrorMap } from 'firebase/auth';
 
 @Component({
   selector: 'app-header',

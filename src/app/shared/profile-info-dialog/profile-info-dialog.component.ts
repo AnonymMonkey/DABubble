@@ -79,7 +79,7 @@ export class ProfileInfoDialogComponent {
         if (chatId) {
           this.activeButtonService.setActiveButton(buttonID);
           this.router.navigate([
-            `/main/${this.currentUserData.uid}/privatechat`,
+            `/main/${this.currentUserData.uid}/privateChat`,
             chatId,
           ]);
           this.closeDialog();

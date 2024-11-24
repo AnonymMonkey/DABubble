@@ -27,10 +27,21 @@ export class UploadMethodSelectorComponent {
   openFileDialog(fileType: string) {
     let acceptType = '';
     if (fileType === 'document') {
-      acceptType = 'application/pdf,application/msword,...'; // Dokumentformate
+      acceptType = [
+        'application/pdf', // PDF
+        'application/msword', // DOC
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+        'application/vnd.ms-excel', // XLS
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
+        'application/vnd.ms-powerpoint', // PPT
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation', // PPTX
+        'text/plain', // TXT
+        'text/csv' // CSV
+      ].join(','); // MIME-Typen als String
     } else if (fileType === 'image') {
-      acceptType = 'image/*'; // Bilddateien
+      acceptType = 'image/*'; // Alle Bilder
     }
+    
 
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -59,7 +70,7 @@ export class UploadMethodSelectorComponent {
     } else if (channelId) {
       storagePath = `channels/${channelId}/uploads/`;
     } else if (privateChatId) {
-      storagePath = `privatechats/${privateChatId}/uploads/`;
+      storagePath = `privateChats/${privateChatId}/uploads/`;
     }
   
     // Bereinigung des Dateinamens

@@ -48,7 +48,7 @@ export class SideNavComponent {
   readonly panelOpenState = signal(false);
   public channelService = inject(ChannelService);
   @Input() userData!: UserData;
-  @Input() allChannelsData: Channel[] = [];
+  @Input() allChannelsData!: Map<string, Channel>;
   userService = inject(UserService);
   privateChatService = inject(PrivateChatService);
   allUserData: UserData[] = [];
@@ -88,7 +88,7 @@ export class SideNavComponent {
         if (chatId) {
           this.activeButtonService.setActiveButton(buttonID);
           this.router.navigate([
-            `/main/${this.userData.uid}/privatechat`,
+            `/main/${this.userData.uid}/privateChat`,
             chatId,
           ]);
         } else {

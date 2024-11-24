@@ -1,8 +1,11 @@
 <section>
   <div class="textarea-container">
     <textarea
-      placeholder="Nachricht an #Entwicklerteam"
+      [placeholder]="
+        'Nachricht an #' + (channel?.channelName ?? 'einen Channel')
+      "
       [(ngModel)]="newMessageContent"
+      (ngModelChange)="updateFormattedContent()"
       (keydown.enter)="sendMessage(); $event.preventDefault()"
     ></textarea>
     <div class="icons-container">
