@@ -77,7 +77,7 @@ export class SideNavComponent {
   }
 
   loadAllChannelsData(): void {
-    // this.allChannelsData = []; // Initialisiere die Liste neu
+    this.allChannelsData = []; // Initialisiere die Liste neu
 
     this.userData.channels.forEach((channelId) => {
       this.channelService.getChannelById(channelId).subscribe((channelData) => {
@@ -115,7 +115,7 @@ export class SideNavComponent {
         if (chatId) {
           this.activeButtonService.setActiveButton(buttonID);
           this.router.navigate([
-            `/main/${this.userData.uid}/privatechat`,
+            `/main/${this.userData.uid}/privateChat`,
             chatId,
           ]);
         } else {

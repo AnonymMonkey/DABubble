@@ -158,7 +158,7 @@ export class SearchBarComponent {
         if (chatId) {
           this.activeButtonService.setActiveButton(buttonID);
           this.router.navigate([
-            `/main/${this.userData.uid}/privatechat`,
+            `/main/${this.userData.uid}/privateChat`,
             chatId,
           ]);
         } else {

@@ -14,7 +14,7 @@
     [ngStyle]="{ width: drawer.opened ? '366px' : '0px' }"
     autosize
   >
-    <mat-drawer #drawer class="example-sidenav" mode="side" [opened]="true">
+    <mat-drawer #drawer class="example-sidenav" mode="side" opened="true">
       <app-side-nav *ngIf="userData" [userData]="userData"></app-side-nav>
     </mat-drawer>
   </mat-drawer-container>

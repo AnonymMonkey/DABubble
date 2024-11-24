@@ -31,7 +31,7 @@ export const routes: Routes = [
           component: ThreadComponent,  // Die Komponente, die den Thread anzeigt
         },
       ]},
-      { path: 'privatechat/:privateChatId', component: PrivateChatComponent },
+      { path: 'privateChat/:privateChatId', component: PrivateChatComponent },
       { path: '', component: NewMessagePlaceholderComponent },
     ],
   },
