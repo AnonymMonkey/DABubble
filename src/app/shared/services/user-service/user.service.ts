@@ -88,12 +88,17 @@ export class UserService {
         map((docs: DocumentData[]) =>
           docs.map(
             (doc) =>
-              new UserData({
-                uid: doc['uid'],
-                email: doc['email'],
-                displayName: doc['displayName'],
-                photoURL: doc['photoURL'],
-              } as User)
+              new UserData(
+                {
+                  uid: doc['uid'],
+                  email: doc['email'],
+                  displayName: doc['displayName'],
+                  photoURL: doc['photoURL'],
+                  // channels: doc['channels'],
+                } as User,
+                doc['displayName'],
+                doc['channels']
+              )
           )
         )
       )

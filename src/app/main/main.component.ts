@@ -8,6 +8,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { UserService } from '../shared/services/user-service/user.service';
 import { UserData } from '../shared/models/user.model';
+import { Channel } from '../shared/models/channel.model';
+import { ChannelService } from '../shared/services/channel-service/channel.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -29,8 +31,9 @@ import { Subscription } from 'rxjs';
 export class MainComponent implements OnInit, OnDestroy{
   userId!: string;
   userData!: UserData;
-  subscription!: Subscription;
   userService = inject(UserService);
+  allChannelsData: Channel[] = [];
+  public channelService = inject(ChannelService);
   private userDataSubscription: Subscription | undefined;
 
   constructor(private route: ActivatedRoute) {
@@ -43,12 +46,7 @@ export class MainComponent implements OnInit, OnDestroy{
   ngOnInit() {
     this.userService.loadAllUserData();
     this.userService.loadUserDataByUID(this.userId);
-    // this.userService.userData$.subscribe((data) => {
-    //   this.userData = data; // Empfange die Benutzerdaten
-    // });
-
     this.loadUserData(this.userId);
-
     this.checkUserStatusOnReload(this.userId);
   }
 
@@ -58,9 +56,30 @@ export class MainComponent implements OnInit, OnDestroy{
         const userData = userDataMap.get(userId);
         if (userData) {
           this.userData = userData;
+          this.loadAllChannelsData();
         }
       }
     );
+  }
+
+  loadAllChannelsData(): void {
+    this.allChannelsData = []; // Initialisiere die Liste neu
+    this.userData.channels.forEach((channelId) => {
+      this.channelService.getChannelById(channelId).subscribe((channelData) => {
+        if (!channelData) return;
+        const existingIndex = this.allChannelsData.findIndex(
+          (c) => c.channelId === channelData.channelId
+        );
+
+        if (existingIndex > -1) {
+          // Aktualisiere das bestehende Channel-Datenobjekt
+          this.allChannelsData[existingIndex] = channelData;
+        } else {
+          // Füge den Channel hinzu, wenn er noch nicht existiert
+          this.allChannelsData.push(channelData);
+        }
+      });
+    });
   }
 
   // Beispielaufruf beim Reload

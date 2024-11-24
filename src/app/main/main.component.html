@@ -15,7 +15,11 @@
     autosize
   >
     <mat-drawer #drawer class="example-sidenav" mode="side" opened="true">
-      <app-side-nav *ngIf="userData" [userData]="userData"></app-side-nav>
+      <app-side-nav
+        *ngIf="userData"
+        [userData]="userData"
+        [allChannelsData]="allChannelsData"
+      ></app-side-nav>
     </mat-drawer>
   </mat-drawer-container>
   <router-outlet></router-outlet>

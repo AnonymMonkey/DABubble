@@ -101,7 +101,8 @@ h2 {
   text-decoration: none;
 }
 
-button {
+button,
+.label-btn {
   cursor: pointer !important;
   text-wrap: nowrap !important;
   font-weight: 700 !important;
