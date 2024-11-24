@@ -56,7 +56,7 @@ mat-toolbar {
     color: var(--black-color) !important;
   }
 
-  &:hover, 
+  &:hover,
   &.menu-opened {
     mat-icon {
       color: var(--purple3-color) !important;
@@ -91,6 +91,8 @@ mat-toolbar {
     height: 40px;
     border-radius: 30px;
     border: 2px solid white;
+    object-fit: cover;
+    object-position: top;
   }
 
   div {

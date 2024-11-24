@@ -38,10 +38,19 @@
   width: fit-content;
   flex-direction: column;
 
-  > div {
+  > p {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-bottom: 10px;
   }
+}
+
+.attachment-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  width: 100%;
 }
 
 app-attachment-preview {

@@ -1,4 +1,3 @@
-import { NgFor, NgIf } from '@angular/common';
 import {
   Component,
   EventEmitter,
@@ -13,7 +12,6 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
-import { AttachmentPreviewComponent } from '../../../../../../shared/components/attachment-preview/attachment-preview.component';
 import { MessageService } from '../../../../../../shared/services/message-service/message.service';
 import { Subscription } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
@@ -33,9 +31,6 @@ import { ThreadService } from '../../../../../../shared/services/thread-service/
     MatMenuModule,
     PickerModule,
     PickerComponent,
-    NgIf,
-    NgFor,
-    AttachmentPreviewComponent,
   ],
   templateUrl: './own-thread-message-edit.component.html',
   styleUrl: './own-thread-message-edit.component.scss',
@@ -96,20 +91,26 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
     this.message.content = this.editedMessageContent;
     this.clearInput(false); // Bearbeitungsmodus verlassen
     try {
-      const channelPath = 'channels/' + this.channelService.channelId + '/messages/' + this.message.messageId;
-      const threadPath = 'channels/' + this.channelService.channelId + '/messages/' + this.threadService.actualMessageSubject.value?.messageId + '/thread/' + this.message.messageId;
+      const channelPath =
+        'channels/' +
+        this.channelService.channelId +
+        '/messages/' +
+        this.message.messageId;
+      const threadPath =
+        'channels/' +
+        this.channelService.channelId +
+        '/messages/' +
+        this.threadService.actualMessageSubject.value?.messageId +
+        '/thread/' +
+        this.message.messageId;
       if (!this.editedMessageContent.trim() && !this.hasAttachments()) {
         if (
           this.message.messageId.startsWith('thread_') &&
           this.threadService.actualMessageSubject.value?.messageId
         ) {
-          await this.messageService.deleteMessageInThreadOrChannel(
-           threadPath
-          );
+          await this.messageService.deleteMessageInThreadOrChannel(threadPath);
         } else if (this.message.messageId.startsWith('msg_')) {
-          await this.messageService.deleteMessageInThreadOrChannel(
-            channelPath
-          );
+          await this.messageService.deleteMessageInThreadOrChannel(channelPath);
         }
       } else {
         if (

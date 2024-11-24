@@ -92,18 +92,18 @@ export class ChannelDescriptionComponent implements OnInit {
       await updateDoc(userDocRef, {
         channels: arrayRemove(channelId),
       });
-      const messagesCollectionRef = collection(
-        this.firestore,
-        `channels/${channelId}/messages`
-      );
-      const messagesSnapshot = await getDocs(messagesCollectionRef);
-      const deleteMessagesPromises = messagesSnapshot.docs.map((doc) =>
-        deleteDoc(doc.ref)
-      );
-      await Promise.all(deleteMessagesPromises);
       const channelSnapshot = await getDoc(channelDocRef);
       const members = channelSnapshot.data()?.['members'] || [];
       if (members.length === 0) {
+        const messagesCollectionRef = collection(
+          this.firestore,
+          `channels/${channelId}/messages`
+        );
+        const messagesSnapshot = await getDocs(messagesCollectionRef);
+        const deleteMessagesPromises = messagesSnapshot.docs.map((doc) =>
+          deleteDoc(doc.ref)
+        );
+        await Promise.all(deleteMessagesPromises);
         await deleteDoc(channelDocRef);
       }
     } catch (error) {

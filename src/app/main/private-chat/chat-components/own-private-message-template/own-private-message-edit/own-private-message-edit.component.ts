@@ -16,13 +16,11 @@ import { Firestore } from '@angular/fire/firestore';
 import { deleteField, doc, updateDoc } from 'firebase/firestore';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
-import { NgFor, NgIf } from '@angular/common';
-import { AttachmentPreviewComponent } from '../../../../../shared/components/attachment-preview/attachment-preview.component';
 
 @Component({
   selector: 'app-own-private-message-edit',
   standalone: true,
-  imports: [MatProgressSpinnerModule, FormsModule, MatIcon, MatMenuTrigger, MatMenuModule, PickerModule, PickerComponent, NgIf, NgFor, AttachmentPreviewComponent],
+  imports: [MatProgressSpinnerModule, FormsModule, MatIcon, MatMenuTrigger, MatMenuModule, PickerModule, PickerComponent],
   templateUrl: './own-private-message-edit.component.html',
   styleUrl: './own-private-message-edit.component.scss',
 })

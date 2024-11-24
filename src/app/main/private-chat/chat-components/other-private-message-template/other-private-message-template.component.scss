@@ -111,6 +111,8 @@ img {
   width: 70px;
   height: 70px;
   border-radius: 100px;
+  object-fit: cover;
+  object-position: top;
 }
 
 .text-container {
@@ -149,10 +151,19 @@ img {
   display: flex;
   width: fit-content;
   flex-direction: column;
-  > div {
+  > p {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding-bottom: 10px;
   }
+}
+
+.attachment-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 100%;
 }
 
 .thread {

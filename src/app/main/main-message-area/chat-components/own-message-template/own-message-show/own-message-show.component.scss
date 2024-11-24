@@ -38,17 +38,26 @@
 .message-own {
   border-radius: 30px 0px 30px 30px;
   background-color: var(--purple2-color);
-  padding: 10px 15px;
+  padding: 10px 20px;
   position: relative;
   display: flex;
   color: var(--text-color);
   width: fit-content;
   flex-direction: column;
 
-  > div {
+  > p {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-bottom: 10px;
   }
+}
+
+.attachment-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  width: 100%;
 }
 
 .thread-own {

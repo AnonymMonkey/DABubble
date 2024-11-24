@@ -30,13 +30,13 @@ import { filter, map, Subscription } from 'rxjs';
 export class OtherThreadMessageTemplateComponent implements OnInit, OnDestroy {
   isEmojiContainerVisible: number = 0;
   @Input() message: any = '';
-  displayName: string = '';
-  photoURL: string = '';
+
   public userService = inject(UserService);
   public privateChatService = inject(PrivateChatService);
-  private subscriptions: Subscription[] = [];
   isMenuOpen: boolean = false;
-  private userDataSubscription: Subscription | undefined;
+  private userDataSubscription: Subscription | undefined;  
+  displayName: string = '';
+  photoURL: string = '';
 
   constructor() {}
 
