@@ -12,6 +12,8 @@ import { AddUsersToChannelComponent } from '../../../shared/components/add-users
 import { RoutingService } from '../../../shared/services/routing-service/routing.service';
 import { ChannelService } from '../../../shared/services/channel-service/channel.service';
 import { Channel } from '../../../shared/models/channel.model';
+import { UserService } from '../../../shared/services/user-service/user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-users-to-new-channel-dialog',
@@ -47,11 +49,17 @@ export class AddUsersToNewChannelDialogComponent {
   openedChannelData: any;
   routingService = inject(RoutingService);
   channelService = inject(ChannelService);
+  userService = inject(UserService);
   currentParams: any;
+  allUsersData: any[] = [];
+  newChannelData!: Channel;
+  currentUserId: string = '';
+  router = inject(Router);
 
   constructor() {}
 
   ngOnInit() {
+    this.newChannelData = new Channel();
     this.routingService.currentRoute$.subscribe((params) => {
       this.currentParams = params;
       this.openedChannelId = '';
@@ -64,6 +72,14 @@ export class AddUsersToNewChannelDialogComponent {
           });
       }
     });
+
+    this.userService.allUserData$.subscribe((data) => {
+      data.forEach((user) => {
+        this.allUsersData.push(user.uid);
+      });
+    });
+
+    this.currentUserId = this.userService.userId;
   }
 
   checkChoice() {
@@ -75,13 +91,53 @@ export class AddUsersToNewChannelDialogComponent {
   }
 
   create() {
-    this.addUsersToChannel.newChannelData.channelName = this.channelName;
-    this.addUsersToChannel.newChannelData.description = this.description;
+    if (this.radioValue == 1) {
+      this.newChannelData.admin.userId = this.currentUserId;
+      this.newChannelData.channelName = this.channelName;
+      this.newChannelData.description = this.description;
+      this.bindData();
+      this.createNewChannel();
+    } else {
+      this.addUsersToChannel.newChannelData.channelName = this.channelName;
+      this.addUsersToChannel.newChannelData.description = this.description;
+      this.createNewOrUpdateExistingChannel();
+    }
+  }
 
+  createNewOrUpdateExistingChannel() {
     if (this.channelId === '') {
       this.addUsersToChannel.createNewChannel();
     } else {
       this.addUsersToChannel.updateExistingChannel();
     }
+  }
+
+  bindData() {
+    if (this.openedChannelData) {
+      this.bindOpenedChannelData();
+    } else {
+      this.bindAllUsers();
+    }
+  }
+
+  bindOpenedChannelData() {
+    this.newChannelData.members = this.openedChannelData.members;
+  }
+
+  bindAllUsers() {
+    this.newChannelData.members = this.allUsersData;
+  }
+
+  createNewChannel() {
+    this.channelService.createChannel(this.newChannelData).subscribe({
+      next: (channelId) => {
+        this.router.navigate([
+          `/main/${this.currentUserId}/channel/${channelId}`,
+        ]);
+      },
+      error: (error) => {
+        console.error('Fehler beim Erstellen des Channels:', error);
+      },
+    });
   }
 }
