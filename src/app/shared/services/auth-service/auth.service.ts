@@ -418,4 +418,22 @@ export class AuthService {
       }
     }
   }
+
+  checkIfGoogleUser() {
+    const currentUser: User | null = this.auth.currentUser;
+
+    if (currentUser) {
+      const isGoogleAccount = currentUser.providerData.some(
+        (provider) => provider.providerId === 'google.com'
+      );
+
+      if (isGoogleAccount) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
 }

@@ -60,7 +60,16 @@
           emailControl.disabled && emailControl.value === '';
           else saveEmailChanges
         "
-        (click)="emailControl.enable(); passwordControl.enable()"
+        (click)="
+          isGoogleUser ? '' : emailControl.enable(); passwordControl.enable()
+        "
+        [matTooltip]="
+          isGoogleUser
+            ? 'Google Benutzer können ihre E-Mail-Adresse nicht ändern'
+            : ''
+        "
+        [matTooltipDisabled]="!isGoogleUser"
+        [ngStyle]="{ cursor: isGoogleUser ? 'not-allowed' : 'pointer' }"
         >Bearbeiten</span
       >
       <ng-template #saveEmailChanges>

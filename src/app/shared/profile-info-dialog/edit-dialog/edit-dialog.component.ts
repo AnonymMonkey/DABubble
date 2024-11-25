@@ -44,6 +44,7 @@ export class EditDialogComponent {
   formBuilder = inject(FormBuilder);
   notificationService = inject(NotificationService);
   errorMessage: string | null = '';
+  isGoogleUser: boolean = false;
 
   constructor(public dialog: MatDialog) {}
 
@@ -70,6 +71,8 @@ export class EditDialogComponent {
         },
       ],
     });
+
+    this.isGoogleUser = this.authService.checkIfGoogleUser();
   }
 
   ngAfterViewChecked() {
