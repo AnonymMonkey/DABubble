@@ -1,11 +1,32 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
+import { BehaviorSubject, filter, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoutingService {
-  constructor(private router: Router) {}
+  private currentRouteSource = new BehaviorSubject<Params | null>(null);
+  currentRoute$ = this.currentRouteSource.asObservable();
+
+  constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        map(() => this.getRouteParams(this.activatedRoute))
+      )
+      .subscribe((params) => {
+        this.currentRouteSource.next(params);
+      });
+  }
+
+  private getRouteParams(route: ActivatedRoute): Params {
+    let currentRoute = route;
+    while (currentRoute.firstChild) {
+      currentRoute = currentRoute.firstChild;
+    }
+    return currentRoute.snapshot.params;
+  }
 
   navigateToLogin(): void {
     this.router.navigate(['/']);

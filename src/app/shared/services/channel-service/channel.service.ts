@@ -14,7 +14,13 @@ import {
   tap,
 } from 'rxjs';
 import { Channel } from '../../models/channel.model';
-import { arrayUnion, getDocs, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  arrayUnion,
+  getDocs,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
 import { UserData } from '../../models/user.model';
@@ -62,21 +68,23 @@ export class ChannelService {
   loadAllChannels(): void {
     const channelCollection = collection(this.firestore, 'channels'); // Referenz zur Collection 'channels'
 
-    collectionData(channelCollection, { idField: 'channelId' }).subscribe((data) => {
-      data.forEach((channelData) => {
-        const channel = new Channel(
-          channelData['admin'], 
-          channelData['channelId'],
-          channelData['channelName'],
-          channelData['description'],
-          channelData['members'],
-          channelData['messages'],
-          channelData['usersLeft']
-        );
-        this.channelDataMap.set(channel.channelId, channel);
-      });
-      this.channelDataMapSubject.next(new Map(this.channelDataMap)); // Update der Map
-    });
+    collectionData(channelCollection, { idField: 'channelId' }).subscribe(
+      (data) => {
+        data.forEach((channelData) => {
+          const channel = new Channel(
+            channelData['admin'],
+            channelData['channelId'],
+            channelData['channelName'],
+            channelData['description'],
+            channelData['members'],
+            channelData['messages'],
+            channelData['usersLeft']
+          );
+          this.channelDataMap.set(channel.channelId, channel);
+        });
+        this.channelDataMapSubject.next(new Map(this.channelDataMap)); // Update der Map
+      }
+    );
   }
 
   listenToChannelChanges(): void {
@@ -90,8 +98,8 @@ export class ChannelService {
         if (change.type === 'added' || change.type === 'modified') {
           // Channel hinzufügen oder aktualisieren
           const updatedChannel = new Channel(
-            channelData['admin'], 
-            channelId, 
+            channelData['admin'],
+            channelId,
             channelData['channelName'],
             channelData['description'],
             channelData['members'],
