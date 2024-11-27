@@ -93,6 +93,7 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
 
   openSidenav() {
     if (this.sidenav) {
+      this.sidenavElement.nativeElement.classList.remove('d-none');
       this.sidenav.open();
       this.threadOpened = true;
     }
@@ -102,6 +103,7 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
     if (this.sidenav) {
       this.sidenav.close();
       this.threadOpened = false;
+      setTimeout(() => this.sidenavElement.nativeElement.classList.add('d-none'), 300);
     }
   }
 }

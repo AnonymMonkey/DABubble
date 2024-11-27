@@ -148,7 +148,6 @@ export class OwnMessageTemplateComponent implements OnChanges, OnInit, OnDestroy
     this.editMessageMenuOpened = value;
 
     if (!value) {
-      // Zustand des Emoji-Containers vollständig zurücksetzen
       this.emojiContainerVisible[messageId] = false;
     }
   }

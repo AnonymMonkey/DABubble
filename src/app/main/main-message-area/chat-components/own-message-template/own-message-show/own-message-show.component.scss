@@ -93,3 +93,10 @@ app-attachment-preview {
 //   color: var(--purple3-color); /* Setzt die Farbe für Erwähnungen */
 //   font-weight: bold; /* Optional: Setzt den Text in Fettdruck */
 // }
+
+.thread-own.hidden {
+  display: none; /* Alternativ: visibility: hidden; */
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+

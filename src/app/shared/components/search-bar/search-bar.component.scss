@@ -1,3 +1,9 @@
+::ng-deep {
+  .cdk-overlay-pane {
+    margin-top: -10px;
+  }
+}
+
 .search-field {
   color: var(--grey-color);
   position: relative;
@@ -24,4 +30,13 @@
       outline: 1px solid var(--purple1-color);
     }
   }
+}
+
+.input-font-16 {
+  font-size: 16px !important;
+  outline: 1px solid var(--grey-color);
+}
+
+.input-font-24 {
+  font-size: var(--fontsize-24) !important;
 }

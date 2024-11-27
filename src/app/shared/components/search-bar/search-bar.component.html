@@ -1,10 +1,14 @@
 <div mat-form-field class="search-field">
   <input
-    matInput
-    [formControl]="inputControl"
-    [matAutocomplete]="auto"
-    placeholder="{{ placeholder }}"
-  />
+  matInput
+  [formControl]="inputControl"
+  [matAutocomplete]="auto"
+  placeholder="{{ placeholder }}"
+  [ngClass]="{
+    'input-font-16': !inputFont,
+    'input-font-24': inputFont
+  }"
+/>
   <mat-icon *ngIf="searchIconExists">search</mat-icon>
   <mat-autocomplete
     #auto="matAutocomplete"

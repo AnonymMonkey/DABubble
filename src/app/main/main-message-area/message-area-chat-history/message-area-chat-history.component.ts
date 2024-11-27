@@ -21,6 +21,8 @@ import { OwnMessageTemplateComponent } from '../chat-components/own-message-temp
 import { DateOfMessageComponent } from '../chat-components/date-of-message/date-of-message.component';
 import { UserService } from '../../../shared/services/user-service/user.service';
 import { ActivatedRoute } from '@angular/router';
+import { MessageService } from '../../../shared/services/message-service/message.service';
+import { ChannelMessage } from '../../../shared/models/channel-message.model';
 
 @Component({
   selector: 'app-message-area-chat-history',
@@ -44,6 +46,7 @@ export class MessageAreaChatHistoryComponent
   groupedMessages: any[] = [];
   private shouldScroll: boolean = true;
   firestore = inject(Firestore);
+  private messageService = inject(MessageService);
 
   private usersData = new Map<string, any>();
 
@@ -73,19 +76,26 @@ export class MessageAreaChatHistoryComponent
             channel.members,
             channel.usersLeft
           );
-          this.listenForMessages(channel.channelId);
+          // Nachrichten-Map des aktuellen Channels abonnieren
+          this.messageService.messagesDataMap$.subscribe((messagesDataMap) => {
+            const channelMessages = messagesDataMap.get(channel.channelId); // Hole Nachrichten des aktuellen Channels
+            if (channelMessages) {
+              const messagesArray = Array.from(channelMessages.values()); // Map in ein Array konvertieren
+              this.groupMessagesByDate(messagesArray);
+            }
+          });
         } else {
           this.groupedMessages = []; // Keine Channel-Daten, also leeren
           this.cdr.detectChanges(); // Ansicht aktualisieren
         }
       },
       error: (err) => console.error('Fehler beim Laden des Channels:', err),
-
+  
       complete: () => {
         this.checkLoadingComplete();
       },
     });
-
+  
     this.userSubscription = this.channelService
       .getUsersDataObservable()
       .subscribe({
@@ -98,6 +108,7 @@ export class MessageAreaChatHistoryComponent
         error: (err) => console.error('Fehler beim Laden der User-Daten:', err),
       });
   }
+  
 
   private checkLoadingComplete(): void {
     if (this.groupedMessages.length > 0 && this.usersData.size > 0) {
@@ -146,7 +157,7 @@ export class MessageAreaChatHistoryComponent
         this.groupedMessages = []; // Leere Nachrichtengruppe
         this.cdr.detectChanges(); // Ansicht aktualisieren
       } else {
-        const newMessages = snapshot.docs.map((doc) => ({
+        const newMessages: any = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
@@ -156,49 +167,39 @@ export class MessageAreaChatHistoryComponent
     });
   }
 
-  groupMessagesByDate(messages: any[]): void {
-    const grouped = messages.reduce((acc, message) => {
+  groupMessagesByDate(messages: ChannelMessage[]): void {
+    const grouped = messages.reduce<{ [key: string]: ChannelMessage[] }>((acc, message) => {
       const messageDate = new Date(message.time);
       const today = new Date();
       let dateString: string;
-
+  
       dateString =
         messageDate.toDateString() === today.toDateString()
           ? 'Heute'
           : messageDate.toLocaleDateString();
-
+  
+      // Falls der Schlüssel noch nicht existiert, initialisieren
       if (!acc[dateString]) acc[dateString] = [];
-
-      const userData = this.usersData.get(message.userId);
-      const userName = userData ? userData.displayName : 'Unbekannter Benutzer';
-      const photoURL = userData ? userData.photoURL : null;
-
+  
       acc[dateString].push({
         ...message,
-        userName,
-        photoURL,
       });
-
+  
       return acc;
-    }, {});
-
+    }, {}); // Initialwert: ein leeres Objekt mit dem richtigen Typ
+  
+    // Gruppierte Nachrichten verarbeiten
     this.groupedMessages = Object.keys(grouped)
       .map((date) => ({
         date,
         messages: grouped[date].sort(
-          (a: any, b: any) =>
-            new Date(a.time).getTime() - new Date(b.time).getTime()
+          (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
         ),
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    this.cdr.detectChanges(); // Change Detection anstoßen
-  }
-
-  // Aktualisiert die Ansicht, wenn neue Nachrichten hinzukommen
-  updateMessages(): void {
-    this.groupedMessages = [...this.groupedMessages]; // Neue Referenz für Angular
-    this.cdr.detectChanges(); // Change Detection anstoßen
+  
+    // Change Detection anstoßen
+    this.cdr.detectChanges();
   }
 
   // Scrollt die Nachrichtensicht nach unten

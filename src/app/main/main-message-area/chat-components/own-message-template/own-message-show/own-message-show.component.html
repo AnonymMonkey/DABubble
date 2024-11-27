@@ -28,23 +28,20 @@
     [message]="message"
     *ngIf="message.reactions.length > 0"
   ></app-message-reactions>
-  <div
-    class="thread-own"
-    [ngClass]="{ 'd-none': !threadMessages?.length }"
-    *ngIf="threadMessages$ | async as threadMessages"
-    #thread
-  >
+
+  <div class="thread-own" *ngIf="threadInfo.has(message?.messageId)">
     <span
-      *ngIf="threadMessages.length > 0"
       (click)="
         mainMessageArea.openSidenav(); threadService.setActualMessage(message)
       "
     >
-      {{ threadMessages.length }}
-      {{ threadMessages.length === 1 ? "Antwort" : "Antworten" }}
+      <!-- Hole die Anzahl der Antworten aus der Map -->
+      {{ threadInfo.get(message?.messageId)?.count }}
+      {{ threadInfo.get(message?.messageId)?.count === 1 ? "Antwort" : "Antworten" }}
     </span>
-    <span *ngIf="threadMessages.length > 0"
-      >Letzte Antwort: {{ getLastReplyTime(threadMessages) }}</span
-    >
+    <span>
+      <!-- Hole das Datum der letzten Antwort aus der Map -->
+      Letzte Antwort: {{ threadInfo.get(message?.messageId)?.lastReplyDate }}
+    </span>
   </div>
 </section>

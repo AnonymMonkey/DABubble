@@ -64,6 +64,9 @@ export class ThreadNewMessageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.threadService.actualMessageSubject.subscribe((message) => {
+      this.message = message;
+    });
     this.storageService.onCloseAttachmentPreview().subscribe(() => {
       this.closeAttachmentSidenav();
     });
@@ -71,36 +74,38 @@ export class ThreadNewMessageComponent implements OnInit {
     this.storageService.onCloseUploadMethodSelector().subscribe(() => {
       this.closeUploadMethodMenu();
     });
-
-    this.threadService.actualMessageSubject.subscribe((message) => {
-      this.message = message;
-    });
   }
 
   async sendMessage(): Promise<void> {
     // Überprüfen, ob die Nachricht entweder Text oder Anhänge hat
-    if (this.newMessageContent.trim().length > 0 || this.attachmentUrls.length > 0) {
+    if (
+      this.newMessageContent.trim().length > 0 ||
+      this.attachmentUrls.length > 0
+    ) {
       const currentMessage = this.threadService.actualMessageSubject.value;
       if (!currentMessage) {
         console.error('Es wurde keine aktuelle Nachricht ausgewählt.');
         return;
       }
-  
+
       const channelId = this.channelService.channelId; // channelId zwischenspeichern
       try {
         // Pfad zur Channels-Messages
-        const messageDocRef = doc(this.firestore, `channels/${channelId}/messages/${currentMessage.messageId}`);
+        const messageDocRef = doc(
+          this.firestore,
+          `channels/${channelId}/messages/${currentMessage.messageId}`
+        );
         const messageDocSnapshot = await getDoc(messageDocRef);
-        
+
         if (!messageDocSnapshot.exists()) {
           console.error('Das Dokument existiert nicht:', messageDocRef.path);
           return;
         }
-  
+
         const timestamp = Date.now();
         const randomId = Math.floor(Math.random() * 1000) + 1; // Zufällige Zahl zwischen 1 und 1000
         const newThreadId = `thread_${timestamp}_${randomId}`;
-  
+
         // Neues Thread-Dokument erstellen
         const newMessage = new ThreadMessage(
           this.newMessageContent.trim() || ' ', // Leerer Text wird durch Leerzeichen ersetzt
@@ -110,18 +115,18 @@ export class ThreadNewMessageComponent implements OnInit {
           new Date().toISOString(),
           this.attachmentUrls.length > 0 ? this.attachmentUrls : [] // Wenn Anhänge vorhanden sind, füge diese hinzu
         );
-  
+
         this.newMessageContent = ''; // Nachricht zurücksetzen
         const attachmentsToSend = [...this.attachmentUrls];
         this.threadAttachmentSidenav.close();
         this.attachmentUrls = []; // Reset attachment URLs
-  
+
         // Subcollection für den Thread innerhalb der Nachricht erstellen
         const threadCollectionRef = collection(
           this.firestore,
           `channels/${channelId}/messages/${currentMessage.messageId}/thread`
         );
-  
+
         const threadDocRef = doc(threadCollectionRef, newThreadId); // Ein neues Thread-Dokument mit der ID `newThreadId`
         await setDoc(threadDocRef, {
           content: newMessage.content,
@@ -130,17 +135,19 @@ export class ThreadNewMessageComponent implements OnInit {
           messageId: newMessage.messageId,
           attachmentUrls: attachmentsToSend,
         });
-  
+
         // Optional: Thread-ID in der Nachricht speichern (falls du den Zusammenhang zwischen Nachricht und Threads herstellen möchtest)
         await updateDoc(messageDocRef, {
           [`threadId`]: newThreadId,
         });
       } catch (error) {
-        console.error('Fehler beim Speichern der Nachricht in Firestore:', error);
+        console.error(
+          'Fehler beim Speichern der Nachricht in Firestore:',
+          error
+        );
       }
     }
   }
-  
 
   addEmoji(event: any) {
     console.log('Emoji selected:', event);
@@ -174,12 +181,15 @@ export class ThreadNewMessageComponent implements OnInit {
   }
 
   openAttachmentSidenav() {
+    this.attachmentSidenavElement.nativeElement.classList.remove('d-none');
     this.threadAttachmentSidenav.open();
   }
 
   closeAttachmentSidenav() {
     this.threadAttachmentSidenav.close();
+    setTimeout(() => this.attachmentSidenavElement.nativeElement.classList.add('d-none'), 300);
   }
+
 
   closeUploadMethodMenu() {
     this.uploadMethodMenuTrigger.closeMenu();
