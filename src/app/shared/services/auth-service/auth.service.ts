@@ -205,7 +205,7 @@ export class AuthService {
   // Sendet eine E-Mail mit einem Link zum Zurücksetzen des Passworts
   async sendPasswordResetEmail(email: string): Promise<void> {
     const actionCodeSettings = {
-      url: 'http://localhost:4200/new-password', // Link zur Seite zum Zurücksetzen des Passworts
+      url: 'http://localhost:4200/', // Link zur Seite zum Zurücksetzen des Passworts
       handleCodeInApp: true,
     };
 
