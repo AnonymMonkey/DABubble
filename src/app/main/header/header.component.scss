@@ -1,3 +1,7 @@
+:host {
+  --parent-fontsize: 24px;
+}
+
 header {
   display: flex;
   justify-content: space-between;
@@ -6,23 +10,30 @@ header {
   margin-bottom: 20px;
   gap: var(--gap-20);
 
-  .logo {
+  .logo-search-wrapper {
+    width: 100%;
     display: flex;
+    justify-content: start;
     align-items: center;
-    gap: var(--gap-16);
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-16);
+      margin-right: 140px;
 
-    img:first-child {
-      height: 70px;
+      img:first-child {
+        height: 70px;
+      }
+
+      img:last-child {
+        height: 24px;
+      }
     }
 
-    img:last-child {
-      height: 24px;
+    app-search-bar {
+      flex: 1;
+      max-width: 975px;
     }
-  }
-
-  app-search-bar {
-    flex: 1;
-    max-width: 975px;
   }
 
   .profile {
@@ -36,6 +47,7 @@ header {
       font-size: var(--fontsize-32);
       font-weight: 700;
       cursor: pointer;
+      text-wrap: nowrap;
     }
 
     .image-with-badge {

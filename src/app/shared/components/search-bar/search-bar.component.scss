@@ -1,3 +1,7 @@
+:host {
+  font-size: var(--parent-fontsize, 16px);
+}
+
 .search-field {
   color: var(--grey-color);
   position: relative;
@@ -11,7 +15,6 @@
 
   input {
     width: 100%;
-    font-size: var(--fontsize-24);
     font-family: var(--font-nunito);
     padding: var(--padding-16) var(--padding-16) var(--padding-16)
       var(--padding-32);
