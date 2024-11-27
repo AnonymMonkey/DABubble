@@ -9,9 +9,23 @@
       [(ngModel)]="radioValue"
       (ngModelChange)="checkChoice()"
     >
-      <mat-radio-button [value]="1"
-        >Alle Mitglieder hinzufügen</mat-radio-button
-      >
+      <!-- <mat-radio-button [value]="1"
+        >Alle Mitglieder <span *ngIf="openedChannelData">von</span>
+        <span [ngStyle]="{ color: 'var(--purple1-color)' }">
+          {{ openedChannelData.channelName }}</span
+        >
+        hinzufügen</mat-radio-button
+      > -->
+      <mat-radio-button [value]="1">
+        <ng-container *ngIf="openedChannelData; else allUsers">
+          Alle Mitglieder von
+          <span [ngStyle]="{ color: 'var(--purple1-color)' }">
+            {{ openedChannelData.channelName }}</span
+          >
+          hinzufügen
+        </ng-container>
+        <ng-template #allUsers>Alle Mitglieder hinzufügen</ng-template>
+      </mat-radio-button>
       <mat-radio-button [value]="2"
         >Bestimmte Leute hinzufügen</mat-radio-button
       >

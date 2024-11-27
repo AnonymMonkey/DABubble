@@ -205,7 +205,7 @@ export class AuthService {
   // Sendet eine E-Mail mit einem Link zum Zurücksetzen des Passworts
   async sendPasswordResetEmail(email: string): Promise<void> {
     const actionCodeSettings = {
-      url: 'http://localhost:4200/new-password', // Link zur Seite zum Zurücksetzen des Passworts
+      url: 'http://localhost:4200/', // Link zur Seite zum Zurücksetzen des Passworts
       handleCodeInApp: true,
     };
 
@@ -416,6 +416,24 @@ export class AuthService {
           'Fehler beim Ändern der E-Mail: ' + (error as any).message
         );
       }
+    }
+  }
+
+  checkIfGoogleUser() {
+    const currentUser: User | null = this.auth.currentUser;
+
+    if (currentUser) {
+      const isGoogleAccount = currentUser.providerData.some(
+        (provider) => provider.providerId === 'google.com'
+      );
+
+      if (isGoogleAccount) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
     }
   }
 }
