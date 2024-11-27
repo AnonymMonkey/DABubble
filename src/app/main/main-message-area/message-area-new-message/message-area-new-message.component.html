@@ -7,6 +7,7 @@
       [(ngModel)]="newMessageContent"
       (ngModelChange)="updateFormattedContent()"
       (keydown.enter)="sendMessage(); $event.preventDefault()"
+      (input)="checkForMention($event)"
     ></textarea>
     <div class="icons-container">
       <div class="left-icons">
@@ -28,6 +29,7 @@
           *ngIf="privateChatId === undefined"
           class="material-symbols-outlined"
           [matMenuTriggerFor]="mentionMenu"
+          #mentionMenuTrigger="matMenuTrigger"
           (click)="toggleBorder('mention')"
           >alternate_email</mat-icon
         >
@@ -50,7 +52,7 @@
     ></app-upload-method-selector>
   </mat-menu>
 
-  <mat-menu xPosition="after" #emojiMenu yPosition="above">
+  <mat-menu xPosition="after" #emojiMenu yPosition="above" (closed)="mentionOpenedAtTextarea = false">
     <emoji-mart
       title="Pick your emoji…"
       emoji="point_up"
@@ -67,7 +69,7 @@
   </mat-menu>
 
   <!-- Mention Menu -->
-  <mat-menu xPosition="after" #mentionMenu yPosition="above">
+  <mat-menu xPosition="after" #mentionMenu="matMenu" yPosition="above">
     <app-mention-user (mentionUser)="insertMention($event)"></app-mention-user>
   </mat-menu>
 

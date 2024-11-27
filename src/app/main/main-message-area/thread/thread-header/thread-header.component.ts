@@ -3,7 +3,6 @@ import { MatIcon } from '@angular/material/icon';
 import { MainMessageAreaComponent } from '../../main-message-area.component';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import { Subscription } from 'rxjs';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-thread-header',

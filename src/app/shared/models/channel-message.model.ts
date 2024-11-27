@@ -20,7 +20,8 @@ export class ChannelMessage {
     userId: string,
     messageId: string,
     time?: string,
-    attachmentUrls?: string[]  // Array von URLs für Anhänge
+    attachmentUrls?: string[],  // Array von URLs für Anhänge
+    reactions?: { emoji: any; count: number; userIds: string[] }[]
   ) {
     this.content = content;
     this.messageId = messageId;
@@ -28,6 +29,7 @@ export class ChannelMessage {
     this.userId = userId;
     this.thread = {};
     this.attachmentUrls = attachmentUrls || [];  // Setze die URLs des Anhangs (als Array)
+    this.reactions = reactions || [];
   }
 
   channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {

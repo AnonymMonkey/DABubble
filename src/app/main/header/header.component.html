@@ -6,6 +6,7 @@
   <app-search-bar
     [placeholder]="'Devspace durchsuchen'"
     [searchIconExists]="true"
+    [inputFont]="true"
   ></app-search-bar>
   <div class="profile" (click)="toggleDropdown()">
     <p *ngIf="userData">{{ userData.displayName }}</p>

@@ -82,12 +82,16 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   attachmentUrls: string[] = [];
   userDataSubscription: Subscription = new Subscription();
   displayNames: string[] = [];
+  mentionOpenedAtTextarea: boolean = false;
 
   @ViewChild('attachmentSidenav') attachmentSidenav!: MatSidenav;
   @ViewChild('attachmentSidenav', { read: ElementRef })
   attachmentSidenavElement!: ElementRef;
 
-  @ViewChild(MatMenuTrigger) uploadMethodMenuTrigger!: MatMenuTrigger;
+  @ViewChild('uploadMethodMenu') uploadMethodMenuTrigger!: MatMenuTrigger;
+
+  @ViewChild('mentionMenuTrigger', { static: false, read: MatMenuTrigger })
+  mentionMenuTrigger!: MatMenuTrigger;
 
   constructor(
     private firestore: Firestore,
@@ -219,7 +223,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
         newMessageDocRef,
         channelMessageConverter.toFirestore(newMessage)
       );
-      this.channel?.addMessage(newMessage.messageId, newMessage);
+      // this.channel?.addMessage(newMessage.messageId, newMessage);
     } catch (error) {
       console.error('Fehler beim Senden der Nachricht im Channel:', error);
     }
@@ -281,6 +285,9 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   }
 
   insertMention(originalMention: string): void {
+    if(this.mentionOpenedAtTextarea){
+      this.correctMention();
+    }
     const mention = originalMention.replace(
       /<span class="mention">(.*?)<\/span>/g,
       '$1'
@@ -310,12 +317,17 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   }
 
   openAttachmentSidenav() {
+    this.attachmentSidenavElement.nativeElement.classList.remove('d-none');
     this.attachmentSidenav.open();
   }
 
   closeAttachmentSidenav() {
     if (this.attachmentUrls.length > 1) return;
     this.attachmentSidenav.close();
+    setTimeout(
+      () => this.attachmentSidenavElement.nativeElement.classList.add('d-none'),
+      300
+    );
   }
 
   closeUploadMethodMenu() {
@@ -338,15 +350,40 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   updateFormattedContent(): void {
     // Kopiere den aktuellen Inhalt und konvertiere Mentions in `<span>`-Tags
     this.formattedMessageContent = this.newMessageContent;
-  
+
     // Konvertiere Erwähnungen (beginnen mit `@`) in `<span>`-Tags
     this.formattedMessageContent = this.formattedMessageContent.replace(
       /@([a-zA-Z0-9_äöüßÄÖÜ\s]+)/g,
       '<span class="mention">@$1</span>'
     );
   }
-  
-  
+
+  checkForMention(event: Event): void {
+    const textareaValue = (event.target as HTMLTextAreaElement).value;
+    if (textareaValue.includes('@')) {
+      this.toggleBorder('mention');
+      this.openMentionMenu();
+    }
+  }
+
+  openMentionMenu(): void {
+    if (this.mentionMenuTrigger) {
+      this.mentionMenuTrigger.openMenu();
+      this.mentionOpenedAtTextarea = true;
+    } else {
+      console.error('mentionMenuTrigger is not initialized');
+    }
+  }
+
+  correctMention() {
+    const cursorPosition = this.newMessageContent.lastIndexOf('@');
+    if (cursorPosition !== -1) {
+      // Entferne das @, indem der Text vor und nach dem @ kombiniert wird
+      this.newMessageContent =
+        this.newMessageContent.slice(0, cursorPosition) +
+        this.newMessageContent.slice(cursorPosition + 1);
+    }
+  }
 
   // replaceMentionsWithSpan(messageContent: string): string {
   //   const mentionPattern = /@([a-zA-Z0-9_äöüßÄÖÜ\s]+)/g; // Regulärer Ausdruck für @Benutzernamen
