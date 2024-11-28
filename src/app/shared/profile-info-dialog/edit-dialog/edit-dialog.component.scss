@@ -6,6 +6,11 @@
   gap: 24px;
   width: 500px;
 
+  @media screen and (max-width: 640px) {
+    width: 100%;
+    padding: 45px 20px;
+  }
+
   .card-header {
     h3 {
       font-size: 24px;
@@ -13,20 +18,20 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
 
-    mat-icon {
-      height: 40px;
-      width: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 30px;
+  .icon {
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
 
-      &:hover {
-        cursor: pointer;
-        color: var(--purple1-color);
-        background-color: var(--bg-color);
-      }
+    &:hover {
+      cursor: pointer;
+      color: var(--purple1-color);
+      background-color: var(--bg-color);
     }
   }
 
@@ -59,14 +64,34 @@
         display: flex;
         align-items: center;
         gap: 18px;
+
+        @media screen and (max-width: 640px) {
+          gap: 8px;
+        }
+        h3 {
+          @media screen and (max-width: 640px) {
+            text-align: center;
+          }
+        }
       }
 
       span {
         color: var(--purple3-color);
 
+        @media screen and (max-width: 640px) {
+          display: none !important;
+        }
+
         &:hover {
           cursor: pointer;
           font-weight: 700;
+        }
+      }
+
+      mat-icon {
+        margin-left: 2%;
+        @media screen and (min-width: 640px) {
+          display: none !important;
         }
       }
     }

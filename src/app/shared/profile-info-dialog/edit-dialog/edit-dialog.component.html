@@ -1,7 +1,7 @@
 <mat-card class="profile-info-dialog" appearance="outlined">
   <div class="card-header">
     <h3>Dein profil bearbeiten</h3>
-    <mat-icon (click)="closeDialog()">close</mat-icon>
+    <mat-icon class="icon" (click)="closeDialog()">close</mat-icon>
   </div>
   <img
     class="profile-image"
@@ -17,16 +17,28 @@
         <h3>Vollständiger Name</h3>
       </div>
 
-      <span
+      <ng-container
         *ngIf="
           nameControl.disabled && nameControl.value === '';
           else saveNameChanges
         "
-        (click)="nameControl.enable()"
-        >Bearbeiten</span
       >
+        <span (click)="nameControl.enable()">Bearbeiten</span>
+
+        <mat-icon
+          class="material-symbols-outlined edit-mobile icon"
+          (click)="nameControl.enable()"
+          >edit</mat-icon
+        >
+      </ng-container>
+
       <ng-template #saveNameChanges>
-        <span #saveNameChanges (click)="saveNewName()">Speichern</span>
+        <span (click)="saveNewName()">Speichern</span>
+        <mat-icon
+          class="material-symbols-outlined edit-mobile icon"
+          (click)="saveNewName()"
+          >save</mat-icon
+        >
       </ng-template>
     </div>
     <div class="input-secondary">
@@ -72,8 +84,32 @@
         [ngStyle]="{ cursor: isGoogleUser ? 'not-allowed' : 'pointer' }"
         >Bearbeiten</span
       >
+
+      <mat-icon
+        *ngIf="
+          emailControl.disabled && emailControl.value === '';
+          else saveEmailChanges
+        "
+        (click)="
+          isGoogleUser ? '' : emailControl.enable(); passwordControl.enable()
+        "
+        [matTooltip]="
+          isGoogleUser
+            ? 'Google Benutzer können ihre E-Mail-Adresse nicht ändern'
+            : ''
+        "
+        [matTooltipDisabled]="!isGoogleUser"
+        [ngStyle]="{ cursor: isGoogleUser ? 'not-allowed' : 'pointer' }"
+        class="material-symbols-outlined edit-mobile icon"
+        >edit</mat-icon
+      >
       <ng-template #saveEmailChanges>
         <span (click)="saveNewEmail()">Speichern</span>
+        <mat-icon
+          class="material-symbols-outlined edit-mobile icon"
+          (click)="saveNewEmail()"
+          >save</mat-icon
+        >
       </ng-template>
     </div>
     <div class="input-secondary">
