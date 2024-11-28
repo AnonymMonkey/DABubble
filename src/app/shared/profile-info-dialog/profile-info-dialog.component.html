@@ -1,16 +1,23 @@
 <mat-card class="profile-info-dialog" appearance="outlined">
   <div class="card-header">
     <h3>Profil</h3>
-    <mat-icon (click)="closeDialog()">close</mat-icon>
+    <mat-icon class="icon" (click)="closeDialog()">close</mat-icon>
   </div>
   <img class="profile-image" src="{{ userData.photoURL }}" alt="" />
   <div class="profile-info-name">
     <div class="name-edit">
       <h2>{{ userData.displayName }}</h2>
       <span
+        class="edit-button"
         [ngStyle]="{ display: ownProfile ? 'block' : 'none' }"
         (click)="openEditProfile()"
         >Bearbeiten</span
+      >
+      <mat-icon
+        class="material-symbols-outlined edit-mobile icon"
+        (click)="openEditProfile()"
+        [ngStyle]="{ display: ownProfile ? 'block' : 'none' }"
+        >edit</mat-icon
       >
     </div>
     <div class="activity-indicator">
