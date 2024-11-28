@@ -23,10 +23,10 @@ import {
 } from 'firebase/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
-import { UserData } from '../../models/user.model';
 import { ChannelMessage } from '../../models/channel-message.model';
 import { UserService } from '../user-service/user.service';
 import { collectionData } from 'rxfire/firestore';
+import { MessageService } from '../message-service/message.service';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +40,7 @@ export class ChannelService {
   public actualThread: Array<string> = []; // Daten des aktuell ausgewählten Threads
   private userService = inject(UserService);
   loading: boolean = true;
+  private messageService = inject(MessageService);
 
   private channelDataMap = new Map<string, Channel>(); // Zentrale Map für Channels
   private channelDataMapSubject = new BehaviorSubject<Map<string, Channel>>(
@@ -66,26 +67,62 @@ export class ChannelService {
   }
 
   loadAllChannels(): void {
-    const channelCollection = collection(this.firestore, 'channels'); // Referenz zur Collection 'channels'
-
-    collectionData(channelCollection, { idField: 'channelId' }).subscribe(
-      (data) => {
-        data.forEach((channelData) => {
-          const channel = new Channel(
-            channelData['admin'],
-            channelData['channelId'],
-            channelData['channelName'],
-            channelData['description'],
-            channelData['members'],
-            channelData['messages'],
-            channelData['usersLeft']
-          );
-          this.channelDataMap.set(channel.channelId, channel);
-        });
-        this.channelDataMapSubject.next(new Map(this.channelDataMap)); // Update der Map
+    const channelCollection = collection(this.firestore, 'channels'); // Referenz zur Hauptkollektion 'channels'
+  
+    collectionData(channelCollection, { idField: 'channelId' }).subscribe(async (data) => {
+      for (const channelData of data) {
+        const messages = await this.loadMessages(channelData['channelId']); // Lade Unterkollektion 'messages'
+        const channel = new Channel(
+          channelData['admin'],
+          channelData['channelId'],
+          channelData['channelName'],
+          channelData['description'],
+          channelData['members'],
+          messages, // Füge die geladenen Nachrichten hinzu
+          channelData['usersLeft']
+        );
+        this.channelDataMap.set(channel.channelId, channel);
       }
-    );
+  
+      this.channelDataMapSubject.next(new Map(this.channelDataMap)); // Update der Map
+    });
   }
+  
+  private async loadMessages(channelId: string): Promise<{ [messageId: string]: ChannelMessage }> {
+    const messagesCollection = collection(this.firestore, `channels/${channelId}/messages`);
+    const messagesSnapshot = await getDocs(messagesCollection);
+  
+    // Definiere explizit den Typ der Daten in den Dokumenten
+    const messagesArray = messagesSnapshot.docs.map((doc) => {
+      const data = doc.data() as {
+        content: string;
+        userId: string;
+        timestamp: string;
+        attachmentUrls: string[];
+        reactions: { emoji: string; count: number; userIds: string[] }[];
+      }; // Erwartete Struktur eines Messages-Dokuments
+      return {
+        id: doc.id,
+        ...data,
+      };
+    });
+  
+    // Konvertiere das Array in ein Objekt
+    const messagesObject = messagesArray.reduce((acc, message) => {
+      acc[message.id] = new ChannelMessage(
+        message.content,
+        message.userId,
+        message.id,
+        message.timestamp,
+        message.attachmentUrls,
+        message.reactions
+      );
+      return acc;
+    }, {} as { [messageId: string]: ChannelMessage });
+  
+    return messagesObject;
+  }
+  
 
   listenToChannelChanges(): void {
     const channelCollection = collection(this.firestore, 'channels'); // Referenz zur 'channels'-Collection
@@ -121,6 +158,7 @@ export class ChannelService {
   // Methode zum Laden eines Channels und Speichern im Subject
   setChannel(channelId: string): void {
     this.channelId = channelId;
+    this.messageService.loadMessagesForChannel(channelId);
     this.loading = true; // Ladezustand aktivieren
     this.getChannelById(channelId).subscribe({
       next: (channel) => {

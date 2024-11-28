@@ -80,7 +80,7 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
       });
 
     // Thread-Nachrichten abrufen
-    this.threadService.fetchThreadMessages();
+    this.threadService.subscribeToThreadMessages();
   }
 
   ngOnDestroy(): void {

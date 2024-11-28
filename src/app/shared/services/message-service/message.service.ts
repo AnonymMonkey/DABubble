@@ -2,24 +2,24 @@ import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ChannelMessage } from '../../models/channel-message.model';
 import {
+  collection,
   deleteDoc,
   deleteField,
   doc,
   getDoc,
   updateDoc,
 } from 'firebase/firestore';
-import { enableIndexedDbPersistence, Firestore } from '@angular/fire/firestore';
-import { ChannelService } from '../channel-service/channel.service';
-import { docData } from 'rxfire/firestore';
+import { Firestore } from '@angular/fire/firestore';
+import { collectionData, docData } from 'rxfire/firestore';
 import { UserService } from '../user-service/user.service';
 import { UserData } from '../../models/user.model';
+import { ThreadMessage } from '../../models/thread-message.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MessageService {
   private firestore = inject(Firestore);
-  private channelService = inject(ChannelService);
   private messages: ChannelMessage[] = [];
   private messagesSubject = new BehaviorSubject<ChannelMessage[]>(
     this.messages
@@ -33,15 +33,83 @@ export class MessageService {
   );
   actualMessage$ = this.actualMessageSubject.asObservable();
 
-  addMessage(
-    content: string,
-    messageId: string,
-    userId: string,
-    userName: string
-  ) {
-    const newMessage = new ChannelMessage(content, messageId, userId, userName);
-    this.messages.push(newMessage);
-    this.messagesSubject.next(this.messages);
+  private messagesDataMap = new Map<string, Map<string, ChannelMessage>>(); // Map für Nachrichten pro Channel
+  private messagesDataMapSubject = new BehaviorSubject<
+    Map<string, Map<string, ChannelMessage>>
+  >(this.messagesDataMap);
+
+  get messagesDataMap$() {
+    return this.messagesDataMapSubject.asObservable();
+  }
+
+  areMapsEqual(map1: Map<string, ChannelMessage>, map2: Map<string, ChannelMessage>): boolean {
+    if (map1.size !== map2.size) return false;
+    for (let [key, value] of map1) {
+      const otherValue = map2.get(key);
+      if (!otherValue || value.messageId !== otherValue.messageId) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  loadMessagesForChannel(channelId: string): void {
+    const messagesCollection = collection(this.firestore, `channels/${channelId}/messages`);
+  
+    collectionData(messagesCollection, { idField: 'messageId' }).subscribe((messages) => {
+      const messageMap = new Map<string, ChannelMessage>();
+  
+      messages.forEach((messageData) => {
+        const message = new ChannelMessage(
+          messageData['content'],
+          messageData['userId'],
+          messageData['messageId'],
+          messageData['time'],
+          messageData['attachmentUrls'] || []
+        );
+  
+        // Reaktionen hinzufügen
+        message.reactions = (messageData['reactions'] || []).map((reaction: any) => ({
+          emoji: reaction.emoji,
+          count: reaction.count,
+          userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],
+        }));
+  
+        // Threads laden
+        const threadData = messageData['thread'] || {};
+        message.thread = Object.fromEntries(
+          Object.entries(threadData).map(([threadId, threadMessageData]: [string, any]) => [
+            threadId,
+            new ThreadMessage(
+              threadMessageData.content,
+              threadMessageData.userId,
+              threadId,
+              threadMessageData.reactions || [],
+              threadMessageData.time,
+              threadMessageData.attachmentUrls || []
+            ),
+          ])
+        );
+  
+        messageMap.set(message.messageId, message);
+      });
+  
+      // Vergleiche alte und neue Map, bevor du das Subject aktualisierst
+      if (!this.areMapsEqual(this.messagesDataMap.get(channelId) || new Map(), messageMap)) {
+        // Wenn sich die Nachrichten geändert haben, aktualisiere die Map
+        this.messagesDataMap.set(channelId, messageMap);
+        this.messagesDataMapSubject.next(new Map(this.messagesDataMap));
+      }
+    });
+  }
+
+  getThreadsForMessage(
+    channelId: string,
+    messageId: string
+  ): { [threadId: string]: ThreadMessage } | undefined {
+    const messageMap = this.messagesDataMap.get(channelId);
+    const message = messageMap?.get(messageId);
+    return message?.thread;
   }
 
   getMessageUpdates(messageId: string): Observable<any> {

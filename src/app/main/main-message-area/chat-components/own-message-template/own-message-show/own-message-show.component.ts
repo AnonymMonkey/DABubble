@@ -1,6 +1,13 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  Input,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
-import { NgIf, DatePipe, NgFor, AsyncPipe, NgClass } from '@angular/common';
+import { NgIf, DatePipe, NgFor } from '@angular/common';
 import { ThreadService } from '../../../../../shared/services/thread-service/thread.service';
 import { MainMessageAreaComponent } from '../../../main-message-area.component';
 import { MessageReactionsComponent } from '../../../../../shared/components/message-reactions/message-reactions.component';
@@ -13,6 +20,7 @@ import {
   collectionData,
 } from '@angular/fire/firestore';
 import { Observable, Subscription } from 'rxjs';
+import { onSnapshot } from 'firebase/firestore';
 
 @Component({
   selector: 'app-own-message-show',
@@ -23,8 +31,6 @@ import { Observable, Subscription } from 'rxjs';
     MessageReactionsComponent,
     NgFor,
     AttachmentPreviewComponent,
-    AsyncPipe,
-    NgClass,
   ],
   templateUrl: './own-message-show.component.html',
   styleUrls: ['./own-message-show.component.scss'],
@@ -37,20 +43,31 @@ export class OwnMessageShowComponent implements OnInit {
   public mainMessageArea = inject(MainMessageAreaComponent);
   private firestore = inject(Firestore);
   displayName: string = '';
-  public threadMessages$: Observable<any[]> | undefined; // Observable für die Thread-Nachrichten
+  public threadMessages$: Observable<any[]> | undefined;
   private userDataSubscription: Subscription | undefined;
+  public threadMessages: any[] = [];
+  private threadMessagesSubscription: Subscription | undefined;
+  public threadInfo: Map<string, { count: number; lastReplyDate: string }> =
+    new Map();
 
-  constructor() {}
+  constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    if (this.channelService.channelId && this.message?.messageId) {
+    if (this.message) {
+      this.loadUserData(this.message.userId);
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      changes['message'] &&
+      changes['message'].currentValue?.messageId !==
+        changes['message'].previousValue?.messageId
+    ) {
       this.loadThreadMessages(
         this.channelService.channelId,
         this.message.messageId
       );
-    }
-    if (this.message) {
-      this.loadUserData(this.message.userId);
     }
   }
 
@@ -71,20 +88,42 @@ export class OwnMessageShowComponent implements OnInit {
     if (this.userDataSubscription) {
       this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
     }
+    if (this.threadMessagesSubscription) {
+      this.threadMessagesSubscription.unsubscribe();
+    }
   }
 
   // Methode zum Abrufen der Thread-Nachrichten aus der Firestore-Unterkollektion
   loadThreadMessages(channelId: string, messageId: string): void {
+    if (this.threadMessagesSubscription) {
+      this.threadMessagesSubscription.unsubscribe();
+    }
+
     const threadRef = collection(
       this.firestore,
       `channels/${channelId}/messages/${messageId}/thread`
     );
-    this.threadMessages$ = collectionData(threadRef, { idField: 'id' });
+
+    onSnapshot(threadRef, (snapshot) => {
+      const messages = snapshot.docs.map((doc) => doc.data());
+
+      if (messages.length !== this.threadMessages.length) {
+        this.threadMessages = messages;
+        const lastReplyDate = this.getLastReplyTime();
+        this.threadInfo.set(messageId, {
+          count: messages.length,
+          lastReplyDate: lastReplyDate,
+        });
+      }
+    });
   }
 
-  getLastReplyTime(thread: { [key: string]: any }): string {
-    const messages = Object.values(thread);
-    const lastMessage = messages[messages.length - 1];
+  getLastReplyTime(): string {
+    if (this.threadMessages.length === 0) {
+      return 'Keine Antworten';
+    }
+
+    const lastMessage = this.threadMessages[this.threadMessages.length - 1];
 
     if (lastMessage && lastMessage.time) {
       const date = new Date(lastMessage.time);

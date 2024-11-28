@@ -29,6 +29,7 @@ import { PrivateChatService } from '../../services/private-chat-service/private-
 export class SearchBarComponent {
   @Input() placeholder: string = 'Devspace durchsuchen';
   @Input() searchIconExists: boolean = true;
+  @Input() inputFont: boolean = false;
   userService = inject(UserService);
   channelService = inject(ChannelService);
   activeButtonService = inject(ActiveChatButtonService);

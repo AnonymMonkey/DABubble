@@ -101,11 +101,11 @@
     />
     <app-own-message-show
       [message]="message"
-      *ngIf="messageService.editMessageId !== message.id"
+      *ngIf="messageService.editMessageId !== message.messageId"
     ></app-own-message-show>
     <app-own-message-edit
       [message]="message"
-      *ngIf="messageService.editMessageId === message.id"
+      *ngIf="messageService.editMessageId === message.messageId"
     ></app-own-message-edit>
   </div>
 
