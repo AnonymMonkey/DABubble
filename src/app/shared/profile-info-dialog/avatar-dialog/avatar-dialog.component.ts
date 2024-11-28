@@ -17,6 +17,14 @@ export class AvatarDialogComponent {
   dialogRef = inject(MatDialogRef<AvatarDialogComponent>);
   isUploading = false;
   storageService = inject(StorageService);
+  avatars: string[] = [
+    'assets/img/profile/elias.webp',
+    'assets/img/profile/elise.webp',
+    'assets/img/profile/frederik.webp',
+    'assets/img/profile/noah.webp',
+    'assets/img/profile/sofia.webp',
+    'assets/img/profile/steffen.webp',
+  ];
 
   selectAvatar(avatar: string) {
     this.photoURL = avatar;

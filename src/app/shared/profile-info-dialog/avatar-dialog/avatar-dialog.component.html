@@ -23,36 +23,13 @@
   <div class="select-avatar-list">
     <p>Aus der Liste wählen</p>
     <div class="avatars">
+      @for (avatar of avatars; track $index) {
       <img
-        src="assets/img/profile/elias.webp"
+        src="{{ avatar }}"
         alt="Avatar Elias"
-        (click)="selectAvatar('assets/img/profile/elias.webp')"
+        (click)="selectAvatar('{{ avatar }}')"
       />
-      <img
-        src="assets/img/profile/elise.webp"
-        alt="Avatar Elise"
-        (click)="selectAvatar('assets/img/profile/elise.webp')"
-      />
-      <img
-        src="assets/img/profile/frederik.webp"
-        alt="Avatar Frederik"
-        (click)="selectAvatar('assets/img/profile/frederik.webp')"
-      />
-      <img
-        src="assets/img/profile/noah.webp"
-        alt="Avatar Noah"
-        (click)="selectAvatar('assets/img/profile/noah.webp')"
-      />
-      <img
-        src="assets/img/profile/sofia.webp"
-        alt="Avatar Sofia"
-        (click)="selectAvatar('assets/img/profile/sofia.webp')"
-      />
-      <img
-        src="assets/img/profile/steffen.webp"
-        alt="Avatar Steffen"
-        (click)="selectAvatar('assets/img/profile/steffen.webp')"
-      />
+      }
     </div>
     <div class="upload-avatar">
       <p>Eigenes Bild verwenden</p>
