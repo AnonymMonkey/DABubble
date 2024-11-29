@@ -28,6 +28,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 30px;
+    color: black !important;
 
     &:hover {
       cursor: pointer;
@@ -94,7 +95,7 @@
         }
       }
 
-      mat-icon {
+      .edit-mobile {
         margin-left: 2%;
         @media screen and (min-width: 640px) {
           display: none !important;
