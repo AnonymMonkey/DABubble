@@ -21,18 +21,34 @@ header {
       gap: var(--gap-16);
       margin-right: 140px;
 
+      @media screen and (max-width: 1200px) {
+        margin-right: 20px;
+      }
+
       img:first-child {
         height: 70px;
+
+        @media screen and (max-width: 640px) {
+          height: 45px;
+        }
       }
 
       img:last-child {
         height: 24px;
+
+        @media screen and (max-width: 640px) {
+          height: 16px;
+        }
       }
     }
 
     app-search-bar {
       flex: 1;
       max-width: 975px;
+
+      @media screen and (max-width: 1024px) {
+        display: none;
+      }
     }
   }
 
@@ -48,6 +64,10 @@ header {
       font-weight: 700;
       cursor: pointer;
       text-wrap: nowrap;
+
+      @media screen and (max-width: 780px) {
+        display: none;
+      }
     }
 
     .image-with-badge {
@@ -59,6 +79,11 @@ header {
         object-fit: cover;
         object-position: top;
         border-radius: 50%;
+
+        @media screen and (max-width: 640px) {
+          height: 45px;
+          width: 45px;
+        }
       }
 
       .badge {
@@ -75,6 +100,10 @@ header {
 
     mat-icon {
       cursor: pointer;
+
+      @media screen and (max-width: 780px) {
+        display: none !important;
+      }
     }
   }
 }

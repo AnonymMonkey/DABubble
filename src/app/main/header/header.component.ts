@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  ViewEncapsulation,
-} from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -13,7 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UserData } from '../../shared/models/user.model';
 import { CommonModule } from '@angular/common';
 import { SearchBarComponent } from '../../shared/components/search-bar/search-bar.component';
-import { debugErrorMap } from 'firebase/auth';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-header',
@@ -24,11 +19,11 @@ import { debugErrorMap } from 'firebase/auth';
     MatInputModule,
     CommonModule,
     SearchBarComponent,
+    MatTooltipModule,
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   encapsulation: ViewEncapsulation.None,
-  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
   @Input() userData!: UserData;
