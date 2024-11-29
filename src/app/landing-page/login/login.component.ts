@@ -30,7 +30,7 @@ import { ErrorService } from '../../shared/services/error-service/error.service'
     ReactiveFormsModule,
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
+  styleUrls: ['./login.component.scss', './login.component_media.scss'],
   encapsulation: ViewEncapsulation.None,
 })
 export class LoginComponent {

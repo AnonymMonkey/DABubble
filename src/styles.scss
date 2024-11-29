@@ -114,6 +114,12 @@ button,
   padding: 12px 25px !important;
 }
 
+.button-primary,
+.button-secondary {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .button-primary {
   background-color: var(--purple1-color) !important;
   transition: var(--transition-100) !important;
@@ -254,6 +260,47 @@ textarea,
 input {
   font-family: var(--font-nunito) !important;
   font-size: 16px;
+}
+
+/* Media Queries */
+/*  */
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (max-width: 1200px) {
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (max-width: 992px) {
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (max-width: 768px) {
+  h1 {
+    font-size: var(--fontsize-32) !important;
+  }
+
+  mat-card {
+    padding: var(--padding-16) !important;
+  }
+}
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+}
+
+/* Very small devices (landscape tablets, 450px and down) */
+@media only screen and (max-width: 450px) {
+  button,
+  .label-btn {
+    padding: 8px 12.5px !important;
+  }
+
+  input {
+    padding: 12px 12px 12px 68px !important;
+  }
+}
+
+/* smallest devices (300px and down) */
+@media only screen and (max-width: 300px) {
 }
 
 /* FONTS */
