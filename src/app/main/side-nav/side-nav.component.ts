@@ -1,10 +1,8 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   Input,
   signal,
-  SimpleChanges,
   ViewEncapsulation,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +22,7 @@ import { UserService } from '../../shared/services/user-service/user.service';
 import { PrivateChatService } from '../../shared/services/private-chat-service/private-chat.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { ActiveChatButtonService } from '../../shared/services/profile-chat-button-service/active-chat-button.service';
+import { SearchBarComponent } from '../../shared/components/search-bar/search-bar.component';
 
 @Component({
   selector: 'app-side-nav',
@@ -38,11 +37,11 @@ import { ActiveChatButtonService } from '../../shared/services/profile-chat-butt
     ClickStopPropagationDirective,
     RouterModule,
     MatBadgeModule,
+    SearchBarComponent,
   ],
   templateUrl: './side-nav.component.html',
   styleUrl: './side-nav.component.scss',
   encapsulation: ViewEncapsulation.None,
-  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SideNavComponent {
   readonly panelOpenState = signal(false);

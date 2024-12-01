@@ -28,7 +28,7 @@ header {
       img:first-child {
         height: 70px;
 
-        @media screen and (max-width: 640px) {
+        @media screen and (max-width: 600px) {
           height: 45px;
         }
       }
@@ -36,7 +36,7 @@ header {
       img:last-child {
         height: 24px;
 
-        @media screen and (max-width: 640px) {
+        @media screen and (max-width: 600px) {
           height: 16px;
         }
       }
@@ -46,7 +46,13 @@ header {
       flex: 1;
       max-width: 975px;
 
-      @media screen and (max-width: 1024px) {
+      @media only screen and (max-width: 1040px) {
+        mat-icon {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 992px) {
         display: none;
       }
     }
@@ -65,7 +71,7 @@ header {
       cursor: pointer;
       text-wrap: nowrap;
 
-      @media screen and (max-width: 780px) {
+      @media screen and (max-width: 768px) {
         display: none;
       }
     }
@@ -80,7 +86,7 @@ header {
         object-position: top;
         border-radius: 50%;
 
-        @media screen and (max-width: 640px) {
+        @media screen and (max-width: 600px) {
           height: 45px;
           width: 45px;
         }
@@ -101,7 +107,7 @@ header {
     mat-icon {
       cursor: pointer;
 
-      @media screen and (max-width: 780px) {
+      @media screen and (max-width: 768px) {
         display: none !important;
       }
     }
