@@ -1,6 +1,8 @@
 :host {
   display: flex;
   flex-grow: 1;
+  height: 100%;
+  margin-left: 20px;
 }
 
 section {
@@ -59,6 +61,7 @@ mat-sidenav-container {
   border-radius: 30px;
   right: auto;
   left: 0px;
+  flex: none;
 }
 
 mat-sidenav {

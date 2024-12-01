@@ -8,19 +8,13 @@
     >
   </button>
 </div>
-<section [ngStyle]="{ gap: drawer.opened ? '20px' : '0px' }">
-  <mat-drawer-container
-    class="example-container"
-    [ngStyle]="{ width: drawer.opened ? '366px' : '0px' }"
-    autosize
-  >
-    <mat-drawer #drawer class="example-sidenav" mode="side" opened="true">
-      <app-side-nav
-        *ngIf="userData"
-        [userData]="userData"
-        [allChannelsData]="allChannelsData"
-      ></app-side-nav>
-    </mat-drawer>
-  </mat-drawer-container>
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer class="example-sidenav" mode="side" opened="true">
+    <app-side-nav
+      *ngIf="userData"
+      [userData]="userData"
+      [allChannelsData]="allChannelsData"
+    ></app-side-nav>
+  </mat-drawer>
   <router-outlet></router-outlet>
-</section>
+</mat-drawer-container>
