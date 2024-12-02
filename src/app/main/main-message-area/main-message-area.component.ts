@@ -5,6 +5,7 @@ import {
   AfterViewInit,
   ElementRef,
   OnInit,
+  inject,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MessageAreaHeaderComponent } from './message-area-header/message-area-header.component';
@@ -18,6 +19,8 @@ import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { MainComponent } from '../main.component';
 import { ThreadComponent } from './thread/thread.component';
 import { UserService } from '../../shared/services/user-service/user.service';
+import { BehaviorService } from '../../shared/services/behavior-service/behavior.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-main-message-area',
@@ -43,6 +46,9 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
   channelData: any;
   channelId!: string | null;
   public currentUserId!: string;
+  behaviorService = inject(BehaviorService);
+  sideNavOpened = true;
+  subscription!: Subscription;
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenav', { read: ElementRef }) sidenavElement!: ElementRef;
@@ -71,6 +77,18 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
         this.closeSidenav();
       }
     });
+
+    this.subscription = this.behaviorService.sideNavOpened$.subscribe(
+      (value) => {
+        this.sideNavOpened = value;
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   ngAfterViewInit() {
@@ -103,7 +121,10 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
     if (this.sidenav) {
       this.sidenav.close();
       this.threadOpened = false;
-      setTimeout(() => this.sidenavElement.nativeElement.classList.add('d-none'), 300);
+      setTimeout(
+        () => this.sidenavElement.nativeElement.classList.add('d-none'),
+        300
+      );
     }
   }
 }

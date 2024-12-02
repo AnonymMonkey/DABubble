@@ -1,7 +1,9 @@
 <app-header *ngIf="userData" [userData]="userData"></app-header>
 
 <div class="sidenav-button-container">
-  <button (click)="drawer.toggle()">
+  <button
+    (click)="drawer.toggle(); sideNavOpened = !sideNavOpened; setNavBehavior()"
+  >
     <p>Workspace-Menü {{ drawer.opened ? "schließen" : "öffnen" }}</p>
     <mat-icon fontSet="material-symbols-outlined"
       >left_panel_{{ drawer.opened ? "close" : "open" }}</mat-icon
@@ -9,7 +11,7 @@
   </button>
 </div>
 <mat-drawer-container class="example-container" autosize>
-  <mat-drawer #drawer class="example-sidenav" mode="side" opened="true">
+  <mat-drawer #drawer class="example-sidenav" [mode]="drawerMode" opened="true">
     <app-side-nav
       *ngIf="userData"
       [userData]="userData"

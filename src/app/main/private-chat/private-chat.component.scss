@@ -17,6 +17,10 @@ app-private-chat-header {
   display: flex;
 }
 
+.padding-left-20 {
+  padding-left: var(--padding-20);
+}
+
 // app-private-chat-history {
 //   display: flex;
 //   flex-grow: 1;

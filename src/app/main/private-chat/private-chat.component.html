@@ -1,10 +1,19 @@
-<section>
+<section
+  [ngClass]="{
+    'padding-left-20': sideNavOpened === true
+  }"
+>
   <mat-card appearance="outlined" class="mat-card-container">
     <mat-card-content>
       <app-private-chat-header></app-private-chat-header>
       <ng-container *ngIf="privateChat$ | async as privateChat">
-        <app-private-chat-placeholder *ngIf="!hasMessages"></app-private-chat-placeholder>
-        <app-private-chat-history *ngIf="hasMessages" [messages]="privateChat.messages"></app-private-chat-history>
+        <app-private-chat-placeholder
+          *ngIf="!hasMessages"
+        ></app-private-chat-placeholder>
+        <app-private-chat-history
+          *ngIf="hasMessages"
+          [messages]="privateChat.messages"
+        ></app-private-chat-history>
       </ng-container>
       <app-message-area-new-message></app-message-area-new-message>
     </mat-card-content>

@@ -1,4 +1,9 @@
-<section [ngClass]="{ 'padding-right-20': threadOpened === true }">
+<section
+  [ngClass]="{
+    'padding-right-20': threadOpened === true,
+    'padding-left-20': sideNavOpened === true
+  }"
+>
   <mat-card appearance="outlined" class="mat-card-container">
     <mat-card-content>
       <app-message-area-header></app-message-area-header>

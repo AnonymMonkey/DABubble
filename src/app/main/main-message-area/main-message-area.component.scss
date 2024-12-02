@@ -2,7 +2,6 @@
   display: flex;
   flex-grow: 1;
   height: 100%;
-  margin-left: 20px;
 }
 
 section {
@@ -14,6 +13,10 @@ section {
 
 .padding-right-20 {
   padding-right: var(--padding-20);
+}
+
+.padding-left-20 {
+  padding-left: var(--padding-20);
 }
 
 app-message-area-header {

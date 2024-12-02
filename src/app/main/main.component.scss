@@ -60,6 +60,10 @@
   background-color: unset;
   z-index: 1;
 
+  ::ng-deep.mat-drawer-backdrop.mat-drawer-shown {
+    visibility: hidden;
+  }
+
   .example-sidenav {
     border-radius: 30px;
     width: 366px;
