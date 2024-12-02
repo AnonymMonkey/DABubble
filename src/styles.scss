@@ -277,10 +277,6 @@ input {
   h1 {
     font-size: var(--fontsize-32) !important;
   }
-
-  mat-card {
-    padding: var(--padding-16) !important;
-  }
 }
 
 /* Extra small devices (phones, 600px and down) */
@@ -295,7 +291,7 @@ input {
   }
 
   input {
-    padding: 12px 12px 12px 68px !important;
+    padding: 12px 20px 12px 52px !important;
   }
 }
 
