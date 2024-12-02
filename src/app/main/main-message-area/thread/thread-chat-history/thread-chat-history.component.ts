@@ -31,12 +31,12 @@ import { MainMessageAreaComponent } from '../../main-message-area.component';
   styleUrls: ['./thread-chat-history.component.scss'],
 })
 export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
-  @Input() currentUserId: any; // Derzeitiger Benutzer
-  public currentMessage: ChannelMessage | null = null; // Aktuelle Nachricht
-  public threadMessages: ThreadMessage[] = []; // Lokale Variable für Thread-Nachrichten
+  @Input() currentUserId: any;
+  public currentMessage: ChannelMessage | null = null;
+  public threadMessages: ThreadMessage[] = []; 
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
-  private unsubscribe$ = new Subject<void>(); // Subject zum Steuern der Zerstörung
+  private unsubscribe$ = new Subject<void>(); 
 
   constructor(
     private threadService: ThreadService,
@@ -44,8 +44,18 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
     private mainMessageArea: MainMessageAreaComponent
   ) {}
 
+  /**
+   * Initialize the component and subscribe to actual message and thread messages changes.
+   */
   ngOnInit(): void {
-    // Abonnement für die aktuelle Nachricht
+    this.subscribeToActualMessage();
+    this.subscribeToThreadMessages();
+  }
+
+  /**
+   * Subscribe to actual message and thread messages changes.
+   */
+  private subscribeToActualMessage(): void {
     this.threadService.actualMessage$
       .pipe(
         takeUntil(this.unsubscribe$),
@@ -53,49 +63,76 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
           (prev, curr) => prev?.messageId === curr?.messageId
         )
       )
-      .subscribe((message) => {
-        if (
-          !this.currentMessage ||
-          this.currentMessage.messageId !== message?.messageId
-        ) {
-          this.currentMessage = message;
-          this.scrollToBottom();
-        }
+      .subscribe((message) => this.handleActualMessage(message));
+  }
 
-        if (message === null || message === undefined) {
-          this.mainMessageArea.closeSidenav(); // Schließt das Sidenav
-        }
-      });
+  /**
+   * Handles the actual message and scrolls to the bottom if necessary.
+   * @param message - The actual message to handle.
+   */
+  private handleActualMessage(message: any): void {
+    if (
+      !this.currentMessage ||
+      this.currentMessage.messageId !== message?.messageId
+    ) {
+      this.currentMessage = message;
+      this.scrollToBottom();
+    }
 
-    // Abonnement für die Thread-Nachrichten
+    if (message === null || message === undefined)
+      this.mainMessageArea.closeSidenav();
+  }
+
+  /**
+   * Subscribe to thread messages changes and handle them.
+   */
+  private subscribeToThreadMessages(): void {
     this.threadService.threadMessages$
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((messages) => {
-        // Vergleiche, ob sich der Inhalt der Nachrichten geändert hat
-        if (JSON.stringify(messages) !== JSON.stringify(this.threadMessages)) {
-          this.threadMessages = messages;
-          this.scrollToBottom();
-          this.cdr.detectChanges(); // Erzwingt die Änderungserkennung
-        }
-      });
-
-    // Thread-Nachrichten abrufen
-    this.threadService.subscribeToThreadMessages();
+      .subscribe((messages) => this.handleThreadMessages(messages));
   }
 
+  /**
+   * Handles the thread messages and scrolls to the bottom if necessary.
+   * @param messages - The thread messages to handle.
+   */
+  private handleThreadMessages(messages: any[]): void {
+    if (JSON.stringify(messages) !== JSON.stringify(this.threadMessages)) {
+      this.threadMessages = messages;
+      this.scrollToBottom();
+      this.cdr.detectChanges(); // Erzwingt die Änderungserkennung
+    }
+  }
+
+  /**
+   * Clean up subscriptions on component destroy.
+   */
   ngOnDestroy(): void {
-    this.unsubscribe$.next(); // Signalisiert die Zerstörung
-    this.unsubscribe$.complete(); // Schließt das Subject
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
+  /**
+   * Checks if the given message is sent by the current user for channel messages.
+   * @param message - The message to check.
+   * @returns True if the message is sent by the current user, false otherwise.
+   */
   isCurrentUser(message: ChannelMessage): boolean {
     return message.userId === this.currentUserId;
   }
 
+  /**
+   * Checks if the given message is sent by the current user for thread messages.
+   * @param message - The message to check.
+   * @returns True if the message is sent by the current user, false otherwise.
+   */
   isCurrentUserThread(message: ThreadMessage): boolean {
     return message.userId === this.currentUserId;
   }
 
+  /**
+   * Scrolls the message container to the bottom.
+   */
   private scrollToBottom(): void {
     if (this.messageContainer) {
       this.messageContainer.nativeElement.scrollTop =

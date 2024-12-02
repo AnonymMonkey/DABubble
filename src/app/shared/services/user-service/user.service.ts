@@ -1,39 +1,16 @@
 import { inject, Injectable } from '@angular/core';
-import {
-  Firestore,
-  collection,
-  collectionData,
-  docData,
-} from '@angular/fire/firestore';
+import { Firestore, collection, docData } from '@angular/fire/firestore';
+import { collectionData } from '@angular/fire/firestore';
 import { User } from 'firebase/auth';
 import { UserData } from '../../models/user.model';
-import {
-  arrayUnion,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  query,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
-  where,
-} from 'firebase/firestore';
-import {
-  get,
-  getDatabase,
-  off,
-  onDisconnect,
-  onValue,
-  ref,
-  set,
-} from 'firebase/database';
-import { AuthService } from '../auth-service/auth.service'; //NOTE - Muss auskommentiert werden
+import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
+import { DataSnapshot, getDatabase, set } from 'firebase/database';
+import { onDisconnect, onValue, ref } from 'firebase/database';
 import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { RoutingService } from '../routing-service/routing.service';
 import { DocumentData } from 'rxfire/firestore/interfaces';
 
 @Injectable({
@@ -46,33 +23,28 @@ export class UserService {
   private tempPassword: string = ''; // Temporäre Speicherung des Passworts
   public userId!: string; // ID des aktuell angemeldeten Nutzers
   private dialog = inject(MatDialog);
-
-  //REVIEW - Hier versuche ich die Daten zentral in diesem service zu speichern,
-  // sodass jede Komponente darauf zugreifen kann.
-
   private allUserDataSubject = new BehaviorSubject<any[]>([]);
   allUserData$ = this.allUserDataSubject.asObservable();
   private userDataSubject = new BehaviorSubject<any>(null); // Zum Speichern der Benutzerdaten
   userData$ = this.userDataSubject.asObservable(); // Observable für andere Komponenten
   public route: ActivatedRoute = inject(ActivatedRoute);
-
   private userDataMap = new Map<string, UserData>(); // Zentrale Map für Benutzerdaten
   private userDataMapSubject = new BehaviorSubject<Map<string, UserData>>(
     this.userDataMap
-  ); // Observable für Updates
-
+  );
   get userDataMap$() {
     return this.userDataMapSubject.asObservable();
   }
-
   allUsersOnlineStatus$: { userId: string; online: boolean }[] = [];
-
-  constructor(private routingService: RoutingService) {
+  constructor() {
     this.loadAllUserData();
     this.loadAllUserDataToMap();
     this.listenToUserDataChanges();
   }
 
+  /**
+   * Loads all user data from Firestore
+   */
   loadAllUserData(): void {
     const userCollection = collection(this.firestore, 'users'); // Referenz zur Collection 'users'
     collectionData(userCollection, { idField: 'id' }).subscribe((data) => {
@@ -80,69 +52,101 @@ export class UserService {
     });
   }
 
+  /**
+   * Loads all user data from Firestore and maps it to the userDataMap
+   */
   loadAllUserDataToMap(): void {
-    const userCollection = collection(this.firestore, 'users');
-
-    collectionData(userCollection, { idField: 'uid' })
-      .pipe(
-        map((docs: DocumentData[]) =>
-          docs.map(
-            (doc) =>
-              new UserData(
-                {
-                  uid: doc['uid'],
-                  email: doc['email'],
-                  displayName: doc['displayName'],
-                  photoURL: doc['photoURL'],
-                  // channels: doc['channels'],
-                } as User,
-                doc['displayName'],
-                doc['channels']
-              )
-          )
-        )
-      )
-      .subscribe((data: UserData[]) => {
-        data.forEach((user) => this.userDataMap.set(user.uid, user));
-        this.userDataMapSubject.next(new Map(this.userDataMap));
-      });
-  }
-
-  loadUserDataByUID(uid: string): void {
-    const userDoc = doc(this.firestore, `users/${uid}`); // Referenz auf das spezifische Dokument
-    docData(userDoc, { idField: 'id' }).subscribe((data) => {
-      this.userDataSubject.next(data); // Setzt die Benutzerdaten
+    this.fetchUsersFromFirestore().subscribe((users: UserData[]) => {
+      this.updateUserDataMap(users); // Update the map with new user data
     });
   }
 
-  listenToUserDataChanges(): void {
-    const userCollection = collection(this.firestore, 'users'); // Referenz zur 'users'-Collection
+  /**
+   * Fetches user data from Firestore and maps it to UserData objects.
+   * @returns {Observable<UserData[]>} An observable emitting an array of UserData.
+   */
+  private fetchUsersFromFirestore(): Observable<UserData[]> {
+    const userCollection = collection(this.firestore, 'users');
+    return collectionData(userCollection, { idField: 'uid' }).pipe(
+      map((docs: DocumentData[]) =>
+        docs.map((doc) => this.mapDocumentToUserData(doc))
+      )
+    );
+  }
 
+  /**
+   * Maps a Firestore document to a UserData object.
+   * @param {DocumentData} doc - The Firestore document.
+   * @returns {UserData} The mapped UserData object.
+   */
+  private mapDocumentToUserData(doc: DocumentData): UserData {
+    return new UserData(
+      {
+        uid: doc['uid'],
+        email: doc['email'],
+        displayName: doc['displayName'],
+        photoURL: doc['photoURL'],
+      } as User,
+      doc['displayName'],
+      doc['channels']
+    );
+  }
+
+  /**
+   * Updates the internal user data map and notifies observers.
+   * @param {UserData[]} users - An array of UserData objects.
+   */
+  private updateUserDataMap(users: UserData[]): void {
+    users.forEach((user) => this.userDataMap.set(user.uid, user));
+    this.userDataMapSubject.next(new Map(this.userDataMap));
+  }
+
+  /**
+   * Loads user data by UID.
+   * @param {string} uid - The UID of the user.
+   */
+  loadUserDataByUID(uid: string): void {
+    const userDoc = doc(this.firestore, `users/${uid}`);
+    docData(userDoc, { idField: 'id' }).subscribe((data) => {
+      this.userDataSubject.next(data);
+    });
+  }
+
+  /**
+   * Listens to changes in user data and updates the userDataMap accordingly.
+   */
+  listenToUserDataChanges(): void {
+    const userCollection = collection(this.firestore, 'users');
     onSnapshot(userCollection, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
-        const userId = change.doc.id; // Die ID des betroffenen Benutzers
-        const userData = change.doc.data() as UserData; // Die aktualisierten Daten
-
+        const userId = change.doc.id;
+        const userData = change.doc.data() as UserData;
         if (change.type === 'added' || change.type === 'modified') {
-          // Nutzer hinzufügen oder aktualisieren
           this.userDataMap.set(userId, userData);
         } else if (change.type === 'removed') {
-          // Nutzer aus der Map entfernen
           this.userDataMap.delete(userId);
         }
-
-        // Die Map nur dann aktualisieren, wenn es Änderungen gibt
         this.userDataMapSubject.next(new Map(this.userDataMap));
       });
     });
   }
 
+  /**
+   * Returns the user data for a given user ID.
+   * @param {string} userId - The ID of the user.
+   * @returns {UserData | null} The user data or null if not found.
+   */
   getUserDataById(
     userId: string
   ): { photoURL: string; displayName: string } | null {
     return this.userDataMapSubject.getValue().get(userId) || null;
   }
 
+  /**
+   * Returns the user data for a given user ID, or a default value if not found.
+   * @param {string} userId - The ID of the user.
+   * @returns {UserData} The user data or a default value if not found.
+   */
   getUserDataOrFallback(userId: string): {
     photoURL: string;
     displayName: string;
@@ -155,29 +159,46 @@ export class UserService {
     );
   }
 
+  /**
+   * Returns an observable that emits an array of user online statuses.
+   * @returns {Observable<{ userId: string; online: boolean }[]>} An observable emitting an array of user online statuses.
+   */
   getAllUsersOnlineStatus(): Observable<{ userId: string; online: boolean }[]> {
-    const onlineUsersRef = ref(this.database, 'status');
     return new Observable<{ userId: string; online: boolean }[]>((observer) => {
-      onValue(
-        onlineUsersRef,
-        (snapshot) => {
-          const usersOnlineStatus: { userId: string; online: boolean }[] = [];
-          snapshot.forEach((childSnapshot) => {
-            usersOnlineStatus.push({
-              userId: childSnapshot.key as string,
-              online: childSnapshot.val().online,
-            });
-          });
-          observer.next(usersOnlineStatus); // Aktueller Status für alle Nutzer zurückgeben
-        },
-        (error) => {
-          observer.error(error); // Fehlerbehandlung
-        }
-      );
+      const onlineUsersRef = ref(this.database, 'status');
+      const handleSnapshot = (snapshot: DataSnapshot) => {
+        const usersOnlineStatus = this.mapSnapshotToOnlineStatus(snapshot);
+        observer.next(usersOnlineStatus);
+      };
+      const handleError = (error: any) => observer.error(error);
+      onValue(onlineUsersRef, handleSnapshot, handleError);
     });
   }
 
-  //NOTE - Hier habe ich die vorherige Funktion in eine Observable umgeformt
+  /**
+   * Maps a Firebase snapshot to an array of user online statuses.
+   * @param {DataSnapshot} snapshot - The snapshot from Firebase.
+   * @returns {Array<{ userId: string; online: boolean }>} The mapped user statuses.
+   */
+  private mapSnapshotToOnlineStatus(snapshot: DataSnapshot): {
+    userId: string;
+    online: boolean;
+  }[] {
+    const usersOnlineStatus: { userId: string; online: boolean }[] = [];
+    snapshot.forEach((childSnapshot) => {
+      usersOnlineStatus.push({
+        userId: childSnapshot.key as string,
+        online: childSnapshot.val().online,
+      });
+    });
+    return usersOnlineStatus;
+  }
+
+  /**
+   * Returns an observable that emits the user data for a given user ID.
+   * @param {string} userId - The ID of the user.
+   * @returns {Observable<UserData>} An observable emitting the user data.
+   */
   getUserDataByUID(userId: string): Observable<UserData> {
     const userDocRef = doc(this.firestore, `users/${userId}`);
     return docData(userDocRef).pipe(
@@ -187,37 +208,45 @@ export class UserService {
         }
         return docSnapshot as UserData;
       }),
-      catchError((error) => {
-        console.error('Fehler beim Abrufen der Benutzerdaten:', error);
+      catchError(() => {
         return of({} as UserData); // Rückgabe eines leeren Objekts als Standardwert
       })
     );
   }
 
-  // Temporäre Registrierungsdaten speichern
-  // Diese Funktion wird verwendet, um während des Registrierungsprozesses Daten temporär zu speichern
+  /**
+   * Sets temporary registration data.
+   */
   setTempRegistrationData(data: Partial<UserData>) {
     this.tempUserData = { ...this.tempUserData, ...data };
   }
 
-  // Temporäres Passwort speichern
-  // Das Passwort wird separat gespeichert, da es nicht in Firestore abgelegt wird
+  /**
+   * Sets the temporary password.
+   */
   setTempPassword(password: string) {
     this.tempPassword = password;
   }
 
-  // Temporäre Registrierungsdaten abrufen
+  /**
+   * Returns the temporary registration data.
+   * @returns {Partial<UserData>}
+   */
   getTempRegistrationData(): Partial<UserData> {
     return this.tempUserData;
   }
 
-  // Temporäres Passwort abrufen
+  /**
+   * Returns the temporary password.
+   * @returns {string}
+   */
   getTempPassword(): string {
     return this.tempPassword;
   }
 
-  // Speichert oder aktualisiert die Benutzerdaten in Firestore
-  // Beinhaltet optional das Profilbild (photoURL)
+  /**
+   * A function to save user data to Firestore.
+   */
   async saveUserData(
     user: User,
     displayName?: string,
@@ -225,65 +254,55 @@ export class UserService {
   ): Promise<void> {
     const userRef = doc(this.firestore, `users/${user.uid}`);
     const userSnapshot = await getDoc(userRef);
-
-    // Typisiere `existingData` als teilweise `UserData`
     let existingData: Partial<UserData> = {};
     if (userSnapshot.exists()) {
       existingData = userSnapshot.data() as Partial<UserData>;
     }
-
     const userData = new UserData(user, displayName);
     userData.lastLogin = serverTimestamp();
     userData.photoURL = photoURL || userData.photoURL;
     userData.displayName = userData.formatDisplayName();
-
-    // Überprüfe, ob Channels und privateChats bereits existieren und übernehme sie, falls vorhanden
     userData.channels = existingData.channels || userData.channels;
     userData.privateChat = existingData.privateChat || userData.privateChat;
-
     return setDoc(userRef, { ...userData }, { merge: true });
   }
 
-  // Speichert den Avatar (Profilbild) eines Benutzers in Firestore
+  /**
+   * A function to save an avatar URL to Firestore.
+   * @param {string} userId - The ID of the user.
+   * @param {string} avatarUrl - The URL of the avatar image.
+   */
   async saveAvatar(userId: string, avatarUrl: string): Promise<void> {
-    if (!avatarUrl) {
-      console.error('Kein Avatar-URL bereitgestellt!');
-      return;
-    }
-
+    if (!avatarUrl) return;
     try {
       await setDoc(
         doc(this.firestore, `users/${userId}`),
         { photoURL: avatarUrl },
         { merge: true } // Verhindert, dass andere Daten überschrieben werden
       );
-      console.log('Avatar-URL erfolgreich gespeichert:', avatarUrl);
     } catch (error) {
       console.error('Fehler beim Speichern des Avatars:', error);
       throw error;
     }
   }
 
-  // Setzt den Online-Status des Benutzers in der Realtime Database
+  /**
+   * A function to set the online status of a user in the database.
+   * @param {string} userId - The ID of the user.
+   * @param {boolean} isOnline - The online status of the user.
+   * @param {boolean} onReload - Whether to set the online status on reload.
+   */
   async setOnlineStatus(
     userId: string,
     isOnline: boolean,
     onReload: boolean = false
   ): Promise<void> {
     const userStatusRef = ref(this.database, `status/${userId}`);
-
-    // Wenn die Methode aufgrund eines Reloads aufgerufen wird, setzen wir den Online-Status auf true
-    if (onReload) {
-      isOnline = true;
-    }
-
-    // Setzt den Online-Status und den Zeitpunkt der letzten Online-Aktivität
+    if (onReload) isOnline = true;
     await set(userStatusRef, {
       online: isOnline,
       lastOnline: isOnline ? null : new Date().toISOString(),
     });
-
-    // Falls die Verbindung unterbrochen wird, wird der Nutzer als offline markiert
     if (isOnline) {
       onDisconnect(userStatusRef).set({
         online: false,
@@ -292,7 +311,9 @@ export class UserService {
     }
   }
 
-  //NOTE - Hier wird die UID des aktuell angemeldeten Nutzers in der variable userId gespeichert.
+  /**
+   * Initializes the user ID based on the route parameters.
+   */
   initializeUserId(): void {
     this.route.paramMap.subscribe((params) => {
       const uid = params.get('uid');
@@ -304,6 +325,11 @@ export class UserService {
     });
   }
 
+  /**
+   * Checks the online status of a user.
+   * @param {string} userId - The ID of the user.
+   * @returns {boolean} - True if the user is online, false otherwise.
+   */
   checkUserOnlineStatus(userId: string): boolean {
     const userStatus = this.allUsersOnlineStatus$.find(
       (status) => status.userId === userId
@@ -311,6 +337,11 @@ export class UserService {
     return userStatus ? userStatus.online : false;
   }
 
+  /**
+   * Returns the email address of a user based on their UID.
+   * @param {string} uid - The UID of the user.
+   * @returns {string} - The email address of the user.
+   */
   getUserEmail(uid: string): string {
     const user = this.allUserDataSubject
       .getValue()
@@ -318,6 +349,11 @@ export class UserService {
     return user ? user.email : '';
   }
 
+  /**
+   * Returns the photo URL of a user based on their UID.
+   * @param {string} uid - The UID of the user.
+   * @returns {string} - The photo URL of the user.
+   */
   getPhotoURL(uid: string): string {
     const user = this.allUserDataSubject
       .getValue()
@@ -325,6 +361,11 @@ export class UserService {
     return user ? user.photoURL : '';
   }
 
+  /**
+   * Returns the display name of a user based on their UID.
+   * @param {string} uid - The UID of the user.
+   * @returns {string} - The display name of the user.
+   */
   getDisplayName(uid: string): string {
     const user = this.allUserDataSubject
       .getValue()
@@ -332,6 +373,11 @@ export class UserService {
     return user ? user.displayName : '';
   }
 
+  /**
+   * Updates the display name of a user in Firestore.
+   * @param {string} uid - The UID of the user.
+   * @param {string} newName - The new display name for the user.
+   */
   saveNewProfileName(uid: string, newName: string) {
     const updatedData: any = {};
     updatedData.displayName = newName;
@@ -342,6 +388,10 @@ export class UserService {
     );
   }
 
+  /**
+   * Opens the profile info dialog for a specific user.
+   * @param {string} userId - The UID of the user.
+   */
   openProfileInfo(userId: any): void {
     this.getUserDataByUID(userId).subscribe(
       (userData) => {
@@ -360,6 +410,11 @@ export class UserService {
     );
   }
 
+  /**
+   * Adds a new channel to a user's channels in Firestore.
+   * @param {string} userId - The UID of the user.
+   * @param {string} channelId - The ID of the channel.
+   */
   addNewChannelToUser(userId: string, channelId: string): void {
     const userDocRef = doc(this.firestore, `users/${userId}`);
     updateDoc(userDocRef, { channels: arrayUnion(channelId) }); // Hinzufügen des Kanales zum Benutzer

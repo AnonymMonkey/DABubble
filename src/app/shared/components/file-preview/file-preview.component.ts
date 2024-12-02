@@ -15,6 +15,10 @@ export class FilePreviewComponent {
 
   constructor(public sanitizer: DomSanitizer) {}
 
+  /**
+   * Get the file type based on the file extension.
+   * @returns The file type.
+   */
   get fileType(): string {
     const url = this.attachmentUrl;
     const filename = decodeURIComponent(
@@ -32,10 +36,19 @@ export class FilePreviewComponent {
     return 'unknown';
   }
 
+  /**
+   * Emit the click event.
+   * @param event - The click event.
+   */
   onClick(event: Event): void {
     this.click.emit(event);
   }
 
+  /**
+   * Get the file type based on the file extension.
+   * @param url - The URL of the attachment.
+   * @returns The file type.
+   */
   public getFileType(url: string): string {
     const filename = decodeURIComponent(
       url.split('/').pop()?.split('?')[0] || ''

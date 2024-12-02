@@ -27,6 +27,7 @@ app-private-chat-placeholder {
   flex-grow: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  max-width: 100%;
 }
 
 app-message-area-new-message {

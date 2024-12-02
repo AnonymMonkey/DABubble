@@ -57,18 +57,22 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
     public userService: UserService
   ) {}
 
+  /**
+   * Initializes the component by loading thread messages and user data.
+   */
   ngOnInit(): void {
-    if (this.channelService.channelId && this.message?.messageId) {
+    if (this.channelService.channelId && this.message?.messageId)
       this.loadThreadMessages(
         this.channelService.channelId,
         this.message.messageId
       );
-    }
-    if (this.message) {
-      this.loadUserData(this.message.userId);
-    }
+    if (this.message) this.loadUserData(this.message.userId);
   }
 
+  /**
+   * Loads user data for the given user ID.
+   * @param userId - The ID of the user to load data for.
+   */
   loadUserData(userId: string): void {
     this.userDataSubscription = this.userService.userDataMap$.subscribe(
       (userDataMap) => {
@@ -84,7 +88,11 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Methode zum Abrufen der Thread-Nachrichten aus der Firestore-Unterkollektion
+  /**
+   * Loads thread messages for the given channel ID and message ID.
+   * @param channelId - The ID of the channel to load thread messages for.
+   * @param messageId - The ID of the message to load thread messages for.
+   */
   loadThreadMessages(channelId: string, messageId: string): void {
     const threadRef = collection(
       this.firestore,
@@ -93,46 +101,63 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
     this.threadMessages$ = collectionData(threadRef, { idField: 'id' });
   }
 
+  /**
+   * Shows the emoji container for the given message ID.
+   * @param id - The ID of the message to show the emoji container for.
+   */
   showEmojiContainer(id: number): void {
     this.isEmojiContainerVisible = id;
   }
 
+  /**
+   * Hides the emoji container.
+   */
   hideEmojiContainer(): void {
     if (!this.isMenuOpen) {
       this.isEmojiContainerVisible = 0;
     }
   }
 
+  /**
+   * Opens the menu.
+   */
   menuOpened(): void {
     this.isMenuOpen = true;
   }
 
+  /**
+   * Closes the menu.
+   */
   menuClosed(): void {
     this.isMenuOpen = false;
     this.isEmojiContainerVisible = 0; // Optional, um den Hover zurückzusetzen
   }
 
+  /**
+   * Returns the last reply time for the given thread object.
+   * @param thread - The thread object to get the last reply time from.
+   * @returns The last reply time as a string.
+   */
   getLastReplyTime(thread: { [key: string]: any }): string {
-    // Extrahiere die Nachrichten aus dem Objekt (Werte des Objekts)
     const messages = Object.values(thread);
-
-    // Nimm die letzte Nachricht aus dem Array der Nachrichten
     const lastMessage = messages[messages.length - 1];
-
     if (lastMessage && lastMessage.time) {
-      // Formatiere die Zeit (Hier anpassen, falls nötig)
       const date = new Date(lastMessage.time);
       const options: Intl.DateTimeFormatOptions = {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false, // Für 24-Stunden-Format, ändern auf true für 12-Stunden-Format
+        hour12: false,
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
-
-    return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
+    return 'Keine Antworten';
   }
 
+  /**
+   * Adds a reaction to a message.
+   * @param messageId - The ID of the message to add a reaction to.
+   * @param emoji - The emoji to add as a reaction.
+   */
   addReaction(messageId: string, emoji: any): void {
     let path =
       'channels/' + this.channelService.channelId + '/messages/' + messageId;
@@ -140,6 +165,10 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
     this.messageService.addOrChangeReactionChannelOrThread(emoji, path);
   }
 
+  /**
+   * Toggles the border radius based on the menu type.
+   * @param menuType - The type of the menu to toggle the border radius for.
+   */
   toggleBorder(menuType: string) {
     switch (menuType) {
       case 'emoji':
@@ -154,6 +183,9 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Unsubscribes from the user data subscription.
+   */
   ngOnDestroy(): void {
     if (this.userDataSubscription) {
       this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks

@@ -11,29 +11,35 @@ import { Subscription } from 'rxjs';
   templateUrl: './thread-header.component.html',
   styleUrl: './thread-header.component.scss',
 })
-export class ThreadHeaderComponent implements OnInit{
+export class ThreadHeaderComponent implements OnInit {
   public channelService = inject(ChannelService);
   public channelName: string = '';
   private channelSubscription: Subscription = new Subscription();
 
   constructor(public mainMessageArea: MainMessageAreaComponent) {}
 
+  /**
+   * Initialize the component and load the current channel name.
+   */
   ngOnInit(): void {
     this.getCurrentChannelName();
   }
 
+  /**
+   * Get the name of the current channel.
+   */
   getCurrentChannelName(): void {
     this.channelSubscription = this.channelService.channelData$.subscribe(
       (channel) => {
-        if (channel) {
-          this.channelName = channel.channelName;
-        } else {
-          this.channelName = 'Channel nicht gefunden';
-        }
+        if (channel) this.channelName = channel.channelName;
+        else this.channelName = 'Channel nicht gefunden';
       }
     );
   }
 
+  /** 
+   * Clean up subscriptions on component destroy.
+   */
   ngOnDestroy(): void {
     this.channelSubscription.unsubscribe();
   }
