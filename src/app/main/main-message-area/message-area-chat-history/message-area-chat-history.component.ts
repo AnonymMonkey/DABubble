@@ -12,7 +12,7 @@ import {
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgFor } from '@angular/common';
 import { ChannelService } from '../../../shared/services/channel-service/channel.service';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { Channel } from '../../../shared/models/channel.model';

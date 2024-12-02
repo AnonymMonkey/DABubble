@@ -88,7 +88,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   @ViewChild('attachmentSidenav', { read: ElementRef })
   attachmentSidenavElement!: ElementRef;
 
-  @ViewChild('uploadMethodMenu') uploadMethodMenuTrigger!: MatMenuTrigger;
+  @ViewChild('uploadMethodMenuTrigger', { static: false, read: MatMenuTrigger }) uploadMethodMenuTrigger!: MatMenuTrigger;
 
   @ViewChild('mentionMenuTrigger', { static: false, read: MatMenuTrigger })
   mentionMenuTrigger!: MatMenuTrigger;
@@ -331,7 +331,9 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   }
 
   closeUploadMethodMenu() {
-    this.uploadMethodMenuTrigger.closeMenu();
+    if(this.uploadMethodMenuTrigger) {
+      this.uploadMethodMenuTrigger.closeMenu();
+    }
   }
   addDownloadLink(url: string) {
     this.attachmentUrls = [...this.attachmentUrls, url];

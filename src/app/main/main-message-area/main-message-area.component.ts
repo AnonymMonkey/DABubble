@@ -24,7 +24,6 @@ import { UserService } from '../../shared/services/user-service/user.service';
   standalone: true,
   imports: [
     MatCardModule,
-    NgIf,
     NgClass,
     MessageAreaHeaderComponent,
     MessageAreaChatHistoryComponent,
@@ -38,7 +37,6 @@ import { UserService } from '../../shared/services/user-service/user.service';
 export class MainMessageAreaComponent implements AfterViewInit, OnInit {
   events: string[] = [];
   opened: boolean = false;
-  shouldRun = true;
   threadOpened: boolean = false;
   channelData: any;
   channelId!: string | null;

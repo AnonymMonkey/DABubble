@@ -49,6 +49,9 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
   private channelService = inject(ChannelService);
   private threadService = inject(ThreadService);
 
+  /**
+   * Initialize the component and subscribe to message updates.
+   */
   ngOnInit() {
     if (this.message) {
       this.editedMessageContent = this.message.content;
@@ -61,12 +64,17 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Clean up subscriptions on component destroy.
+   */
   ngOnDestroy() {
-    if (this.messageSubscription) {
-      this.messageSubscription.unsubscribe();
-    }
+    if (this.messageSubscription) this.messageSubscription.unsubscribe();
   }
 
+  /**
+   * Subscribe to message updates for the given message ID.
+   * @param messageId - The ID of the message to subscribe to.
+   */
   subscribeToMessageUpdates(messageId: string) {
     this.messageSubscription = this.messageService
       .getMessageUpdates(messageId)
@@ -78,65 +86,144 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
       });
   }
 
-  async changeMessage() {
-    this.isSaving = true; // Ladeindikator aktivieren
-    this.temporaryMessageContent.emit(this.editedMessageContent);
+  // async changeMessage() {
+  //   this.isSaving = true;
+  //   this.temporaryMessageContent.emit(this.editedMessageContent);
+  //   if (this.editedMessageContent === this.message.content) {
+  //     this.clearInput(false);
+  //     return;
+  //   }
+  //   const originalContent = this.message.content;
+  //   this.message.content = this.editedMessageContent;
+  //   this.clearInput(false);
+  //   try {
+  //     const channelPath =
+  //       'channels/' +
+  //       this.channelService.channelId +
+  //       '/messages/' +
+  //       this.message.messageId;
+  //     const threadPath =
+  //       'channels/' +
+  //       this.channelService.channelId +
+  //       '/messages/' +
+  //       this.threadService.actualMessageSubject.value?.messageId +
+  //       '/thread/' +
+  //       this.message.messageId;
+  //     if (!this.editedMessageContent.trim() && !this.hasAttachments()) {
+  //       if (
+  //         this.message.messageId.startsWith('thread_') &&
+  //         this.threadService.actualMessageSubject.value?.messageId
+  //       )
+  //         await this.messageService.deleteMessageInThreadOrChannel(threadPath);
+  //       else if (this.message.messageId.startsWith('msg_'))
+  //         await this.messageService.deleteMessageInThreadOrChannel(channelPath);
+  //     } else {
+  //       if (
+  //         this.message.messageId.startsWith('thread_') &&
+  //         this.threadService.actualMessageSubject.value?.messageId
+  //       )
+  //         this.messageService.updateMessageThreadOrChannel(
+  //           threadPath,
+  //           this.editedMessageContent
+  //         );
+  //       else if (this.message.messageId.startsWith('msg_'))
+  //         await this.messageService.updateMessageThreadOrChannel(
+  //           channelPath,
+  //           this.editedMessageContent
+  //         );
+  //     }
+  //   } catch (error) {
+  //     this.message.content = originalContent; // Ursprünglichen Inhalt zurücksetzen
+  //     console.error('Fehler beim Ändern der Nachricht:', error);
+  //   } finally {
+  //     this.isSaving = false;
+  //     this.temporaryMessageContent.emit('');
+  //   }
+  // }
 
-    if (this.editedMessageContent === this.message.content) {
-      this.clearInput(false); // Bearbeitungsmodus verlassen, aber Inhalt behalten
-      return;
-    }
+  /**
+   * Edits or deletes a message based on the edited content.
+   */
+  async changeMessage(): Promise<void> {
+    this.isSaving = true;
+    this.temporaryMessageContent.emit(this.editedMessageContent);
+    if (this.editedMessageContent === this.message.content)
+      return this.clearInput(false);
 
     const originalContent = this.message.content;
     this.message.content = this.editedMessageContent;
-    this.clearInput(false); // Bearbeitungsmodus verlassen
+    this.clearInput(false);
+
+    const { channelPath, threadPath } = this.buildPaths();
+    const path = this.isThreadMessage() ? threadPath : channelPath;
+
+    await this.handleMessageUpdateOrDelete(
+      path,
+      this.editedMessageContent,
+      originalContent
+    );
+
+    this.isSaving = false;
+    this.temporaryMessageContent.emit('');
+  }
+
+  /**
+   * Handles message update or deletion, including error handling.
+   * @param {string} path - The path for the message update or delete.
+   * @param {string} content - The updated content of the message.
+   * @param {string} originalContent - The original content to restore in case of an error.
+   */
+  private async handleMessageUpdateOrDelete(
+    path: string,
+    content: string,
+    originalContent: string
+  ): Promise<void> {
     try {
-      const channelPath =
-        'channels/' +
-        this.channelService.channelId +
-        '/messages/' +
-        this.message.messageId;
-      const threadPath =
-        'channels/' +
-        this.channelService.channelId +
-        '/messages/' +
-        this.threadService.actualMessageSubject.value?.messageId +
-        '/thread/' +
-        this.message.messageId;
-      if (!this.editedMessageContent.trim() && !this.hasAttachments()) {
-        if (
-          this.message.messageId.startsWith('thread_') &&
-          this.threadService.actualMessageSubject.value?.messageId
-        ) {
-          await this.messageService.deleteMessageInThreadOrChannel(threadPath);
-        } else if (this.message.messageId.startsWith('msg_')) {
-          await this.messageService.deleteMessageInThreadOrChannel(channelPath);
-        }
-      } else {
-        if (
-          this.message.messageId.startsWith('thread_') &&
-          this.threadService.actualMessageSubject.value?.messageId
-        ) {
-          this.messageService.updateMessageThreadOrChannel(
-            threadPath,
-            this.editedMessageContent
-          );
-        } else if (this.message.messageId.startsWith('msg_')) {
-          await this.messageService.updateMessageThreadOrChannel(
-            channelPath,
-            this.editedMessageContent
-          );
-        }
-      }
+      if (!content.trim())
+        await this.messageService.deleteMessageInThreadOrChannel(path);
+      else
+        await this.messageService.updateMessageThreadOrChannel(path, content);
     } catch (error) {
-      this.message.content = originalContent; // Ursprünglichen Inhalt zurücksetzen
-      console.error('Fehler beim Ändern der Nachricht:', error);
-    } finally {
-      this.isSaving = false;
-      this.temporaryMessageContent.emit('');
+      this.restoreOriginalContent(originalContent, error);
+      console.error('Error updating or deleting message:', error);
     }
   }
 
+  /**
+   * Restores the original content of the message in case of an error.
+   * @param {string} originalContent - The original content of the message.
+   * @param {any} error - The error that occurred during the update.
+   */
+  private restoreOriginalContent(originalContent: string, error: any): void {
+    this.message.content = originalContent; // Ursprünglichen Inhalt zurücksetzen
+    console.error('Error occurred:', error);
+  }
+
+  /**
+   * Builds paths for updating or deleting a message, depending on whether it's in a thread or a channel.
+   * @returns {Object} - Returns an object containing `channelPath` and `threadPath`.
+   */
+  private buildPaths(): { channelPath: string; threadPath: string } {
+    const channelPath = `channels/${this.channelService.channelId}/messages/${this.message.messageId}`;
+    const threadPath = `channels/${this.channelService.channelId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${this.message.messageId}`;
+    return { channelPath, threadPath };
+  }
+
+  /**
+   * Checks whether the message is part of a thread.
+   * @returns {boolean} - True if the message is in a thread, false otherwise.
+   */
+  private isThreadMessage(): boolean {
+    return (
+      this.message.messageId.startsWith('thread_') &&
+      this.threadService.actualMessageSubject.value?.messageId
+    );
+  }
+
+  /**
+   * Returns the path to the message in the database.
+   * @returns The path to the message.
+   */
   getMessagePath(): string {
     const basePath = `channels/${this.channelService.channelId}/messages`;
     if (this.message.messageId.startsWith('thread_')) {
@@ -146,20 +233,30 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
     return `${basePath}/${this.message.messageId}`;
   }
 
+  /**
+   * Checks if the message has attachments.
+   * @returns True if the message has attachments, false otherwise.
+   */
   hasAttachments(): boolean {
     return !!this.message.attachmentUrls?.length;
   }
 
-  // Funktion, um zu prüfen, ob der Text URLs enthält
+  /**
+   * Checks if the given text contains URLs.
+   * @param text - The text to check.
+   * @returns True if the text contains URLs, false otherwise.
+   */
   containsUrls(text: string): boolean {
     const urlPattern = /https?:\/\/[^\s]+/g;
     return urlPattern.test(text);
   }
 
-  // Löscht die Nachricht, wenn sie keinen Inhalt und keine URLs mehr hat
-  async deleteMessage() {}
-
-  // Löscht die Nachricht aus einem Benutzerdokument
+  /**
+   * Deletes the message from the user's document in Firestore.
+   * @param userId - The ID of the user.
+   * @param privateChatId - The ID of the private chat.
+   * @param messageId - The ID of the message to delete.
+   */
   async deleteMessageFromUserDocs(
     userId: string,
     privateChatId: string,
@@ -178,6 +275,12 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Updates the message in the user's document in Firestore.
+   * @param userId - The ID of the user.
+   * @param privateChatId - The ID of the private chat.
+   * @param messageId - The ID of the message to update.
+   */
   async updateMessageInUserDocs(
     userId: string,
     privateChatId: string,
@@ -197,19 +300,28 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Ändere clearInput so, dass es optional den Inhalt löscht
+  /**
+   * Clears the input and optionally clears the content of the message.
+   * @param clearContent - Whether to clear the content of the message.
+   */
   clearInput(clearContent: boolean = true) {
-    this.messageService.setEditMessageId(null); // Verlässt den Bearbeitungsmodus
-    if (clearContent) {
-      this.editedMessageContent = ''; // Nur leeren, wenn clearContent true ist
-    }
+    this.messageService.setEditMessageId(null);
+    if (clearContent) this.editedMessageContent = '';
   }
 
+  /**
+   * Adds an emoji to the message content.
+   * @param event - The event object containing the selected emoji.
+   */
   addEmoji(event: any) {
     const emoji = event.emoji.native || event.emoji;
     this.editedMessageContent += emoji;
   }
 
+  /**
+   * Toggles the border radius based on the menu type.
+   * @param menuType - The type of menu.
+   */
   toggleBorder(menuType: string) {
     switch (menuType) {
       case 'emoji':

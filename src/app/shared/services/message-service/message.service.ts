@@ -26,23 +26,34 @@ export class MessageService {
   );
   messages$ = this.messagesSubject.asObservable();
   public editMessageId: string | null = null;
-
   private userService = inject(UserService);
   private actualMessageSubject = new BehaviorSubject<ChannelMessage | null>(
     null
   );
   actualMessage$ = this.actualMessageSubject.asObservable();
-
   private messagesDataMap = new Map<string, Map<string, ChannelMessage>>(); // Map für Nachrichten pro Channel
   private messagesDataMapSubject = new BehaviorSubject<
     Map<string, Map<string, ChannelMessage>>
   >(this.messagesDataMap);
 
+  /**
+   * Getter for the messagesDataMap$ Observable
+   * @returns The observable of the messagesDataMap
+   */
   get messagesDataMap$() {
     return this.messagesDataMapSubject.asObservable();
   }
 
-  areMapsEqual(map1: Map<string, ChannelMessage>, map2: Map<string, ChannelMessage>): boolean {
+  /**
+   * Checks if two maps have the same keys and values
+   * @param map1 The first map
+   * @param map2 The second map
+   * @returns True if the maps have the same keys and values
+   */
+  areMapsEqual(
+    map1: Map<string, ChannelMessage>,
+    map2: Map<string, ChannelMessage>
+  ): boolean {
     if (map1.size !== map2.size) return false;
     for (let [key, value] of map1) {
       const otherValue = map2.get(key);
@@ -53,56 +64,70 @@ export class MessageService {
     return true;
   }
 
+  /**
+   * Loads messages for a specific channel.
+   * @param channelId The ID of the channel to load messages for.
+   */
   loadMessagesForChannel(channelId: string): void {
-    const messagesCollection = collection(this.firestore, `channels/${channelId}/messages`);
-  
-    collectionData(messagesCollection, { idField: 'messageId' }).subscribe((messages) => {
-      const messageMap = new Map<string, ChannelMessage>();
-  
-      messages.forEach((messageData) => {
-        const message = new ChannelMessage(
-          messageData['content'],
-          messageData['userId'],
-          messageData['messageId'],
-          messageData['time'],
-          messageData['attachmentUrls'] || []
-        );
-  
-        // Reaktionen hinzufügen
-        message.reactions = (messageData['reactions'] || []).map((reaction: any) => ({
-          emoji: reaction.emoji,
-          count: reaction.count,
-          userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],
-        }));
-  
-        // Threads laden
-        const threadData = messageData['thread'] || {};
-        message.thread = Object.fromEntries(
-          Object.entries(threadData).map(([threadId, threadMessageData]: [string, any]) => [
-            threadId,
-            new ThreadMessage(
-              threadMessageData.content,
-              threadMessageData.userId,
-              threadId,
-              threadMessageData.reactions || [],
-              threadMessageData.time,
-              threadMessageData.attachmentUrls || []
-            ),
-          ])
-        );
-  
-        messageMap.set(message.messageId, message);
-      });
-  
-      // Vergleiche alte und neue Map, bevor du das Subject aktualisierst
-      if (!this.areMapsEqual(this.messagesDataMap.get(channelId) || new Map(), messageMap)) {
-        // Wenn sich die Nachrichten geändert haben, aktualisiere die Map
-        this.messagesDataMap.set(channelId, messageMap);
-        this.messagesDataMapSubject.next(new Map(this.messagesDataMap));
+    const messagesCollection = collection(
+      this.firestore,
+      `channels/${channelId}/messages`
+    );
+    collectionData(messagesCollection, { idField: 'messageId' }).subscribe(
+      (messages) => {
+        const messageMap = new Map<string, ChannelMessage>();
+        messages.forEach((messageData) => {
+          const message = new ChannelMessage(
+            messageData['content'],
+            messageData['userId'],
+            messageData['messageId'],
+            messageData['time'],
+            messageData['attachmentUrls'] || []
+          );
+          message.reactions = (messageData['reactions'] || []).map(
+            (reaction: any) => ({
+              emoji: reaction.emoji,
+              count: reaction.count,
+              userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],
+            })
+          );
+          const threadData = messageData['thread'] || {};
+          message.thread = Object.fromEntries(
+            Object.entries(threadData).map(
+              ([threadId, threadMessageData]: [string, any]) => [
+                threadId,
+                new ThreadMessage(
+                  threadMessageData.content,
+                  threadMessageData.userId,
+                  threadId,
+                  threadMessageData.reactions || [],
+                  threadMessageData.time,
+                  threadMessageData.attachmentUrls || []
+                ),
+              ]
+            )
+          );
+          messageMap.set(message.messageId, message);
+        });
+        if (
+          !this.areMapsEqual(
+            this.messagesDataMap.get(channelId) || new Map(),
+            messageMap
+          )
+        ) {
+          this.messagesDataMap.set(channelId, messageMap);
+          this.messagesDataMapSubject.next(new Map(this.messagesDataMap));
+        }
       }
-    });
+    );
   }
 
+  /**
+   * Retrieves the threads for a specific message in a channel.
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   * @returns An object mapping thread IDs to ThreadMessage objects.
+   */
   getThreadsForMessage(
     channelId: string,
     messageId: string
@@ -112,11 +137,22 @@ export class MessageService {
     return message?.thread;
   }
 
+  /**
+   * Retrieves updates for a specific message.
+   * @param messageId The ID of the message.
+   * @returns An observable of the message data.
+   */
   getMessageUpdates(messageId: string): Observable<any> {
     const messageDocRef = doc(this.firestore, `messages/${messageId}`);
     return docData(messageDocRef, { idField: 'messageId' });
   }
 
+  /**
+   * Updates the content of a message in a private chat.
+   * @param privateChatId The ID of the private chat.
+   * @param messageId The ID of the message to update.
+   * @param newContent The new content of the message.
+   */
   async updateMessageContentPrivateChat(
     privateChatId: string,
     messageId: string,
@@ -165,97 +201,169 @@ export class MessageService {
     }
   }
 
+  /**
+   * Sets the ID of the message to be edited.
+   */
   setEditMessageId(messageId: string | null) {
     this.editMessageId = messageId;
   }
 
+  /**
+   * Sets the actual message to be displayed.
+   * @param message The message to be displayed.
+   */
   setActualMessage(message: ChannelMessage): void {
     if (message !== this.actualMessageSubject.value) {
       this.actualMessageSubject.next(message);
     }
   }
 
-  async addOrChangeReactionChannelOrThread(
-    emoji: any,
-    path: string
-  ): Promise<void> {
+  /**
+   * Adds or changes a reaction to a message in a channel or thread.
+   * @param {any} emoji - The emoji used as a reaction.
+   * @param {string} path - The Firestore path to the message.
+   * @returns {Promise<void>} A promise that resolves when the reaction is added or changed.
+   */
+  async addOrChangeReactionChannelOrThread(emoji: any, path: string): Promise<void> {
     const messageRef = doc(this.firestore, path);
     const currentMessage = this.actualMessageSubject.value;
+    this.initializeReactions(currentMessage);
+    const currentUser = await this.getCurrentUser();
+    if (!currentUser) return;
+    const updatedReactions = this.updateReactions(
+      currentMessage, emoji, currentUser
+    );
+    if (!updatedReactions) return;
+    await this.updateMessageReactions(messageRef, updatedReactions);
+    this.actualMessageSubject.next(currentMessage);
+  }
 
-    if (!currentMessage) {
-      console.error('Aktuelle Nachricht nicht gefunden.');
-      return;
-    }
-
+  /**
+   * Initializes the reactions array if it is not present in the message.
+   * @param {any} currentMessage - The current message object.
+   */
+  private initializeReactions(currentMessage: any): void {
     if (!currentMessage.reactions) {
       currentMessage.reactions = [];
     }
+  }
 
-    this.userService.userData$.subscribe({
-      next: async (currentUser: UserData) => {
-        if (
-          !currentUser.uid ||
-          !currentUser.displayName ||
-          !currentUser.photoURL
-        ) {
-          console.error('Benutzerdaten sind unvollständig.');
-          return;
-        }
-
-        const existingReaction = currentMessage.reactions.find(
-          (r) => r.emoji.shortName === emoji.shortName
-        );
-
-        if (existingReaction) {
-          // Überprüfen, ob der Benutzer bereits auf dieses Emoji reagiert hat
-          if (existingReaction.userIds.includes(currentUser.uid)) {
-            return;
+  /**
+   * Retrieves the current user data from the user service.
+   * @returns {Promise<UserData | null>} A promise that resolves with the current user data or null if not found.
+   */
+  private async getCurrentUser(): Promise<UserData | null> {
+    return new Promise<UserData | null>((resolve) => {
+      this.userService.userData$.subscribe({
+        next: (currentUser: UserData) => {
+          if (
+            !currentUser.uid ||
+            !currentUser.displayName ||
+            !currentUser.photoURL
+          ) {
+            console.error('User data is incomplete.');
+            resolve(null);
           } else {
-            // Emoji existiert, aber der Benutzer hat es noch nicht hinzugefügt
-            existingReaction.count += 1;
-            existingReaction.userIds.push(currentUser.uid);
+            resolve(currentUser);
           }
-        } else {
-          // Emoji existiert noch nicht, daher als neue Reaktion hinzufügen
-          currentMessage.reactions.push({
-            emoji: emoji,
-            count: 1,
-            userIds: [currentUser.uid],
-          });
-        }
-
-        // Firestore-Dokument aktualisieren
-        await updateDoc(messageRef, { reactions: currentMessage.reactions });
-        this.actualMessageSubject.next(currentMessage);
-      },
-      error: (error) =>
-        console.error('Fehler beim Abrufen der Benutzerdaten:', error),
-      complete: () => console.log('Benutzerdaten-Abonnement abgeschlossen.'),
+        },
+        error: (error) => {
+          console.error('Error fetching user data:', error);
+          resolve(null);
+        },
+      });
     });
   }
 
+  /**
+   * Updates the reactions array of the message with the new or changed reaction.
+   * @param {any} currentMessage - The current message object.
+   * @param {any} emoji - The emoji used as a reaction.
+   * @param {UserData} currentUser - The current user who is reacting.
+   * @returns {any[] | null} The updated reactions array or null if the reaction wasn't updated.
+   */
+  private updateReactions(
+    currentMessage: any,
+    emoji: any,
+    currentUser: UserData
+  ): any[] | null {
+    const existingReaction = currentMessage.reactions.find(
+      (r: { emoji: { shortName: any; }; }) => r.emoji.shortName === emoji.shortName
+    );
+
+    if (existingReaction) {
+      if (existingReaction.userIds.includes(currentUser.uid)) {
+        return null; // User has already reacted with this emoji
+      } else {
+        existingReaction.count += 1;
+        existingReaction.userIds.push(currentUser.uid);
+      }
+    } else {
+      currentMessage.reactions.push({
+        emoji: emoji,
+        count: 1,
+        userIds: [currentUser.uid],
+      });
+    }
+
+    return currentMessage.reactions;
+  }
+
+  /**
+   * Updates the message reactions in Firestore.
+   * @param {DocumentReference} messageRef - The Firestore reference to the message.
+   * @param {any[]} reactions - The updated reactions array.
+   * @returns {Promise<void>} A promise that resolves when the message reactions are updated.
+   */
+  private async updateMessageReactions(
+    messageRef: any,
+    reactions: any[]
+  ): Promise<void> {
+    await updateDoc(messageRef, { reactions: reactions });
+  }
+
+  /**
+   * Deletes a message from the private chat of both users.
+   * @param {string} privateChatId - The ID of the private chat.
+   * @param {string} messageId - The ID of the message to be deleted.
+   * @returns {Promise<void>} A promise that resolves when the message is deleted.
+   */
   async deleteMessage(privateChatId: string, messageId: string): Promise<void> {
     try {
       const [user1Id, user2Id] = privateChatId.split('_');
-      const user1DocRef = doc(this.firestore, `users/${user1Id}`);
-      const user2DocRef = doc(this.firestore, `users/${user2Id}`);
       await Promise.all([
-        updateDoc(user1DocRef, {
-          [`privateChat.${privateChatId}.messages.${messageId}`]: deleteField(),
-        }),
-        updateDoc(user2DocRef, {
-          [`privateChat.${privateChatId}.messages.${messageId}`]: deleteField(),
-        }),
+        this.deleteMessageFromUser(user1Id, privateChatId, messageId),
+        this.deleteMessageFromUser(user2Id, privateChatId, messageId),
       ]);
     } catch (error) {
-      console.error(
-        'Fehler beim Löschen der Nachricht bei beiden Nutzern:',
-        error
-      );
+      console.error('Error deleting message for both users:', error);
       throw error;
     }
   }
 
+  /**
+   * Deletes the message from a specific user's private chat.
+   * @param {string} userId - The ID of the user.
+   * @param {string} privateChatId - The ID of the private chat.
+   * @param {string} messageId - The ID of the message to be deleted.
+   * @returns {Promise<void>} A promise that resolves when the message is deleted for the user.
+   */
+  private async deleteMessageFromUser(
+    userId: string,
+    privateChatId: string,
+    messageId: string
+  ): Promise<void> {
+    const userDocRef = doc(this.firestore, `users/${userId}`);
+    await updateDoc(userDocRef, {
+      [`privateChat.${privateChatId}.messages.${messageId}`]: deleteField(),
+    });
+  }
+
+  /**
+   * Updates the content of a message in a thread or channel.
+   * @param path The path to the message in the Firestore database.
+   * @param newContent The new content of the message.
+   */
   async updateMessageThreadOrChannel(
     path: string,
     newContent: string
@@ -269,6 +377,10 @@ export class MessageService {
     }
   }
 
+  /**
+   * Deletes a message in a thread or channel.
+   * @param path The path to the message in the Firestore database.
+   */
   async deleteMessageInThreadOrChannel(path: string): Promise<void> {
     try {
       const threadMessageRef = doc(this.firestore, path);

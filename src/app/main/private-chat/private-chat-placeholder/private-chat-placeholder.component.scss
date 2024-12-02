@@ -42,14 +42,28 @@ section {
 }
 
 .description {
-    color: var(--grey-color);
     display: flex;
     align-items: center;
-    p {
+    width: 100%;
+    font-family: var(--font-nunito);
+    color: var(--grey-color);
+
+    span {
+        width: fit-content;
+        max-width: 65vw;
+    }
+
+    p:first-of-type {
         font-weight: 700;
         margin: 0;
         display: inline;
     }
+
+    // p:last-of-type {
+    //     font-weight: 400;
+    //     margin: 0;
+    //     display: inline;
+    //     }
 
     a {
         color: var(--purple3-color);

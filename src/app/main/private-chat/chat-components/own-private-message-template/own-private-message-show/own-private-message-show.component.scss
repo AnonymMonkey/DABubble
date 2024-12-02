@@ -40,9 +40,11 @@
   gap: 10px;
 
   > p {
-    display: flex;
-    justify-content: flex-end;
+    text-align: right;
     padding-right: 5px;
+    word-wrap: break-word; /* Bricht lange Wörter um */
+    overflow-wrap: break-word; /* Alternative für Kompatibilität */
+    white-space: normal; /* Zeilenumbrüche erlauben */
   }
 }
 

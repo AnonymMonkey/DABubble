@@ -26,22 +26,27 @@ export class PrivateChatHeaderComponent implements OnInit {
     public userService: UserService,
   ) {}
 
+/**
+ * Initialize the component and subscribe to route parameters oninit.
+ */
   ngOnInit() {
-    this.currentUserId = this.userService.userId; // Aktueller Benutzer
+    this.currentUserId = this.userService.userId; 
     this.route.paramMap.subscribe(params => {
       const privateChatId = params.get('privateChatId');
       if (privateChatId) {
         const userIds = privateChatId.split('_');
         const foundUserId = userIds.find(id => id !== this.currentUserId);
         this.chatUserId = foundUserId ? foundUserId : this.currentUserId;
-
         if (this.chatUserId) {
-          this.loadChatUserData(); // Benutzerdaten laden
+          this.loadChatUserData(); 
         }
       }
     });
   }
 
+  /**
+   * Load the chat user data from the user service.
+   */
   private loadChatUserData() {
     if (this.chatUserId) {
       this.userService.getUserDataByUID(this.chatUserId).subscribe({
@@ -54,17 +59,23 @@ export class PrivateChatHeaderComponent implements OnInit {
     }
   }
 
+  /**
+   * Open the profile info dialog.
+   */
   openProfileInfo(): void {
     this.isMenuOpened = true; // Menü als geöffnet markieren
     const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
       data: { userId: this.chatUserId, userName: this.chatUserName, userPhotoURL: this.chatUserPhotoURL  }
     });
-
     dialogRef.afterClosed().subscribe(() => {
       this.isMenuOpened = false; // Menü als geschlossen markieren
     });
   }
 
+  /**
+   * Check if the chat is with the current user.
+   * @returns True if the chat is with the current user, false otherwise.
+   */
   isChatWithSelf(): boolean {
     return this.currentUserId === this.chatUserId;
   }

@@ -10,8 +10,6 @@ import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker
 import { MatIcon } from '@angular/material/icon';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { PrivateChatService } from '../../../../shared/services/private-chat-service/private-chat.service';
-import { deleteField, doc, updateDoc } from 'firebase/firestore';
-import { Firestore } from '@angular/fire/firestore';
 import { StorageService } from '../../../../shared/services/storage-service/storage.service';
 
 @Component({
@@ -29,7 +27,10 @@ import { StorageService } from '../../../../shared/services/storage-service/stor
     MatIcon,
   ],
   templateUrl: './own-private-message-template.component.html',
-  styleUrl: './own-private-message-template.component.scss',
+  styleUrls: [
+    './own-private-message-template.component.scss',
+    './own-private-message-template.component_media.scss',
+  ],
 })
 export class OwnPrivateMessageTemplateComponent {
   @Input() message: any;
@@ -46,62 +47,79 @@ export class OwnPrivateMessageTemplateComponent {
   isMenuOpen: boolean = false;
 
   constructor() {}
+
+  /**
+   * Show the emoji container if the message is not being edited.
+   * @param id - The ID of the message.
+   */
   showEmojiContainer(id: number) {
     if (this.messageService.editMessageId === null) {
       this.isEmojiContainerVisible = id;
     }
   }
 
+  /**
+   * Hide the emoji container if the message is not being edited.
+   */
   hideEmojiContainer() {
     if (!this.editMessageMenuOpened && !this.isMenuOpen) {
       this.isEmojiContainerVisible = 0;
     }
   }
 
+  /**
+   * Set the isMenuOpen property to true when the menu is opened.
+   */
   onMenuOpened() {
     this.isMenuOpen = true;
   }
 
+  /**
+   * Set the isMenuOpen property to false when the menu is closed.
+   */
   onMenuClosed() {
     this.isMenuOpen = false;
     this.isEmojiContainerVisible = 0;
   }
 
+  /**
+   * Get the last reply time from the messages array.
+   * @param messages - The messages array.
+   * @returns The last reply time as a string.
+   */
   getLastReplyTime(messages: any[]): string {
-    // Nimm die letzte Nachricht aus dem Array
     const lastMessage = messages[messages.length - 1];
-
     if (lastMessage && lastMessage.time) {
-      // Formatiere die Zeit (Hier anpassen, falls nötig)
       const date = new Date(lastMessage.time);
       const options: Intl.DateTimeFormatOptions = {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false, // Für 24-Stunden-Format, ändern auf true für 12-Stunden-Format
+        hour12: false,
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
-
-    return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
+    return 'Keine Antworten';
   }
 
+  /**
+   * Set the editMessageMenuOpened property to the given boolean value.
+   * @param boolean - The boolean value to set the property to.
+   */
   setEditMessageMenuOpened(boolean: boolean) {
     this.editMessageMenuOpened = boolean;
   }
 
+  /**
+   * Toggle the border radius of the message container.
+   * @param menuType - The type of the menu.
+   */
   toggleBorder(menuType: string) {
-    switch (menuType) {
-      case 'deleteMessage':
-        this.currentBorderRadius = '0px 30px 30px 30px';
-        break;
-      case 'editMessage':
-        this.currentBorderRadius = '0px 30px 30px 30px';
-        break;
-      case 'emoji':
-        this.currentBorderRadius = '30px 30px 30px 30px';
-        break;
-      default:
-        this.currentBorderRadius = '0px 30px 30px 30px';
+    if (menuType === 'deleteMessage' || menuType === 'editMessage') {
+      this.currentBorderRadius = '0px 30px 30px 30px';
+    } else if (menuType === 'emoji') {
+      this.currentBorderRadius = '30px 30px 30px 30px';
+    } else {
+      this.currentBorderRadius = '0px 30px 30px 30px';
     }
     document.documentElement.style.setProperty(
       '--border-radius',
@@ -109,9 +127,12 @@ export class OwnPrivateMessageTemplateComponent {
     );
   }
 
+  /**
+   * Delete a message.
+   * @param message - The message to delete.
+   */
   async deleteMessage(message: any) {
     const privateChatId = this.privateChatService.privateChatId;
-    const path = `privateChats/${privateChatId}/messages/${message.messageId}`;
     if (message.attachmentUrls && message.attachmentUrls.length > 0) {
       for (const url of message.attachmentUrls) {
         this.storageService.deleteSpecificFile(url);
