@@ -1,3 +1,7 @@
+:host {
+  --parent-fontsize: 24px;
+}
+
 header {
   display: flex;
   justify-content: space-between;
@@ -6,23 +10,52 @@ header {
   margin-bottom: 20px;
   gap: var(--gap-20);
 
-  .logo {
+  .logo-search-wrapper {
+    width: 100%;
     display: flex;
+    justify-content: start;
     align-items: center;
-    gap: var(--gap-16);
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-16);
+      margin-right: 140px;
 
-    img:first-child {
-      height: 70px;
+      @media screen and (max-width: 1200px) {
+        margin-right: 20px;
+      }
+
+      img:first-child {
+        height: 70px;
+
+        @media screen and (max-width: 600px) {
+          height: 45px;
+        }
+      }
+
+      img:last-child {
+        height: 24px;
+
+        @media screen and (max-width: 600px) {
+          height: 16px;
+        }
+      }
     }
 
-    img:last-child {
-      height: 24px;
-    }
-  }
+    app-search-bar {
+      flex: 1;
+      max-width: 975px;
 
-  app-search-bar {
-    flex: 1;
-    max-width: 975px;
+      @media only screen and (max-width: 1040px) {
+        mat-icon {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 992px) {
+        display: none;
+      }
+    }
   }
 
   .profile {
@@ -36,6 +69,11 @@ header {
       font-size: var(--fontsize-32);
       font-weight: 700;
       cursor: pointer;
+      text-wrap: nowrap;
+
+      @media screen and (max-width: 768px) {
+        display: none;
+      }
     }
 
     .image-with-badge {
@@ -47,6 +85,11 @@ header {
         object-fit: cover;
         object-position: top;
         border-radius: 50%;
+
+        @media screen and (max-width: 600px) {
+          height: 45px;
+          width: 45px;
+        }
       }
 
       .badge {
@@ -63,6 +106,10 @@ header {
 
     mat-icon {
       cursor: pointer;
+
+      @media screen and (max-width: 768px) {
+        display: none !important;
+      }
     }
   }
 }

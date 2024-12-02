@@ -1,0 +1,109 @@
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (max-width: 1200px) {
+  .logo-final {
+    top: 50px !important;
+    left: 50px !important;
+
+    .logo-container {
+      .logo-name {
+        display: none;
+      }
+    }
+  }
+
+  .register-link {
+    top: 50px !important;
+    right: 50px !important;
+  }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (max-width: 992px) {
+  .logo-final {
+    top: 25px !important;
+    left: 25px !important;
+
+    .logo-container {
+      .logo-name {
+        display: none;
+      }
+    }
+  }
+
+  .register-link {
+    top: 25px !important;
+    right: 25px !important;
+  }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (max-width: 768px) {
+  .logo-final {
+    position: unset !important;
+    top: 0 !important;
+    left: 0 !important;
+
+    display: flex;
+    justify-content: center;
+    align-items: center !important;
+    width: 100%;
+    height: 20%;
+
+    .logo-container {
+      .logo-name {
+        display: unset;
+      }
+    }
+  }
+
+  .register-link {
+    position: unset !important;
+    bottom: 0 !important;
+    right: unset !important;
+
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100%;
+    height: 20%;
+  }
+
+  .info-links {
+    display: none !important;
+  }
+
+  .login mat-card {
+    max-width: unset !important;
+    min-height: 50% !important;
+    height: 100% !important;
+    gap: 20px !important;
+  }
+}
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+}
+
+/* Very small devices (landscape tablets, 450px and down) */
+@media only screen and (max-width: 450px) {
+  p,
+  span {
+    font-size: 14px !important;
+  }
+
+  .logo-container {
+    scale: 0.8;
+
+    .logo-name span {
+      font-size: unset !important;
+    }
+  }
+
+  .login mat-card {
+    gap: 10px !important;
+  }
+}
+
+/* smallest devices (300px and down) */
+@media only screen and (max-width: 300px) {
+}

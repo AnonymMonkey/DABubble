@@ -3,47 +3,83 @@
   height: unset !important;
   box-shadow: none !important;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  width: 100%;
+  gap: 24px;
 
   button {
     padding: unset !important;
   }
 
   .toolbar-header {
+    width: 100%;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: var(--gap-16);
-    span {
-      font-size: var(--fontsize-24);
-      font-weight: 700;
-      color: black;
+
+    .toolbar-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-16);
+      span {
+        font-size: var(--fontsize-24);
+        font-weight: 700;
+        color: black;
+      }
+    }
+
+    .toolbar-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      mat-icon {
+        color: black !important;
+      }
+
+      &:hover {
+        color: var(--purple3-color) !important;
+        background-color: var(--light-purple-color2) !important;
+      }
+
+      &:hover mat-icon {
+        color: var(--purple3-color) !important;
+      }
+
+      &:active {
+        background-color: var(--light-purple-color) !important;
+      }
     }
   }
-}
 
-.toolbar-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  mat-icon {
-    color: black !important;
+  app-search-bar {
+    width: 100%;
+
+    @media only screen and (min-width: 992px) {
+      display: none;
+    }
   }
 
-  &:hover {
-    color: var(--purple3-color) !important;
-    background-color: var(--light-purple-color2) !important;
-  }
-
-  &:hover mat-icon {
-    color: var(--purple3-color) !important;
-  }
-
-  &:active {
-    background-color: var(--light-purple-color) !important;
+  .search-field[_ngcontent-ng-c3363134768] input[_ngcontent-ng-c3363134768] {
+    width: 100%;
+    padding: 8px 24px;
   }
 }
+
 .toolbars {
-  height: 70vh;
+  height: 90%;
+
+  @media only screen and (max-width: 998px) {
+    height: 85%;
+  }
+
+  @media only screen and (max-height: 800px) {
+    height: 80%;
+  }
+
+  @media only screen and (max-height: 640px) {
+    height: 70%;
+  }
+
   overflow-y: auto;
   overflow-x: hidden;
   button {
@@ -98,8 +134,10 @@
     }
 
     .button-secondary {
+      width: fit-content !important;
+      height: fit-content !important;
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       color: var(--black-color) !important;
       border: none;

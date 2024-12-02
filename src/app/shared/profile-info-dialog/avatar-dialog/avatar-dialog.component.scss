@@ -3,15 +3,16 @@
   flex-direction: column;
   align-items: center;
   gap: 40px;
-
   text-align: center;
-
   padding: 50px;
-
   background-color: var(--text-color);
   border-radius: 30px;
-
   box-shadow: 0px 2px 10px 0px #00000014;
+
+  @media screen and (max-width: 640px) {
+    padding: 20px;
+    gap: 16px;
+  }
 
   p {
     color: var(--black-color);
@@ -39,6 +40,10 @@
       text-wrap: nowrap;
       color: black;
       font-size: 24px;
+
+      @media screen and (max-width: 640px) {
+        text-wrap: wrap;
+      }
     }
   }
 
@@ -89,8 +94,9 @@
       justify-content: center;
       align-items: center;
 
-      &:hover {
-        outline: 8px solid #e6e6e6;
+      @media screen and (max-height: 740px) {
+        width: 150px;
+        height: 150px;
       }
 
       &:active {
@@ -109,15 +115,26 @@
     align-items: start;
     gap: 12px;
 
+    @media screen and (max-width: 640px) {
+      align-items: center;
+    }
+
     .avatars {
       display: flex;
       gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
 
       img {
         cursor: pointer;
         width: 64px;
         height: 64px;
         border-radius: 50%;
+
+        @media screen and (max-width: 640px) {
+          width: 48px;
+          height: 48px;
+        }
 
         &:hover {
           outline: 4px solid var(--bg-color);
@@ -130,6 +147,11 @@
       align-items: center;
       gap: 24px;
       margin-top: 16px;
+
+      @media screen and (max-width: 640px) {
+        gap: 12px;
+        flex-direction: column;
+      }
     }
   }
   .next-button {
