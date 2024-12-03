@@ -7,6 +7,8 @@ import {
 } from '@angular/fire/storage';
 import { getDownloadURL } from 'firebase/storage';
 import { StorageService } from '../../services/storage-service/storage.service';
+import { ErrorService } from '../../services/error-service/error.service';
+import { NotificationService } from '../../services/notification-service/notification.service';
 
 @Component({
   selector: 'app-upload-method-selector',
@@ -20,7 +22,7 @@ export class UploadMethodSelectorComponent {
   storage = getStorage(); // Firebase Storage-Instanz
   private route = inject(ActivatedRoute); // Aktivierte Route
 
-  constructor(private storageService: StorageService) {}
+  constructor(private storageService: StorageService, private errorService: ErrorService, private notificationService: NotificationService) {}
 
   /**
    * Opens a file dialog based on the provided file type.
@@ -95,6 +97,7 @@ export class UploadMethodSelectorComponent {
         this.uploadFile(file);
       } else {
         console.error('Datei überschreitet das Größenlimit von 500 KB.');
+        this.errorService.showUserNotification('Datei überschreitet das Größenlimit von 500 KB.');
       }
     }
   }
@@ -203,6 +206,7 @@ export class UploadMethodSelectorComponent {
         this.uploadFile(file);
       } else {
         console.error('Datei überschreitet das Größenlimit von 500 KB.');
+
       }
     }
   }
