@@ -15,7 +15,7 @@ import { UserService } from '../../../shared/services/user-service/user.service'
 import { ChannelNewMemberComponent } from './channel-new-member/channel-new-member.component';
 import { ChannelMembersListComponent } from './channel-members-list/channel-members-list.component';
 import { ChannelDescriptionComponent } from './channel-description/channel-description.component';
-import { NgFor, } from '@angular/common';
+import { NgFor } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -40,15 +40,16 @@ export class MessageAreaHeaderComponent implements OnInit {
   chooseChannelMenuTrigger!: MatMenuTrigger;
   @ViewChild('memberListMenuTrigger') memberListMenuTrigger!: MatMenuTrigger;
   @ViewChild('addMemberMenuTrigger') addMemberMenuTrigger!: MatMenuTrigger;
-
   isMenuOpened: string = '';
   currentBorderRadius: string = '30px 30px 30px 30px'; // Standardwert
   userService = inject(UserService);
-
   currentChannel: Channel | undefined;
 
   constructor(private channelService: ChannelService) {}
 
+  /**
+   * Initializes the component by subscribing to the current channel.
+   */
   ngOnInit(): void {
     setTimeout(() => {
       this.channelService.currentChannel$.subscribe({
@@ -59,6 +60,10 @@ export class MessageAreaHeaderComponent implements OnInit {
     }, 0);
   }
 
+  /**
+   * Closes the menu of the specified type.
+   * @param menuType - The type of the menu to close.
+   */
   closeMenu(menuType: 'choose-channel' | 'member-list' | 'add-member') {
     switch (menuType) {
       case 'choose-channel':
@@ -73,32 +78,37 @@ export class MessageAreaHeaderComponent implements OnInit {
     }
   }
 
+  /**
+   * Opens the menu of the specified type.
+   * @param menuType - The type of the menu to open.
+   */
   openMenu(menuType: 'add-member') {
-    if (menuType === 'add-member') {
-      this.addMemberMenuTrigger.openMenu();
-    }
+    if (menuType === 'add-member') this.addMemberMenuTrigger.openMenu();
   }
 
-  toggleBorder(menuType: string) {
-    switch (menuType) {
-      case 'choose-channel':
-        this.currentBorderRadius = '0px 30px 30px 30px';
-        break;
-      case 'member-list':
-        this.currentBorderRadius = '30px 0px 30px 30px';
-        break;
-      case 'add-member':
-        this.currentBorderRadius = '30px 0px 30px 30px';
-        break;
-      default:
-        this.currentBorderRadius = '0px 30px 30px 30px';
-    }
+  /**
+   * Toggles the border radius based on the menu type.
+   * @param menuType - The type of the menu to toggle the border radius for.
+   */
+  toggleBorder(menuType: string): void {
+    const borderRadiusMap: Record<string, string> = {
+      'choose-channel': '0px 30px 30px 30px',
+      'member-list': '30px 0px 30px 30px',
+      'add-member': '30px 0px 30px 30px',
+    };
+    this.currentBorderRadius =
+      borderRadiusMap[menuType] || '0px 30px 30px 30px';
     document.documentElement.style.setProperty(
       '--border-radius',
       this.currentBorderRadius
     );
   }
 
+  /**
+   * Retrieves the photo URL for the given user ID.
+   * @param userId - The ID of the user to retrieve the photo URL for.
+   * @returns The photo URL as a string.
+   */
   getPhotoURL(userId: string): string {
     return this.userService.getPhotoURL(userId);
   }

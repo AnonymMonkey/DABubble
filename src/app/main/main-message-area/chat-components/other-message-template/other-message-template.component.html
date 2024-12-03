@@ -25,6 +25,7 @@
       </div>
       <div
         [matMenuTriggerFor]="emojiMenu"
+        #emojiMenuTrigger="matMenuTrigger"
         (menuOpened)="menuOpened()"
         (menuClosed)="menuClosed()"
         (click)="toggleBorder('emoji')"
@@ -82,6 +83,7 @@
       </span>
       <app-message-reactions
         [message]="message"
+        [component]="'channel'"
         *ngIf="message.reactions.length > 0"
       ></app-message-reactions>
       <div
@@ -108,6 +110,7 @@
     <app-emoji-picker
       [message]="message"
       [component]="'channel'"
+      (isChannelReaction)="handleChannelReaction($event)"
     ></app-emoji-picker>
   </mat-menu>
 </section>

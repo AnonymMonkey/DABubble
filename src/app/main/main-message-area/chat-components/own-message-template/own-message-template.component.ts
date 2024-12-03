@@ -5,6 +5,7 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { MainMessageAreaComponent } from '../../main-message-area.component';
 import { NgClass, NgIf } from '@angular/common';
@@ -52,6 +53,7 @@ export class OwnMessageTemplateComponent
   menuOpenStatus: { [messageId: string]: boolean } = {};
   photoURL: string = '';
   private userDataSubscription: Subscription | undefined;
+  @ViewChild('emojiMenuTrigger') emojiMenuTrigger!: MatMenuTrigger;
 
   get threadKeys(): string[] {
     return Object.keys(this.message?.thread || {});
@@ -233,7 +235,7 @@ export class OwnMessageTemplateComponent
   }
 
   /**
-   * Delete the given message.
+   * Delete the given message and closes the thread if necessary.
    * @param message - The message to delete.
    */
   deleteMessage(message: any) {
@@ -243,6 +245,20 @@ export class OwnMessageTemplateComponent
         this.storageService.deleteSpecificFile(url);
       }
     }
+    if (
+      this.threadService.actualMessageSubject.value?.messageId ===
+      message.messageId
+    ) {
+      this.mainMessageArea.closeSidenav();
+    }
     this.messageService.deleteMessageInThreadOrChannel(path);
+  }
+
+  /**
+   * Handles the reaction of a message in a channel.
+   * @param isReaction - A boolean value indicating whether the message is a reaction or not.
+   */
+  handleChannelReaction(isReaction: boolean): void {
+    if (isReaction) this.emojiMenuTrigger.closeMenu();
   }
 }

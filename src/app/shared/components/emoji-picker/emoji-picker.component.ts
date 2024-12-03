@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { MessageService } from '../../services/message-service/message.service';
 import { PrivateChatService } from '../../services/private-chat-service/private-chat.service';
@@ -19,6 +19,7 @@ export class EmojiPickerComponent {
   private privateChatService = inject(PrivateChatService);
   private channelService = inject(ChannelService);
   private threadService = inject(ThreadService);
+  @Output() isChannelReaction = new EventEmitter<boolean>();
 
   constructor() {}
 
@@ -53,6 +54,7 @@ export class EmojiPickerComponent {
     const threadPath = this.getThreadPath(messageId);
     this.messageService.setActualMessage(this.message);
     if (messageId.startsWith('msg_')) {
+      this.isChannelReaction.emit(true);
       this.messageService.addOrChangeReactionChannelOrThread(
         emoji,
         channelPath

@@ -5,7 +5,7 @@ import { Channel } from '../../../../shared/models/channel.model';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import { NgFor, NgIf } from '@angular/common';
 import { UserService } from '../../../../shared/services/user-service/user.service';
-import { forkJoin, map, Observable, of, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-channel-members-list',
@@ -29,6 +29,9 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
     private userService: UserService
   ) {}
 
+  /**
+   * Initialize the component and load user data.
+   */
   ngOnInit(): void {
     this.currentUserId = this.userService.userId;
     this.channelService.currentChannel$.subscribe({
@@ -45,32 +48,35 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Load user data for the channel members.
+   */
   loadMemberData(): void {
     if (
       !this.isChannelLoaded ||
       !this.currentChannel?.members ||
       this.currentChannel.members.length === 0
-    ) {
+    )
       return;
-    }
-  
     this.membersWithData = [];
     const seenUserIds = new Set<string>();
-  
-    // Abo für das Abrufen von Benutzerdaten
+    this.getUserDetails(seenUserIds);
+  }
+
+  /**
+   * Retrieve user details for the channel members.
+   * @param seenUserIds - Set of user IDs already seen.
+   */
+  getUserDetails(seenUserIds: Set<string>): void {
     this.userDataSubscription = this.userService.userDataMap$.subscribe({
       next: (userDataMap) => {
         this.currentChannel?.members.forEach((userId) => {
-          if (seenUserIds.has(userId)) {
-            return;
-          }
+          if (seenUserIds.has(userId)) return;
           seenUserIds.add(userId);
-  
           const userData = userDataMap.get(userId) || {
             displayName: 'Unbekannter Benutzer',
             photoURL: 'src/assets/img/profile/placeholder-img.webp', // Placeholder für Foto
           };
-  
           this.membersWithData.push({
             userId,
             userName: userData.displayName,
@@ -78,31 +84,27 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
           });
         });
       },
-      error: (error) => {
-        console.error('Fehler beim Abrufen der Benutzerdaten:', error);
-      },
     });
   }
-  
-  ngOnDestroy(): void {
-    if (this.userDataSubscription) {
-      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
-    }
-  }
-  
 
+  /**
+   * Clean up subscriptions on component destroy.
+   */
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+  }
+
+  /**
+   * Sorts the members by the current user and returns the sorted array.
+   */
   get sortedMembers() {
     if (!this.membersWithData || this.membersWithData.length === 0) return [];
-
-    // Trenne den aktuellen Benutzer von den anderen
     const currentUser = this.membersWithData.find(
       (user) => user.userId === this.currentUserId
     );
-
     const otherMembers = this.membersWithData.filter(
       (user) => user.userId !== this.currentUserId
     );
-
     return currentUser
       ? [
           { ...currentUser, userName: `${currentUser.userName} (Du)` },
@@ -111,6 +113,9 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
       : otherMembers;
   }
 
+  /**
+   * Handles the click event for the "Add Member" button.
+   */
   onAddMemberClick(event: Event): void {
     event.stopPropagation();
     this.header.closeMenu('member-list');
@@ -118,6 +123,10 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
     this.toggleBorder('add-member');
   }
 
+  /**
+   * Toggles the border radius based on the menu type.
+   * @param menuType - The type of the menu.
+   */
   toggleBorder(menuType: string) {
     switch (menuType) {
       case 'add-member':

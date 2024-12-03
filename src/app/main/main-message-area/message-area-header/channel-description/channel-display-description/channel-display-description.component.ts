@@ -9,9 +9,9 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-channel-display-description',
   standalone: true,
-  imports: [ChannelDescriptionComponent, NgIf],
+  imports: [NgIf],
   templateUrl: './channel-display-description.component.html',
-  styleUrls: ['./channel-display-description.component.scss']
+  styleUrls: ['./channel-display-description.component.scss'],
 })
 export class ChannelDisplayDescriptionComponent implements OnInit {
   userService = inject(UserService);
@@ -23,6 +23,9 @@ export class ChannelDisplayDescriptionComponent implements OnInit {
     private channelService: ChannelService
   ) {}
 
+  /**
+   * Initialize the component and subscribe to the current channel.
+   */
   ngOnInit(): void {
     this.channelService.currentChannel$.subscribe({
       next: (channel) => {
@@ -33,25 +36,31 @@ export class ChannelDisplayDescriptionComponent implements OnInit {
             next: (userData) => {
               this.adminUserName = userData?.displayName || 'Unbekannt'; // Username zuweisen oder 'Unbekannt' falls nicht vorhanden
             },
-            error: (err) => {
-              console.error('Fehler beim Laden des Usernamens:', err);
-              this.adminUserName = 'Unbekannt'; // Default-Wert im Fehlerfall
-            }
           });
         }
       },
-      error: (error) => console.error('Fehler beim Laden des Channels:', error)
+      error: (error) => console.error('Fehler beim Laden des Channels:', error),
     });
   }
 
+  /**
+   * Actualise the channel description.
+   */
   updateDescription(newDescription: string): void {
     if (this.currentChannel) {
-      this.channelService.updateChannelDescription(this.currentChannel.channelId, newDescription).subscribe({
-        error: (error) => console.error('Fehler beim Aktualisieren der Beschreibung:', error)
-      });
+      this.channelService
+        .updateChannelDescription(this.currentChannel.channelId, newDescription)
+        .subscribe({
+          error: (error) =>
+            console.error('Fehler beim Aktualisieren der Beschreibung:', error),
+        });
     }
   }
 
+  /**
+   * Check if the current user is the admin of the channel.
+   * @returns True if the current user is the admin of the channel, false otherwise.
+   */
   userIsAdmin(): boolean {
     return this.currentChannel?.admin?.userId === this.userService.userId;
   }

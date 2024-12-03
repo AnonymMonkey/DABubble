@@ -23,6 +23,7 @@ import { UserService } from '../../../shared/services/user-service/user.service'
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from '../../../shared/services/message-service/message.service';
 import { ChannelMessage } from '../../../shared/models/channel-message.model';
+import { user } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-message-area-chat-history',
@@ -47,90 +48,139 @@ export class MessageAreaChatHistoryComponent
   private shouldScroll: boolean = true;
   firestore = inject(Firestore);
   private messageService = inject(MessageService);
-
+  private previousUsersCount: number = 0;
   private usersData = new Map<string, any>();
-
   private userSubscription?: Subscription;
   private messageSubscription?: () => void; // Firebase-Abmeldung
-
   @ViewChild('messageContainerWrapper') messageContainer!: ElementRef;
 
   constructor(
     public channelService: ChannelService,
     private cdr: ChangeDetectorRef,
-    private userService: UserService,
-    private route: ActivatedRoute
+    private userService: UserService
   ) {}
 
+  /**
+   * Initialises the component and loads the chat history.
+   */
   ngOnInit(): void {
     this.currentChannel$ = this.channelService.currentChannel$;
     this.loadChatHistory();
   }
 
+  /**
+   * Loads the chat history for the current channel.
+   */
   loadChatHistory(): void {
     this.currentChannel$?.subscribe({
       next: (channel) => {
         if (channel) {
-          this.groupedMessages = []; // Löscht alte Nachrichten
-          this.channelService.loadUsersDataForChannel(
-            channel.members,
-            channel.usersLeft
-          );
-          // Nachrichten-Map des aktuellen Channels abonnieren
-          this.messageService.messagesDataMap$.subscribe((messagesDataMap) => {
-            const channelMessages = messagesDataMap.get(channel.channelId); // Hole Nachrichten des aktuellen Channels
-            if (channelMessages) {
-              const messagesArray = Array.from(channelMessages.values()); // Map in ein Array konvertieren
-              this.groupMessagesByDate(messagesArray);
-            }
-          });
-        } else {
-          this.groupedMessages = []; // Keine Channel-Daten, also leeren
-          this.cdr.detectChanges(); // Ansicht aktualisieren
-        }
+          this.getUsersData(channel);
+          this.getAllMessagesFromChannel(channel.channelId);
+        } else this.resetAndDetectChanges();
       },
       error: (err) => console.error('Fehler beim Laden des Channels:', err),
-  
       complete: () => {
         this.checkLoadingComplete();
       },
     });
-  
-    this.userSubscription = this.channelService
-      .getUsersDataObservable()
-      .subscribe({
-        next: (usersMap) => {
-          if (usersMap) {
-            this.usersData = usersMap;
-            this.checkLoadingComplete();
-          }
-        },
-        error: (err) => console.error('Fehler beim Laden der User-Daten:', err),
-      });
+    this.subscribeUsersData();
   }
-  
 
+  /**
+   * Loads the users data for the current channel.
+   * @param channel - The channel object.
+   */
+  getUsersData(channel: Channel): void {
+    this.groupedMessages = [];
+    this.channelService.loadUsersDataForChannel(
+      channel.members,
+      channel.usersLeft
+    );
+  }
+
+  /**
+   * Groups the messages by date and updates the groupedMessages array.
+   * @param messages - An array of ChannelMessage objects.
+   */
+  getAllMessagesFromChannel(channelId: string): void {
+    this.messageService.messagesDataMap$.subscribe((messagesDataMap) => {
+      const channelMessages = messagesDataMap.get(channelId);
+      if (channelMessages) {
+        const messagesArray = Array.from(channelMessages.values());
+        this.groupMessagesByDate(messagesArray);
+      }
+    });
+  }
+
+  /**
+   * Resets the groupedMessages array and triggers change detection.
+   */
+  resetAndDetectChanges(): void {
+    this.groupedMessages = [];
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Subscribes to the users data observable and updates the usersData map.
+   */
+  private async subscribeUsersData(): Promise<void> {
+    try {
+      this.userSubscription = this.channelService
+        .getUsersDataObservable()
+        .subscribe({
+          next: (usersMap) => {
+            if (usersMap) {
+              this.usersData = usersMap;
+              if (this.usersData.size > 0) this.checkLoadingComplete();
+            }
+          },
+          error: (err) =>
+            console.error('Fehler beim Laden der User-Daten:', err),
+        });
+    } catch (err) {
+      console.error('Fehler beim Abonnieren der User-Daten:', err);
+    }
+  }
+
+  /**
+   * Checks if the loading is complete and updates the loading state.
+   */
   private checkLoadingComplete(): void {
-    if (this.groupedMessages.length > 0 && this.usersData.size > 0) {
-      this.channelService.loading = false;
+    const currentUsersCount = this.usersData.size;
+    if (this.groupedMessages.length > 0 && currentUsersCount > 0) {
+      if (currentUsersCount === this.previousUsersCount)
+        this.channelService.loading = false;
+      else this.previousUsersCount = currentUsersCount;
     }
   }
 
+  /**
+   * Scrolls the message container to the bottom if the shouldScroll flag is true.
+   */
   ngAfterViewChecked(): void {
-    if (this.shouldScroll) {
-      this.scrollToBottom();
-    }
+    if (this.shouldScroll) this.scrollToBottom();
   }
 
+  /**
+   * Returns an array of all messages in the groupedMessages array.
+   */
   getAllMessages(): any[] {
     return this.groupedMessages.flatMap((group) => group.messages);
   }
 
+  /**
+   * Unsubscribes from the user and message subscriptions.
+   */
   ngOnDestroy(): void {
     this.userSubscription?.unsubscribe();
     this.messageSubscription?.();
   }
 
+  /**
+   * Loads user data for the given user IDs.
+   * @param usersLeft - An array of user IDs.
+   */
   loadUsersData(usersLeft: string[]): void {
     usersLeft.forEach((userId) => {
       if (!this.usersData.has(userId)) {
@@ -147,6 +197,10 @@ export class MessageAreaChatHistoryComponent
     });
   }
 
+  /**
+   * Starts listening for new messages in the channel.
+   * @param channelId - The ID of the channel to listen to.
+   */
   listenForMessages(channelId: string): void {
     const messagesCollectionRef = collection(
       this.firestore,
@@ -167,49 +221,58 @@ export class MessageAreaChatHistoryComponent
     });
   }
 
+  /**
+   * Groups the messages by date and updates the groupedMessages array.
+   * @param messages - An array of ChannelMessage objects.
+   */
   groupMessagesByDate(messages: ChannelMessage[]): void {
-    const grouped = messages.reduce<{ [key: string]: ChannelMessage[] }>((acc, message) => {
-      const messageDate = new Date(message.time);
-      const today = new Date();
-      let dateString: string;
-  
-      dateString =
-        messageDate.toDateString() === today.toDateString()
-          ? 'Heute'
-          : messageDate.toLocaleDateString();
-  
-      // Falls der Schlüssel noch nicht existiert, initialisieren
-      if (!acc[dateString]) acc[dateString] = [];
-  
-      acc[dateString].push({
-        ...message,
-      });
-  
-      return acc;
-    }, {}); // Initialwert: ein leeres Objekt mit dem richtigen Typ
-  
-    // Gruppierte Nachrichten verarbeiten
+    const grouped = this.groupeMessages(messages);
     this.groupedMessages = Object.keys(grouped)
       .map((date) => ({
         date,
         messages: grouped[date].sort(
-          (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
+          (a: ChannelMessage, b: ChannelMessage) =>
+            new Date(a.time).getTime() - new Date(b.time).getTime()
         ),
       }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  
-    // Change Detection anstoßen
+      .sort(
+        (a: { date: string }, b: { date: string }) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
     this.cdr.detectChanges();
   }
 
-  // Scrollt die Nachrichtensicht nach unten
+  /**
+   * Groups the messages by date.
+   * @param messages - An array of ChannelMessage objects.
+   * @returns An object containing the grouped messages.
+   */
+  groupeMessages(messages: ChannelMessage[]): any {
+    const grouped = messages.reduce<{ [key: string]: ChannelMessage[] }>(
+      (acc, message) => {
+        const messageDate = new Date(message.time);
+        const today = new Date();
+        const dateString =
+          messageDate.toDateString() === today.toDateString()
+            ? 'Heute'
+            : messageDate.toLocaleDateString();
+        if (!acc[dateString]) acc[dateString] = [];
+        acc[dateString].push({ ...message });
+        return acc;
+      },
+      {}
+    );
+    return grouped;
+  }
+
+  /**
+   * Scrolls the message container to the bottom.
+   */
   scrollToBottom(): void {
     if (this.messageContainer?.nativeElement) {
       this.messageContainer.nativeElement.scrollTop =
         this.messageContainer.nativeElement.scrollHeight;
-      if (this.shouldScroll) {
-        this.shouldScroll = false; // Verhindert weiteres Scrollen
-      }
+      if (this.shouldScroll) this.shouldScroll = false;
     }
   }
 }

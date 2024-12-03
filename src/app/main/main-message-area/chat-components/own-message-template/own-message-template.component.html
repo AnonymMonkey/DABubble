@@ -27,6 +27,7 @@
       </div>
       <div
         [matMenuTriggerFor]="emojiMenu"
+        #emojiMenuTrigger="matMenuTrigger"
         (menuOpened)="onMenuOpened(message.messageId)"
         (menuClosed)="onMenuClosed(message.messageId)"
         (click)="toggleBorder('emoji')"
@@ -118,6 +119,7 @@
     <app-emoji-picker
       [message]="message"
       [component]="'channel'"
+      (isChannelReaction)="handleChannelReaction($event)"
     ></app-emoji-picker>
   </mat-menu>
 </section>
