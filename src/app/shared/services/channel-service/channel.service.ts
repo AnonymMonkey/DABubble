@@ -220,17 +220,20 @@ export class ChannelService {
    * @param channelId The ID of the channel to set.
    */
   setChannel(channelId: string): void {
+    if (channelId !== this.channelId) this.loading = true;
     this.channelId = channelId;
     this.messageService.loadMessagesForChannel(channelId);
-    this.loading = true; // Ladezustand aktivieren
     this.getChannelById(channelId).subscribe({
       next: (channel) => {
-        this.currentChannelSubject.next(channel); // Channel setzen
+        this.currentChannelSubject.next(channel); 
       },
       error: (error) => {
         console.error('Fehler beim Laden des Channels:', error);
       },
     });
+    setTimeout(() => {
+      this.loading = false;
+    }, 2000);
   }
 
   /**
