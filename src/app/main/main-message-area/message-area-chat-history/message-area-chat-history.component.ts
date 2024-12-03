@@ -132,7 +132,7 @@ export class MessageAreaChatHistoryComponent
           next: (usersMap) => {
             if (usersMap) {
               this.usersData = usersMap;
-              if (this.usersData.size > 0) this.checkLoadingComplete();
+              this.checkLoadingComplete();
             }
           },
           error: (err) =>
@@ -148,7 +148,7 @@ export class MessageAreaChatHistoryComponent
    */
   private checkLoadingComplete(): void {
     const currentUsersCount = this.usersData.size;
-    if (this.groupedMessages.length > 0 && currentUsersCount > 0) {
+    if (this.groupedMessages.length > 0 && currentUsersCount > 0 ) {
       if (currentUsersCount === this.previousUsersCount)
         this.channelService.loading = false;
       else this.previousUsersCount = currentUsersCount;
