@@ -144,6 +144,7 @@ export class OwnMessageShowComponent implements OnInit {
         this.updateThreadMessages(messages, messageId);
       }
     });
+    this.channelService.loading = false;
   }
 
   /**

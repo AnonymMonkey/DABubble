@@ -24,6 +24,7 @@ import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 })
 export class MessageReactionsComponent implements OnInit {
   @Input() message: any;
+  @Input() component: string = '';
   reactionUsers: { id: string; displayName: string }[] = []; // Array von Benutzern mit ID und Name
   hoveredReaction: any = null;
 

@@ -7,6 +7,9 @@
     position: absolute;
     left: 50%;
     top: 50%;
+    background-color: var(
+      --mat-legacy-button-toggle-disabled-state-background-color
+    );
 
     p {
       color: var(--black-color);
@@ -19,6 +22,10 @@
     display: flex;
     justify-content: space-around;
   }
+}
+
+.last-member-warning {
+  color: red;
 }
 
 section {
@@ -91,4 +98,12 @@ app-channel-edit-description {
       }
     }
   }
+}
+
+.button-primary {
+  width: unset !important;
+}
+
+.button-secondary {
+  width: unset !important;
 }

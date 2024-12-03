@@ -26,6 +26,7 @@
 
   <app-message-reactions
     [message]="message"
+    [component]="'channel'"
     *ngIf="message.reactions.length > 0"
   ></app-message-reactions>
 
@@ -35,12 +36,10 @@
         mainMessageArea.openSidenav(); threadService.setActualMessage(message)
       "
     >
-      <!-- Hole die Anzahl der Antworten aus der Map -->
       {{ threadInfo.get(message?.messageId)?.count }}
       {{ threadInfo.get(message?.messageId)?.count === 1 ? "Antwort" : "Antworten" }}
     </span>
     <span>
-      <!-- Hole das Datum der letzten Antwort aus der Map -->
       Letzte Antwort: {{ threadInfo.get(message?.messageId)?.lastReplyDate }}
     </span>
   </div>

@@ -23,6 +23,7 @@
   </span>
   <app-message-reactions
     [message]="message"
+    [component]="'privateChat'"
     *ngIf="message.reactions.length > 0"
   ></app-message-reactions>
 </section>

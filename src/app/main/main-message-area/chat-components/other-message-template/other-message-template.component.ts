@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MainMessageAreaComponent } from '../../main-message-area.component';
 import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
@@ -6,7 +6,7 @@ import { ThreadService } from '../../../../shared/services/thread-service/thread
 import { MatIcon } from '@angular/material/icon';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { MessageService } from '../../../../shared/services/message-service/message.service';
 import { MessageReactionsComponent } from '../../../../shared/components/message-reactions/message-reactions.component';
@@ -47,6 +47,7 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
   photoURL: string = '';
   displayName: string = '';
   private userDataSubscription: Subscription | undefined;
+  @ViewChild('emojiMenuTrigger') emojiMenuTrigger!: MatMenuTrigger;
 
   constructor(
     public mainMessageArea: MainMessageAreaComponent,
@@ -190,5 +191,13 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
     if (this.userDataSubscription) {
       this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
     }
+  }
+
+  /**
+   * Handles the reaction of a message in a channel.
+   * @param isReaction - A boolean value indicating whether the message is a reaction or not.
+   */
+  handleChannelReaction(isReaction: boolean): void {
+    if (isReaction) this.emojiMenuTrigger.closeMenu();
   }
 }

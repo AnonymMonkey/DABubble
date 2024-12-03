@@ -8,7 +8,7 @@ import { UserService } from '../../../../../shared/services/user-service/user.se
 @Component({
   selector: 'app-channel-display-name',
   standalone: true,
-  imports: [ChannelDescriptionComponent, NgIf],
+  imports: [NgIf],
   templateUrl: './channel-display-name.component.html',
   styleUrl: './channel-display-name.component.scss'
 })
@@ -18,6 +18,9 @@ export class ChannelDisplayNameComponent {
 
   constructor(public description: ChannelDescriptionComponent, private channelService: ChannelService) {}
 
+  /**
+   * Initializes the component by subscribing to the current channel.
+   */
   ngOnInit(): void {
     this.channelService.currentChannel$.subscribe({
       next: (channel) => {
@@ -26,6 +29,10 @@ export class ChannelDisplayNameComponent {
     });
   }
 
+  /**
+   * Checks if the current user is an admin of the current channel.
+   * @returns True if the current user is an admin, false otherwise.
+   */
   userIsAdmin() {
     return this.currentChannel?.admin?.userId === this.userService.userId;
   }

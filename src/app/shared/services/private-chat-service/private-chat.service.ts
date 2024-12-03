@@ -396,7 +396,7 @@ export class PrivateChatService implements OnDestroy {
     const secondUserAlreadyReacted = reaction.userIds.includes(
       secondUserIdForSaving
     );
-    if (reaction.userIds.includes(userId) && secondUserAlreadyReacted) {
+    if (reaction.userIds.includes(userId) && secondUserAlreadyReacted && secondUserIdForSaving !== userId) {
       reaction.count = 2;
     }
   }

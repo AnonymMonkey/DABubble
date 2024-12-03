@@ -1,4 +1,10 @@
-import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MessageAreaHeaderComponent } from '../message-area-header.component';
 import { MatIcon } from '@angular/material/icon';
 import { Channel } from '../../../../shared/models/channel.model';
@@ -35,33 +41,40 @@ export class ChannelNewMemberComponent {
     private route: ActivatedRoute
   ) {}
 
+  /**
+   * Subscribe to the current channel and the route parameters to get the channel ID.
+   */
   ngOnInit(): void {
     this.channelService.currentChannel$.subscribe((data) => {
-      if (data) {
-        this.currentChannel = data;
-      }
+      if (data) this.currentChannel = data;
     });
     this.route.params.subscribe((params) => {
       this.channelId = params['channelId'];
     });
   }
 
+  /**
+   * Handles the event when the user list is empty.
+   * @param isEmpty - True if the user list is empty, false otherwise.
+   */
   handleUsersEmpty(isEmpty: boolean): void {
     this.invalid = isEmpty;
   }
 
+  /**
+   * Creates a new channel or updates an existing one.
+   */
   create() {
-    if (this.channelId === '') {
-      this.addUsersToChannel.createNewChannel();
-    } else {
-      this.addUsersToChannel.updateExistingChannel();
-    }
+    if (this.channelId === '') this.addUsersToChannel.createNewChannel();
+    else this.addUsersToChannel.updateExistingChannel();
     this.closeAutocomplete();
     this.header.closeMenu('add-member');
   }
 
+  /**
+   * Emits an event to close the autocomplete.
+   */
   closeAutocomplete(): void {
-    this.closeAutocompleteEmitter.emit(); 
+    this.closeAutocompleteEmitter.emit();
   }
-
 }

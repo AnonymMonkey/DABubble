@@ -1,26 +1,33 @@
 <section class="text-container">
-    <div class="name-and-time-own">
-      <span
-        class="name"
-        (click)="userService.openProfileInfo(message?.userId)"
-        >{{ displayName || 'Lädt...' }}</span
+  <div class="name-and-time-own">
+    <span class="name" (click)="userService.openProfileInfo(message?.userId)">{{
+      displayName || "Lädt..."
+    }}</span>
+    <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
+  </div>
+  <span class="message-own">
+    <p>{{ message?.content }}</p>
+    <div
+      *ngIf="message?.attachmentUrls?.length > 0"
+      class="attachment-container"
+    >
+      <a
+        *ngFor="let attachmentUrl of message.attachmentUrls"
+        [href]="attachmentUrl"
       >
-      <span class="time">{{ message?.time | date : "HH:mm" }} Uhr</span>
+        <app-attachment-preview
+          [actualAttachmentUrls]="[attachmentUrl]"
+          [message]="message"
+          [messageId]="message.messageId"
+        >
+        </app-attachment-preview>
+      </a>
     </div>
-    <span class="message-own">
-      <p>{{ message?.content }}</p>
-      <div *ngIf="message?.attachmentUrls?.length > 0" class="attachment-container">
-        <a *ngFor="let attachmentUrl of message.attachmentUrls" [href]="attachmentUrl">
-          <app-attachment-preview 
-            [actualAttachmentUrls]="[attachmentUrl]" [message]="message" [messageId]="message.messageId">
-          </app-attachment-preview>
-        </a>
-      </div>
-    </span>
-  
-    <app-message-reactions
-      [message]="message"
-      *ngIf="message?.reactions?.length > 0"
-    ></app-message-reactions>
-  </section>
-  
+  </span>
+
+  <app-message-reactions
+    [message]="message"
+    [component]="'channel'"
+    *ngIf="message?.reactions?.length > 0"
+  ></app-message-reactions>
+</section>

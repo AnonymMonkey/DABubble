@@ -226,11 +226,9 @@ export class ChannelService {
     this.getChannelById(channelId).subscribe({
       next: (channel) => {
         this.currentChannelSubject.next(channel); // Channel setzen
-        this.loading = false; // Ladezustand deaktivieren
       },
       error: (error) => {
         console.error('Fehler beim Laden des Channels:', error);
-        this.loading = false; // Ladezustand deaktivieren bei Fehler
       },
     });
   }

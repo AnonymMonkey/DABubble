@@ -38,7 +38,7 @@
       Möchtest du den Channel # {{ currentChannel?.channelName }} wirklich
       verlassen?
     </p>
-    <p *ngIf="currentChannel?.members?.length === 1" (click)="$event.stopPropagation()">
+    <p *ngIf="currentChannel?.members?.length === 1" (click)="$event.stopPropagation()" class="last-member-warning">
       Der Channel wird folgend nach deinem Austritt unwiderruflich gelöscht, da
       du das letzte Mitglied bist.
     </p>

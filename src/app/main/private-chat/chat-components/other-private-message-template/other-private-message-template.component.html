@@ -13,17 +13,25 @@
         <ngx-emoji
           emoji="white_check_mark"
           [size]="16"
-          (emojiClick)="privateChatService.addReaction(message.messageId, $event.emoji)"
+          (emojiClick)="
+            privateChatService.addReaction(message.messageId, $event.emoji)
+          "
         ></ngx-emoji>
       </div>
       <div>
         <ngx-emoji
           emoji="raised_hands"
           [size]="16"
-          (emojiClick)="privateChatService.addReaction(message.messageId, $event.emoji)"
+          (emojiClick)="
+            privateChatService.addReaction(message.messageId, $event.emoji)
+          "
         ></ngx-emoji>
       </div>
-      <div [matMenuTriggerFor]="emojiMenu" (menuOpened)="menuOpened()" (menuClosed)="menuClosed()">
+      <div
+        [matMenuTriggerFor]="emojiMenu"
+        (menuOpened)="menuOpened()"
+        (menuClosed)="menuClosed()"
+      >
         <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
       </div>
     </div>
@@ -53,19 +61,34 @@
       </div>
       <span class="message">
         <p>{{ message?.content }}</p>
-        <div *ngIf="message?.attachmentUrls?.length > 0" class="attachment-container">
-          <a *ngFor="let attachmentUrl of message.attachmentUrls" [href]="attachmentUrl">
-            <app-attachment-preview 
-              [actualAttachmentUrls]="[attachmentUrl]" [message]="message">
+        <div
+          *ngIf="message?.attachmentUrls?.length > 0"
+          class="attachment-container"
+        >
+          <a
+            *ngFor="let attachmentUrl of message.attachmentUrls"
+            [href]="attachmentUrl"
+          >
+            <app-attachment-preview
+              [actualAttachmentUrls]="[attachmentUrl]"
+              [message]="message"
+            >
             </app-attachment-preview>
           </a>
         </div>
       </span>
-      <app-message-reactions [message]="message" *ngIf="message.reactions.length > 0"></app-message-reactions>
+      <app-message-reactions
+        [message]="message"
+        [component]="'privateChat'"
+        *ngIf="message.reactions.length > 0"
+      ></app-message-reactions>
     </div>
   </div>
 
   <mat-menu xPosition="after" #emojiMenu>
-    <app-emoji-picker [message]="message" [component]="'privateChat'"></app-emoji-picker>
+    <app-emoji-picker
+      [message]="message"
+      [component]="'privateChat'"
+    ></app-emoji-picker>
   </mat-menu>
 </section>
