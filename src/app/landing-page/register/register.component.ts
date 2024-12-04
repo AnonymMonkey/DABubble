@@ -28,7 +28,7 @@ import { UserService } from '../../shared/services/user-service/user.service';
     ReactiveFormsModule,
   ],
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss'],
+  styleUrls: ['./register.component.scss', './register.component_media.scss'],
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
