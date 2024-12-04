@@ -13,12 +13,7 @@
   <div class="profile" (click)="toggleDropdown()">
     <p *ngIf="userData">{{ userData.displayName }}</p>
     <div class="image-with-badge">
-      <img
-        *ngIf="userData"
-        src="{{ userData.photoURL }}"
-        alt=""
-        matTooltip="{{ userData.displayName }}"
-      />
+      <img *ngIf="userData" src="{{ userData.photoURL }}" alt="" />
       <div class="badge"></div>
     </div>
     <mat-icon>keyboard_arrow_down</mat-icon>
