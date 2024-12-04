@@ -15,6 +15,10 @@ mat-toolbar {
   border-top-right-radius: 30px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+
+  @media only screen and (max-width: 600px) {
+    border-radius: 0;
+  }
 }
 
 .other-user-button {
@@ -45,6 +49,6 @@ mat-toolbar {
 }
 
 .image-with-badge {
-    align-items: center;
-    display: flex;
+  align-items: center;
+  display: flex;
 }

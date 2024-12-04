@@ -56,6 +56,10 @@
 
 .example-container {
   height: calc(100vh - 145px);
+
+  @media only screen and (max-width: 600px) {
+    height: calc(100vh - 97px);
+  }
   width: 100%;
   background-color: unset;
   z-index: 1;
@@ -77,6 +81,10 @@
 
     @media screen and (max-width: 992px) {
       box-shadow: 10px 0px 20px 0px var(--light-purple-color) !important;
+    }
+    @media only screen and (max-width: 600px) {
+      border-radius: 0;
+      width: 100%;
     }
   }
 }

@@ -256,6 +256,21 @@ mat-icon {
   }
 }
 
+.padding-right-20 {
+  padding-right: var(--padding-20);
+  @media screen and (max-width: 992px) {
+    padding-right: 0 !important;
+  }
+}
+
+.padding-left-20 {
+  padding-left: var(--padding-20);
+
+  @media screen and (max-width: 992px) {
+    padding-left: 0 !important;
+  }
+}
+
 textarea,
 input {
   font-family: var(--font-nunito) !important;
@@ -276,10 +291,6 @@ input {
 @media only screen and (max-width: 768px) {
   h1 {
     font-size: var(--fontsize-32) !important;
-  }
-
-  mat-card {
-    padding: var(--padding-16) !important;
   }
 }
 

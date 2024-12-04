@@ -10,6 +10,11 @@ header {
   margin-bottom: 20px;
   gap: var(--gap-20);
 
+  @media only screen and (max-width: 600px) {
+    padding-inline: 20px;
+    padding-top: 25px;
+  }
+
   .logo-search-wrapper {
     width: 100%;
     display: flex;

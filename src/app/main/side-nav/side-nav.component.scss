@@ -27,27 +27,26 @@
         color: black;
       }
     }
+  }
+  .toolbar-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    mat-icon {
+      color: black !important;
+    }
 
-    .toolbar-icon {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      mat-icon {
-        color: black !important;
-      }
+    &:hover {
+      color: var(--purple3-color) !important;
+      background-color: var(--light-purple-color2) !important;
+    }
 
-      &:hover {
-        color: var(--purple3-color) !important;
-        background-color: var(--light-purple-color2) !important;
-      }
+    &:hover mat-icon {
+      color: var(--purple3-color) !important;
+    }
 
-      &:hover mat-icon {
-        color: var(--purple3-color) !important;
-      }
-
-      &:active {
-        background-color: var(--light-purple-color) !important;
-      }
+    &:active {
+      background-color: var(--light-purple-color) !important;
     }
   }
 
