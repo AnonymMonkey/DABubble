@@ -74,5 +74,9 @@
     ::ng-deep.mat-drawer-inner-container {
       overflow: hidden !important;
     }
+
+    @media screen and (max-width: 992px) {
+      box-shadow: 10px 0px 20px 0px var(--light-purple-color) !important;
+    }
   }
 }

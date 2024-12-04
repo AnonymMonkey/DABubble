@@ -79,6 +79,10 @@ mat-sidenav {
   border-radius: 30px !important;
   background-color: var(--text-color);
   box-shadow: unset !important;
+
+  @media screen and (max-width: 992px) {
+    box-shadow: -10px 0px 20px 0px var(--light-purple-color) !important;
+  }
 }
 
 mat-sidenav-content {

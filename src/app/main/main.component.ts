@@ -28,7 +28,6 @@ import { BehaviorService } from '../shared/services/behavior-service/behavior.se
   ],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
-  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainComponent implements OnInit, OnDestroy {
   userId!: string;
