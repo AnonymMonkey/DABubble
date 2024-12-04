@@ -37,7 +37,7 @@ export class LoginComponent {
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', [Validators.required]);
   errorMessage: string | null = null;
-  showAnimation: boolean = false;
+  showAnimation: boolean = true;
 
   constructor(
     private authService: AuthService,
@@ -49,6 +49,11 @@ export class LoginComponent {
 
     if (!animationPlayed) {
       sessionStorage.setItem('animationPlayed', 'true');
+
+      // Setze showAnimation nach der Dauer der Animation auf false
+      setTimeout(() => {
+        this.showAnimation = false;
+      }, 3500); // Dauer der Animation in Millisekunden
     }
   }
 
