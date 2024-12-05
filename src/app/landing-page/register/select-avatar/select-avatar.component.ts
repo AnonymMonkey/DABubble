@@ -18,7 +18,10 @@ import { StorageService } from '../../../shared/services/storage-service/storage
   standalone: true,
   imports: [RouterModule, MatCardModule, MatIconModule, CommonModule],
   templateUrl: './select-avatar.component.html',
-  styleUrls: ['./select-avatar.component.scss'],
+  styleUrls: [
+    './select-avatar.component.scss',
+    './select-avatar.component_media.scss',
+  ],
 })
 export class SelectAvatarComponent implements OnInit {
   storage = getStorage();
