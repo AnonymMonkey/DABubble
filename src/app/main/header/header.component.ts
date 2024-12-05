@@ -12,6 +12,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BehaviorService } from '../../shared/services/behavior-service/behavior.service';
 import { Subscription } from 'rxjs';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import {
+  MatBottomSheet,
+  MatBottomSheetModule,
+  MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
+import { BottomSheetComponent } from './bottom-sheet/bottom-sheet/bottom-sheet.component';
 
 @Component({
   selector: 'app-header',
@@ -23,6 +29,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
     CommonModule,
     SearchBarComponent,
     MatTooltipModule,
+    MatBottomSheetModule,
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -36,6 +43,7 @@ export class HeaderComponent {
   breakpointObserver = inject(BreakpointObserver);
   breakpointSubscription!: Subscription;
   mobileVersion: boolean = false;
+  _bottomSheet = inject(MatBottomSheet);
 
   ngOnInit(): void {
     this.breakpointSubscription = this.breakpointObserver
@@ -58,7 +66,11 @@ export class HeaderComponent {
 
   constructor(public dialog: MatDialog, private route: ActivatedRoute) {}
   toggleDropdown(): void {
-    const dialogRef = this.dialog.open(ProfileDialogComponent);
+    if (this.mobileVersion) {
+      this._bottomSheet.open(BottomSheetComponent);
+    } else {
+      this.dialog.open(ProfileDialogComponent);
+    }
   }
 
   returnToSideNav(): void {

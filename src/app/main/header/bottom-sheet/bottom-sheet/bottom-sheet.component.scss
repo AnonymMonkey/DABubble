@@ -1,0 +1,46 @@
+::ng-deep.mat-bottom-sheet-container {
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+}
+
+::ng-deep.cdk-global-scrollblock {
+  overflow-y: unset !important;
+}
+
+mat-nav-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--gap-20);
+
+  img {
+    align-self: center;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .button-secondary {
+    width: auto !important;
+    display: flex;
+    gap: var(--gap-16);
+    align-items: center;
+    margin-left: 40px;
+  }
+
+  .profile-dialog-button {
+    font-size: var(--fontsize-20);
+    color: var(--black-color) !important;
+    outline: none !important;
+    padding: 12px 45px;
+    border: none !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background-color: var(--bg-color) !important;
+      color: var(--purple1-color) !important;
+      cursor: pointer;
+    }
+  }
+}
