@@ -1,23 +1,25 @@
 import {
   Component,
   ViewChild,
-  ViewEncapsulation,
   AfterViewInit,
   ElementRef,
   OnInit,
+  inject,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MessageAreaHeaderComponent } from './message-area-header/message-area-header.component';
 import { MessageAreaChatHistoryComponent } from './message-area-chat-history/message-area-chat-history.component';
 import { MessageAreaNewMessageComponent } from './message-area-new-message/message-area-new-message.component';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Renderer2 } from '@angular/core';
 import { ChannelService } from '../../shared/services/channel-service/channel.service';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
-import { MainComponent } from '../main.component';
+import { ActivatedRoute } from '@angular/router';
 import { ThreadComponent } from './thread/thread.component';
 import { UserService } from '../../shared/services/user-service/user.service';
+import { BehaviorService } from '../../shared/services/behavior-service/behavior.service';
+import { Subscription } from 'rxjs';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-main-message-area',
@@ -41,6 +43,11 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
   channelData: any;
   channelId!: string | null;
   public currentUserId!: string;
+  behaviorService = inject(BehaviorService);
+  sideNavOpened = true;
+  subscription!: Subscription;
+  breakpointObserver = inject(BreakpointObserver);
+  drawerMode: 'side' | 'over' = 'side';
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenav', { read: ElementRef }) sidenavElement!: ElementRef;
@@ -69,6 +76,24 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
         this.closeSidenav();
       }
     });
+
+    this.subscription = this.behaviorService.sideNavOpened$.subscribe(
+      (value) => {
+        this.sideNavOpened = value;
+      }
+    );
+
+    this.breakpointObserver
+      .observe(['(min-width: 992px)'])
+      .subscribe((result) => {
+        this.drawerMode = result.matches ? 'side' : 'over';
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   ngAfterViewInit() {
@@ -101,7 +126,10 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
     if (this.sidenav) {
       this.sidenav.close();
       this.threadOpened = false;
-      setTimeout(() => this.sidenavElement.nativeElement.classList.add('d-none'), 300);
+      setTimeout(
+        () => this.sidenavElement.nativeElement.classList.add('d-none'),
+        300
+      );
     }
   }
 }

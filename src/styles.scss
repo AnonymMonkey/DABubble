@@ -261,6 +261,21 @@ mat-icon {
   }
 }
 
+.padding-right-20 {
+  padding-right: var(--padding-20);
+  @media screen and (max-width: 992px) {
+    padding-right: 0 !important;
+  }
+}
+
+.padding-left-20 {
+  padding-left: var(--padding-20);
+
+  @media screen and (max-width: 992px) {
+    padding-left: 0 !important;
+  }
+}
+
 textarea,
 input {
   font-family: var(--font-nunito) !important;

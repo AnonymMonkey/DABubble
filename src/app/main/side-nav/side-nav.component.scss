@@ -27,34 +27,40 @@
         color: black;
       }
     }
+  }
+  .toolbar-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    mat-icon {
+      color: black !important;
+    }
 
-    .toolbar-icon {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      mat-icon {
-        color: black !important;
-      }
+    &:hover {
+      color: var(--purple3-color) !important;
+      background-color: var(--light-purple-color2) !important;
+    }
 
-      &:hover {
-        color: var(--purple3-color) !important;
-        background-color: var(--light-purple-color2) !important;
-      }
+    &:hover mat-icon {
+      color: var(--purple3-color) !important;
+    }
 
-      &:hover mat-icon {
-        color: var(--purple3-color) !important;
-      }
+    &:active {
+      background-color: var(--light-purple-color) !important;
+    }
+  }
 
-      &:active {
-        background-color: var(--light-purple-color) !important;
-      }
+  .edit {
+    @media only screen and (max-width: 600px) {
+      display: none !important;
     }
   }
 
   app-search-bar {
+    margin-top: 25px;
     width: 100%;
 
-    @media only screen and (min-width: 992px) {
+    @media only screen and (min-width: 600px) {
       display: none;
     }
   }
@@ -235,4 +241,22 @@
 .mat-toolbar-single-row {
   background-color: white !important;
   margin-bottom: 16px !important;
+}
+
+.main-page-button {
+  left: 80%;
+  bottom: 32px;
+
+  @media only screen and (min-width: 600px) {
+    display: none !important;
+  }
+}
+
+.button-wrapper {
+  .button-primary {
+    width: 60px !important;
+    height: 60px !important;
+    color: white !important;
+    padding: unset !important;
+  }
 }

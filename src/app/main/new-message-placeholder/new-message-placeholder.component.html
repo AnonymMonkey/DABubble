@@ -1,10 +1,13 @@
-<section>
-    <mat-card appearance="outlined" class="mat-card-container">
-      <mat-card-content>
-        <app-new-message-header></app-new-message-header>
-       
-        <app-new-message-placeholder-new-message></app-new-message-placeholder-new-message>
-      </mat-card-content>
-    </mat-card>
-  </section>
- 
+<section
+  [ngClass]="{
+    'padding-left-20': sideNavOpened === true
+  }"
+>
+  <mat-card appearance="outlined" class="mat-card-container">
+    <mat-card-content>
+      <app-new-message-header></app-new-message-header>
+
+      <app-new-message-placeholder-new-message></app-new-message-placeholder-new-message>
+    </mat-card-content>
+  </mat-card>
+</section>

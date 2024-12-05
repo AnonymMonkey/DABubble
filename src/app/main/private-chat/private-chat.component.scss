@@ -1,6 +1,7 @@
 :host {
   display: flex;
   flex-grow: 1;
+  height: 100%;
 }
 
 section {
@@ -15,12 +16,6 @@ app-private-chat-header {
   height: 10svh !important;
   display: flex;
 }
-
-// app-private-chat-history {
-//   display: flex;
-//   flex-grow: 1;
-//   overflow: hidden;
-// }
 
 app-private-chat-placeholder {
   display: flex;
@@ -40,7 +35,11 @@ app-message-area-new-message {
   height: 100%;
   background-color: var(--text-color);
   border-radius: 30px;
-  box-shadow: 0px 2px 2px 0px #00000014;
+  box-shadow: none !important;
+
+  @media only screen and (max-width: 600px) {
+    border-radius: 0;
+  }
 }
 
 mat-card-content {

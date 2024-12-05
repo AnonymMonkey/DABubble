@@ -3,6 +3,10 @@
     overflow: hidden !important;
     max-width: none !important;
     border-radius: 30px;
+
+    @media only screen and (max-width: 600px) {
+      border-radius: 0;
+    }
   }
 
   emoji-mart-anchors {

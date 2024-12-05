@@ -1,3 +1,23 @@
+<<<<<<< HEAD
+<mat-sidenav-container class="example-container" autosize>
+  <mat-sidenav-content
+    [ngClass]="{
+      'padding-right-20': threadOpened === true,
+      'padding-left-20': sideNavOpened === true
+    }"
+  >
+    <mat-card appearance="outlined" class="mat-card-container">
+      <mat-card-content>
+        <app-message-area-header></app-message-area-header>
+        <app-message-area-chat-history
+          [currentUserId]="currentUserId"
+        ></app-message-area-chat-history>
+        <app-message-area-new-message></app-message-area-new-message>
+      </mat-card-content>
+    </mat-card>
+  </mat-sidenav-content>
+  <mat-sidenav #sidenav [mode]="drawerMode" [(opened)]="opened" position="end">
+=======
 <section [ngClass]="{ 'padding-right-20': threadOpened === true }">
   <mat-card appearance="outlined" class="mat-card-container">
     <mat-card-content>
@@ -11,7 +31,7 @@
 </section>
 <mat-sidenav-container class="example-container">
   <mat-sidenav #sidenav mode="side" [(opened)]="opened" position="end">
+>>>>>>> origin/main
     <app-thread [currentUserId]="currentUserId"></app-thread>
   </mat-sidenav>
-  <mat-sidenav-content> </mat-sidenav-content>
 </mat-sidenav-container>

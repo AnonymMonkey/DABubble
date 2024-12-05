@@ -52,34 +52,43 @@
       color: var(--purple1-color) !important;
     }
   }
+
+  @media screen and (max-width: 600px) {
+    display: none;
+  }
 }
 
 .example-container {
   height: calc(100vh - 145px);
+
+  @media only screen and (max-width: 600px) {
+    height: calc(100vh - 97px);
+  }
+  width: 100%;
   background-color: unset;
   z-index: 1;
-  border-radius: 30px;
-}
 
-.example-sidenav {
-  width: 102%;
-  padding: 24px;
-  color: black;
-  background-color: white;
-
-  ::ng-deep.mat-drawer-inner-container {
-    overflow: hidden !important;
+  ::ng-deep.mat-drawer-backdrop.mat-drawer-shown {
+    visibility: hidden;
   }
-}
-section {
-  display: flex;
-  // flex-direction: column;
-  height: calc(100vh - 145px);
-  // height: 100%;
-  width: 100%;
-  // gap: 20px;
-}
 
-router-outlet {
-  display: none;
+  .example-sidenav {
+    border-radius: 30px;
+    width: 366px;
+    padding: 24px;
+    color: black;
+    background-color: white;
+
+    ::ng-deep.mat-drawer-inner-container {
+      overflow: hidden !important;
+    }
+
+    @media screen and (max-width: 992px) {
+      box-shadow: 10px 0px 20px 0px var(--light-purple-color) !important;
+    }
+    @media only screen and (max-width: 600px) {
+      border-radius: 0;
+      width: 100%;
+    }
+  }
 }

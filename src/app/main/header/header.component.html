@@ -1,24 +1,30 @@
 <header>
-  <div class="logo-search-wrapper">
-    <div class="logo">
-      <img src="assets/img/logo.webp" alt="" />
-      <img src="assets/img/logo_name.webp" alt="" />
+  <ng-container *ngIf="!sideNavOpened && mobileVersion; else normalLogo">
+    <div class="toolbar-logo" (click)="returnToSideNav()">
+      <mat-icon class="material-symbols-outlined">keyboard_arrow_left</mat-icon>
+      <img src="./assets/img/Workspace logo.png" alt="" />
+      <span>Devspace</span>
     </div>
-    <app-search-bar
-      [placeholder]="'Devspace durchsuchen'"
-      [searchIconExists]="true"
-      [inputFont]="true"
-    ></app-search-bar>
-  </div>
+  </ng-container>
+
+  <ng-template #normalLogo>
+    <div class="logo-search-wrapper">
+      <div class="logo">
+        <img src="assets/img/logo.webp" alt="" />
+        <img src="assets/img/logo_name.webp" alt="" />
+      </div>
+      <app-search-bar
+        [placeholder]="'Devspace durchsuchen'"
+        [searchIconExists]="true"
+        [inputFont]="true"
+      ></app-search-bar>
+    </div>
+  </ng-template>
+
   <div class="profile" (click)="toggleDropdown()">
     <p *ngIf="userData">{{ userData.displayName }}</p>
     <div class="image-with-badge">
-      <img
-        *ngIf="userData"
-        src="{{ userData.photoURL }}"
-        alt=""
-        matTooltip="{{ userData.displayName }}"
-      />
+      <img *ngIf="userData" src="{{ userData.photoURL }}" alt="" />
       <div class="badge"></div>
     </div>
     <mat-icon>keyboard_arrow_down</mat-icon>

@@ -65,6 +65,7 @@
 
   .button-primary {
     align-self: flex-end;
+    width: fit-content !important;
 
     &:disabled {
       cursor: not-allowed !important;

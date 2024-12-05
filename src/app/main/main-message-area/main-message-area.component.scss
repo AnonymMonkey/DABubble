@@ -1,6 +1,7 @@
 :host {
   display: flex;
   flex-grow: 1;
+  height: 100%;
 }
 
 section {
@@ -8,10 +9,6 @@ section {
   align-items: flex-start;
   justify-content: flex-start;
   display: flex;
-}
-
-.padding-right-20 {
-  padding-right: var(--padding-20);
 }
 
 app-message-area-header {
@@ -38,6 +35,10 @@ app-message-area-new-message {
   background-color: var(--text-color);
   border-radius: 30px;
   box-shadow: 0px 2px 2px 0px #00000014;
+
+  @media only screen and (max-width: 600px) {
+    border-radius: 0;
+  }
 }
 
 mat-card-content {
@@ -56,19 +57,34 @@ mat-card-content {
 }
 
 mat-sidenav-container {
-  border-radius: 30px;
   right: auto;
   left: 0px;
+  width: 100%;
+  background-color: transparent;
 }
 
 mat-sidenav {
   width: 400px;
+  border-radius: 30px !important;
   background-color: var(--text-color);
-  box-shadow: 0px 2px 2px 0px #00000014;
+  box-shadow: unset !important;
+
+  @media screen and (max-width: 992px) {
+    box-shadow: -10px 0px 20px 0px var(--light-purple-color) !important;
+  }
+
+  @media only screen and (max-width: 600px) {
+    border-radius: 0 !important;
+    width: 100%;
+  }
 }
 
 mat-sidenav-content {
   height: 100%;
-  width: 0;
+  box-shadow: unset !important;
   border-radius: 30px;
+
+  @media only screen and (max-width: 600px) {
+    border-radius: 0;
+  }
 }

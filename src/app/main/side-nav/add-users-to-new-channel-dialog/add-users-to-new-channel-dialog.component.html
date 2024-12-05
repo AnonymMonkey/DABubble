@@ -9,13 +9,6 @@
       [(ngModel)]="radioValue"
       (ngModelChange)="checkChoice()"
     >
-      <!-- <mat-radio-button [value]="1"
-        >Alle Mitglieder <span *ngIf="openedChannelData">von</span>
-        <span [ngStyle]="{ color: 'var(--purple1-color)' }">
-          {{ openedChannelData.channelName }}</span
-        >
-        hinzufügen</mat-radio-button
-      > -->
       <mat-radio-button [value]="1">
         <ng-container *ngIf="openedChannelData; else allUsers">
           Alle Mitglieder von
@@ -30,15 +23,10 @@
         >Bestimmte Leute hinzufügen</mat-radio-button
       >
     </mat-radio-group>
-
-    <!-- ################ -->
-
     <app-add-users-to-channel
       *ngIf="radioValue === 2"
       [channelId]="channelId"
     ></app-add-users-to-channel>
-
-    <!-- ################ -->
   </mat-dialog-content>
   <mat-dialog-actions [align]="'end'">
     <button

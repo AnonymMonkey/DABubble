@@ -1,0 +1,15 @@
+<mat-nav-list>
+  <img src="assets/img/Rectangle 203.png" (click)="_bottomSheetRef.dismiss()" />
+  <button
+    class="button-secondary profile-dialog-button"
+    (click)="openProfileInfo()"
+  >
+    <mat-icon class="material-symbols-outlined">account_circle</mat-icon>
+
+    Profil
+  </button>
+  <button class="button-secondary profile-dialog-button" (click)="logOut()">
+    <mat-icon class="material-symbols-outlined">logout</mat-icon>
+    Log out
+  </button>
+</mat-nav-list>

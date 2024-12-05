@@ -1,26 +1,29 @@
 <app-header *ngIf="userData" [userData]="userData"></app-header>
 
 <div class="sidenav-button-container">
-  <button (click)="drawer.toggle()">
-    <p>Workspace-Menü {{ drawer.opened ? "schließen" : "öffnen" }}</p>
+  <button
+    (click)="drawer.toggle(); sideNavOpened = !sideNavOpened; setNavBehavior()"
+  >
+    <p>Workspace-Menü {{ sideNavOpened ? "schließen" : "öffnen" }}</p>
     <mat-icon fontSet="material-symbols-outlined"
-      >left_panel_{{ drawer.opened ? "close" : "open" }}</mat-icon
+      >left_panel_{{ sideNavOpened ? "close" : "open" }}</mat-icon
     >
   </button>
 </div>
-<section [ngStyle]="{ gap: drawer.opened ? '20px' : '0px' }">
-  <mat-drawer-container
-    class="example-container"
-    [ngStyle]="{ width: drawer.opened ? '366px' : '0px' }"
-    autosize
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer
+    #drawer
+    class="example-sidenav"
+    [mode]="drawerMode"
+    [opened]="sideNavOpened"
+    autoFocus="false"
   >
-    <mat-drawer #drawer class="example-sidenav" mode="side" opened="true">
-      <app-side-nav
-        *ngIf="userData"
-        [userData]="userData"
-        [allChannelsData]="allChannelsData"
-      ></app-side-nav>
-    </mat-drawer>
-  </mat-drawer-container>
+    <app-side-nav
+      *ngIf="userData"
+      [userData]="userData"
+      [allChannelsData]="allChannelsData"
+      [drawerMode]="drawerMode"
+    ></app-side-nav>
+  </mat-drawer>
   <router-outlet></router-outlet>
-</section>
+</mat-drawer-container>
