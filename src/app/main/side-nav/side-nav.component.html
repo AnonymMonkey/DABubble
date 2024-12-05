@@ -4,7 +4,12 @@
       <img src="./assets/img/Workspace logo.png" alt="" />
       <span>Devspace</span>
     </div>
-    <button mat-icon-button class="toolbar-icon" routerLink=".">
+    <button
+      mat-icon-button
+      class="toolbar-icon"
+      routerLink="."
+      (click)="activeButtonService.setActiveButton(''); closeNavOnClick()"
+    >
       <mat-icon class="material-symbols-outlined">edit_square</mat-icon>
     </button>
   </div>
@@ -46,6 +51,7 @@
         routerLink="channel/{{ channel.value.channelId }}"
         routerLinkActive="active"
         (click)="
+          closeNavOnClick();
           activeButtonService.setActiveButton('');
           channelService.setChannel(channel.value.channelId)
         "

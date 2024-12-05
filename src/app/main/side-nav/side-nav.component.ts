@@ -23,6 +23,7 @@ import { PrivateChatService } from '../../shared/services/private-chat-service/p
 import { MatBadgeModule } from '@angular/material/badge';
 import { ActiveChatButtonService } from '../../shared/services/profile-chat-button-service/active-chat-button.service';
 import { SearchBarComponent } from '../../shared/components/search-bar/search-bar.component';
+import { BehaviorService } from '../../shared/services/behavior-service/behavior.service';
 
 @Component({
   selector: 'app-side-nav',
@@ -48,11 +49,13 @@ export class SideNavComponent {
   public channelService = inject(ChannelService);
   @Input() userData!: UserData;
   @Input() allChannelsData!: Map<string, Channel>;
+  @Input() drawerMode!: string;
   userService = inject(UserService);
   privateChatService = inject(PrivateChatService);
   allUserData: UserData[] = [];
   router: Router = inject(Router);
   activeButtonService = inject(ActiveChatButtonService);
+  behaviorService = inject(BehaviorService);
 
   constructor(public dialog: MatDialog) {}
 
@@ -81,6 +84,7 @@ export class SideNavComponent {
   }
 
   openChatWithUser(targetUser: UserData, buttonID: string) {
+    this.closeNavOnClick();
     this.privateChatService
       .openOrCreatePrivateChat(this.userData, targetUser)
       .subscribe((chatId) => {
@@ -100,5 +104,11 @@ export class SideNavComponent {
 
   isActiveButton(buttonId: string): boolean {
     return this.activeButtonService.activeButtonId === buttonId;
+  }
+
+  closeNavOnClick(): void {
+    if (this.drawerMode === 'over') {
+      this.behaviorService.setValue(false);
+    }
   }
 }

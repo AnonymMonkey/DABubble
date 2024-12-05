@@ -4,18 +4,24 @@
   <button
     (click)="drawer.toggle(); sideNavOpened = !sideNavOpened; setNavBehavior()"
   >
-    <p>Workspace-Menü {{ drawer.opened ? "schließen" : "öffnen" }}</p>
+    <p>Workspace-Menü {{ sideNavOpened ? "schließen" : "öffnen" }}</p>
     <mat-icon fontSet="material-symbols-outlined"
-      >left_panel_{{ drawer.opened ? "close" : "open" }}</mat-icon
+      >left_panel_{{ sideNavOpened ? "close" : "open" }}</mat-icon
     >
   </button>
 </div>
 <mat-drawer-container class="example-container" autosize>
-  <mat-drawer #drawer class="example-sidenav" [mode]="drawerMode" opened="true">
+  <mat-drawer
+    #drawer
+    class="example-sidenav"
+    [mode]="drawerMode"
+    [opened]="sideNavOpened"
+  >
     <app-side-nav
       *ngIf="userData"
       [userData]="userData"
       [allChannelsData]="allChannelsData"
+      [drawerMode]="drawerMode"
     ></app-side-nav>
   </mat-drawer>
   <router-outlet></router-outlet>

@@ -11,7 +11,7 @@ import { UserData } from '../shared/models/user.model';
 import { Channel } from '../shared/models/channel.model';
 import { ChannelService } from '../shared/services/channel-service/channel.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { BehaviorService } from '../shared/services/behavior-service/behavior.service';
 
 @Component({
@@ -45,6 +45,7 @@ export class MainComponent implements OnInit, OnDestroy {
   drawerMode: 'side' | 'over' = 'side';
   sideNavOpened = true;
   behaviorService = inject(BehaviorService);
+  subscription!: Subscription;
 
   constructor(private route: ActivatedRoute) {
     this.route.params.subscribe((params) => {
@@ -64,6 +65,13 @@ export class MainComponent implements OnInit, OnDestroy {
       .subscribe((result) => {
         this.drawerMode = result.matches ? 'side' : 'over';
       });
+
+    this.subscription = this.behaviorService.sideNavOpened$.subscribe(
+      (value) => {
+        this.sideNavOpened = value;
+        console.log(this.sideNavOpened);
+      }
+    );
   }
 
   loadUserData(userId: string): void {
@@ -105,6 +113,9 @@ export class MainComponent implements OnInit, OnDestroy {
     if (this.channelSubscription) {
       // Subscription für channels auch beenden
       this.channelSubscription.unsubscribe();
+    }
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 
