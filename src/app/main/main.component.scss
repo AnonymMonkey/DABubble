@@ -52,6 +52,10 @@
       color: var(--purple1-color) !important;
     }
   }
+
+  @media screen and (max-width: 600px) {
+    display: none;
+  }
 }
 
 .example-container {

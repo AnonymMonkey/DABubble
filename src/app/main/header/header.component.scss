@@ -63,6 +63,29 @@ header {
     }
   }
 
+  .toolbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover {
+      cursor: pointer;
+    }
+    span {
+      font-size: var(--fontsize-24);
+      font-weight: 700;
+      color: black;
+    }
+
+    mat-icon {
+      color: black !important ;
+    }
+
+    img {
+      height: 45px;
+    }
+  }
+
   .profile {
     color: var(--black-color);
     display: flex;

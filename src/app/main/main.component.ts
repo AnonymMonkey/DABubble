@@ -69,7 +69,6 @@ export class MainComponent implements OnInit, OnDestroy {
     this.subscription = this.behaviorService.sideNavOpened$.subscribe(
       (value) => {
         this.sideNavOpened = value;
-        console.log(this.sideNavOpened);
       }
     );
   }
