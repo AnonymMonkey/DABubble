@@ -252,9 +252,11 @@
   }
 }
 
-.button-primary {
-  width: 60px !important;
-  height: 60px !important;
-  color: white !important;
-  padding: unset !important;
+.button-wrapper {
+  .button-primary {
+    width: 60px !important;
+    height: 60px !important;
+    color: white !important;
+    padding: unset !important;
+  }
 }
