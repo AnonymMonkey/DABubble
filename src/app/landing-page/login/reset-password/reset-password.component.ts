@@ -26,7 +26,10 @@ import { NotificationService } from '../../../shared/services/notification-servi
     ReactiveFormsModule,
   ],
   templateUrl: './reset-password.component.html',
-  styleUrls: ['./reset-password.component.scss'],
+  styleUrls: [
+    './reset-password.component.scss',
+    './reset-password.component_media.scss',
+  ],
 })
 export class ResetPasswordComponent {
   // Abhängigkeiten über `inject` beziehen
