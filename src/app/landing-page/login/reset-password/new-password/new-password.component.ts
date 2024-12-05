@@ -26,7 +26,10 @@ import { RoutingService } from '../../../../shared/services/routing-service/rout
     ReactiveFormsModule,
   ],
   templateUrl: './new-password.component.html',
-  styleUrls: ['./new-password.component.scss'],
+  styleUrls: [
+    './new-password.component.scss',
+    './new-password.component_media.scss',
+  ],
 })
 export class NewPasswordComponent implements OnInit {
   newPasswordForm!: FormGroup;
