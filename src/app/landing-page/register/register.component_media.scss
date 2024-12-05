@@ -1,0 +1,97 @@
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (max-width: 1200px) {
+  .logo-container {
+    top: 50px !important;
+    left: 50px !important;
+  }
+
+  .info-links {
+    position: absolute !important;
+    bottom: 20px !important;
+    align-items: end !important;
+    gap: unset !important;
+    width: unset !important;
+  }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (max-width: 992px) {
+  .logo-container {
+    top: 25px !important;
+    left: 25px !important;
+
+    img:first-child {
+      height: 70px !important;
+    }
+
+    .logo-name {
+      font-size: 34px !important;
+    }
+  }
+
+  .register mat-card {
+    padding: 35px;
+  }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (max-width: 768px) {
+  .register {
+    justify-content: space-evenly !important;
+
+    mat-card {
+      min-height: 70% !important;
+    }
+  }
+
+  .logo-container {
+    position: unset !important;
+    top: 0 !important;
+    left: 0 !important;
+
+    display: flex;
+    justify-content: center;
+    align-items: center !important;
+    width: 100%;
+
+    img:first-child {
+      height: 70px !important;
+    }
+
+    .logo-name {
+      font-size: 34px !important;
+    }
+  }
+
+  .register mat-card {
+    padding: 20px;
+    max-width: unset !important;
+  }
+}
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+}
+
+/* Very small devices (landscape tablets, 450px and down) */
+@media only screen and (max-width: 450px) {
+  a,
+  p,
+  span {
+    font-size: 14px !important;
+  }
+
+  .logo-container {
+    scale: 0.8;
+
+    .logo-name span {
+      font-size: unset !important;
+    }
+  }
+}
+
+/* smallest devices (300px and down) */
+@media only screen and (max-width: 300px) {
+}
+
+/* animations */

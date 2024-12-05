@@ -61,6 +61,7 @@
       </span>
       <app-message-reactions
         [message]="message"
+        [component]="'channel'"
         *ngIf="message?.reactions?.length > 0"
       ></app-message-reactions>
     </div>

@@ -1,5 +1,6 @@
-<div *ngIf="channelService.loading" class="loading-placeholder">
-  <p>Loading...</p>
+<div *ngIf="channelService.loading" class="placeholder">
+    <div class="smiley">🔄</div>
+    <p>Lade Nachrichten</p>
 </div>
 
 <div *ngIf="!channelService.loading" class="message-container-wrapper" #messageContainerWrapper>

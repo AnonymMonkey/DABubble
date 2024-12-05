@@ -15,6 +15,9 @@ export class NotificationLabelComponent implements OnInit {
 
   constructor(private notificationService: NotificationService) {}
 
+  /**
+   * Initialises the component
+   */
   ngOnInit() {
     this.notificationService.getNotificationObservable().subscribe((msg) => {
       if (!this.isAnimating) {

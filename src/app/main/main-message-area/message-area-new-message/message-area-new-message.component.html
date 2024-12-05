@@ -5,15 +5,15 @@
         'Nachricht an #' + (channel?.channelName ?? 'einen Channel')
       "
       [(ngModel)]="newMessageContent"
-      (ngModelChange)="updateFormattedContent()"
-      (keydown.enter)="sendMessage(); $event.preventDefault()"
       (input)="checkForMention($event)"
+      (keydown.enter)="sendMessage(); $event.preventDefault()"
     ></textarea>
     <div class="icons-container">
       <div class="left-icons">
         <mat-icon
           class="material-symbols-outlined"
           [matMenuTriggerFor]="uploadMethodMenu"
+          #uploadMethodMenuTrigger="matMenuTrigger"
           (click)="toggleBorder('upload')"
           >add</mat-icon
         >
@@ -24,7 +24,6 @@
           (click)="toggleBorder('emoji')"
           >sentiment_satisfied
         </mat-icon>
-        <!-- ; openAttachmentSidenav() -->
         <mat-icon
           *ngIf="privateChatId === undefined"
           class="material-symbols-outlined"
@@ -52,7 +51,12 @@
     ></app-upload-method-selector>
   </mat-menu>
 
-  <mat-menu xPosition="after" #emojiMenu yPosition="above" (closed)="mentionOpenedAtTextarea = false">
+  <mat-menu
+    xPosition="after"
+    #emojiMenu
+    yPosition="above"
+    (closed)="mentionOpenedAtTextarea = false"
+  >
     <emoji-mart
       title="Pick your emoji…"
       emoji="point_up"

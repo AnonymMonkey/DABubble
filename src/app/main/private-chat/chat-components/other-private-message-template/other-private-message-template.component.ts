@@ -14,7 +14,7 @@ import { AttachmentPreviewComponent } from '../../../../shared/components/attach
   standalone: true,
   imports: [NgClass, NgFor, AttachmentPreviewComponent, DatePipe, EmojiComponent, MatIcon, MatMenu, MatMenuTrigger, EmojiPickerComponent, MessageReactionsComponent, NgIf],
   templateUrl: './other-private-message-template.component.html',
-  styleUrl: './other-private-message-template.component.scss'
+  styleUrls: ['./other-private-message-template.component.scss', './other-private-message-template.component_media.scss',],
 })
 export class OtherPrivateMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
@@ -27,45 +27,53 @@ export class OtherPrivateMessageTemplateComponent {
 
   constructor() {}
 
+  /**
+   * A method to show the emoji container.
+   */
   showEmojiContainer(id: number) {
     this.isEmojiContainerVisible = id;
-    // console.log(this.message.thread.messages.length);
   }
 
+  /**
+   * A method to hide the emoji container.
+   */
   hideEmojiContainer() {
     if (!this.isMenuOpen) {
       this.isEmojiContainerVisible = 0;
     }
   }
 
+  /**
+   * A method to open the menu.
+   */
   menuOpened() {
     this.isMenuOpen = true;
   }
 
+  /**
+   * A method to close the menu.
+   */
   menuClosed() {
     this.isMenuOpen = false;
     this.isEmojiContainerVisible = 0;
   }
 
+  /**
+   * A method to get the last reply time.
+   * @param messages The messages to get the last reply time from.
+   * @returns The last reply time.
+   */
   getLastReplyTime(messages: any[]): string {
-    // Nimm die letzte Nachricht aus dem Array
     const lastMessage = messages[messages.length - 1];
-  
     if (lastMessage && lastMessage.time) {
-      // Formatiere die Zeit (Hier anpassen, falls nötig)
       const date = new Date(lastMessage.time);
       const options: Intl.DateTimeFormatOptions = {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false, // Für 24-Stunden-Format, ändern auf true für 12-Stunden-Format
+        hour12: false,
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
-  
     return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
-  }
-
-  addReaction(messageId: string, emoji: any) {
-    // this.userService.addReaction(messageId, emoji);
   }
 }

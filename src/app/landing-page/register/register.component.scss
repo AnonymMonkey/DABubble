@@ -9,8 +9,13 @@
   mat-card {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 40px;
+
+    min-height: 60%;
+    max-height: 80%;
+    min-width: 25%;
+    max-width: 50%;
 
     text-align: center;
 
@@ -113,7 +118,6 @@ form {
 }
 
 .info-links {
-  position: absolute;
   display: flex;
   gap: var(--gap-16);
 

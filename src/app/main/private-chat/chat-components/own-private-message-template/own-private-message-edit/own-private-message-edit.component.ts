@@ -36,6 +36,9 @@ export class OwnPrivateMessageEditComponent implements OnInit {
   private firestore = inject(Firestore);
   currentBorderRadius = '30px 30px 30px 30px';
 
+  /**
+   * Initializes the component and subscribes to message updates on initialization.
+   */
   ngOnInit() {
     if (this.message) {
       this.editedMessageContent = this.message.content;
@@ -43,12 +46,19 @@ export class OwnPrivateMessageEditComponent implements OnInit {
     }
   }
 
+  /**
+   * Unsubscribes from message updates when the component is destroyed.
+   */
   ngOnDestroy() {
     if (this.messageSubscription) {
       this.messageSubscription.unsubscribe();
     }
   }
 
+  /**
+   * Subscribes to message updates for the given message ID.
+   * @param messageId - The ID of the message to subscribe to.
+   */
   subscribeToMessageUpdates(messageId: string) {
     this.messageSubscription = this.messageService
       .getMessageUpdates(messageId)
@@ -60,11 +70,12 @@ export class OwnPrivateMessageEditComponent implements OnInit {
       });
   }
 
+  /**
+   * Changes the message content and updates the database.
+   */
   async changeMessage() {
     this.isSaving = true;
     this.temporaryMessageContent.emit(this.editedMessageContent);
-  
-    // Überprüfen, ob die Nachricht keinen Inhalt mehr hat oder keine URLs
     if (!this.editedMessageContent.trim() && !this.containsUrls(this.editedMessageContent)) {
       await this.deleteMessage();
       return;
@@ -114,25 +125,28 @@ export class OwnPrivateMessageEditComponent implements OnInit {
       this.temporaryMessageContent.emit('');
     }
   }
-  
-  // Funktion, um zu prüfen, ob der Text URLs enthält
+
+  /**
+   * Checks if the message contains URLs.
+   * @param text - The message text to check.
+   * @returns True if the message contains URLs, false otherwise.
+   */
   containsUrls(text: string): boolean {
     const urlPattern = /https?:\/\/[^\s]+/g;
     return urlPattern.test(text);
   }
   
-  // Löscht die Nachricht, wenn sie keinen Inhalt und keine URLs mehr hat
+  
+  /**
+   * Deletes the message from the database.
+   */
   async deleteMessage() {
     try {
       const messageId = this.message.messageId;
       const privateChatId = this.privateChatService.privateChatId;
       const [firstUserId, secondUserId] = privateChatId!.split('_');
-  
-      // Lösche die Nachricht aus den Benutzerdokumenten
       await this.deleteMessageFromUserDocs(firstUserId, privateChatId!, messageId);
       await this.deleteMessageFromUserDocs(secondUserId, privateChatId!, messageId);
-  
-      // Lösche die Nachricht aus der Firestore-Datenbank
       await this.messageService.deleteMessage(privateChatId!, messageId);
     } catch (error) {
       console.error('Fehler beim Löschen der Nachricht:', error);
@@ -143,7 +157,12 @@ export class OwnPrivateMessageEditComponent implements OnInit {
     }
   }
   
-  // Löscht die Nachricht aus einem Benutzerdokument
+  /**
+   * Deletes the message from the user documents.
+   * @param userId - The ID of the user.
+   * @param privateChatId - The ID of the private chat.
+   * @param messageId - The ID of the message.
+   */
   async deleteMessageFromUserDocs(userId: string, privateChatId: string, messageId: string) {
     try {
       const userDocRef = doc(this.firestore, `users/${userId}`);
@@ -158,6 +177,12 @@ export class OwnPrivateMessageEditComponent implements OnInit {
     }
   }  
 
+  /**
+   * Updates the message content in the user documents.
+   * @param userId - The ID of the user.
+   * @param privateChatId - The ID of the private chat.
+   * @param messageId - The ID of the message.
+   */
   async updateMessageInUserDocs(
     userId: string,
     privateChatId: string,
@@ -177,7 +202,10 @@ export class OwnPrivateMessageEditComponent implements OnInit {
     }
   }
 
-  // Ändere clearInput so, dass es optional den Inhalt löscht
+  /**
+   * Clears the input field.
+   * @param clearContent - Whether to clear the content of the message.
+   */
   clearInput(clearContent: boolean = true) {
     this.messageService.setEditMessageId(null); // Verlässt den Bearbeitungsmodus
     if (clearContent) {
@@ -185,11 +213,19 @@ export class OwnPrivateMessageEditComponent implements OnInit {
     }
   }
 
+  /**
+   * Adds an emoji to the message content.
+   * @param event - The event object.
+   */
   addEmoji(event: any) {
     const emoji = event.emoji.native || event.emoji;
     this.editedMessageContent += emoji;
   }
 
+  /**
+   * Toggles the border radius based on the menu type.
+   * @param menuType - The type of the menu.
+   */
   toggleBorder(menuType: string) {
     switch (menuType) {
       case 'emoji':

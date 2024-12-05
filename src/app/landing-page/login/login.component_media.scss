@@ -1,14 +1,22 @@
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (max-width: 1200px) {
+  .logo {
+    .logo-container {
+      animation: logo-top-left-1200 0.5s ease-in-out 3s 1 forwards !important;
+    }
+  }
+
   .logo-final {
     top: 50px !important;
     left: 50px !important;
+  }
 
-    .logo-container {
-      .logo-name {
-        display: none;
-      }
-    }
+  .info-links {
+    position: absolute !important;
+    bottom: 20px !important;
+    align-items: end !important;
+    gap: unset !important;
+    width: unset !important;
   }
 
   .register-link {
@@ -19,15 +27,30 @@
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (max-width: 992px) {
+  .logo {
+    .logo-container {
+      animation: logo-top-left-992 0.5s ease-in-out 3s 1 forwards !important;
+
+      img:first-child {
+        height: 134px !important;
+        animation: logo-left 0.3s ease-in-out 0.5s 1 forwards,
+          logo-img-scale-small-992 0.5s ease-in-out 3s 1 forwards !important;
+      }
+
+      .logo-name {
+        font-size: 64px !important;
+        animation: logo-text-scale-small-992 0.5s ease-in-out 3s 1 forwards !important;
+      }
+    }
+  }
+
   .logo-final {
     top: 25px !important;
     left: 25px !important;
+  }
 
-    .logo-container {
-      .logo-name {
-        display: none;
-      }
-    }
+  .login mat-card {
+    padding: 35px;
   }
 
   .register-link {
@@ -38,6 +61,31 @@
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (max-width: 768px) {
+  .login {
+    justify-content: space-evenly !important;
+
+    mat-card {
+      min-height: 70% !important;
+    }
+  }
+
+  .logo {
+    .logo-container {
+      animation: logo-top-768 0.5s ease-in-out 3s 1 forwards !important;
+
+      img:first-child {
+        height: 70px !important;
+        animation: logo-left-768 0.3s ease-in-out 0.5s 1 forwards,
+          logo-img-scale-small-768 0.5s ease-in-out 3s 1 forwards !important;
+      }
+
+      .logo-name {
+        font-size: 56px !important;
+        animation: logo-text-scale-small-768 0.5s ease-in-out 3s 1 forwards !important;
+      }
+    }
+  }
+
   .logo-final {
     position: unset !important;
     top: 0 !important;
@@ -47,13 +95,10 @@
     justify-content: center;
     align-items: center !important;
     width: 100%;
-    height: 20%;
+  }
 
-    .logo-container {
-      .logo-name {
-        display: unset;
-      }
-    }
+  .login mat-card {
+    padding: 20px;
   }
 
   .register-link {
@@ -65,18 +110,20 @@
     align-items: center !important;
     justify-content: center !important;
     width: 100%;
-    height: 20%;
   }
 
   .info-links {
-    display: none !important;
+    position: absolute !important;
+    bottom: 25px !important;
+    right: 20px !important;
+    flex-direction: column;
+    align-items: end !important;
+    gap: unset !important;
+    width: unset !important;
   }
 
   .login mat-card {
     max-width: unset !important;
-    min-height: 50% !important;
-    height: 100% !important;
-    gap: 20px !important;
   }
 }
 
@@ -86,6 +133,7 @@
 
 /* Very small devices (landscape tablets, 450px and down) */
 @media only screen and (max-width: 450px) {
+  a,
   p,
   span {
     font-size: 14px !important;
@@ -98,12 +146,104 @@
       font-size: unset !important;
     }
   }
-
-  .login mat-card {
-    gap: 10px !important;
-  }
 }
 
 /* smallest devices (300px and down) */
 @media only screen and (max-width: 300px) {
+}
+
+/* animations */
+/* -- 1200 -- */
+@keyframes logo-top-left-1200 {
+  0% {
+    gap: 74px;
+    transform: translate(0, 0);
+  }
+  100% {
+    gap: 16px;
+    transform: translate(
+      calc(-50vw + 117.5px + 50px),
+      calc(-50vh + 35px + 50px)
+    );
+  }
+}
+
+/* -- 992 -- */
+@keyframes logo-top-left-992 {
+  0% {
+    gap: 74px;
+    transform: translate(0, 0);
+  }
+  100% {
+    gap: 16px;
+    transform: translate(
+      calc(-50vw + 117.5px + 25px),
+      calc(-50vh + 35px + 25px)
+    );
+  }
+}
+
+@keyframes logo-img-scale-small-992 {
+  0% {
+    height: 134px;
+  }
+  100% {
+    height: 70px;
+  }
+}
+
+@keyframes logo-text-scale-small-992 {
+  0% {
+    font-size: 64px;
+    overflow: hidden;
+  }
+  100% {
+    color: var(--black-color);
+    font-size: 34px;
+    overflow: unset;
+  }
+}
+
+/* -- 768 -- */
+@keyframes logo-top-768 {
+  0% {
+    gap: 74px;
+    transform: translateY(0);
+  }
+  100% {
+    gap: 16px;
+    transform: translateY(calc(-50vh + 35px + 25px));
+  }
+}
+
+@keyframes logo-img-scale-small-768 {
+  0% {
+    height: 184px;
+  }
+  100% {
+    height: 70px;
+  }
+}
+
+@keyframes logo-text-scale-small-768 {
+  0% {
+    font-size: 56px;
+    overflow: hidden;
+  }
+  100% {
+    color: var(--black-color);
+    font-size: 34px;
+    overflow: unset;
+  }
+}
+
+@keyframes logo-left-768 {
+  0% {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  100% {
+    left: 10%;
+    transform: translateX(0);
+  }
 }

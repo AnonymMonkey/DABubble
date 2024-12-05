@@ -30,7 +30,7 @@
   --gap-10: 10px;
   --gap-16: 16px;
   --gap-20: 20px;
-  --gap-30: 20px;
+  --gap-30: 30px;
 
   --transition-100: 100ms ease-in-out;
 }
@@ -38,6 +38,7 @@
 /* width */
 ::-webkit-scrollbar {
   width: 12px;
+  height: 12px;
 }
 
 /* Track */
@@ -68,6 +69,10 @@ body {
   font-family: var(--font-nunito) !important;
   color: var(--text-color);
   font-size: 18px !important;
+}
+
+a {
+  cursor: pointer;
 }
 
 h1,
@@ -306,7 +311,7 @@ input {
   }
 
   input {
-    padding: 12px 12px 12px 68px !important;
+    padding: 12px 20px 12px 52px !important;
   }
 }
 

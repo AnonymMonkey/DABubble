@@ -7,13 +7,21 @@ import { AttachmentPreviewComponent } from '../../../../../shared/components/att
 @Component({
   selector: 'app-own-private-message-show',
   standalone: true,
-  imports: [DatePipe, MessageReactionsComponent, NgIf, NgFor, AttachmentPreviewComponent],
+  imports: [
+    DatePipe,
+    MessageReactionsComponent,
+    NgIf,
+    NgFor,
+    AttachmentPreviewComponent,
+  ],
   templateUrl: './own-private-message-show.component.html',
-  styleUrl: './own-private-message-show.component.scss'
+  styleUrls: [
+    './own-private-message-show.component.scss',
+    './own-private-message-show.component_media.scss',
+  ],
 })
 export class OwnPrivateMessageShowComponent {
-  @Input() message: any
-  @Input() displayName: string = ''
-  public userService = inject(UserService)
-
+  @Input() message: any;
+  @Input() displayName: string = '';
+  public userService = inject(UserService);
 }

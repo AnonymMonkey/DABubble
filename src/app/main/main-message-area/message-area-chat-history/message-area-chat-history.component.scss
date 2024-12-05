@@ -35,10 +35,10 @@ app-own-message-template, app-other-message-template {
 
 @keyframes rotateSmile {
   0% {
-    transform: rotate(0deg);
+    transform: rotate(360deg);
   }
   100% {
-    transform: rotate(360deg);
+    transform: rotate(0deg);
   }
 }
 
@@ -49,7 +49,9 @@ app-own-message-template, app-other-message-template {
   flex-grow: 1;
   text-align: center;
   flex-direction: column;
-  font-size: 1.5rem;
+  font-size: 20px;
+  color: black;
+  gap: 16px;
 
   .smiley {
     font-size: 3rem;
@@ -57,31 +59,3 @@ app-own-message-template, app-other-message-template {
   }
 }
 
-.celebration {
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  z-index: 10; /* Damit die Emojis über anderen Elementen erscheinen */
-  opacity: 0; /* Startet unsichtbar */
-  pointer-events: none; /* Verhindert, dass es interaktiv wird */
-}
-
-.animateCelebration {
-  animation: celebrationAnimation 3s ease-out forwards;
-}
-
-@keyframes celebrationAnimation {
-  0% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1); /* Start mit normaler Größe */
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(2); /* Vergrößern */
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(1); /* Am Ende wieder auf normale Größe und unsichtbar */
-  }
-}

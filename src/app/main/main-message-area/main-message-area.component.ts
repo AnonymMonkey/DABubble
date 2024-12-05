@@ -39,7 +39,6 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 export class MainMessageAreaComponent implements AfterViewInit, OnInit {
   events: string[] = [];
   opened: boolean = false;
-  shouldRun = true;
   threadOpened: boolean = false;
   channelData: any;
   channelId!: string | null;

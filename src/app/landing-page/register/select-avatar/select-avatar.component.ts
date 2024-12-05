@@ -18,131 +18,197 @@ import { StorageService } from '../../../shared/services/storage-service/storage
   standalone: true,
   imports: [RouterModule, MatCardModule, MatIconModule, CommonModule],
   templateUrl: './select-avatar.component.html',
-  styleUrls: ['./select-avatar.component.scss'],
+  styleUrls: [
+    './select-avatar.component.scss',
+    './select-avatar.component_media.scss',
+  ],
 })
 export class SelectAvatarComponent implements OnInit {
   storage = getStorage();
-  selectedAvatar: string | null = null; // Initial kein Avatar ausgewählt
-  displayName: string = ''; // Leerer String für Benutzername
-  email: string = ''; // E-Mail für Registrierung
-  password: string = ''; // Passwort für Registrierung
-  isUploading = false; // Status des Uploads
-  tempStoragePath: string | null = null; // Temporärer Speicherpfad
+  selectedAvatar: string | null = null;
+  displayName: string = '';
+  email: string = '';
+  password: string = '';
+  isUploading = false;
+  tempStoragePath: string | null = null;
 
   constructor(
     private userService: UserService,
-    private authService: AuthService, // AuthService für Registrierung
+    private authService: AuthService,
     private storageService: StorageService,
     private notificationService: NotificationService,
     private routingService: RoutingService,
     private errorService: ErrorService
   ) {}
 
+  /**
+   * Initialises the component
+   */
   ngOnInit() {
     const tempData = this.userService.getTempRegistrationData();
     this.displayName = tempData.displayName
       ? this.formatDisplayName(tempData.displayName)
-      : ''; // Name formatieren
+      : '';
     this.email = tempData.email || '';
-    this.password = this.userService.getTempPassword(); // Passwort getrennt abrufen
+    this.password = this.userService.getTempPassword();
   }
 
-  // Funktion zur Formatierung des Namens mithilfe der Methode aus UserData
+  /**
+   * Formats the display name
+   * @param name - The name
+   * @returns - The formatted display name
+   */
   formatDisplayName(name: string): string {
-    const user = new UserData({} as any, name); // Erstelle ein UserData-Objekt mit dem Namen
-    return user.formatDisplayName(); // Rufe die Formatierungsfunktion auf
+    const user = new UserData({} as any, name);
+    return user.formatDisplayName();
   }
 
-  // Methode zum Auswählen eines Avatars
+  /**
+   * selects an avatar
+   * @param avatar - The avatar
+   */
   selectAvatar(avatar: string) {
     this.selectedAvatar = avatar;
   }
 
-  // Datei auswählen und temporär hochladen
+  /**
+   * uploads an avatar
+   * @param event - The event
+   */
   async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
 
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      if (!file.type.startsWith('image/')) {
+      if (!this.isImageFile(file)) {
         console.error('Nur Bilder können hochgeladen werden.');
         return;
       }
 
       this.isUploading = true;
-
-      try {
-        // Nutze die E-Mail direkt im Pfad
-        const email = this.email; // Ohne Änderungen
-        const path = `users/${email}/uploads/${file.name}`;
-
-        // Datei hochladen
-        this.selectedAvatar = await this.storageService.uploadFileRawPath(
-          path,
-          file
-        );
-        console.log('Avatar hochgeladen:', this.selectedAvatar);
-      } catch (error) {
-        console.error('Fehler beim Hochladen des Avatars:', error);
-      } finally {
-        this.isUploading = false;
-      }
+      await this.uploadAvatar(file);
     }
   }
 
-  /*   async uploadAvatar(file: File): Promise<string> {
-    try {
-      const email = this.userService.getTempRegistrationData().email;
-      const path = `temp/${email}/uploads/${file.name}`;
-      const downloadUrl = await this.storageService.uploadFile(path, file);
+  /**
+   * checks if the file is an image
+   * @param file - The file
+   * @returns - true if the file is an image
+   */
+  private isImageFile(file: File): boolean {
+    return file.type.startsWith('image/');
+  }
 
-      console.log('Avatar hochgeladen:', downloadUrl);
-      return file.name; // Rückgabe: nur der Dateiname
+  /**
+   * uploads the avatar
+   * @param file - The file
+   */
+  private async uploadAvatar(file: File): Promise<void> {
+    try {
+      const email = this.email;
+      const path = `users/${email}/uploads/${file.name}`;
+      this.selectedAvatar = await this.storageService.uploadFileRawPath(
+        path,
+        file
+      );
     } catch (error) {
       console.error('Fehler beim Hochladen des Avatars:', error);
-      throw error;
+    } finally {
+      this.isUploading = false;
     }
-  } */
+  }
 
-  // Registrierung abschließen
+  /**
+   * completes the registration
+   */
   async completeRegistration() {
     try {
-      await this.authService.register(
-        this.email,
-        this.password,
-        this.displayName
-      );
-      const currentUser = await firstValueFrom(
-        this.authService.getCurrentUser()
-      );
+      await this.registerUser();
+      const currentUser = await this.getCurrentUser();
 
-      if (this.selectedAvatar && currentUser?.uid) {
-        // Speichere die temporäre Avatar-URL direkt in Firestore
-        await this.userService.saveAvatar(currentUser.uid, this.selectedAvatar);
-        console.log(
-          'Avatar erfolgreich in Firestore gespeichert:',
-          this.selectedAvatar
-        );
+      if (this.shouldSaveAvatar(currentUser)) {
+        await this.saveUserAvatar(currentUser.uid);
       }
 
       this.notificationService.showNotification('Konto erfolgreich erstellt!');
     } catch (error) {
-      this.errorService.logError(error);
-      console.error('Fehler bei der Registrierung:', error);
+      this.handleRegistrationError(error);
     }
   }
 
-  // Navigation zurück zur Registrierung
+  /**
+   * registers the user
+   */
+  private async registerUser(): Promise<void> {
+    await this.authService.register(
+      this.email,
+      this.password,
+      this.displayName
+    );
+  }
+
+  /**
+   * gets the current user
+   * @returns - The current user
+   */
+  private async getCurrentUser(): Promise<any> {
+    return firstValueFrom(this.authService.getCurrentUser());
+  }
+
+  /**
+   * checks if the user should save the avatar
+   * @param currentUser - The current user
+   * @returns - boolean
+   */
+  private shouldSaveAvatar(currentUser: any): boolean {
+    return this.selectedAvatar && currentUser?.uid;
+  }
+
+  /**
+   * saves the avatar
+   * @param uid - The UID
+   */
+  private async saveUserAvatar(uid: string): Promise<void> {
+    if (this.selectedAvatar) {
+      await this.userService.saveAvatar(uid, this.selectedAvatar);
+    } else {
+      console.warn('Kein Avatar ausgewählt. Avatar wird nicht gespeichert.');
+    }
+  }
+
+  /**
+   * handles the registration error
+   * @param error - The error
+   */
+  private handleRegistrationError(error: any): void {
+    this.errorService.logError(error);
+    console.error('Fehler bei der Registrierung:', error);
+  }
+
+  /**
+   * navigates to the login page
+   */
+  navigateToLogin() {
+    this.routingService.navigateToLogin();
+  }
+
+  /**
+   * navigates to the register page
+   */
   navigateToRegister() {
     this.routingService.navigateToRegister();
   }
 
-  // Methode zur Navigation zum Impressum
+  /**
+   * navigates to the imprint page
+   */
   navigateToImprint() {
     this.routingService.navigateToImprint();
   }
 
-  // Methode zur Navigation zur Datenschutz-Seite
+  /**
+   * navigates to the privacy policy page
+   */
   navigateToPrivacyPolicy() {
     this.routingService.navigateToPrivacyPolicy();
   }

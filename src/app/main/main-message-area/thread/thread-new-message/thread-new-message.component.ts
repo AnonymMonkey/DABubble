@@ -11,9 +11,13 @@ import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { ThreadMessage } from '../../../../shared/models/thread-message.model'; // Importiere ThreadMessage
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
-import { collection, getDoc, setDoc } from 'firebase/firestore';
+import {
+  collection,
+  DocumentReference,
+  getDoc,
+  setDoc,
+} from 'firebase/firestore';
 import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
-import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { NgClass } from '@angular/common';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -63,6 +67,9 @@ export class ThreadNewMessageComponent implements OnInit {
     private userService: UserService
   ) {}
 
+  /**
+   * Initialize the component and subscribe to actual message changes and attachment preview close events.
+   */
   ngOnInit(): void {
     this.threadService.actualMessageSubject.subscribe((message) => {
       this.message = message;
@@ -70,138 +77,220 @@ export class ThreadNewMessageComponent implements OnInit {
     this.storageService.onCloseAttachmentPreview().subscribe(() => {
       this.closeAttachmentSidenav();
     });
-
     this.storageService.onCloseUploadMethodSelector().subscribe(() => {
       this.closeUploadMethodMenu();
     });
   }
 
+  /**
+   * Sends a new message to Firestore.
+   */
   async sendMessage(): Promise<void> {
-    // Überprüfen, ob die Nachricht entweder Text oder Anhänge hat
-    if (
-      this.newMessageContent.trim().length > 0 ||
-      this.attachmentUrls.length > 0
-    ) {
+    if (this.isMessageValid()) {
       const currentMessage = this.threadService.actualMessageSubject.value;
-      if (!currentMessage) {
-        console.error('Es wurde keine aktuelle Nachricht ausgewählt.');
-        return;
-      }
-
-      const channelId = this.channelService.channelId; // channelId zwischenspeichern
+      if (!currentMessage) return;
       try {
-        // Pfad zur Channels-Messages
-        const messageDocRef = doc(
-          this.firestore,
-          `channels/${channelId}/messages/${currentMessage.messageId}`
+        const messageDocRef = await this.getMessageDocRef(
+          currentMessage.messageId
         );
-        const messageDocSnapshot = await getDoc(messageDocRef);
-
-        if (!messageDocSnapshot.exists()) {
-          console.error('Das Dokument existiert nicht:', messageDocRef.path);
-          return;
-        }
-
-        const timestamp = Date.now();
-        const randomId = Math.floor(Math.random() * 1000) + 1; // Zufällige Zahl zwischen 1 und 1000
-        const newThreadId = `thread_${timestamp}_${randomId}`;
-
-        // Neues Thread-Dokument erstellen
-        const newMessage = new ThreadMessage(
-          this.newMessageContent.trim() || ' ', // Leerer Text wird durch Leerzeichen ersetzt
-          this.userService.userId,
-          newThreadId,
-          [], // Leere Reaktionen
-          new Date().toISOString(),
-          this.attachmentUrls.length > 0 ? this.attachmentUrls : [] // Wenn Anhänge vorhanden sind, füge diese hinzu
-        );
-
-        this.newMessageContent = ''; // Nachricht zurücksetzen
-        const attachmentsToSend = [...this.attachmentUrls];
-        this.threadAttachmentSidenav.close();
-        this.attachmentUrls = []; // Reset attachment URLs
-
-        // Subcollection für den Thread innerhalb der Nachricht erstellen
-        const threadCollectionRef = collection(
-          this.firestore,
-          `channels/${channelId}/messages/${currentMessage.messageId}/thread`
-        );
-
-        const threadDocRef = doc(threadCollectionRef, newThreadId); // Ein neues Thread-Dokument mit der ID `newThreadId`
-        await setDoc(threadDocRef, {
-          content: newMessage.content,
-          userId: this.userService.userId,
-          time: newMessage.time,
-          messageId: newMessage.messageId,
-          attachmentUrls: attachmentsToSend,
-        });
-
-        // Optional: Thread-ID in der Nachricht speichern (falls du den Zusammenhang zwischen Nachricht und Threads herstellen möchtest)
-        await updateDoc(messageDocRef, {
-          [`threadId`]: newThreadId,
-        });
+        if (!(await this.messageExists(messageDocRef))) return;
+        const newThreadId = this.generateNewThreadId();
+        const newMessage = this.createNewMessage(newThreadId);
+        this.resetMessageState();
+        await this.addMessageToThread(newThreadId, newMessage);
+        await this.updateThreadId(messageDocRef, newThreadId);
       } catch (error) {
-        console.error(
-          'Fehler beim Speichern der Nachricht in Firestore:',
-          error
-        );
+        console.error('Error saving message to Firestore:', error);
       }
     }
   }
 
+  /** 
+   * Checks if the message content is valid.
+   * @return {boolean} True if the message content is valid, false otherwise.
+   */
+  isMessageValid(): boolean {
+    return (
+      this.newMessageContent.trim().length > 0 || this.attachmentUrls.length > 0
+    );
+  }
+
+  /** 
+   * Retrieves the document reference for a message based on its ID.
+   * @param {string} messageId - The ID of the message.
+   * @return {Promise<DocumentReference>} The document reference for the message.
+   */
+  async getMessageDocRef(messageId: string) {
+    return doc(
+      this.firestore,
+      `channels/${this.channelService.channelId}/messages/${messageId}`
+    );
+  }
+
+  /** 
+   * Checks if a message exists based on its document reference.
+   * @param {DocumentReference} messageDocRef - The document reference for the message.
+   * @return {Promise<boolean>} True if the message exists, false otherwise.
+   */
+  async messageExists(messageDocRef: DocumentReference) {
+    const snapshot = await getDoc(messageDocRef);
+    return snapshot.exists();
+  }
+
+  /** 
+   * Generates a new thread ID.
+   * @return {string} The generated thread ID.
+   */
+  generateNewThreadId(): string {
+    const timestamp = Date.now();
+    const randomId = Math.floor(Math.random() * 1000) + 1;
+    return `thread_${timestamp}_${randomId}`;
+  }
+
+  /** 
+   * Creates a new message object.
+   * @param {string} newThreadId - The ID of the new thread.
+   * @return {ThreadMessage} The new message object.
+   */
+  createNewMessage(newThreadId: string): ThreadMessage {
+    return new ThreadMessage(
+      this.newMessageContent.trim() || ' ',
+      this.userService.userId,
+      newThreadId,
+      [],
+      new Date().toISOString(),
+      this.attachmentUrls.length > 0 ? this.attachmentUrls : []
+    );
+  }
+
+  /** 
+   * Resets the message state.
+   */
+  resetMessageState(): void {
+    this.newMessageContent = '';
+    this.attachmentUrls = [];
+    this.threadAttachmentSidenav.close();
+  }
+
+  /** 
+   * Adds a message to the thread.
+   * @param {string} newThreadId - The ID of the new thread.
+   * @param {ThreadMessage} newMessage - The new message object.
+   */
+  async addMessageToThread(
+    newThreadId: string,
+    newMessage: ThreadMessage
+  ): Promise<void> {
+    const threadCollectionRef = collection(
+      this.firestore,
+      `channels/${this.channelService.channelId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread`
+    );
+    const threadDocRef = doc(threadCollectionRef, newThreadId);
+    await setDoc(threadDocRef, {
+      content: newMessage.content,
+      userId: newMessage.userId,
+      time: newMessage.time,
+      messageId: newMessage.messageId,
+      attachmentUrls: newMessage.attachmentUrls,
+    });
+  }
+
+  /** 
+   * Updates the thread ID of a message in Firestore.
+   * @param {DocumentReference} messageDocRef - The document reference for the message.
+   * @param {string} newThreadId - The ID of the new thread.
+   */
+  async updateThreadId(
+    messageDocRef: DocumentReference,
+    newThreadId: string
+  ): Promise<void> {
+    await updateDoc(messageDocRef, { threadId: newThreadId });
+  }
+
+  /**
+   * Add an emoji to the message content.
+   * @param event - The event containing the selected emoji.
+   */
   addEmoji(event: any) {
     console.log('Emoji selected:', event);
     const emoji = event.emoji.native || event.emoji;
     this.newMessageContent += emoji;
   }
 
+  /**
+   * Insert a mention into the message content.
+   * @param userName - The username to be mentioned.
+   */
   insertMention(userName: string): void {
     const mention = `@${userName} `;
     this.newMessageContent += mention;
   }
 
-  toggleBorder(menuType: string) {
-    switch (menuType) {
-      case 'upload':
-        this.currentBorderRadius = '30px 30px 30px 30px';
-        break;
-      case 'emoji':
-        this.currentBorderRadius = '30px 30px 30px 30px';
-        break;
-      case 'mention':
-        this.currentBorderRadius = '30px 30px 30px 0px';
-        break;
-      default:
-        this.currentBorderRadius = '30px 30px 30px 30px';
-    }
+  /**
+   * Toggle the border radius based on the menu type.
+   * @param menuType - The type of menu (e.g., 'upload', 'emoji', 'mention').
+   */
+  toggleBorder(menuType: string): void {
+    const borderRadiusMap: Record<string, string> = {
+      upload: '30px 30px 30px 30px',
+      emoji: '30px 30px 30px 30px',
+      mention: '30px 30px 30px 0px',
+      default: '30px 30px 30px 30px',
+    };
+    this.currentBorderRadius =
+      borderRadiusMap[menuType] || borderRadiusMap['default'];
     document.documentElement.style.setProperty(
       '--border-radius',
       this.currentBorderRadius
     );
   }
 
+  /**
+   * Open the attachment sidenav.
+   */
   openAttachmentSidenav() {
     this.attachmentSidenavElement.nativeElement.classList.remove('d-none');
     this.threadAttachmentSidenav.open();
   }
 
+  /**
+   * Close the attachment sidenav.
+   */
   closeAttachmentSidenav() {
     this.threadAttachmentSidenav.close();
-    setTimeout(() => this.attachmentSidenavElement.nativeElement.classList.add('d-none'), 300);
+    setTimeout(
+      () => this.attachmentSidenavElement.nativeElement.classList.add('d-none'),
+      300
+    );
   }
 
-
+  /**
+   * Close the upload method menu.
+   */
   closeUploadMethodMenu() {
     this.uploadMethodMenuTrigger.closeMenu();
   }
+
+  /**
+   * Add a download link to the attachment URLs.
+   * @param url - The download link to be added.
+   */
   addDownloadLink(url: string) {
     this.attachmentUrls = [...this.attachmentUrls, url];
   }
 
+  /**
+   * Remove an attachment from the attachment URLs.
+   * @param index - The index of the attachment to be removed.
+   */
   removeAttachment(index: number) {
     this.attachmentUrls.splice(index, 1); // URL aus dem Array entfernen
   }
 
+  /**
+   * Remove an attachment from the attachment URLs.
+   * @param removedUrl - The URL of the attachment to be removed.
+   */
   onAttachmentRemoved(removedUrl: string) {
     this.attachmentUrls = this.attachmentUrls.filter(
       (url) => url !== removedUrl

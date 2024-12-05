@@ -1,31 +1,36 @@
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ErrorService {
-  // Methode zum Loggen von Fehlern
+  constructor(private snackBar: MatSnackBar) {}
+
+  /**
+   *  Logs an error.
+   * @param error - The error to log
+   */
   logError(error: any): void {
-    // Hier kannst du das Fehler-Handling anpassen, je nach Bedarf
-    // Beispiel: Fehler in der Konsole anzeigen
     console.error('Error logged:', error);
-
-    // Optional: Fehler an einen externen Service senden (z.B. ein Logging-API)
-    // this.sendErrorToServer(error);
-
-    // Optional: Benutzer informieren (Toast, Snackbar etc.)
-    // this.showUserNotification('Ein Fehler ist aufgetreten.');
   }
 
-  // Beispiel für eine Methode zum Senden von Fehlern an einen Server (optional)
+  /**
+   *  Sends an error to the server.
+   * @param error - The error to send
+   */
   private sendErrorToServer(error: any): void {
-    // Implementiere hier den Code, um Fehler an einen externen Dienst zu senden
     console.log('Error sent to server:', error);
   }
 
-  // Beispiel für eine Methode zum Anzeigen einer Benachrichtigung für den Benutzer (optional)
-  private showUserNotification(message: string): void {
-    // Implementiere hier die Logik zur Anzeige von Benachrichtigungen
-    alert(message); // Einfaches Beispiel: Alert-Box
+  /**
+   * Shows a user notification.
+   * @param message - The message to show
+   */
+  showUserNotification(message: string): void {
+    this.snackBar.open(message, 'Schließen', {
+      duration: 3000,
+      panelClass: ['custom-snackbar'],
+    });
   }
 }
