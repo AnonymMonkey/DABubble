@@ -51,7 +51,7 @@
   }
 
   .edit {
-    @media only screen and (max-width: 992px) {
+    @media only screen and (max-width: 600px) {
       display: none !important;
     }
   }
@@ -60,7 +60,7 @@
     margin-top: 25px;
     width: 100%;
 
-    @media only screen and (min-width: 992px) {
+    @media only screen and (min-width: 600px) {
       display: none;
     }
   }
@@ -241,4 +241,20 @@
 .mat-toolbar-single-row {
   background-color: white !important;
   margin-bottom: 16px !important;
+}
+
+.main-page-button {
+  left: 80%;
+  bottom: 32px;
+
+  @media only screen and (min-width: 600px) {
+    display: none !important;
+  }
+}
+
+.button-primary {
+  width: 60px !important;
+  height: 60px !important;
+  color: white !important;
+  padding: unset !important;
 }

@@ -120,3 +120,12 @@
     </mat-expansion-panel>
   </div>
 </div>
+
+<button
+  mat-icon-button
+  class="main-page-button button-primary"
+  routerLink="."
+  (click)="activeButtonService.setActiveButton(''); closeNavOnClick()"
+>
+  <mat-icon class="material-symbols-outlined">edit_square</mat-icon>
+</button>
