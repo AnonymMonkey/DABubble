@@ -14,6 +14,9 @@ import { RoutingService } from '../../services/routing-service/routing.service';
 export class ImprintComponent {
   constructor(private routingService: RoutingService) {}
 
+  /**
+   * navigates to the login page
+   */
   navigateToLogin() {
     this.routingService.navigateToLogin();
   }

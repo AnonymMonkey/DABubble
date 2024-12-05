@@ -32,47 +32,95 @@ import { NotificationService } from '../../../shared/services/notification-servi
   ],
 })
 export class ResetPasswordComponent {
-  // Abhängigkeiten über `inject` beziehen
   private authService = inject(AuthService);
   private errorService = inject(ErrorService);
   private notificationService = inject(NotificationService);
   private routingService = inject(RoutingService);
 
-  email = new FormControl('', [Validators.required, Validators.email]); // FormControl für E-Mail mit Validierung
+  email = new FormControl('', [Validators.required, Validators.email]);
   errorMessage: string = '';
   successMessage: string = '';
 
-  // Funktion zum Senden der Passwort-Zurücksetzen-E-Mail
+  /**
+   * sends a password reset email
+   * @returns - Promise<void>
+   */
   async sendPasswordResetEmail() {
-    if (this.email.invalid) {
-      this.errorMessage = 'Bitte eine gültige E-Mail-Adresse eingeben.';
+    if (this.isEmailInvalid()) {
+      this.setErrorMessage('Bitte eine gültige E-Mail-Adresse eingeben.');
       return;
     }
 
     try {
-      await this.authService.sendPasswordResetEmail(this.email.value!);
-      this.notificationService.showNotification(
-        'E-Mail zum Zurücksetzen des Passworts gesendet.'
-      );
-      this.goBack();
+      await this.performPasswordReset();
+      this.handlePasswordResetSuccess();
     } catch (error) {
-      this.errorService.logError(error); // Fehler über den ErrorService behandeln
-      this.errorMessage =
-        'Fehler beim Senden der E-Mail. Versuchen Sie es später erneut.';
+      this.handlePasswordResetError(error);
     }
   }
 
-  // Zurück zur Login-Seite
+  /**
+   * checks if email is invalid
+   * @returns - boolean
+   */
+  private isEmailInvalid(): boolean {
+    return this.email.invalid;
+  }
+
+  /**
+   * sets the error message
+   * @param message - The message
+   */
+  private setErrorMessage(message: string): void {
+    this.errorMessage = message;
+  }
+
+  /**
+   * performs the password reset
+   * @returns - Promise<void>
+   */
+  private async performPasswordReset(): Promise<void> {
+    await this.authService.sendPasswordResetEmail(this.email.value!);
+  }
+
+  /**
+   * handles the success of the password reset
+   */
+  private handlePasswordResetSuccess(): void {
+    this.notificationService.showNotification(
+      'E-Mail zum Zurücksetzen des Passworts gesendet.'
+    );
+    this.goBack();
+  }
+
+  /**
+   * handles the error of the password reset
+   * @param error - The error
+   */
+  private handlePasswordResetError(error: any): void {
+    this.errorService.logError(error);
+    this.setErrorMessage(
+      'Fehler beim Senden der E-Mail. Versuchen Sie es später erneut.'
+    );
+  }
+
+  /**
+   * navigates back to the login page
+   */
   goBack() {
     this.routingService.navigateToLogin();
   }
 
-  // Methode zur Navigation zum Impressum
+  /**
+   * navigates to the imprint page
+   */
   navigateToImprint() {
     this.routingService.navigateToImprint();
   }
 
-  // Methode zur Navigation zur Datenschutz-Seite
+  /**
+   * navigates to the privacy policy page
+   */
   navigateToPrivacyPolicy() {
     this.routingService.navigateToPrivacyPolicy();
   }

@@ -17,18 +17,18 @@ import { DocumentData } from 'rxfire/firestore/interfaces';
   providedIn: 'root',
 })
 export class UserService {
-  private firestore: Firestore = inject(Firestore); // Firestore für das Speichern der Benutzerdaten
-  private database = getDatabase(); // Realtime Database für den Online-Status
-  private tempUserData: Partial<UserData> = {}; // Temporäre Speicherung der Registrierungsdaten
-  private tempPassword: string = ''; // Temporäre Speicherung des Passworts
-  public userId!: string; // ID des aktuell angemeldeten Nutzers
+  private firestore: Firestore = inject(Firestore);
+  private database = getDatabase();
+  private tempUserData: Partial<UserData> = {};
+  private tempPassword: string = '';
+  public userId!: string;
   private dialog = inject(MatDialog);
   private allUserDataSubject = new BehaviorSubject<any[]>([]);
   allUserData$ = this.allUserDataSubject.asObservable();
-  private userDataSubject = new BehaviorSubject<any>(null); // Zum Speichern der Benutzerdaten
-  userData$ = this.userDataSubject.asObservable(); // Observable für andere Komponenten
+  private userDataSubject = new BehaviorSubject<any>(null);
+  userData$ = this.userDataSubject.asObservable();
   public route: ActivatedRoute = inject(ActivatedRoute);
-  private userDataMap = new Map<string, UserData>(); // Zentrale Map für Benutzerdaten
+  private userDataMap = new Map<string, UserData>();
   private userDataMapSubject = new BehaviorSubject<Map<string, UserData>>(
     this.userDataMap
   );
@@ -46,9 +46,9 @@ export class UserService {
    * Loads all user data from Firestore
    */
   loadAllUserData(): void {
-    const userCollection = collection(this.firestore, 'users'); // Referenz zur Collection 'users'
+    const userCollection = collection(this.firestore, 'users');
     collectionData(userCollection, { idField: 'id' }).subscribe((data) => {
-      this.allUserDataSubject.next(data); // Daten in das BehaviorSubject laden
+      this.allUserDataSubject.next(data);
     });
   }
 
@@ -57,7 +57,7 @@ export class UserService {
    */
   loadAllUserDataToMap(): void {
     this.fetchUsersFromFirestore().subscribe((users: UserData[]) => {
-      this.updateUserDataMap(users); // Update the map with new user data
+      this.updateUserDataMap(users);
     });
   }
 
@@ -204,12 +204,12 @@ export class UserService {
     return docData(userDocRef).pipe(
       map((docSnapshot: any) => {
         if (!docSnapshot) {
-          throw new Error(`Benutzer mit ID ${userId} nicht gefunden`); // Fehler werfen, wenn der Benutzer nicht existiert
+          throw new Error(`Benutzer mit ID ${userId} nicht gefunden`);
         }
         return docSnapshot as UserData;
       }),
       catchError(() => {
-        return of({} as UserData); // Rückgabe eines leeren Objekts als Standardwert
+        return of({} as UserData);
       })
     );
   }
@@ -278,7 +278,7 @@ export class UserService {
       await setDoc(
         doc(this.firestore, `users/${userId}`),
         { photoURL: avatarUrl },
-        { merge: true } // Verhindert, dass andere Daten überschrieben werden
+        { merge: true }
       );
     } catch (error) {
       console.error('Fehler beim Speichern des Avatars:', error);
@@ -381,11 +381,9 @@ export class UserService {
   saveNewProfileName(uid: string, newName: string) {
     const updatedData: any = {};
     updatedData.displayName = newName;
-    return setDoc(
-      doc(this.firestore, `users/${uid}`),
-      updatedData,
-      { merge: true } // Verhindert, dass andere Daten überschrieben werden
-    );
+    return setDoc(doc(this.firestore, `users/${uid}`), updatedData, {
+      merge: true,
+    });
   }
 
   /**
@@ -417,6 +415,6 @@ export class UserService {
    */
   addNewChannelToUser(userId: string, channelId: string): void {
     const userDocRef = doc(this.firestore, `users/${userId}`);
-    updateDoc(userDocRef, { channels: arrayUnion(channelId) }); // Hinzufügen des Kanales zum Benutzer
+    updateDoc(userDocRef, { channels: arrayUnion(channelId) });
   }
 }

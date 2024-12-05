@@ -20,6 +20,11 @@ export class RoutingService {
       });
   }
 
+  /**
+   *  Returns the params of the current route
+   * @param route - The activated route
+   * @returns - The params of the current route
+   */
   private getRouteParams(route: ActivatedRoute): Params {
     let currentRoute = route;
     while (currentRoute.firstChild) {
@@ -28,35 +33,59 @@ export class RoutingService {
     return currentRoute.snapshot.params;
   }
 
+  /**
+   * Navigates to the login page
+   */
   navigateToLogin(): void {
     this.router.navigate(['/']);
   }
 
+  /**
+   * Navigates to the reset password page
+   */
   navigateToResetPassword(): void {
     this.router.navigate(['/reset-password']);
   }
 
+  /**
+   * Navigates to the new password page
+   */
   navigateToNewPassword(): void {
     this.router.navigate(['/new-password']);
   }
 
+  /**
+   * Navigates to the register page
+   */
   navigateToRegister(): void {
     this.router.navigate(['/register']);
   }
 
+  /**
+   * Navigates to the select avatar page
+   */
   navigateToSelectAvatar(): void {
     this.router.navigate(['/select-avatar']);
   }
 
-  //NOTE - hier habe ich die uid von aktuellem User eingebunden, somit haben wir für jeden User eine individuelle main
+  /**
+   * Navigates to the main page
+   * @param uid
+   */
   navigateToMain(uid: string): void {
     this.router.navigate(['/main/' + uid]);
   }
 
+  /**
+   * Navigates to the imprint page
+   */
   navigateToImprint(): void {
     this.router.navigate(['/imprint']);
   }
 
+  /**
+   * Navigates to the privacy policy page
+   */
   navigateToPrivacyPolicy(): void {
     this.router.navigate(['/privacy-policy']);
   }

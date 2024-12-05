@@ -42,6 +42,9 @@ export class NewPasswordComponent implements OnInit {
     private routingService: RoutingService
   ) {}
 
+  /**
+   * initialises the component
+   */
   ngOnInit(): void {
     this.oobCode = this.route.snapshot.queryParamMap.get('oobCode');
     this.newPasswordForm = this.fb.group({
@@ -50,39 +53,55 @@ export class NewPasswordComponent implements OnInit {
     });
   }
 
-  // Überprüfen, ob ein Großbuchstabe vorhanden ist
+  /**
+   * checks if the password contains at least one uppercase letter
+   */
   get passwordHasUppercase(): boolean {
     const password = this.newPasswordControl.value;
     return /[A-Z]/.test(password);
   }
 
-  // Überprüfen, ob ein Kleinbuchstabe vorhanden ist
+  /**
+   * checks if the password contains at least one lowercase letter
+   */
   get passwordHasLowercase(): boolean {
     const password = this.newPasswordControl.value;
     return /[a-z]/.test(password);
   }
 
-  // Überprüfen, ob eine Zahl vorhanden ist
+  /**
+   * checks if the password contains at least one number
+   */
   get passwordHasNumber(): boolean {
     const password = this.newPasswordControl.value;
     return /\d/.test(password);
   }
 
-  // Überprüfen, ob ein Sonderzeichen vorhanden ist
+  /**
+   * checks if the password contains at least one special character
+   */
   get passwordHasSpecialChar(): boolean {
     const password = this.newPasswordControl.value;
     return /[@$!%*?&]/.test(password);
   }
 
-  // Hilfsmethode zum Typ-Casting im Template
+  /**
+   * returns the newPasswordControl
+   */
   get newPasswordControl(): FormControl {
     return this.newPasswordForm.get('newPassword') as FormControl;
   }
 
+  /**
+   * returns the confirmPasswordControl
+   */
   get confirmPasswordControl(): FormControl {
     return this.newPasswordForm.get('confirmPassword') as FormControl;
   }
 
+  /**
+   * changes the password
+   */
   async changePassword() {
     if (this.newPasswordForm.valid && this.oobCode) {
       const newPassword = this.newPasswordControl.value;
@@ -101,17 +120,23 @@ export class NewPasswordComponent implements OnInit {
     }
   }
 
-  // Methode zur Navigation zum Passwort-Reset
+  /**
+   * navigates to the login page
+   */
   navigateToLogin() {
     this.routingService.navigateToLogin();
   }
 
-  // Methode zur Navigation zum Impressum
+  /**
+   * navigates to the imprint page
+   */
   navigateToImprint() {
     this.routingService.navigateToImprint();
   }
 
-  // Methode zur Navigation zur Datenschutz-Seite
+  /**
+   * navigates to the privacy policy page
+   */
   navigateToPrivacyPolicy() {
     this.routingService.navigateToPrivacyPolicy();
   }

@@ -27,17 +27,14 @@ import {
   getDoc,
   getDocs,
   setDoc,
-  updateDoc,
 } from 'firebase/firestore';
 import {
   EmailAuthProvider,
   onAuthStateChanged,
   reauthenticateWithCredential,
-  updateEmail,
   verifyBeforeUpdateEmail,
 } from 'firebase/auth';
 import { getDatabase, ref, set } from 'firebase/database';
-import { StorageService } from '../storage-service/storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -49,97 +46,101 @@ export class AuthService {
     private firestore: Firestore,
     private auth: Auth = inject(Auth),
     private userService: UserService,
-    private storageService: StorageService,
     private errorService: ErrorService,
     private routingService: RoutingService,
     private notificationService: NotificationService
   ) {
     this.observeAuthChanges();
 
-    // Event-Listener für das Schließen/Aktualisieren der Seite
     window.addEventListener('beforeunload', this.handlePageUnload.bind(this));
   }
 
-  // Aufräumen des Auth-Observers, wenn der Service zerstört wird
+  /**
+   * Unsubscribes from auth changes
+   */
   ngOnDestroy() {
     if (this.authSubscription) {
-      this.authSubscription.unsubscribe(); // Bestehende Subscription aufräumen
+      this.authSubscription.unsubscribe();
     }
 
-    // Entferne den Event-Listener für `beforeunload`
     window.removeEventListener(
       'beforeunload',
       this.handlePageUnload.bind(this)
     );
   }
 
+  /**
+   * Handles the page unload event
+   */
   private async handlePageUnload(): Promise<void> {
-    const currentUser = this.auth.currentUser;
-
-    if (currentUser) {
-      try {
-        const userDocRef = doc(this.firestore, `users/${currentUser.uid}`);
-        const userSnapshot = await getDoc(userDocRef);
-
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data() as UserData;
-
-          if (userData.displayName === 'Guest') {
-            await this.guestLogout(currentUser.uid);
-          }
-        }
-      } catch (error) {
-        console.error('Fehler beim HandlePageUnload:', error);
-      }
+    try {
+      const currentUser = this.auth.currentUser;
+      if (currentUser) await this.checkAndLogoutGuest(currentUser.uid);
+    } catch (error) {
+      console.error('Fehler beim HandlePageUnload:', error);
     }
   }
 
+  /**
+   * Checks if the user is a guest and logs them out if they are
+   * @param userId - The ID of the user
+   */
+  private async checkAndLogoutGuest(userId: string): Promise<void> {
+    const userDocRef = doc(this.firestore, `users/${userId}`);
+    const userSnapshot = await getDoc(userDocRef);
+
+    if (
+      userSnapshot.exists() &&
+      (userSnapshot.data() as UserData).displayName === 'Guest'
+    ) {
+      await this.guestLogout(userId);
+    }
+  }
+
+  /**
+   * Observes auth changes and updates the user profile if needed
+   */
   private observeAuthChanges() {
     onAuthStateChanged(this.auth, async (user: User | null) => {
-      if (user) {
-        const userRef = doc(this.firestore, `users/${user.uid}`);
+      if (!user) return;
 
-        const updatedData = {
-          email: user.email,
-        };
+      const userRef = doc(this.firestore, `users/${user.uid}`);
+      const updatedData = { email: user.email };
 
-        try {
-          // Aktualisiert das Firestore-Dokument des Benutzers mit den neuen Daten
-          await setDoc(userRef, updatedData, { merge: true });
-          console.log('Benutzerprofil erfolgreich in Firestore aktualisiert.');
-        } catch (error) {
-          console.error(
-            'Fehler beim Aktualisieren des Benutzerprofils in Firestore:',
-            error
-          );
-        }
+      try {
+        await setDoc(userRef, updatedData, { merge: true });
+      } catch (error) {
+        console.error('Fehler beim Aktualisieren des Benutzerprofils:', error);
       }
     });
   }
 
+  /**
+   * Checks if the email exists in Firestore
+   * @param email - The email address
+   * @returns Promise<boolean>
+   */
   async checkEmailExistsInFirestore(email: string): Promise<boolean> {
     const usersCollection = collection(this.firestore, 'users');
     const querySnapshot = await getDocs(usersCollection);
 
-    // Durchlaufe alle Dokumente und prüfe, ob die E-Mail existiert
     for (const doc of querySnapshot.docs) {
       const data = doc.data();
       if (data['email'] === email) {
-        return true; // E-Mail gefunden
+        return true;
       }
     }
-    return false; // E-Mail nicht gefunden
+    return false;
   }
 
-  // Anmeldung als Gastnutzer
-  // Benutzer wird anonym in Firebase authentifiziert
-  // Online-Status wird auf true gesetzt und der Nutzer zur Hauptseite geleitet
+  /**
+   * Handles the guest login
+   */
   async guestLogin(): Promise<void> {
     try {
       const userCredential = await signInAnonymously(this.auth);
-      await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
+      await this.userService.setOnlineStatus(userCredential.user.uid, true);
 
-      //ANCHOR - Testdaten für den Gastnutzer
       const guestUserData = new UserData(
         userCredential.user,
         'Guest'
@@ -147,14 +148,15 @@ export class AuthService {
 
       await this.userService.saveUserData(userCredential.user, guestUserData);
 
-      this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
+      this.routingService.navigateToMain(userCredential.user.uid);
     } catch (error) {
       this.handleError(error);
     }
   }
 
-  // Anmeldung mit E-Mail und Passwort
-  // Authentifiziert den Benutzer, speichert die Daten in der Firestore und setzt den Online-Status
+  /**
+   * Handles the user login
+   */
   async login(email: string, password: string): Promise<void> {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -163,49 +165,38 @@ export class AuthService {
         password
       );
 
-      //NOTE - Beim login brauchen wir keinen neuen User erstellen, die alten daten werden dan überschrieben
-
-      // const formattedDisplayName = new UserData(
-      //   userCredential.user
-      // ).formatDisplayName();
-
-      // await this.userService.saveUserData(
-      //   userCredential.user,
-      //   formattedDisplayName
-      // );
-      await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
-      this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
+      await this.userService.setOnlineStatus(userCredential.user.uid, true);
+      this.routingService.navigateToMain(userCredential.user.uid);
     } catch (error: any) {
       this.handleError(error);
     }
   }
 
-  // Anmeldung über Google-Login
-  // Authentifiziert den Benutzer über Google, speichert dessen Profilbild und setzt den Online-Status
+  /**
+   * Handles the google login
+   */
   async googleLogin(): Promise<void> {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(this.auth, provider);
 
-      const googleProfilePhotoURL =
-        userCredential.user.photoURL || 'assets/img/profile/placeholder.webp'; // Google-Profilbild oder Platzhalter verwenden
+      const photoURL =
+        userCredential.user.photoURL || 'assets/img/profile/placeholder.webp';
 
-      await this.userService.saveUserData(
-        userCredential.user,
-        googleProfilePhotoURL
-      );
-      await this.userService.setOnlineStatus(userCredential.user.uid, true); // Setzt den Online-Status auf online
-      this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
+      await this.userService.saveUserData(userCredential.user, photoURL);
+      await this.userService.setOnlineStatus(userCredential.user.uid, true);
+      this.routingService.navigateToMain(userCredential.user.uid);
     } catch (error) {
       this.handleError(error);
     }
   }
 
-  // Passwort-Zurücksetzen E-Mail senden
-  // Sendet eine E-Mail mit einem Link zum Zurücksetzen des Passworts
+  /**
+   * Handles the password reset email
+   */
   async sendPasswordResetEmail(email: string): Promise<void> {
     const actionCodeSettings = {
-      url: 'http://localhost:4200/', // Link zur Seite zum Zurücksetzen des Passworts
+      url: 'http://localhost:4200/',
       handleCodeInApp: true,
     };
 
@@ -220,8 +211,9 @@ export class AuthService {
     }
   }
 
-  // Bestätigen des Zurücksetzens des Passworts
-  // Nimmt den oobCode aus der E-Mail und setzt das neue Passwort
+  /**
+   * Handles the password reset
+   */
   async confirmPasswordReset(
     oobCode: string,
     newPassword: string
@@ -233,8 +225,9 @@ export class AuthService {
     }
   }
 
-  // Registrierung mit E-Mail und Passwort
-  // Registriert einen neuen Benutzer, speichert dessen Daten und leitet ihn zur Hauptseite weiter
+  /**
+   * Handles the user registration
+   */
   async register(
     email: string,
     password: string,
@@ -246,28 +239,26 @@ export class AuthService {
         email,
         password
       );
-      const formattedDisplayName = new UserData(
-        userCredential.user,
-        displayName
-      ).formatDisplayName();
-
-      // Speichert die Benutzerdaten in Firestore
       await this.userService.saveUserData(
         userCredential.user,
-        formattedDisplayName
+        new UserData(userCredential.user, displayName).formatDisplayName()
       );
-
-      this.notificationService.showNotification('Konto erfolgreich erstellt!'); // Zeigt eine Erfolgsbenachrichtigung an
-      this.routingService.navigateToMain(userCredential.user.uid); // Navigiert zur Hauptseite
+      this.notificationService.showNotification('Konto erfolgreich erstellt!');
+      this.routingService.navigateToMain(userCredential.user.uid);
     } catch (error) {
       this.handleError(error);
     }
   }
 
+  /**
+   * Checks if the email exists
+   * @param email - The email address
+   * @returns - Promise<boolean>
+   */
   async checkEmailExists(email: string): Promise<boolean> {
     try {
       const signInMethods = await fetchSignInMethodsForEmail(this.auth, email);
-      return signInMethods.length > 0; // Gibt true zurück, wenn die E-Mail existiert
+      return signInMethods.length > 0;
     } catch (error) {
       this.handleError(error);
       console.error('Fehler bei fetchSignInMethodsForEmail:', error);
@@ -275,40 +266,46 @@ export class AuthService {
     }
   }
 
-  // Benutzer abmelden
-  // Setzt den Online-Status auf offline und meldet den Benutzer ab
+  /**
+   *  Handles the user logout
+   * @returns - Promise<void>
+   */
   async logout(): Promise<void> {
     try {
       const currentUser = this.auth.currentUser;
+      if (!currentUser) return;
 
-      if (currentUser) {
-        const userDocRef = doc(this.firestore, `users/${currentUser.uid}`);
-        const userSnapshot = await getDoc(userDocRef);
-
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data() as UserData;
-
-          if (userData.displayName === 'Guest') {
-            // Gastnutzer-Logout
-            await this.guestLogout(currentUser.uid);
-          } else {
-            // Normaler Nutzer-Logout
-            await this.userService.setOnlineStatus(currentUser.uid, false);
-          }
-        }
-
-        await this.auth.signOut(); // Melde den Nutzer ab
-        this.routingService.navigateToLogin(); // Navigiere zur Login-Seite
-      }
+      await this.handleUserLogout(currentUser);
+      await this.auth.signOut();
+      this.routingService.navigateToLogin();
     } catch (error) {
       this.handleError(error);
     }
   }
 
+  /**
+   * Handles the user logout
+   */
+  private async handleUserLogout(currentUser: User): Promise<void> {
+    const userDocRef = doc(this.firestore, `users/${currentUser.uid}`);
+    const userSnapshot = await getDoc(userDocRef);
+
+    if (userSnapshot.exists()) {
+      const userData = userSnapshot.data() as UserData;
+
+      if (userData.displayName === 'Guest') {
+        await this.guestLogout(currentUser.uid);
+      } else {
+        await this.userService.setOnlineStatus(currentUser.uid, false);
+      }
+    }
+  }
+
+  /**
+   * Handles the guest logout
+   */
   async guestLogout(userId: string): Promise<void> {
-    debugger;
     try {
-      debugger;
       const userDocRef = doc(this.firestore, `users/${userId}`);
       const userSnapshot = await getDoc(userDocRef);
 
@@ -317,71 +314,56 @@ export class AuthService {
         return;
       }
 
-      /*       const userData = userSnapshot.data() as UserData;
-
-      // Extrahiere alle privateChats
-      if (userData.privateChat) {
-        const privateChatIds = Object.keys(userData.privateChat);
-
-        // Iteriere durch alle privateChat-IDs
-        for (const chatId of privateChatIds) {
-          const userIds = chatId.split('_'); // Trenne die IDs
-          const otherUserId = userIds.find((id) => id !== userId); // Finde die ID, die nicht die des Gasts ist
-
-          if (otherUserId) {
-            console.log(
-              `Leite Nutzer ${otherUserId} weiter zu /main/${otherUserId}`
-            );
-            this.routingService.navigateToMain(otherUserId); // Weiterleitung
-          }
-        }
-      }
-
-      console.log('Weiterleitung abgeschlossen. Lösche nun den Gastnutzer.'); */
-
-      // Lösche den Gastnutzer
       await this.deleteGuestData(userId);
-      console.log('Gastnutzer erfolgreich gelöscht.');
     } catch (error) {
       console.error('Fehler beim Löschen des Gastnutzers:', error);
     }
   }
 
+  /**
+   * Deletes the guest data
+   */
   private async deleteGuestData(userId: string): Promise<void> {
     try {
-      // Lösche den Gastnutzer aus Firestore
       const userDocRef = doc(this.firestore, `users/${userId}`);
       await deleteDoc(userDocRef);
 
-      // Lösche den Gastnutzer aus der Realtime Database
       const userStatusRef = ref(this.database, `status/${userId}`);
       await set(userStatusRef, null);
-
-      console.log(`Daten des Gastnutzers ${userId} erfolgreich gelöscht.`);
     } catch (error) {
       console.error('Fehler beim Löschen der Daten des Gastnutzers:', error);
       throw error;
     }
   }
 
-  // Aktuellen authentifizierten Benutzer abrufen
-  // Gibt ein Observable des aktuellen Authentifizierungszustands zurück
+  /**
+   * Gets the current user
+   */
   getCurrentUser(): Observable<User | null> {
-    return authState(this.auth); // Observable für den Authentifizierungsstatus
+    return authState(this.auth);
   }
 
-  // Fehlerbehandlung
-  // Leitet Fehler an den ErrorService weiter und gibt sie an den Aufrufer zurück
+  /**
+   * Handles the error
+   */
   private handleError(error: any) {
-    this.errorService.logError(error); // Loggt den Fehler
-    throw error; // Gibt den Fehler an den Aufrufer zurück
+    this.errorService.logError(error);
+    throw error;
   }
 
+  /**
+   * Formats the display name
+   */
   formatDisplayName(name: string): string {
-    const user = new UserData({} as any, name); // Erstelle ein UserData-Objekt mit dem Namen
-    return user.formatDisplayName(); // Rufe die Formatierungsfunktion auf
+    const user = new UserData({} as any, name);
+    return user.formatDisplayName();
   }
 
+  /**
+   *  Handles the email change
+   * @param newEmail - The new email address.
+   * @param password - The user's password.
+   */
   async changeEmail(newEmail: string, password: string): Promise<void> {
     const user = this.auth.currentUser;
     if (!user) {
@@ -389,36 +371,45 @@ export class AuthService {
     }
 
     try {
-      // Erstelle die Zugangsdaten zur Re-Authentifizierung
-      const credential = EmailAuthProvider.credential(
-        user!.email as string,
-        password
-      );
-
-      // Versuche, den Benutzer mit dem Passwort zu re-authentifizieren
-      await reauthenticateWithCredential(user!, credential);
-
-      // Wenn die Re-Authentifizierung erfolgreich ist, aktualisiere die E-Mail
-      await verifyBeforeUpdateEmail(user!, newEmail);
+      const credential = this.getUserCredential(user.email as string, password);
+      await reauthenticateWithCredential(user, credential);
+      await verifyBeforeUpdateEmail(user, newEmail);
     } catch (error) {
-      // Logge den gesamten Fehler zur besseren Fehlerdiagnose
-      if ((error as any).code === 'auth/invalid-credential') {
-        throw new Error('Falsches Passwort');
-      } else if ((error as any).code === 'auth/user-mismatch') {
-        throw new Error('Der Benutzer stimmt nicht überein.');
-      } else if ((error as any).code === 'auth/requires-recent-login') {
-        throw new Error(
-          'Bitte melden Sie sich erneut an, um Ihre E-Mail zu ändern.'
-        );
-      } else {
-        // Weiterer unbekannter Fehler
-        throw new Error(
-          'Fehler beim Ändern der E-Mail: ' + (error as any).message
-        );
-      }
+      this.handleEmailChangeError(error);
     }
   }
 
+  /**
+   * Gets the user credential
+   */
+  private getUserCredential(
+    email: string,
+    password: string
+  ): ReturnType<typeof EmailAuthProvider.credential> {
+    return EmailAuthProvider.credential(email, password);
+  }
+
+  /**
+   * Handles the email change error
+   */
+  private handleEmailChangeError(error: any): void {
+    switch (error.code) {
+      case 'auth/invalid-credential':
+        throw new Error('Falsches Passwort');
+      case 'auth/user-mismatch':
+        throw new Error('Der Benutzer stimmt nicht überein.');
+      case 'auth/requires-recent-login':
+        throw new Error(
+          'Bitte melden Sie sich erneut an, um Ihre E-Mail zu ändern.'
+        );
+      default:
+        throw new Error('Fehler beim Ändern der E-Mail: ' + error.message);
+    }
+  }
+
+  /**
+   * Checks if the user is a Google user
+   */
   checkIfGoogleUser() {
     const currentUser: User | null = this.auth.currentUser;
 

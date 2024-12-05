@@ -50,67 +50,79 @@ export class LoginComponent {
     if (!animationPlayed) {
       sessionStorage.setItem('animationPlayed', 'true');
 
-      // Setze showAnimation nach der Dauer der Animation auf false
       setTimeout(() => {
         this.showAnimation = false;
-      }, 3500); // Dauer der Animation in Millisekunden
+      }, 3500);
     }
   }
 
+  /**
+   * Performs the login
+   * @returns - Promise<void>
+   */
   async login() {
-    // Überprüfen, ob beide Felder gültige Eingaben haben
     if (this.email.invalid || this.password.invalid) {
       this.errorMessage = 'Bitte gültige E-Mail und Passwort eingeben.';
       return;
     }
 
     try {
-      // Versuche den Benutzer anzumelden
       await this.authService.login(this.email.value!, this.password.value!);
-      this.errorMessage = null; // Fehlermeldung zurücksetzen, falls vorher eine angezeigt wurde
-      // Weiterleitung nach erfolgreichem Login
-      // this.routingService.navigateToMain();
+      this.errorMessage = null;
     } catch (error: any) {
-      this.errorService.logError(error); // Fehler wird protokolliert
-      this.errorMessage = 'Benutzername oder Passwort ist falsch.'; // Allgemeine Fehlermeldung
+      this.errorService.logError(error);
+      this.errorMessage = 'Benutzername oder Passwort ist falsch.';
     }
   }
 
+  /**
+   * Performs the google login
+   */
   async googleLogin() {
     try {
       await this.authService.googleLogin();
-      // this.routingService.navigateToMain();
     } catch (error: any) {
       this.errorService.logError(error);
       this.errorMessage = error.message;
     }
   }
 
+  /**
+   * Performs the guest login
+   */
   async guestLogin() {
     try {
       await this.authService.guestLogin();
-      // this.routingService.navigateToMain();
     } catch (error: any) {
       this.errorService.logError(error);
       this.errorMessage = error.message;
     }
   }
-  // Methode zur Navigation zum Passwort-Reset
+
+  /**
+   * Navigates to the reset password page
+   */
   navigateToResetPassword() {
     this.routingService.navigateToResetPassword();
   }
 
-  // Methode zur Navigation zur Registrierung
+  /**
+   * Navigates to the register page
+   */
   navigateToRegister() {
     this.routingService.navigateToRegister();
   }
 
-  // Methode zur Navigation zum Impressum
+  /**
+   * Navigates to the imprint page
+   */
   navigateToImprint() {
     this.routingService.navigateToImprint();
   }
 
-  // Methode zur Navigation zur Datenschutz-Seite
+  /**
+   * Navigates to the privacy policy page
+   */
   navigateToPrivacyPolicy() {
     this.routingService.navigateToPrivacyPolicy();
   }

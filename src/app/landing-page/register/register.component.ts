@@ -41,6 +41,9 @@ export class RegisterComponent implements OnInit {
     private routingService: RoutingService
   ) {}
 
+  /**
+   * initialises the component
+   */
   ngOnInit(): void {
     this.registerForm = this.fb.group({
       displayName: ['', [Validators.required, this.fullNameValidator]],
@@ -58,13 +61,19 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  // Validator für Vorname und Nachname
+  /**
+   * checks if the full name is valid
+   * @param control - the control
+   * @returns - the validation result
+   */
   fullNameValidator(control: any) {
     const value = control.value || '';
     return value.trim().split(/\s+/).length >= 2 ? null : { fullName: true };
   }
 
-  // Überprüfen, ob die E-Mail bereits registriert ist
+  /**
+   * checks if the email exists and proceed to select avatar
+   */
   async checkEmailExistsAndProceed() {
     const email = this.emailControl.value;
 
@@ -73,92 +82,132 @@ export class RegisterComponent implements OnInit {
         email
       );
 
-      if (emailExists) {
-        this.errorMessage = 'Diese E-Mail-Adresse ist bereits registriert.';
-      } else {
-        this.errorMessage = null;
-        this.proceedToSelectAvatar();
-      }
+      this.checkEmailExists(emailExists);
     } catch (error) {
       console.error('Fehler bei der Überprüfung der E-Mail-Adresse:', error);
       this.errorMessage = 'Fehler bei der Überprüfung der E-Mail-Adresse.';
     }
   }
 
-  // Temporäre Speicherung der Registrierungsdaten und Weiterleitung
+  /**
+   * checks if the email exists and proceed to select avatar
+   * @param emailExists - the email exists
+   */
+  checkEmailExists(emailExists: boolean) {
+    if (emailExists) {
+      this.errorMessage = 'Diese E-Mail-Adresse ist bereits registriert.';
+    } else {
+      this.errorMessage = null;
+      this.proceedToSelectAvatar();
+    }
+  }
+
+  /**
+   * Proceeds to select avatar
+   */
   proceedToSelectAvatar() {
     const displayName = this.registerForm.get('displayName')?.value;
     const email = this.registerForm.get('email')?.value;
     const password = this.registerForm.get('password')?.value;
 
-    // Daten temporär speichern
     this.userService.setTempRegistrationData({
       displayName,
       email,
     });
 
-    // Passwort separat speichern (nicht in UserData)
     this.userService.setTempPassword(password);
 
-    // Weiterleitung zur Avatar-Auswahl
     this.routingService.navigateToSelectAvatar();
   }
 
-  // Zugriff auf die FormControls
+  /**
+   * returns the displayNameControl
+   */
   get displayNameControl(): FormControl {
     return this.registerForm.get('displayName') as FormControl;
   }
 
+  /**
+   * returns the emailControl
+   */
   get emailControl(): FormControl {
     return this.registerForm.get('email') as FormControl;
   }
 
+  /**
+   * returns the passwordControl
+   */
   get passwordControl(): FormControl {
     return this.registerForm.get('password') as FormControl;
   }
 
+  /**
+   * returns the confirmPasswordControl
+   */
   get confirmPasswordControl(): FormControl {
     return this.registerForm.get('confirmPassword') as FormControl;
   }
 
+  /**
+   * returns the acceptTermsControl
+   */
   get acceptTermsControl(): FormControl {
     return this.registerForm.get('acceptTerms') as FormControl;
   }
 
-  // Überprüfen, ob ein Großbuchstabe vorhanden ist
+  /**
+   * checks if the password contains at least one uppercase letter
+   * @returns -
+   */
   get passwordHasUppercase(): boolean {
     const password = this.passwordControl.value;
     return /[A-Z]/.test(password);
   }
 
-  // Überprüfen, ob ein Kleinbuchstabe vorhanden ist
+  /**
+   * checks if the password contains at least one lowercase letter
+   * @returns -
+   */
   get passwordHasLowercase(): boolean {
     const password = this.passwordControl.value;
     return /[a-z]/.test(password);
   }
 
-  // Überprüfen, ob eine Zahl vorhanden ist
+  /**
+   * checks if the password contains at least one number
+   * @returns -
+   */
   get passwordHasNumber(): boolean {
     const password = this.passwordControl.value;
     return /\d/.test(password);
   }
 
-  // Überprüfen, ob ein Sonderzeichen vorhanden ist
+  /**
+   * checks if the password contains at least one special character
+   * @returns -
+   */
   get passwordHasSpecialChar(): boolean {
     const password = this.passwordControl.value;
     return /[@$!%*?&]/.test(password);
   }
 
-  // Methode zur Navigation
-
+  /**
+   * navigates to the login page
+   */
   navigateToLogin() {
     this.routingService.navigateToLogin();
   }
 
+  /**
+   * navigates to the imprint page
+   */
   navigateToImprint() {
     this.routingService.navigateToImprint();
   }
 
+  /**
+   * navigates to the privacy policy page
+   */
   navigateToPrivacyPolicy() {
     this.routingService.navigateToPrivacyPolicy();
   }

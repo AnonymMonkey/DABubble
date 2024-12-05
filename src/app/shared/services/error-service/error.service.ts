@@ -6,25 +6,31 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class ErrorService {
   constructor(private snackBar: MatSnackBar) {}
-  // Methode zum Loggen von Fehlern
+
+  /**
+   *  Logs an error.
+   * @param error - The error to log
+   */
   logError(error: any): void {
     console.error('Error logged:', error);
   }
 
-  // Beispiel für eine Methode zum Senden von Fehlern an einen Server (optional)
+  /**
+   *  Sends an error to the server.
+   * @param error - The error to send
+   */
   private sendErrorToServer(error: any): void {
     console.log('Error sent to server:', error);
   }
 
-  // Beispiel für eine Methode zum Anzeigen einer Benachrichtigung für den Benutzer (optional)
-  // showUserNotification(message: string): void {
-  //   alert(message); // Einfaches Beispiel: Alert-Box
-  // }
-
+  /**
+   * Shows a user notification.
+   * @param message - The message to show
+   */
   showUserNotification(message: string): void {
     this.snackBar.open(message, 'Schließen', {
-      duration: 3000, // Dauer der Anzeige (in ms)
-      panelClass: ['custom-snackbar'], // Optional: custom CSS-Klassen für Styling
+      duration: 3000,
+      panelClass: ['custom-snackbar'],
     });
-  }  
+  }
 }
