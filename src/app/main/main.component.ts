@@ -43,6 +43,7 @@ export class MainComponent implements OnInit, OnDestroy {
   private channelSubscription: Subscription | undefined;
   breakpointObserver = inject(BreakpointObserver);
   drawerMode: 'side' | 'over' = 'side';
+  mobileVersion: boolean = false;
   sideNavOpened = true;
   behaviorService = inject(BehaviorService);
   subscription!: Subscription;
@@ -64,6 +65,7 @@ export class MainComponent implements OnInit, OnDestroy {
       .observe(['(min-width: 992px)'])
       .subscribe((result) => {
         this.drawerMode = result.matches ? 'side' : 'over';
+        this.mobileVersion = !result.matches;
       });
 
     this.subscription = this.behaviorService.sideNavOpened$.subscribe(
@@ -120,5 +122,12 @@ export class MainComponent implements OnInit, OnDestroy {
 
   setNavBehavior() {
     this.behaviorService.setValue(this.sideNavOpened);
+  }
+
+  closeSideNavOnMobile() {
+    if (this.mobileVersion) {
+      this.sideNavOpened = false;
+      this.behaviorService.setValue(this.sideNavOpened);
+    }
   }
 }

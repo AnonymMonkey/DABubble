@@ -49,7 +49,7 @@ export class SearchBarComponent {
 
   ngOnInit(): void {
     this.breakpointSubscription = this.breakpointObserver
-      .observe(['(max-width: 600px)'])
+      .observe(['(max-width: 992px)'])
       .subscribe((result) => {
         this.mobileVersion = result.matches ? true : false;
       });

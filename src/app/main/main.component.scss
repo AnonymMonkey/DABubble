@@ -69,7 +69,8 @@
   z-index: 1;
 
   ::ng-deep.mat-drawer-backdrop.mat-drawer-shown {
-    visibility: hidden;
+    visibility: visible;
+    background-color: transparent;
   }
 
   .example-sidenav {
