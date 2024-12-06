@@ -36,6 +36,9 @@ export class NotificationLabelComponent implements OnInit {
       });
   }
 
+  /**
+   * Destroys the component
+   */
   ngOnDestroy() {
     if (this.getNotificationSubscription) {
       this.getNotificationSubscription.unsubscribe();

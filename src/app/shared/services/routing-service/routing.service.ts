@@ -21,6 +21,9 @@ export class RoutingService {
       });
   }
 
+  /**
+   * Unsubscribes from the routing subscription
+   */
   ngOnDestroy(): void {
     this.routingSubscription?.unsubscribe();
   }
