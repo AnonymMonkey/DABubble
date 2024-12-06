@@ -32,7 +32,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    mat-icon {
+    mat-icon,
+    .add-icon {
       color: black !important;
     }
 
@@ -41,7 +42,8 @@
       background-color: var(--light-purple-color2) !important;
     }
 
-    &:hover mat-icon {
+    &:hover mat-icon,
+    &:hover .add-icon {
       color: var(--purple3-color) !important;
     }
 
@@ -257,5 +259,6 @@
     width: 60px !important;
     height: 60px !important;
     padding: unset !important;
+    color: white !important;
   }
 }

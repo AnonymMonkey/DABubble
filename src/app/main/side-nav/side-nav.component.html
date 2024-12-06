@@ -40,7 +40,7 @@
             clickStopPropagation
             (click)="openCreateChannelDialog()"
           >
-            <mat-icon class="material-symbols-outlined">add</mat-icon>
+            <mat-icon class="material-symbols-outlined add-icon">add</mat-icon>
           </button>
         </mat-panel-title>
       </mat-expansion-panel-header>
@@ -128,6 +128,8 @@
     routerLink="."
     (click)="activeButtonService.setActiveButton(''); closeNavOnClick()"
   >
-    <mat-icon class="material-symbols-outlined">edit_square</mat-icon>
+    <mat-icon class="material-symbols-outlined mobile-icon"
+      >edit_square</mat-icon
+    >
   </button>
 </div>
