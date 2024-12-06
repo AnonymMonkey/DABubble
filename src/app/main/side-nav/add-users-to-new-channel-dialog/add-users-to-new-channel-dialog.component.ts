@@ -63,7 +63,7 @@ export class AddUsersToNewChannelDialogComponent {
     this.routingService.currentRoute$.subscribe((params) => {
       this.currentParams = params;
       this.openedChannelId = '';
-      if (this.currentParams['channelId']) {
+      if (this.currentParams && this.currentParams['channelId']) {
         this.openedChannelId = this.currentParams['channelId'];
         this.channelService
           .getChannelById(this.openedChannelId)

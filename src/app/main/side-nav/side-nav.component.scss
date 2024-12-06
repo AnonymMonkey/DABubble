@@ -184,6 +184,12 @@
       }
     }
 
+    .name {
+      max-width: 190px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .active {
       color: var(--purple1-color) !important;
       background-color: var(--bg-color) !important;
