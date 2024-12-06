@@ -8,10 +8,12 @@ import { UserService } from '../../services/user-service/user.service';
 import { ChannelService } from '../../services/channel-service/channel.service';
 import { Channel } from '../../models/channel.model';
 import { UserData } from '../../models/user.model';
-import { map, Observable, startWith } from 'rxjs';
+import { map, Observable, startWith, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { ActiveChatButtonService } from '../../services/profile-chat-button-service/active-chat-button.service';
 import { PrivateChatService } from '../../services/private-chat-service/private-chat.service';
+import { BehaviorService } from '../../services/behavior-service/behavior.service';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-search-bar',
@@ -40,10 +42,23 @@ export class SearchBarComponent {
   inputControl = new FormControl('');
   filteredOptions!: Observable<(Channel | UserData)[]>;
   router = inject(Router);
+  behaviorService = inject(BehaviorService);
+  breakpointObserver = inject(BreakpointObserver);
+  breakpointSubscription!: Subscription;
+  mobileVersion: boolean = false;
 
   ngOnInit(): void {
+    this.breakpointSubscription = this.breakpointObserver
+      .observe(['(max-width: 600px)'])
+      .subscribe((result) => {
+        this.mobileVersion = result.matches ? true : false;
+      });
     this.loadAllUserData();
     this.loadCurrentUserData();
+  }
+
+  ngOnDestroy(): void {
+    this.breakpointSubscription.unsubscribe();
   }
 
   loadAllUserData(): void {
@@ -132,6 +147,7 @@ export class SearchBarComponent {
   }
 
   onOptionSelected(option: any): void {
+    this.closeSideNavOnMobile();
     if (option && typeof option === 'object') {
       if (option.value.startsWith('#')) {
         this.router
@@ -151,6 +167,12 @@ export class SearchBarComponent {
       }
     } else {
       console.error('Ungültige Option:', option);
+    }
+  }
+
+  closeSideNavOnMobile() {
+    if (this.mobileVersion) {
+      this.behaviorService.setValue(false);
     }
   }
 
