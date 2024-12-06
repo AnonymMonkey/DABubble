@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
-import { BehaviorSubject, filter, map } from 'rxjs';
+import { BehaviorSubject, filter, map, Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -8,9 +8,10 @@ import { BehaviorSubject, filter, map } from 'rxjs';
 export class RoutingService {
   private currentRouteSource = new BehaviorSubject<Params | null>(null);
   currentRoute$ = this.currentRouteSource.asObservable();
+  routingSubscription: Subscription | null = null;
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute) {
-    this.router.events
+    this.routingSubscription = this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         map(() => this.getRouteParams(this.activatedRoute))
@@ -18,6 +19,10 @@ export class RoutingService {
       .subscribe((params) => {
         this.currentRouteSource.next(params);
       });
+  }
+
+  ngOnDestroy(): void {
+    this.routingSubscription?.unsubscribe();
   }
 
   /**
