@@ -10,7 +10,12 @@
     >
   </button>
 </div>
-<mat-drawer-container class="example-container" autosize>
+<mat-drawer-container
+  class="example-container"
+  (backdropClick)="closeSideNavOnMobile()"
+  (keydown.escape)="closeSideNavOnMobile()"
+  autosize
+>
   <mat-drawer
     #drawer
     class="example-sidenav"

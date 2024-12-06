@@ -23,13 +23,6 @@
     background-color: var(--bg-color) !important;
   }
 
-  mat-icon,
-  mat-icon.mat-primary,
-  mat-icon.mat-accent,
-  mat-icon.mat-warn {
-    color: var(--grey-color);
-  }
-
   .mat-mdc-chip.mdc-evolution-chip--with-trailing-action
     .mat-mdc-chip-action-label {
     display: flex;
@@ -121,6 +114,12 @@ mat-form-field {
         height: 30px;
         width: 30px;
         border-radius: 50%;
+      }
+
+      button {
+        .close-icon {
+          color: var(--grey-color);
+        }
       }
     }
   }

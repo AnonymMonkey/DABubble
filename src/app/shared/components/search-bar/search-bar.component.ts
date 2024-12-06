@@ -12,6 +12,8 @@ import { map, Observable, startWith, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { ActiveChatButtonService } from '../../services/profile-chat-button-service/active-chat-button.service';
 import { PrivateChatService } from '../../services/private-chat-service/private-chat.service';
+import { BehaviorService } from '../../services/behavior-service/behavior.service';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-search-bar',
@@ -41,6 +43,10 @@ export class SearchBarComponent {
   filteredOptions!: Observable<(Channel | UserData)[]>;
   router = inject(Router);
   subscriptions: Subscription[] = [];
+  behaviorService = inject(BehaviorService);
+  breakpointObserver = inject(BreakpointObserver);
+  breakpointSubscription!: Subscription;
+  mobileVersion: boolean = false;
 
   private allUserDataSubscription: Subscription | undefined;
   private userDataSubscription: Subscription | undefined;
@@ -50,9 +56,15 @@ export class SearchBarComponent {
    * Initializes the component and loads user data and channel data.
    */
   ngOnInit(): void {
+    this.breakpointSubscription = this.breakpointObserver
+      .observe(['(max-width: 992px)'])
+      .subscribe((result) => {
+        this.mobileVersion = result.matches ? true : false;
+      });
     this.loadAllUserData();
     this.loadCurrentUserData();
   }
+
 
   /**
    * Clean up subscriptions on component destroy.
@@ -63,6 +75,7 @@ export class SearchBarComponent {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     this.subscriptions = [];
     this.privateChatSubscription?.unsubscribe();
+    this.breakpointSubscription.unsubscribe();
   }
 
   /**
@@ -167,6 +180,7 @@ export class SearchBarComponent {
   }
 
   onOptionSelected(option: any): void {
+    this.closeSideNavOnMobile();
     if (option && typeof option === 'object') {
       if (option.value.startsWith('#')) {
         this.router
@@ -186,6 +200,12 @@ export class SearchBarComponent {
       }
     } else {
       console.error('Ungültige Option:', option);
+    }
+  }
+  
+  closeSideNavOnMobile() {
+    if (this.mobileVersion) {
+      this.behaviorService.setValue(false);
     }
   }
 

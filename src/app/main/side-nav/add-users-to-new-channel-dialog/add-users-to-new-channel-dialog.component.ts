@@ -64,18 +64,16 @@ export class AddUsersToNewChannelDialogComponent {
 
   ngOnInit() {
     this.newChannelData = new Channel();
-    this.routeSubscription = this.routingService.currentRoute$.subscribe(
-      (params) => {
-        this.currentParams = params;
-        this.openedChannelId = '';
-        if (this.currentParams['channelId']) {
-          this.openedChannelId = this.currentParams['channelId'];
-          this.channelSubscription = this.channelService
-            .getChannelById(this.openedChannelId)
-            .subscribe((data) => {
-              this.openedChannelData = data;
-            });
-        }
+    this.routeSubscription = this.routingService.currentRoute$.subscribe((params) => {
+      this.currentParams = params;
+      this.openedChannelId = '';
+      if (this.currentParams && this.currentParams['channelId']) {
+        this.openedChannelId = this.currentParams['channelId'];
+        this.channelSubscription = this.channelService
+          .getChannelById(this.openedChannelId)
+          .subscribe((data) => {
+            this.openedChannelData = data;
+          });
       }
     );
 
