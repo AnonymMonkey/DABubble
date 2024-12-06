@@ -7,7 +7,7 @@ import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { DataSnapshot, getDatabase, set } from 'firebase/database';
 import { onDisconnect, onValue, ref } from 'firebase/database';
-import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, Subscribable, Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ProfileInfoDialogComponent } from '../../profile-info-dialog/profile-info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -36,6 +36,15 @@ export class UserService {
     return this.userDataMapSubject.asObservable();
   }
   allUsersOnlineStatus$: { userId: string; online: boolean }[] = [];
+  loadAllUserDataSubscription: Subscription | undefined;
+  fetchUsersFromFirestoreSubscription: Subscription | undefined;
+  userDocSubscription: Subscription | undefined;
+  routeSubscription: Subscription | undefined;
+  profileInfoSubscription: Subscription | undefined;
+
+  /**
+   * Constructor for the UserService.
+   */
   constructor() {
     this.loadAllUserData();
     this.loadAllUserDataToMap();
@@ -43,11 +52,22 @@ export class UserService {
   }
 
   /**
+   * Unsubscribes from any active subscriptions.
+   */
+  ngOnDestroy(): void {
+    this.loadAllUserDataSubscription?.unsubscribe();
+    this.fetchUsersFromFirestoreSubscription?.unsubscribe();
+    this.userDocSubscription?.unsubscribe();
+    this.routeSubscription?.unsubscribe();
+    this.profileInfoSubscription?.unsubscribe();
+  }
+
+  /**
    * Loads all user data from Firestore
    */
   loadAllUserData(): void {
     const userCollection = collection(this.firestore, 'users');
-    collectionData(userCollection, { idField: 'id' }).subscribe((data) => {
+    this.loadAllUserDataSubscription = collectionData(userCollection, { idField: 'id' }).subscribe((data) => {
       this.allUserDataSubject.next(data);
     });
   }
@@ -56,7 +76,7 @@ export class UserService {
    * Loads all user data from Firestore and maps it to the userDataMap
    */
   loadAllUserDataToMap(): void {
-    this.fetchUsersFromFirestore().subscribe((users: UserData[]) => {
+    this.fetchUsersFromFirestoreSubscription = this.fetchUsersFromFirestore().subscribe((users: UserData[]) => {
       this.updateUserDataMap(users);
     });
   }
@@ -107,7 +127,7 @@ export class UserService {
    */
   loadUserDataByUID(uid: string): void {
     const userDoc = doc(this.firestore, `users/${uid}`);
-    docData(userDoc, { idField: 'id' }).subscribe((data) => {
+    this.userDocSubscription = docData(userDoc, { idField: 'id' }).subscribe((data) => {
       this.userDataSubject.next(data);
     });
   }
@@ -315,7 +335,7 @@ export class UserService {
    * Initializes the user ID based on the route parameters.
    */
   initializeUserId(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const uid = params.get('uid');
       if (uid) {
         this.userId = uid;
@@ -391,7 +411,7 @@ export class UserService {
    * @param {string} userId - The UID of the user.
    */
   openProfileInfo(userId: any): void {
-    this.getUserDataByUID(userId).subscribe(
+    this.profileInfoSubscription = this.getUserDataByUID(userId).subscribe(
       (userData) => {
         const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
           data: {

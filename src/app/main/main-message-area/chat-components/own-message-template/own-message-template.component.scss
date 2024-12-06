@@ -119,3 +119,17 @@ img {
     cursor: pointer;
   }
 }
+
+@media only screen and (max-width: 400px) {
+  .message-container-own {
+    padding: 10px 5px;
+    gap: 10px;
+  }
+}
+
+@media screen and (max-width: 300px) {
+  img {
+    width: 60px;
+    height: 60px;
+  }
+}

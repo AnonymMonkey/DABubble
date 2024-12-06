@@ -13,14 +13,14 @@ export class ChannelMessage {
   time: string;
   userId: string;
   thread: { [threadId: string]: ThreadMessage };
-  attachmentUrls: string[] = [];  // Array von Anhängen (URLs)
+  attachmentUrls: string[] = [];
 
   constructor(
     content: string,
     userId: string,
     messageId: string,
     time?: string,
-    attachmentUrls?: string[],  // Array von URLs für Anhänge
+    attachmentUrls?: string[], 
     reactions?: { emoji: any; count: number; userIds: string[] }[]
   ) {
     this.content = content;
@@ -28,7 +28,7 @@ export class ChannelMessage {
     this.time = time || new Date().toISOString();
     this.userId = userId;
     this.thread = {};
-    this.attachmentUrls = attachmentUrls || [];  // Setze die URLs des Anhangs (als Array)
+    this.attachmentUrls = attachmentUrls || []; 
     this.reactions = reactions || [];
   }
 
@@ -39,7 +39,7 @@ export class ChannelMessage {
         reactions: message.reactions.map((reaction) => ({
           emoji: reaction.emoji,
           count: reaction.count,
-          userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],  // Nur userIds
+          userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [], 
         })),
         time: message.time,
         userId: message.userId,
@@ -49,11 +49,11 @@ export class ChannelMessage {
             {
               content: t.content,
               time: t.time,
-              userId: t.userId,  // Nur die userId im Thread
+              userId: t.userId,
             },
           ])
         ),
-        attachmentUrls: message.attachmentUrls,  // Array der Anhänge (URLs)
+        attachmentUrls: message.attachmentUrls,
       };
     },
     fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ChannelMessage {
@@ -63,12 +63,12 @@ export class ChannelMessage {
         data['userId'],
         snapshot.id,
         data['time'],
-        data['attachmentUrls'] || []  // Array von Anhängen holen (default auf leeres Array)
+        data['attachmentUrls'] || []
       );
       message.reactions = (data['reactions'] || []).map((reaction: any) => ({
         emoji: reaction.emoji,
         count: reaction.count,
-        userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],  // Nur userIds
+        userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [], 
       }));
       message.thread = Object.fromEntries(
         Object.entries(data['thread'] || {}).map(([id, threadData]: [string, any]) => [

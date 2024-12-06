@@ -4,6 +4,7 @@ import { ChannelDescriptionComponent } from '../channel-description.component';
 import { Channel } from '../../../../../shared/models/channel.model';
 import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-channel-edit-name',
@@ -15,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 export class ChannelEditNameComponent implements OnInit {
   currentChannel: Channel | undefined;
   newChannelName: string = '';
+  channelSubscription: Subscription | undefined;
 
   constructor(public description: ChannelDescriptionComponent, private channelService: ChannelService) {}
 
@@ -22,12 +24,19 @@ export class ChannelEditNameComponent implements OnInit {
    * Initializes the component by subscribing to the current channel.
    */
   ngOnInit(): void {
-    this.channelService.currentChannel$.subscribe({
+    this.channelSubscription = this.channelService.currentChannel$.subscribe({
       next: (channel) => {
         this.currentChannel = channel;
-        this.newChannelName = channel?.channelName || ''; // Setze den initialen Wert
+        this.newChannelName = channel?.channelName || '';
       }
     });
+  }
+
+  /**
+   * Unsubscribes from the current channel subscription.
+   */
+  ngOnDestroy(): void {
+    if (this.channelSubscription) this.channelSubscription?.unsubscribe();
   }
 
   /**

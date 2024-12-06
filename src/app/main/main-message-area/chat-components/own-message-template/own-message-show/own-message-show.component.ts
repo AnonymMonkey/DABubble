@@ -181,7 +181,7 @@ export class OwnMessageShowComponent implements OnInit {
       const options: Intl.DateTimeFormatOptions = {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false, // 24-Stunden-Format
+        hour12: false,
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }

@@ -2,6 +2,9 @@
   <div class="description-container-headline">
     <span>Beschreibung</span>
     <button (click)="saveDescription(); description.toggleEditDescription()">Speichern</button>
+    <div class="edit-icon-container">
+      <mat-icon class="material-symbols-outlined" (click)="description.toggleEditDescription()">check_circle</mat-icon>
+    </div>
   </div>
   <div class="input-secondary">
     <input 

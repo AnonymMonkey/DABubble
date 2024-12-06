@@ -18,10 +18,14 @@
   flex-direction: row-reverse;
   gap: 30px;
   position: relative;
+  max-width: 80%;
 }
 
 .name {
   font-weight: 700 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     cursor: pointer;
@@ -33,6 +37,7 @@
   color: var(--grey-color);
   font-size: 14px;
   align-self: center;
+  min-width: 64px;
 }
 
 .message-own {
@@ -49,7 +54,12 @@
   > p {
     display: flex;
     justify-content: flex-end;
-    padding-right: 5px;
+    max-width: 100%;
+    flex-wrap: wrap; /* Ermöglicht den Zeilenumbruch */
+    word-wrap: break-word; /* Bricht lange Wörter */
+    overflow-wrap: break-word; /* Zusätzlicher Schutz für Zeilenumbrüche */
+    word-break: break-all;
+    hyphens: auto;
   }
 }
 
@@ -89,14 +99,21 @@ app-attachment-preview {
   justify-content: center;
 }
 
-// .mention {
-//   color: var(--purple3-color); /* Setzt die Farbe für Erwähnungen */
-//   font-weight: bold; /* Optional: Setzt den Text in Fettdruck */
-// }
-
 .thread-own.hidden {
-  display: none; /* Alternativ: visibility: hidden; */
+  display: none;
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
 }
 
+@media screen and (max-width: 400px) {
+  .name-and-time-own {
+    gap: 10px;
+    max-width: 100%;
+  }
+}
+
+@media screen and (max-width: 300px) {
+  .message-own {
+    padding: 10px 12px;
+  }
+}

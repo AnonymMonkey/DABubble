@@ -1,10 +1,6 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-} from '@angular/fire/storage';
+import { getStorage, ref, uploadBytes } from '@angular/fire/storage';
 import { getDownloadURL } from 'firebase/storage';
 import { StorageService } from '../../services/storage-service/storage.service';
 import { ErrorService } from '../../services/error-service/error.service';
@@ -19,10 +15,14 @@ import { NotificationService } from '../../services/notification-service/notific
 export class UploadMethodSelectorComponent {
   @Output() uploadSelected = new EventEmitter<string>();
   @Input() messageId: string | undefined;
-  storage = getStorage(); // Firebase Storage-Instanz
-  private route = inject(ActivatedRoute); // Aktivierte Route
+  storage = getStorage();
+  private route = inject(ActivatedRoute);
 
-  constructor(private storageService: StorageService, private errorService: ErrorService, private notificationService: NotificationService) {}
+  constructor(
+    private storageService: StorageService,
+    private errorService: ErrorService,
+    private notificationService: NotificationService
+  ) {}
 
   /**
    * Opens a file dialog based on the provided file type.
@@ -49,9 +49,9 @@ export class UploadMethodSelectorComponent {
     if (fileType === 'document') {
       return this.getDocumentAcceptTypes();
     } else if (fileType === 'image') {
-      return 'image/*'; // All image types
+      return 'image/*';
     }
-    return ''; // Invalid file type
+    return '';
   }
 
   /**
@@ -60,16 +60,16 @@ export class UploadMethodSelectorComponent {
    */
   private getDocumentAcceptTypes(): string {
     return [
-      'application/pdf', // PDF
-      'application/msword', // DOC
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
-      'application/vnd.ms-excel', // XLS
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
-      'application/vnd.ms-powerpoint', // PPT
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation', // PPTX
-      'text/plain', // TXT
-      'text/csv', // CSV
-    ].join(','); // MIME types as a string
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'text/plain',
+      'text/csv',
+    ].join(',');
   }
 
   /**
@@ -93,11 +93,11 @@ export class UploadMethodSelectorComponent {
     const file = fileInput.files?.[0];
     if (file) {
       if (file.size <= 500 * 1024) {
-        // 500 KB limit
         this.uploadFile(file);
       } else {
-        console.error('Datei überschreitet das Größenlimit von 500 KB.');
-        this.errorService.showUserNotification('Datei überschreitet das Größenlimit von 500 KB.');
+        this.errorService.showUserNotification(
+          'Datei überschreitet das Größenlimit von 500 KB.'
+        );
       }
     }
   }
@@ -109,19 +109,24 @@ export class UploadMethodSelectorComponent {
    * @param file The file to upload.
    */
   async uploadFile(file: File): Promise<void> {
-    const storagePath = this.getStoragePath(); // Bestimmt den Speicherpfad
-    const sanitizedFileName = this.sanitizeFileName(file.name); // Bereinigt den Dateinamen
-    const uniqueFileName = await this.getUniqueFileName(storagePath, sanitizedFileName);
-    const storageRef = ref(this.storage, `${storagePath}${encodeURIComponent(uniqueFileName)}`
+    const storagePath = this.getStoragePath(); 
+    const sanitizedFileName = this.sanitizeFileName(file.name);
+    const uniqueFileName = await this.getUniqueFileName(
+      storagePath,
+      sanitizedFileName
+    );
+    const storageRef = ref(
+      this.storage,
+      `${storagePath}${encodeURIComponent(uniqueFileName)}`
     );
     try {
-      const snapshot = await uploadBytes(storageRef, file); // Datei hochladen
-      const downloadURL = await getDownloadURL(snapshot.ref); // Download-URL abrufen
-      this.uploadSelected.emit(downloadURL); // Die URL zurückgeben
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      this.uploadSelected.emit(downloadURL);
     } catch (error) {
-      console.error('Fehler beim Hochladen der Datei:', error); // Fehlerbehandlung
+      console.error('Fehler beim Hochladen der Datei:', error);
     }
-    this.storageService.triggerCloseUploadMethodSelector(); // Upload-Selector schließen
+    this.storageService.triggerCloseUploadMethodSelector();
   }
 
   /**
@@ -133,13 +138,13 @@ export class UploadMethodSelectorComponent {
     const privateChatId = this.route.snapshot.paramMap.get('privateChatId');
     const messageId = this.messageId;
     if (messageId) {
-      return `channels/${channelId}/messages/${messageId}/uploads/`; // Spezifischer Pfad für Nachrichten
+      return `channels/${channelId}/messages/${messageId}/uploads/`;
     } else if (channelId) {
-      return `channels/${channelId}/uploads/`; // Pfad für den Kanal
+      return `channels/${channelId}/uploads/`;
     } else if (privateChatId) {
-      return `privateChats/${privateChatId}/uploads/`; // Pfad für private Chats
+      return `privateChats/${privateChatId}/uploads/`;
     }
-    return 'uploads/'; 
+    return 'uploads/';
   }
 
   /**
@@ -149,8 +154,8 @@ export class UploadMethodSelectorComponent {
    */
   private sanitizeFileName(fileName: string): string {
     return fileName
-      .replace(/\s+/g, '_') // Leerzeichen durch Unterstriche ersetzen
-      .replace(/[^a-zA-Z0-9._-]/g, '_'); // Sonderzeichen durch Unterstriche ersetzen
+      .replace(/\s+/g, '_')
+      .replace(/[^a-zA-Z0-9._-]/g, '_'); 
   }
 
   /**
@@ -166,12 +171,12 @@ export class UploadMethodSelectorComponent {
     return this.storageService.getUniqueFileName(
       storagePath,
       sanitizedFileName
-    ); // Aufruf der Service-Methode für den eindeutigen Dateinamen
+    );
   }
 
   /**
    * Handles drag and drop events for file upload.
-   * 
+   *
    * @param event The drag event.
    */
   onDragOver(event: DragEvent) {
@@ -182,7 +187,7 @@ export class UploadMethodSelectorComponent {
 
   /**
    * Handles drag and drop events for file upload.
-   * 
+   *
    * @param event The drag event.
    */
   onDragLeave(event: DragEvent) {
@@ -192,7 +197,7 @@ export class UploadMethodSelectorComponent {
 
   /**
    * Handles drop events for file upload.
-   * 
+   *
    * @param event The drop event.
    */
   onDrop(event: DragEvent) {
@@ -206,7 +211,6 @@ export class UploadMethodSelectorComponent {
         this.uploadFile(file);
       } else {
         console.error('Datei überschreitet das Größenlimit von 500 KB.');
-
       }
     }
   }

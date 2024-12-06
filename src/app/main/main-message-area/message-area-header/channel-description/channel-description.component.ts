@@ -20,6 +20,8 @@ import {
 } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { arrayUnion, deleteDoc, getDoc, getDocs } from 'firebase/firestore';
+import { ChannelMembersListComponent } from '../channel-members-list/channel-members-list.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-channel-description',
@@ -34,6 +36,7 @@ import { arrayUnion, deleteDoc, getDoc, getDocs } from 'firebase/firestore';
     ChannelDisplayDescriptionComponent,
     ChannelEditNameComponent,
     ChannelDisplayNameComponent,
+    ChannelMembersListComponent,
   ],
   templateUrl: './channel-description.component.html',
   styleUrl: './channel-description.component.scss',
@@ -46,6 +49,7 @@ export class ChannelDescriptionComponent implements OnInit {
   firestore = inject(Firestore);
   router = inject(Router);
   currentBorderRadius: string = '30px 30px 30px 30px';
+  channelSubscription: Subscription | undefined;
 
   constructor(
     public header: MessageAreaHeaderComponent,
@@ -56,11 +60,15 @@ export class ChannelDescriptionComponent implements OnInit {
    * Initializes the component and subscribes to the current channel.
    */
   ngOnInit(): void {
-    this.channelService.currentChannel$.subscribe({
+    this.channelSubscription = this.channelService.currentChannel$.subscribe({
       next: (channel) => {
         this.currentChannel = channel;
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.channelSubscription) this.channelSubscription.unsubscribe();
   }
 
   /**

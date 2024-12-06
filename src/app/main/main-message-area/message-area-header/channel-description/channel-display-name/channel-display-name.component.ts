@@ -4,17 +4,20 @@ import { ChannelService } from '../../../../../shared/services/channel-service/c
 import { Channel } from '../../../../../shared/models/channel.model';
 import { NgIf } from '@angular/common';
 import { UserService } from '../../../../../shared/services/user-service/user.service';
+import { MatIcon } from '@angular/material/icon';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-channel-display-name',
   standalone: true,
-  imports: [NgIf],
+  imports: [NgIf, MatIcon],
   templateUrl: './channel-display-name.component.html',
   styleUrl: './channel-display-name.component.scss'
 })
 export class ChannelDisplayNameComponent {
   userService = inject(UserService);
   currentChannel: Channel | undefined;
+  channelSubscription: Subscription | undefined;
 
   constructor(public description: ChannelDescriptionComponent, private channelService: ChannelService) {}
 
@@ -22,11 +25,18 @@ export class ChannelDisplayNameComponent {
    * Initializes the component by subscribing to the current channel.
    */
   ngOnInit(): void {
-    this.channelService.currentChannel$.subscribe({
+    this.channelSubscription = this.channelService.currentChannel$.subscribe({
       next: (channel) => {
         this.currentChannel = channel;
       }
     });
+  }
+
+  /**
+   * Unsubscribes from the current channel subscription.
+   */
+  ngOnDestroy(): void {
+    if (this.channelSubscription) this.channelSubscription.unsubscribe();
   }
 
   /**

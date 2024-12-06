@@ -29,6 +29,7 @@
   align-items: center;
   gap: 5px;
   position: relative;
+  flex-wrap: wrap;
 
   > span {
     display: flex;

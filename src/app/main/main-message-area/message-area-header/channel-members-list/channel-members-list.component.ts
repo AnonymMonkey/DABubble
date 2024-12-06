@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MessageAreaHeaderComponent } from '../message-area-header.component';
 import { Channel } from '../../../../shared/models/channel.model';
@@ -15,12 +15,13 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./channel-members-list.component.scss'],
 })
 export class ChannelMembersListComponent implements OnInit, OnDestroy {
+  @Input() responsiveView: boolean = false;
   currentChannel: Channel | undefined;
   currentUserId: string | undefined;
   membersWithData: any[] = [];
   isChannelLoaded = false;
   private userDataSubscription: Subscription | undefined;
-
+  private channelSubscription: Subscription | undefined;
   currentBorderRadius: string = '30px 30px 30px 30px';
 
   constructor(
@@ -34,7 +35,7 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.currentUserId = this.userService.userId;
-    this.channelService.currentChannel$.subscribe({
+    this.channelSubscription = this.channelService.currentChannel$.subscribe({
       next: (channel) => {
         if (channel) {
           this.currentChannel = channel;
@@ -75,7 +76,7 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
           seenUserIds.add(userId);
           const userData = userDataMap.get(userId) || {
             displayName: 'Unbekannter Benutzer',
-            photoURL: 'src/assets/img/profile/placeholder-img.webp', // Placeholder für Foto
+            photoURL: 'src/assets/img/profile/placeholder-img.webp', 
           };
           this.membersWithData.push({
             userId,
@@ -92,6 +93,7 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+    if (this.channelSubscription) this.channelSubscription.unsubscribe();
   }
 
   /**

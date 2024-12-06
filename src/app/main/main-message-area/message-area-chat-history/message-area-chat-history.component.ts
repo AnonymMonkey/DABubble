@@ -51,7 +51,10 @@ export class MessageAreaChatHistoryComponent
   private previousUsersCount: number = 0;
   private usersData = new Map<string, any>();
   private userSubscription?: Subscription;
-  private messageSubscription?: () => void; // Firebase-Abmeldung
+  private usersDataSubscription?: Subscription;
+  private channelServiceSubscription?: Subscription;
+  private messageDataMapSubscription?: Subscription;
+  private messageSubscription?: () => void;
   @ViewChild('messageContainerWrapper') messageContainer!: ElementRef;
 
   constructor(
@@ -72,7 +75,7 @@ export class MessageAreaChatHistoryComponent
    * Loads the chat history for the current channel.
    */
   loadChatHistory(): void {
-    this.currentChannel$?.subscribe({
+    this.channelServiceSubscription = this.currentChannel$?.subscribe({
       next: (channel) => {
         if (channel) {
           this.getUsersData(channel);
@@ -104,7 +107,7 @@ export class MessageAreaChatHistoryComponent
    * @param messages - An array of ChannelMessage objects.
    */
   getAllMessagesFromChannel(channelId: string): void {
-    this.messageService.messagesDataMap$.subscribe((messagesDataMap) => {
+    this.messageDataMapSubscription = this.messageService.messagesDataMap$.subscribe((messagesDataMap) => {
       const channelMessages = messagesDataMap.get(channelId);
       if (channelMessages) {
         const messagesArray = Array.from(channelMessages.values());
@@ -170,11 +173,14 @@ export class MessageAreaChatHistoryComponent
   }
 
   /**
-   * Unsubscribes from the user and message subscriptions.
+   * Unsubscribes the user subscription, message subscription, channel service subscription, message data map subscription, and users data subscription.
    */
   ngOnDestroy(): void {
     this.userSubscription?.unsubscribe();
     this.messageSubscription?.();
+    if (this.channelServiceSubscription) this.channelServiceSubscription.unsubscribe();
+    if (this.messageDataMapSubscription) this.messageDataMapSubscription.unsubscribe();
+    if (this.usersDataSubscription) this.usersDataSubscription.unsubscribe();
   }
 
   /**
@@ -184,7 +190,7 @@ export class MessageAreaChatHistoryComponent
   loadUsersData(usersLeft: string[]): void {
     usersLeft.forEach((userId) => {
       if (!this.usersData.has(userId)) {
-        this.userService.getUserDataByUID(userId).subscribe({
+        this.usersDataSubscription = this.userService.getUserDataByUID(userId).subscribe({
           next: (userData) => {
             if (userData) {
               this.usersData.set(userId, userData);
@@ -208,8 +214,8 @@ export class MessageAreaChatHistoryComponent
     );
     this.messageSubscription = onSnapshot(messagesCollectionRef, (snapshot) => {
       if (snapshot.empty) {
-        this.groupedMessages = []; // Leere Nachrichtengruppe
-        this.cdr.detectChanges(); // Ansicht aktualisieren
+        this.groupedMessages = [];
+        this.cdr.detectChanges();
       } else {
         const newMessages: any = snapshot.docs.map((doc) => ({
           id: doc.id,

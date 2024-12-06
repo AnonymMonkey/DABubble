@@ -34,11 +34,18 @@ mat-toolbar {
   }
 }
 
+.channel-name {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  max-width: 70%;
+}
+
 .button-channel-name {
   color: var(--black-color) !important;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   border: none;
   background-color: unset;
   font-family: var(--font-nunito);
@@ -46,6 +53,7 @@ mat-toolbar {
   font-size: 24px;
   gap: 10px;
   padding: 5px 20px !important;
+  max-width: 100% !important;
 
   &:hover,
   &.menu-opened {
@@ -65,6 +73,15 @@ mat-toolbar {
     mat-icon {
       color: var(--purple3-color) !important;
     }
+  }
+
+  span {
+    font-family: var(--font-nunito);
+    white-space: nowrap;       /* Kein Umbruch des Textes */
+    overflow: hidden;          /* Versteckt überflüssigen Text */
+    text-overflow: ellipsis;   /* Fügt "..." hinzu */
+    max-width: 80%;          /* Begrenzung der Breite */
+    display: inline-block;     /* Benötigt für ellipsis */
   }
 }
 
@@ -147,5 +164,20 @@ mat-toolbar {
       color: var(--purple3-color);
       transform: scale(1.05);
     }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .button-channel-member-list{
+    display: none;
+  }
+
+  .channel-name {
+    max-width: 90%;
+  }
+
+  .button-channel-name {
+    padding: 5px 10px !important;
+    justify-content: center;
   }
 }

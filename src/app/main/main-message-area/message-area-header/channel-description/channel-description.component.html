@@ -2,53 +2,59 @@
   <div class="headline">
     <h2>
       <mat-icon class="material-symbols-outlined">tag</mat-icon>
-      {{ currentChannel?.channelName }}
+      <p>{{ currentChannel?.channelName }}</p>
     </h2>
     <mat-icon (click)="header.closeMenu('choose-channel')">close</mat-icon>
   </div>
-  <app-channel-display-name *ngIf="!editName"></app-channel-display-name>
-  <app-channel-edit-name *ngIf="editName"></app-channel-edit-name>
-  <app-channel-display-description
-    *ngIf="!editDescription"
-  ></app-channel-display-description>
-  <app-channel-edit-description
-    *ngIf="editDescription"
-  ></app-channel-edit-description>
-
-  <!-- Button to open the leave channel menu -->
-  <div class="leave-channel-container">
-    <button
-      mat-button
-      [matMenuTriggerFor]="leaveChannelMenu"
-      (click)="toggleBorder('leave-channel')"
-      class="button-primary"
-    >
-      <span>Channel verlassen</span>
-    </button>
-  </div>
-
-  <!-- The leave channel confirmation menu -->
-  <mat-menu
-    #leaveChannelMenu="matMenu"
-    xPosition="before"
-    yPosition="above"
-    class="leave-channel-menu"
-  >
-    <p (click)="$event.stopPropagation()">
-      Möchtest du den Channel # {{ currentChannel?.channelName }} wirklich
-      verlassen?
-    </p>
-    <p *ngIf="currentChannel?.members?.length === 1" (click)="$event.stopPropagation()" class="last-member-warning">
-      Der Channel wird folgend nach deinem Austritt unwiderruflich gelöscht, da
-      du das letzte Mitglied bist.
-    </p>
-    <div class="leave-channel-buttons">
-      <button mat-menu-item class="button-secondary">
-        Abbrechen
-      </button>
-      <button mat-menu-item (click)="confirmLeave()" class="button-primary">
-        Bestätigen
+  <div class="channel-description-container">
+    <app-channel-display-name *ngIf="!editName"></app-channel-display-name>
+    <app-channel-edit-name *ngIf="editName"></app-channel-edit-name>
+    <app-channel-display-description
+      *ngIf="!editDescription"
+    ></app-channel-display-description>
+    <app-channel-edit-description
+      *ngIf="editDescription"
+    ></app-channel-edit-description>
+    <app-channel-members-list
+      [responsiveView]="true"
+    ></app-channel-members-list>
+    <!-- Button to open the leave channel menu -->
+    <div class="leave-channel-container">
+      <button
+        mat-button
+        [matMenuTriggerFor]="leaveChannelMenu"
+        (click)="toggleBorder('leave-channel')"
+        class="button-primary"
+      >
+        <span>Channel verlassen</span>
       </button>
     </div>
-  </mat-menu>
+
+    <!-- The leave channel confirmation menu -->
+    <mat-menu
+      #leaveChannelMenu="matMenu"
+      xPosition="before"
+      yPosition="above"
+      class="leave-channel-menu"
+    >
+      <p (click)="$event.stopPropagation()">
+        Möchtest du den Channel # {{ currentChannel?.channelName }} wirklich
+        verlassen?
+      </p>
+      <p
+        *ngIf="currentChannel?.members?.length === 1"
+        (click)="$event.stopPropagation()"
+        class="last-member-warning"
+      >
+        Der Channel wird folgend nach deinem Austritt unwiderruflich gelöscht,
+        da du das letzte Mitglied bist.
+      </p>
+      <div class="leave-channel-buttons">
+        <button mat-menu-item class="button-secondary">Abbrechen</button>
+        <button mat-menu-item (click)="confirmLeave()" class="button-primary">
+          Bestätigen
+        </button>
+      </div>
+    </mat-menu>
+  </div>
 </section>

@@ -42,11 +42,19 @@ export class SearchBarComponent {
   inputControl = new FormControl('');
   filteredOptions!: Observable<(Channel | UserData)[]>;
   router = inject(Router);
+  subscriptions: Subscription[] = [];
   behaviorService = inject(BehaviorService);
   breakpointObserver = inject(BreakpointObserver);
   breakpointSubscription!: Subscription;
   mobileVersion: boolean = false;
 
+  private allUserDataSubscription: Subscription | undefined;
+  private userDataSubscription: Subscription | undefined;
+  private privateChatSubscription: Subscription | undefined;
+
+  /**
+   * Initializes the component and loads user data and channel data.
+   */
   ngOnInit(): void {
     this.breakpointSubscription = this.breakpointObserver
       .observe(['(max-width: 992px)'])
@@ -57,18 +65,33 @@ export class SearchBarComponent {
     this.loadCurrentUserData();
   }
 
+
+  /**
+   * Clean up subscriptions on component destroy.
+   */
   ngOnDestroy(): void {
+    this.allUserDataSubscription?.unsubscribe();
+    this.userDataSubscription?.unsubscribe();
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+    this.subscriptions = [];
+    this.privateChatSubscription?.unsubscribe();
     this.breakpointSubscription.unsubscribe();
   }
 
+  /**
+   * Loads all user data from the user service.
+   */
   loadAllUserData(): void {
-    this.userService.allUserData$.subscribe((data) => {
+    this.allUserDataSubscription = this.userService.allUserData$.subscribe((data) => {
       this.allUserData = data;
     });
   }
 
+  /**
+   * Loads the current user data from the user service.
+   */
   loadCurrentUserData(): void {
-    this.userService.userData$.subscribe((data) => {
+    this.userDataSubscription = this.userService.userData$.subscribe((data) => {
       this.userData = data;
       if (this.userData) {
         this.loadAllChannelsData();
@@ -80,24 +103,24 @@ export class SearchBarComponent {
     });
   }
 
+  /**
+   * Loads all channel data for the current user from the channel service.
+   */
   loadAllChannelsData(): void {
-    this.allChannelsData = []; // Initialisiere die Liste neu
-
+    this.allChannelsData = [];
     this.userData.channels.forEach((channelId) => {
-      this.channelService.getChannelById(channelId).subscribe((channelData) => {
+      const subscription = this.channelService.getChannelById(channelId).subscribe((channelData) => {
         if (!channelData) return;
         const existingIndex = this.allChannelsData.findIndex(
           (c) => c.channelId === channelData.channelId
         );
-
         if (existingIndex > -1) {
-          // Aktualisiere das bestehende Channel-Datenobjekt
           this.allChannelsData[existingIndex] = channelData;
         } else {
-          // Füge den Channel hinzu, wenn er noch nicht existiert
           this.allChannelsData.push(channelData);
         }
       });
+      this.subscriptions.push(subscription);
     });
   }
 
@@ -130,6 +153,11 @@ export class SearchBarComponent {
     }
   }
 
+  /**
+   * Returns the name of the option.
+   * @param option - The option to get the name for.
+   * @returns The name of the option.
+   */
   getOptionName(option: Channel | UserData): string {
     if ('channelName' in option) {
       return `#${option.channelName}`;
@@ -138,6 +166,11 @@ export class SearchBarComponent {
     }
   }
 
+  /**
+   * Returns the ID of the option.
+   * @param option - The option to get the ID for.
+   * @returns The ID of the option.
+   */
   getOptionId(option: Channel | UserData): string {
     if ('channelName' in option) {
       return `${option.channelId}`;
@@ -169,15 +202,20 @@ export class SearchBarComponent {
       console.error('Ungültige Option:', option);
     }
   }
-
+  
   closeSideNavOnMobile() {
     if (this.mobileVersion) {
       this.behaviorService.setValue(false);
     }
   }
 
+  /**
+   * Opens a private chat with the specified user.
+   * @param targetUser - The user to open the chat with.
+   * @param buttonID - The ID of the button to set as active.
+   */
   openChatWithUser(targetUser: UserData, buttonID: string) {
-    this.privateChatService
+    this.privateChatSubscription = this.privateChatService
       .openOrCreatePrivateChat(this.userData, targetUser)
       .subscribe((chatId) => {
         if (chatId) {

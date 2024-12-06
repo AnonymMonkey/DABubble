@@ -11,6 +11,7 @@ import { UserService } from '../../services/user-service/user.service';
 import { MessageService } from '../../services/message-service/message.service';
 import { ThreadService } from '../../services/thread-service/thread.service';
 import { FilePreviewComponent } from '../file-preview/file-preview.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-attachment-preview',
@@ -21,15 +22,16 @@ import { FilePreviewComponent } from '../file-preview/file-preview.component';
 })
 export class AttachmentPreviewComponent {
   @Input() messageId: string | undefined;
-  @Input() actualAttachmentUrls: string[] = []; // Array der unsicheren URLs
-  @Input() message: any | undefined; // Nachrichtentext
-  @Output() attachmentRemoved = new EventEmitter<string>(); // Event für entferntes Attachment
-  googleDocsViewerUrl: SafeResourceUrl = ''; // Google Docs Viewer für Word-Dokumente
-  private storage = getStorage(); // Firebase Storage-Referenz
+  @Input() actualAttachmentUrls: string[] = [];
+  @Input() message: any | undefined;
+  @Output() attachmentRemoved = new EventEmitter<string>();
+  googleDocsViewerUrl: SafeResourceUrl = '';
+  private storage = getStorage();
   private channelId: string | undefined;
   private privateChatId: string | undefined;
   public actualAttachmentUrl: string = '';
   public currentAttachmentIndex: number = 0;
+  private routeSubscription: Subscription | undefined;
 
   constructor(
     public sanitizer: DomSanitizer,
@@ -45,7 +47,7 @@ export class AttachmentPreviewComponent {
    * Initialize the component and subscribe to route parameters.
    */
   ngOnInit() {
-    this.route.paramMap.subscribe((params) => {
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
       this.privateChatId = params.get('privateChatId') || undefined;
       this.channelId = params.get('channelId') || undefined;
     });
@@ -60,6 +62,10 @@ export class AttachmentPreviewComponent {
       this.actualAttachmentUrl =
         this.actualAttachmentUrls[this.currentAttachmentIndex];
     }
+  }
+
+  ngOnDestroy(): void {
+    if (this.routeSubscription) this.routeSubscription.unsubscribe();
   }
 
   /**

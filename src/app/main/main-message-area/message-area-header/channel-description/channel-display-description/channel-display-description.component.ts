@@ -4,19 +4,23 @@ import { ChannelService } from '../../../../../shared/services/channel-service/c
 import { Channel } from '../../../../../shared/models/channel.model';
 import { NgIf } from '@angular/common';
 import { UserService } from '../../../../../shared/services/user-service/user.service';
-import { Observable } from 'rxjs';
+import { MatIcon } from '@angular/material/icon';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-channel-display-description',
   standalone: true,
-  imports: [NgIf],
+  imports: [NgIf, MatIcon],
   templateUrl: './channel-display-description.component.html',
   styleUrls: ['./channel-display-description.component.scss'],
 })
 export class ChannelDisplayDescriptionComponent implements OnInit {
   userService = inject(UserService);
   currentChannel: Channel | undefined;
-  adminUserName: string = ''; // Variable für den Usernamen des Admins
+  adminUserName: string = '';
+  channelSubscription: Subscription | undefined;
+  userDataSubscription: Subscription | undefined;
+  channelDataSubscription: Subscription | undefined;
 
   constructor(
     public description: ChannelDescriptionComponent,
@@ -27,14 +31,13 @@ export class ChannelDisplayDescriptionComponent implements OnInit {
    * Initialize the component and subscribe to the current channel.
    */
   ngOnInit(): void {
-    this.channelService.currentChannel$.subscribe({
+    this.channelSubscription = this.channelService.currentChannel$.subscribe({
       next: (channel) => {
         this.currentChannel = channel;
-        // Wenn ein admin vorhanden ist, holen wir den Usernamen
         if (channel?.admin?.userId) {
-          this.userService.getUserDataByUID(channel.admin.userId).subscribe({
+          this.userDataSubscription = this.userService.getUserDataByUID(channel.admin.userId).subscribe({
             next: (userData) => {
-              this.adminUserName = userData?.displayName || 'Unbekannt'; // Username zuweisen oder 'Unbekannt' falls nicht vorhanden
+              this.adminUserName = userData?.displayName || 'Unbekannt';
             },
           });
         }
@@ -44,11 +47,20 @@ export class ChannelDisplayDescriptionComponent implements OnInit {
   }
 
   /**
+   * Unsubscribe from the current channel and user data subscriptions.
+   */
+  ngOnDestroy(): void {
+    if (this.channelSubscription) this.channelSubscription.unsubscribe();
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+    if (this.channelDataSubscription) this.channelDataSubscription.unsubscribe();
+  }
+
+  /**
    * Actualise the channel description.
    */
   updateDescription(newDescription: string): void {
     if (this.currentChannel) {
-      this.channelService
+       this.channelDataSubscription = this.channelService
         .updateChannelDescription(this.currentChannel.channelId, newDescription)
         .subscribe({
           error: (error) =>

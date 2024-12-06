@@ -34,7 +34,34 @@
   align-items: center;
 }
 
+.edit-icon-container {
+  width: 30px;
+  height: 30px;
+  background-color: var(--bg-color);
+  border-radius: 40px;
+  align-items: center;
+  justify-content: center;
+  display: none;
+
+  &:hover {
+    cursor: pointer;
+
+    mat-icon {
+      color: var(--purple1-color)!important;
+    }
+  }
+}
+
 mat-icon {
-  font-weight: 700;
   color: var(--black-color);
+}
+
+@media only screen and (max-width: 500px) {
+  .headline button {
+    display: none;
+  }
+
+  .edit-icon-container {
+    display: flex;
+  }
 }

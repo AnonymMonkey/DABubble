@@ -1,6 +1,16 @@
 ::ng-deep {
+  .mat-mdc-menu-panel {
+    max-width: none !important;
+    border-radius: var(--border-radius) !important;
+  }
+
+  @media (max-width: 350px) {
     .mat-mdc-menu-panel {
-        max-width: none !important;
-        border-radius: var(--border-radius) !important;
+      width: 100% !important;
     }
+
+    .emoji-mart { 
+      width: 100% !important;
+    }
+  }
 }

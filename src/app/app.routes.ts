@@ -13,22 +13,20 @@ import { NewMessagePlaceholderComponent } from './main/new-message-placeholder/n
 import { ThreadComponent } from './main/main-message-area/thread/thread.component';
 
 export const routes: Routes = [
-  { path: '', component: LoginComponent }, // Standardmäßig Login anzeigen
-  { path: 'reset-password', component: ResetPasswordComponent }, // Route für Passwort zurücksetzen
-  { path: 'new-password', component: NewPasswordComponent }, // Route für neues Passwort
-  { path: 'register', component: RegisterComponent }, // Route für Registrierung
-  { path: 'select-avatar', component: SelectAvatarComponent }, // Route für Avatar-Auswahl
+  { path: '', component: LoginComponent }, 
+  { path: 'reset-password', component: ResetPasswordComponent }, 
+  { path: 'new-password', component: NewPasswordComponent }, 
+  { path: 'register', component: RegisterComponent },
+  { path: 'select-avatar', component: SelectAvatarComponent }, 
 
-  // Hauptkomponente nach Login (Main-Bereich der App)
   {
     path: 'main/:uid',
     component: MainComponent,
     children: [
       { path: 'channel/:channelId', component: MainMessageAreaComponent, children: [
-        // Hier wird der Thread als untergeordnete Route vom Channel behandelt
         {
           path: 'thread/:messageId',
-          component: ThreadComponent,  // Die Komponente, die den Thread anzeigt
+          component: ThreadComponent, 
         },
       ]},
       { path: 'privateChat/:privateChatId', component: PrivateChatComponent },
@@ -36,8 +34,6 @@ export const routes: Routes = [
     ],
   },
   
-
-  // Impressum und Datenschutz als eigene Routen
   { path: 'imprint', component: ImprintComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
 ];

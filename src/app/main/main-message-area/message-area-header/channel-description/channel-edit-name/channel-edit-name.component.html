@@ -2,6 +2,9 @@
   <div class="headline">
     <span>Channel-Name</span>
     <button (click)="saveChannelName(); description.toggleEditName()">Speichern</button>
+    <div class="edit-icon-container">
+      <mat-icon class="material-symbols-outlined" (click)="description.toggleEditName()">check_circle</mat-icon>
+    </div>
   </div>
   <div class="input-secondary">
     <input [(ngModel)]="newChannelName" placeholder="Channel-Name" (keydown.enter)="saveChannelName(); description.toggleEditName()" />

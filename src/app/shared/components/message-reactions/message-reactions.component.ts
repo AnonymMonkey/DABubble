@@ -6,6 +6,7 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
 import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-message-reactions',
@@ -25,8 +26,9 @@ import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 export class MessageReactionsComponent implements OnInit {
   @Input() message: any;
   @Input() component: string = '';
-  reactionUsers: { id: string; displayName: string }[] = []; // Array von Benutzern mit ID und Name
+  reactionUsers: { id: string; displayName: string }[] = [];
   hoveredReaction: any = null;
+  userSubscription: Subscription | undefined;
 
   constructor(private userService: UserService) {}
 
@@ -38,6 +40,13 @@ export class MessageReactionsComponent implements OnInit {
   }
 
   /**
+   * Clean up subscriptions on component destroy.
+   */
+  ngOnDestroy(): void {
+    if (this.userSubscription) this.userSubscription.unsubscribe();
+  }
+
+  /**
    * Load reaction users for the current message.
    */
   loadReactionUsers(): void {
@@ -45,14 +54,16 @@ export class MessageReactionsComponent implements OnInit {
       this.message.reactions.forEach((reaction: any) => {
         reaction.userIds.forEach((userId: string) => {
           if (!this.reactionUsers.some((user) => user.id === userId)) {
-            this.userService.getUserDataByUID(userId).subscribe((userData) => {
-              if (userData) {
-                this.reactionUsers.push({
-                  id: userId,
-                  displayName: userData.displayName,
-                });
-              }
-            });
+            this.userSubscription = this.userService
+              .getUserDataByUID(userId)
+              .subscribe((userData) => {
+                if (userData) {
+                  this.reactionUsers.push({
+                    id: userId,
+                    displayName: userData.displayName,
+                  });
+                }
+              });
           }
         });
       });

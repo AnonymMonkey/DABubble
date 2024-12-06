@@ -1,3 +1,10 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: 100%;
+}
+
 ::ng-deep {
   .leave-channel-menu {
     padding: 15px 20px;
@@ -40,9 +47,25 @@ section {
 }
 
 h2 {
-  gap: 15px;
   display: flex;
   align-items: center;
+
+  mat-icon {
+    color: var(--black-color);
+
+    &:hover {
+      cursor: default !important;
+      color: var(--black-color) !important;
+      background-color: unset !important;
+    }
+  }
+
+  p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 360px;
+  }
 }
 
 .headline {
@@ -65,6 +88,15 @@ h2 {
       background-color: var(--bg-color);
     }
   }
+}
+
+.channel-description-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  overflow-y: auto;
 }
 
 app-channel-display-name,
@@ -106,4 +138,36 @@ app-channel-edit-description {
 
 .button-secondary {
   width: unset !important;
+}
+
+@media only screen and (max-width: 500px) {
+  section {
+    width: 100%;
+    height: 100%;
+  }
+
+  h2 {
+    max-width: 90%;
+
+    p {
+      max-width: 80%;
+    }
+  }
+}
+
+app-channel-members-list {
+  width: 100%;
+  display: none;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid var(--light-purple-color);
+  border-radius: 20px;
+}
+
+@media only screen and (max-width: 500px) {
+  app-channel-members-list {
+    display: flex;
+  }
 }

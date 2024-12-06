@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UserService } from '../../../shared/services/user-service/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileInfoDialogComponent } from '../../../shared/profile-info-dialog/profile-info-dialog.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-private-chat-placeholder',
@@ -21,6 +22,8 @@ export class PrivateChatPlaceholderComponent implements OnInit {
   chatUserName: string | undefined;
   chatUserPhotoURL: string | undefined;
   dialog = inject(MatDialog);
+  private routeSubscription: Subscription | undefined;
+  private userDataSubscription: Subscription | undefined;
 
   constructor(
     private route: ActivatedRoute,
@@ -32,7 +35,7 @@ export class PrivateChatPlaceholderComponent implements OnInit {
    */
   ngOnInit() {
     this.currentUserId = this.userService.userId;
-    this.route.paramMap.subscribe((params) => {
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const privateChatId = params.get('privateChatId');
       if (privateChatId) {
         const userIds = privateChatId.split('_');
@@ -46,11 +49,19 @@ export class PrivateChatPlaceholderComponent implements OnInit {
   }
 
   /**
+   * Unsubscribes from subscriptions when the component is destroyed.
+   */
+  ngOnDestroy(): void {
+    if (this.routeSubscription) this.routeSubscription.unsubscribe();
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+  }
+
+  /**
    * Loads the chat user data from the user service.
    */
   private loadChatUserData() {
     if (this.chatUserId) {
-      this.userService.getUserDataByUID(this.chatUserId).subscribe({
+      this.userDataSubscription = this.userService.getUserDataByUID(this.chatUserId).subscribe({
         next: (userData) => {
           this.chatUserName = userData?.displayName;
           this.chatUserPhotoURL = userData?.photoURL;

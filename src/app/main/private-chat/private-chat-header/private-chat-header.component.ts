@@ -5,6 +5,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ProfileInfoDialogComponent } from '../../../shared/profile-info-dialog/profile-info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../shared/services/user-service/user.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-private-chat-header',
@@ -19,42 +20,51 @@ export class PrivateChatHeaderComponent implements OnInit {
   public chatUserId: string | undefined = '';
   chatUserName: string | undefined;
   chatUserPhotoURL: string | undefined;
+  private routeSubscription: Subscription | undefined;
+  private userDataSubscription: Subscription | undefined;
+  private dialogSubscription: Subscription | undefined;
 
   constructor(
     public dialog: MatDialog,
     private route: ActivatedRoute,
-    public userService: UserService,
+    public userService: UserService
   ) {}
 
-/**
- * Initialize the component and subscribe to route parameters oninit.
- */
+  /**
+   * Initialize the component and subscribe to route parameters oninit.
+   */
   ngOnInit() {
-    this.currentUserId = this.userService.userId; 
-    this.route.paramMap.subscribe(params => {
+    this.currentUserId = this.userService.userId;
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const privateChatId = params.get('privateChatId');
       if (privateChatId) {
         const userIds = privateChatId.split('_');
-        const foundUserId = userIds.find(id => id !== this.currentUserId);
+        const foundUserId = userIds.find((id) => id !== this.currentUserId);
         this.chatUserId = foundUserId ? foundUserId : this.currentUserId;
-        if (this.chatUserId) {
-          this.loadChatUserData(); 
-        }
+        if (this.chatUserId) this.loadChatUserData();
       }
     });
   }
+
+  ngOnDestroy(): void {
+    if (this.routeSubscription) this.routeSubscription.unsubscribe();
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+    if (this.dialogSubscription) this.dialogSubscription.unsubscribe();
+  }
+
 
   /**
    * Load the chat user data from the user service.
    */
   private loadChatUserData() {
     if (this.chatUserId) {
-      this.userService.getUserDataByUID(this.chatUserId).subscribe({
-        next: userData => {
+      this.userDataSubscription = this.userService.getUserDataByUID(this.chatUserId).subscribe({
+        next: (userData) => {
           this.chatUserName = userData?.displayName;
           this.chatUserPhotoURL = userData?.photoURL;
         },
-        error: error => console.error('Fehler beim Abrufen der Benutzerdaten:', error)
+        error: (error) =>
+          console.error('Fehler beim Abrufen der Benutzerdaten:', error),
       });
     }
   }
@@ -63,12 +73,16 @@ export class PrivateChatHeaderComponent implements OnInit {
    * Open the profile info dialog.
    */
   openProfileInfo(): void {
-    this.isMenuOpened = true; // Menü als geöffnet markieren
+    this.isMenuOpened = true;
     const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
-      data: { userId: this.chatUserId, userName: this.chatUserName, userPhotoURL: this.chatUserPhotoURL  }
+      data: {
+        userId: this.chatUserId,
+        userName: this.chatUserName,
+        userPhotoURL: this.chatUserPhotoURL,
+      },
     });
-    dialogRef.afterClosed().subscribe(() => {
-      this.isMenuOpened = false; // Menü als geschlossen markieren
+    this.dialogSubscription = dialogRef.afterClosed().subscribe(() => {
+      this.isMenuOpened = false;
     });
   }
 

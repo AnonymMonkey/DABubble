@@ -11,7 +11,7 @@ import { ThreadService } from '../../../../shared/services/thread-service/thread
 import { ChannelMessage } from '../../../../shared/models/channel-message.model';
 import { ThreadMessage } from '../../../../shared/models/thread-message.model';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { OtherThreadMessageTemplateComponent } from './other-thread-message-template/other-thread-message-template.component';
 import { OwnThreadMessageTemplateComponent } from './own-thread-message-template/own-thread-message-template.component';
@@ -33,10 +33,12 @@ import { MainMessageAreaComponent } from '../../main-message-area.component';
 export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
   @Input() currentUserId: any;
   public currentMessage: ChannelMessage | null = null;
-  public threadMessages: ThreadMessage[] = []; 
+  public threadMessages: ThreadMessage[] = [];
+  private threadSubscription: Subscription | undefined;
+  private threadMessagesSubscription: Subscription | undefined;
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
-  private unsubscribe$ = new Subject<void>(); 
+  private unsubscribe$ = new Subject<void>();
 
   constructor(
     private threadService: ThreadService,
@@ -56,7 +58,7 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
    * Subscribe to actual message and thread messages changes.
    */
   private subscribeToActualMessage(): void {
-    this.threadService.actualMessage$
+    this.threadSubscription = this.threadService.actualMessage$
       .pipe(
         takeUntil(this.unsubscribe$),
         distinctUntilChanged(
@@ -87,7 +89,7 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
    * Subscribe to thread messages changes and handle them.
    */
   private subscribeToThreadMessages(): void {
-    this.threadService.threadMessages$
+    this.threadMessagesSubscription = this.threadService.threadMessages$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((messages) => this.handleThreadMessages(messages));
   }
@@ -100,7 +102,7 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
     if (JSON.stringify(messages) !== JSON.stringify(this.threadMessages)) {
       this.threadMessages = messages;
       this.scrollToBottom();
-      this.cdr.detectChanges(); // Erzwingt die Änderungserkennung
+      this.cdr.detectChanges();
     }
   }
 
@@ -110,6 +112,8 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+    this.threadSubscription?.unsubscribe();
+    this.threadMessagesSubscription?.unsubscribe();
   }
 
   /**

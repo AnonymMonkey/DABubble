@@ -13,6 +13,7 @@ import { MatDialogActions, MatDialogContent } from '@angular/material/dialog';
 import { AddUsersToChannelComponent } from '../../../../shared/components/add-users-to-channel/add-users-to-channel.component';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-channel-new-member',
@@ -34,6 +35,8 @@ export class ChannelNewMemberComponent {
   channelId: string = '';
   invalid: boolean = true;
   channelService = inject(ChannelService);
+  channelSubscription: Subscription | undefined;
+  routeSubscription: Subscription | undefined;
   @Output() closeAutocompleteEmitter = new EventEmitter<void>();
 
   constructor(
@@ -45,12 +48,20 @@ export class ChannelNewMemberComponent {
    * Subscribe to the current channel and the route parameters to get the channel ID.
    */
   ngOnInit(): void {
-    this.channelService.currentChannel$.subscribe((data) => {
+    this.channelSubscription = this.channelService.currentChannel$.subscribe((data) => {
       if (data) this.currentChannel = data;
     });
-    this.route.params.subscribe((params) => {
+    this.routeSubscription = this.route.params.subscribe((params) => {
       this.channelId = params['channelId'];
     });
+  }
+
+  /**
+   * Unsubscribe from the channel subscription when the component is destroyed.
+   */
+  ngOnDestroy(): void {
+    this.channelSubscription?.unsubscribe();
+    this.routeSubscription?.unsubscribe();
   }
 
   /**

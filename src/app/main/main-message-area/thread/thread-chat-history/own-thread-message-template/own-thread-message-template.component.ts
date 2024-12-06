@@ -53,6 +53,7 @@ export class OwnThreadMessageTemplateComponent
   emojiContainerVisible: { [messageId: string]: boolean } = {};
   menuOpenStatus: { [messageId: string]: boolean } = {};
   private userDataSubscription: Subscription | undefined;
+  private userSubscription: Subscription | undefined;
 
   constructor(private mainMessageArea: MainMessageAreaComponent) {}
 
@@ -82,6 +83,7 @@ export class OwnThreadMessageTemplateComponent
    */
   ngOnDestroy(): void {
     if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+    if (this.userSubscription) this.userSubscription.unsubscribe();
   }
 
   /**
@@ -138,7 +140,7 @@ export class OwnThreadMessageTemplateComponent
    */
   handleMessageChange(newMessage: any) {
     if (newMessage && newMessage.userId)
-      this.userService.getUserDataByUID(newMessage.userId).subscribe((data) => {
+      this.userSubscription = this.userService.getUserDataByUID(newMessage.userId).subscribe((data) => {
         this.photoURL = data.photoURL;
       });
   }

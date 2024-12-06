@@ -5,6 +5,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { AddUsersToNewChannelDialogComponent } from '../add-users-to-new-channel-dialog/add-users-to-new-channel-dialog.component';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-create-channel-dialog',
@@ -18,18 +19,29 @@ export class CreateChannelDialogComponent {
   description: string = '';
   invalid: boolean = true;
   isSecondDialogOpen: boolean = false;
+  secondDialogRefSubscription: Subscription | undefined;
 
   readonly dialogRef = inject(MatDialogRef<CreateChannelDialogComponent>);
   constructor(public dialog: MatDialog) {}
 
+  /**
+   * Checks if the input is empty.
+   */
   checkInputEmpty() {
-    if (this.channelName.length == 0) {
-      this.invalid = true;
-    } else {
-      this.invalid = false;
-    }
+    if (this.channelName.length == 0) this.invalid = true;
+    else this.invalid = false;
   }
 
+  /**
+   * Unsubscribes from the second dialog ref subscription when the component is destroyed.
+   */
+  ngOnDestroy(): void {
+    this.secondDialogRefSubscription?.unsubscribe();
+  }
+
+  /**
+   * Opens the add users to new channel dialog.
+   */
   openAddUsersToChannelDialog() {
     this.isSecondDialogOpen = true;
     const secondDialogRef = this.dialog.open(
@@ -38,9 +50,11 @@ export class CreateChannelDialogComponent {
     secondDialogRef.componentInstance.channelName = this.channelName;
     secondDialogRef.componentInstance.description = this.description;
 
-    secondDialogRef.afterClosed().subscribe(() => {
-      this.isSecondDialogOpen = true;
-      this.dialogRef.close();
-    });
+    this.secondDialogRefSubscription = secondDialogRef
+      .afterClosed()
+      .subscribe(() => {
+        this.isSecondDialogOpen = true;
+        this.dialogRef.close();
+      });
   }
 }
