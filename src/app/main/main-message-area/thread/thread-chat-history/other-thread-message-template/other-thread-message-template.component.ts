@@ -70,7 +70,7 @@ export class OtherThreadMessageTemplateComponent implements OnInit, OnDestroy {
    * Clean up subscriptions on component destroy.
    */
   ngOnDestroy(): void {
-    if (this.userDataSubscription) this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe(); 
   }
 
   /**

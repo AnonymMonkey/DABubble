@@ -37,7 +37,7 @@ import { ThreadService } from '../../../../../../shared/services/thread-service/
 })
 export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
   @Input() message: any;
-  @Output() temporaryMessageContent = new EventEmitter<string>(); // EventEmitter für den temporären Text
+  @Output() temporaryMessageContent = new EventEmitter<string>(); 
   public displayName: string = '';
   editedMessageContent: string = '';
   isSaving = false;
@@ -48,6 +48,7 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
   currentBorderRadius = '30px 30px 30px 30px';
   private channelService = inject(ChannelService);
   private threadService = inject(ThreadService);
+  private userSubscription!: Subscription;
 
   /**
    * Initialize the component and subscribe to message updates.
@@ -56,7 +57,7 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
     if (this.message) {
       this.editedMessageContent = this.message.content;
       this.subscribeToMessageUpdates(this.message.messageId);
-      this.userService
+      this.userSubscription = this.userService
         .getUserDataByUID(this.message.userId)
         .subscribe((data) => {
           this.displayName = data.displayName;
@@ -69,6 +70,7 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy() {
     if (this.messageSubscription) this.messageSubscription.unsubscribe();
+    if (this.userSubscription) this.userSubscription.unsubscribe();
   }
 
   /**
@@ -85,61 +87,6 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
         }
       });
   }
-
-  // async changeMessage() {
-  //   this.isSaving = true;
-  //   this.temporaryMessageContent.emit(this.editedMessageContent);
-  //   if (this.editedMessageContent === this.message.content) {
-  //     this.clearInput(false);
-  //     return;
-  //   }
-  //   const originalContent = this.message.content;
-  //   this.message.content = this.editedMessageContent;
-  //   this.clearInput(false);
-  //   try {
-  //     const channelPath =
-  //       'channels/' +
-  //       this.channelService.channelId +
-  //       '/messages/' +
-  //       this.message.messageId;
-  //     const threadPath =
-  //       'channels/' +
-  //       this.channelService.channelId +
-  //       '/messages/' +
-  //       this.threadService.actualMessageSubject.value?.messageId +
-  //       '/thread/' +
-  //       this.message.messageId;
-  //     if (!this.editedMessageContent.trim() && !this.hasAttachments()) {
-  //       if (
-  //         this.message.messageId.startsWith('thread_') &&
-  //         this.threadService.actualMessageSubject.value?.messageId
-  //       )
-  //         await this.messageService.deleteMessageInThreadOrChannel(threadPath);
-  //       else if (this.message.messageId.startsWith('msg_'))
-  //         await this.messageService.deleteMessageInThreadOrChannel(channelPath);
-  //     } else {
-  //       if (
-  //         this.message.messageId.startsWith('thread_') &&
-  //         this.threadService.actualMessageSubject.value?.messageId
-  //       )
-  //         this.messageService.updateMessageThreadOrChannel(
-  //           threadPath,
-  //           this.editedMessageContent
-  //         );
-  //       else if (this.message.messageId.startsWith('msg_'))
-  //         await this.messageService.updateMessageThreadOrChannel(
-  //           channelPath,
-  //           this.editedMessageContent
-  //         );
-  //     }
-  //   } catch (error) {
-  //     this.message.content = originalContent; // Ursprünglichen Inhalt zurücksetzen
-  //     console.error('Fehler beim Ändern der Nachricht:', error);
-  //   } finally {
-  //     this.isSaving = false;
-  //     this.temporaryMessageContent.emit('');
-  //   }
-  // }
 
   /**
    * Edits or deletes a message based on the edited content.
@@ -195,7 +142,7 @@ export class OwnThreadMessageEditComponent implements OnInit, OnDestroy {
    * @param {any} error - The error that occurred during the update.
    */
   private restoreOriginalContent(originalContent: string, error: any): void {
-    this.message.content = originalContent; // Ursprünglichen Inhalt zurücksetzen
+    this.message.content = originalContent; 
     console.error('Error occurred:', error);
   }
 

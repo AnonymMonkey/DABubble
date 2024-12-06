@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ChannelMessage } from '../../models/channel-message.model';
 import { Firestore, doc, onSnapshot } from '@angular/fire/firestore';
@@ -16,21 +16,18 @@ import {
   providedIn: 'root',
 })
 export class ThreadService implements OnDestroy {
-  // Observable für die aktuelle Nachricht
   public actualMessageSubject = new BehaviorSubject<ChannelMessage | null>(
     null
   );
   actualMessage$: Observable<ChannelMessage | null> =
     this.actualMessageSubject.asObservable();
-
-  // Observable für Thread-Nachrichten
   private threadMessagesSubject = new BehaviorSubject<ThreadMessage[]>([]);
   threadMessages$: Observable<ThreadMessage[]> =
     this.threadMessagesSubject.asObservable();
-
   private unsubscribeActualMessage: (() => void) | null = null;
   private unsubscribeThreadMessages: (() => void) | null = null;
   private destroy$ = new Subject<void>();
+  actualMessageSubscription: Subscription | undefined;
 
   constructor(
     private firestore: Firestore,
@@ -44,7 +41,7 @@ export class ThreadService implements OnDestroy {
    * Subscribe to actual message changes
    */
   subscribeToActualMessage(): void {
-    this.actualMessage$.pipe(takeUntil(this.destroy$)).subscribe((message) => {
+    this.actualMessageSubscription = this.actualMessage$.pipe(takeUntil(this.destroy$)).subscribe((message) => {
       if (
         this.unsubscribeActualMessage &&
         this.actualMessageSubject.value?.messageId === message?.messageId
@@ -71,15 +68,15 @@ export class ThreadService implements OnDestroy {
    * Subscribe to thread messages changes
    */
   subscribeToThreadMessages(): void {
-    const messageId = this.getActualMessageId(); // Get the current message ID
-    if (!messageId) return; // Exit if no message ID
-    const threadMessagesRef = this.getThreadMessagesCollectionRef(messageId); // Get Firestore collection reference
+    const messageId = this.getActualMessageId();
+    if (!messageId) return;
+    const threadMessagesRef = this.getThreadMessagesCollectionRef(messageId);
     this.unsubscribeThreadMessages = onSnapshot(
       threadMessagesRef,
       (snapshot) => {
         const updatedThreadMessages =
-          this.mapSnapshotToThreadMessages(snapshot); // Map snapshot data
-        this.threadMessagesSubject.next(updatedThreadMessages); // Update the subject
+          this.mapSnapshotToThreadMessages(snapshot);
+        this.threadMessagesSubject.next(updatedThreadMessages);
       }
     );
   }
@@ -116,7 +113,7 @@ export class ThreadService implements OnDestroy {
   ): ThreadMessage[] {
     return snapshot.docs.map((doc) => {
       const threadMessage = doc.data() as ThreadMessage;
-      threadMessage.messageId = doc.id; // Assign document ID to the message
+      threadMessage.messageId = doc.id;
       return threadMessage;
     });
   }
@@ -125,15 +122,15 @@ export class ThreadService implements OnDestroy {
    * Fetches thread messages from Firestore and updates the subject.
    */
   async fetchThreadMessages(): Promise<void> {
-    const threadMessagesRef = this.getThreadMessagesRef(); // Get Firestore reference
-    if (!threadMessagesRef) return; // Exit if no reference
+    const threadMessagesRef = this.getThreadMessagesRef();
+    if (!threadMessagesRef) return;
     try {
-      const messages = await this.getThreadMessages(threadMessagesRef); // Fetch messages
+      const messages = await this.getThreadMessages(threadMessagesRef);
       if (messages.length > 0) {
-        this.threadMessagesSubject.next(messages); // Update the subject
+        this.threadMessagesSubject.next(messages);
       }
     } catch (error) {
-      console.error('Fehler beim Abrufen der Thread-Nachrichten:', error); // Log errors
+      console.error('Fehler beim Abrufen der Thread-Nachrichten:', error);
     }
   }
 
@@ -144,7 +141,7 @@ export class ThreadService implements OnDestroy {
   private getThreadMessagesRef(): CollectionReference | null {
     const channelId = this.channelService.channelId;
     const messageId = this.actualMessageSubject.value?.messageId;
-    if (!channelId || !messageId) return null; // Return null if invalid
+    if (!channelId || !messageId) return null;
     return collection(
       this.firestore,
       `channels/${channelId}/messages/${messageId}/thread`
@@ -159,8 +156,8 @@ export class ThreadService implements OnDestroy {
   private async getThreadMessages(
     ref: CollectionReference
   ): Promise<ThreadMessage[]> {
-    const snapshot = await getDocs(ref); // Fetch the documents
-    return snapshot.docs.map((doc) => doc.data() as ThreadMessage); // Map to ThreadMessage[]
+    const snapshot = await getDocs(ref);
+    return snapshot.docs.map((doc) => doc.data() as ThreadMessage);
   }
 
   /**
@@ -225,6 +222,11 @@ export class ThreadService implements OnDestroy {
       this.unsubscribeThreadMessages();
       this.unsubscribeThreadMessages = null;
     }
+    if (this.unsubscribeActualMessage) {
+      this.unsubscribeActualMessage();
+      this.unsubscribeActualMessage = null;
+    }
+    if (this.actualMessageSubscription) this.actualMessageSubscription.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
   }

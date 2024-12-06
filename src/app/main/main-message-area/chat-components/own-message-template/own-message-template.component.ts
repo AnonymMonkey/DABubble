@@ -82,11 +82,8 @@ export class OwnMessageTemplateComponent
     this.userDataSubscription = this.userService.userDataMap$.subscribe(
       (userDataMap) => {
         const userData = userDataMap.get(userId);
-        if (userData) {
-          this.photoURL = userData.photoURL;
-        } else {
-          this.photoURL = 'src/assets/img/profile/placeholder-img.webp';
-        }
+        if (userData) this.photoURL = userData.photoURL;
+        else this.photoURL = 'src/assets/img/profile/placeholder-img.webp';
       }
     );
   }
@@ -105,7 +102,7 @@ export class OwnMessageTemplateComponent
    */
   ngOnDestroy(): void {
     if (this.userDataSubscription) {
-      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
+      this.userDataSubscription.unsubscribe();
     }
   }
 

@@ -20,8 +20,8 @@ export class StorageService {
    * @returns A Promise that resolves to the download URL of the file.
    */
   getDownloadURL(path: string): Promise<string> {
-    const fileRef = ref(this.storage, path); // Kein encodeURIComponent
-    return getDownloadURL(fileRef); // URL abrufen
+    const fileRef = ref(this.storage, path);
+    return getDownloadURL(fileRef);
   }
 
   /**
@@ -54,7 +54,7 @@ export class StorageService {
    * @returns A Promise that resolves to the download URL of the uploaded file.
    */
   async uploadFile(path: string, file: File): Promise<string> {
-    const fileRef = ref(this.storage, path); // Kein encodeURIComponent hier!
+    const fileRef = ref(this.storage, path);
     await uploadBytes(fileRef, file);
     return getDownloadURL(fileRef);
   }
@@ -68,20 +68,8 @@ export class StorageService {
   async uploadTempAvatar(email: string, file: File): Promise<string> {
     const path = `temp/${email}/uploads/${file.name}`;
     await this.uploadFile(path, file);
-    return this.getDownloadURL(path); // Rückgabe der URL
+    return this.getDownloadURL(path);
   }
-
-  // Avatar verschieben nach Benutzererstellung
-  /*   async moveAvatarToUserFolder(
-    email: string,
-    uid: string,
-    fileName: string
-  ): Promise<string> {
-    const sourcePath = `temp/${email}/uploads/${fileName}`;
-    const targetPath = `users/${uid}/uploads/${fileName}`;
-    return this.moveFile(sourcePath, targetPath);
-  }
- */
 
   /**
    * A method to upload a file with a raw path.

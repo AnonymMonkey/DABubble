@@ -131,7 +131,7 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
    */
   menuClosed(): void {
     this.isMenuOpen = false;
-    this.isEmojiContainerVisible = 0; // Optional, um den Hover zurückzusetzen
+    this.isEmojiContainerVisible = 0;
   }
 
   /**
@@ -188,9 +188,7 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
    * Unsubscribes from the user data subscription.
    */
   ngOnDestroy(): void {
-    if (this.userDataSubscription) {
-      this.userDataSubscription.unsubscribe(); // Verhindert Speicherlecks
-    }
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
   }
 
   /**

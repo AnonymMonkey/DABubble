@@ -117,10 +117,9 @@ export class PrivateChatService implements OnDestroy {
       `users/${currentUserId}/privateChat/${privateChatId}`
     ).withConverter(privateChatConverter);
     return docData<PrivateChat>(privateChatDocRef).pipe(
-      // Hier den Typ hinzugefügt
       catchError((error) => {
         console.error('Fehler beim Abrufen des privaten Chats:', error);
-        return of(undefined); // Rückgabe von undefined bei Fehler
+        return of(undefined);
       })
     );
   }
@@ -142,7 +141,7 @@ export class PrivateChatService implements OnDestroy {
       }),
       catchError((error) => {
         console.error('Fehler beim Abrufen der privaten Chats:', error);
-        return of([]); // Rückgabe eines leeren Arrays bei Fehler
+        return of([]); 
       })
     );
   }
@@ -175,8 +174,7 @@ export class PrivateChatService implements OnDestroy {
   ) {
     return {
       [chatId]: {
-        // Äußere Ebene, wo die ID als Schlüssel dient
-        chatId, // Innere Ebene mit derselben ID als Wert
+        chatId,
         user: [{ userId: currentUser.uid }, { userId: targetUser.uid }],
         messages: [],
       },
@@ -188,8 +186,8 @@ export class PrivateChatService implements OnDestroy {
     targetUserRef: DocumentReference,
     newChat: any
   ): Observable<string> {
-    const chatId = Object.keys(newChat)[0]; // Holt die äußere ID
-    const chatData = newChat[chatId]; // Zugriff auf das innere Objekt mit Chatdaten
+    const chatId = Object.keys(newChat)[0];
+    const chatData = newChat[chatId];
     return from(
       Promise.all([
         updateDoc(currentUserRef, { [`privateChat.${chatId}`]: chatData }),
@@ -202,7 +200,7 @@ export class PrivateChatService implements OnDestroy {
           'Fehler beim Aktualisieren der Chats der Benutzer:',
           error
         );
-        return of(''); // Rückgabe eines leeren Strings bei Fehler
+        return of(''); 
       })
     );
   }
@@ -230,7 +228,7 @@ export class PrivateChatService implements OnDestroy {
         );
 
         if (existingChatCurrentUser || existingChatTargetUser) {
-          return of(chatId); // Chat existiert bereits
+          return of(chatId);
         } else {
           const newChat = this.createNewChatEntry(
             currentUser,
@@ -348,10 +346,10 @@ export class PrivateChatService implements OnDestroy {
   ): any | null {
     for (const reaction of currentMessage.reactions) {
       if (reaction.emoji.shortName === emoji.shortName) {
-        return reaction; // Return the existing reaction if found
+        return reaction;
       }
     }
-    return null; // Return null if no matching reaction is found
+    return null;
   }
 
   /**
@@ -378,8 +376,8 @@ export class PrivateChatService implements OnDestroy {
    */
   private updateUserReaction(reaction: any, userId: string): void {
     if (!reaction.userIds.includes(userId)) {
-      reaction.userIds.push(userId); // Add user ID to the list of users who reacted
-      reaction.count++; // Increment the count of reactions
+      reaction.userIds.push(userId);
+      reaction.count++;
     }
   }
 

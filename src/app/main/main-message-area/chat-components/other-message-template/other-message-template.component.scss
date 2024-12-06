@@ -125,6 +125,7 @@ img {
   color: var(--grey-color);
   font-size: 14px;
   align-self: center;
+  min-width: 64px;
 }
 
 .message {
@@ -139,7 +140,12 @@ img {
   > p {
     display: flex;
     justify-content: flex-start;
-    padding-left: 5px;
+    max-width: 100%;
+    flex-wrap: wrap; /* Ermöglicht den Zeilenumbruch */
+    word-wrap: break-word; /* Bricht lange Wörter */
+    overflow-wrap: break-word; /* Zusätzlicher Schutz für Zeilenumbrüche */
+    word-break: break-all;
+    hyphens: auto;
   }
 }
 
@@ -176,4 +182,26 @@ app-attachment-preview {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media screen and (max-width: 400px) {
+  .name-and-time {
+    gap: 10px;
+  }
+
+  .message-container {
+    padding: 10px 5px;
+    gap: 10px;
+  }
+}
+
+@media screen and (max-width: 300px) {
+  img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .message {
+    padding: 10px 12px;
+  }
 }

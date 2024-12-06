@@ -1,7 +1,7 @@
 <section (click)="$event.stopPropagation()">
   <div class="headline">
     <h2>Mitglieder</h2>
-    <mat-icon (click)="header.closeMenu('member-list')">close</mat-icon>
+    <mat-icon (click)="header.closeMenu('member-list')" *ngIf="!responsiveView">close</mat-icon>
   </div>
   <div class="members-container">
     <div class="member" *ngFor="let user of sortedMembers" (click)="channelService.openProfileInfo(user)">

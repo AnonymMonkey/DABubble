@@ -28,6 +28,7 @@ import { UserData } from '../../models/user.model';
 import { UserService } from '../../services/user-service/user.service';
 import { ChannelService } from '../../services/channel-service/channel.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-add-users-to-channel',
@@ -59,46 +60,82 @@ export class AddUsersToChannelComponent {
   @Input() closeAutocompleteEmitter!: EventEmitter<void>;
   @ViewChild(MatAutocompleteTrigger) autoTrigger!: MatAutocompleteTrigger;
   router = inject(Router);
-
+  closeAutocompleteSubscription!: Subscription;
+  channelSubscription!: Subscription;
+  userSubscription!: Subscription;
+  userDataSubscription!: Subscription;
+  newChannelDataSubscription!: Subscription;
   newAllUserData = signal<
     { userId: string; userName: string; photoURL: string }[]
   >([]);
+  allUserDataSubscription!: Subscription;
+
 
   constructor(private route: ActivatedRoute) {}
 
+  /**
+   * Initializes the component.
+   */
   ngOnInit(): void {
     this.newChannelData = new Channel();
     this.initializeUserData();
     this.initializeData();
     this.updateUsers();
-
     if (this.closeAutocompleteEmitter) {
-      this.closeAutocompleteEmitter.subscribe(() => {
-        this.closeAutocomplete();
-      });
+      this.closeAutocompleteSubscription =
+        this.closeAutocompleteEmitter.subscribe(() => {
+          this.closeAutocomplete();
+        });
     }
   }
 
+  /**
+   * Unsubscribes from the subscriptions when the component is destroyed.
+   */
+  ngOnDestroy(): void {
+    if (this.closeAutocompleteSubscription)
+      this.closeAutocompleteSubscription.unsubscribe();
+    if (this.channelSubscription) this.channelSubscription.unsubscribe();
+    if (this.userSubscription) this.userSubscription.unsubscribe();
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+    if (this.allUserDataSubscription) this.allUserDataSubscription.unsubscribe();
+    if (this.newChannelDataSubscription)
+      this.newChannelDataSubscription.unsubscribe();
+  }
+
+  /**
+   * Handles changes to the channelId input.
+   * @param changes - The changes object.
+   */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['channelId']) {
       this.initializeData();
     }
   }
 
+  /**
+   * Initializes the data for the component.
+   */
   initializeData() {
     this.initializeChannelData();
     this.initializeAllUserData();
   }
 
+  /**
+   * Initializes the user data for the component.
+   */
   initializeUserData(): void {
-    this.userService.userData$.subscribe((data) => {
-      this.userData = data; // Empfange die Benutzerdaten
+    this.userDataSubscription = this.userService.userData$.subscribe((data) => {
+      this.userData = data;
     });
   }
 
+  /**
+   * Initializes the channel data for the component.
+   */
   initializeChannelData(): void {
     if (this.channelId !== '') {
-      this.channelService
+      this.channelSubscription = this.channelService
         .getChannelById(this.channelId)
         .subscribe((channel) => {
           if (channel) {
@@ -109,9 +146,12 @@ export class AddUsersToChannelComponent {
     }
   }
 
+  /**
+   * Initializes the all user data for the component.
+   */
   initializeAllUserData(): void {
     if (!this.channelId) {
-      this.userService.allUserData$.subscribe((data) => {
+      this.userSubscription = this.userService.allUserData$.subscribe((data) => {
         this.newAllUserData.set(
           data.map((element) => ({
             userId: element.uid,
@@ -124,12 +164,15 @@ export class AddUsersToChannelComponent {
     }
   }
 
+  /**
+   * Filters the available users for the channel.
+   */
   filterAvailableUsers(): void {
-    this.userService.allUserData$.subscribe((data) => {
+    this.allUserDataSubscription = this.userService.allUserData$.subscribe((data) => {
       this.newAllUserData.set(
         data
           .filter(
-            (element) => !this.newChannelData.members.includes(element.uid) // Filtern
+            (element) => !this.newChannelData.members.includes(element.uid)
           )
           .map((element) => ({
             userId: element.uid,
@@ -141,6 +184,9 @@ export class AddUsersToChannelComponent {
     this.isLoading = false;
   }
 
+  /**
+   * Adds the current user to the channel.
+   */
   updateUsers(): void {
     if (this.channelId) return;
     this.users.update((users) => [
@@ -153,12 +199,13 @@ export class AddUsersToChannelComponent {
     ]);
   }
 
+  /**
+   * Checks if the users array is empty and emits an event if it is.
+   */
   checkUsersArray(): void {
     const isEmpty = this.users().length === 0;
     this.usersEmpty.emit(isEmpty);
   }
-
-  //NOTE - Hier werden die chips angezeigt
 
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   currentUser = signal<string>('');
@@ -193,16 +240,12 @@ export class AddUsersToChannelComponent {
 
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
-
-    // Finde den entsprechenden Benutzer basierend auf dem eingegebenen `userName`
     const selectedUser = this.newAllUserData().find(
       (user) => user.userName === value
     );
-
-    // Benutzer hinzufügen, wenn er existiert und noch nicht in `users` enthalten ist
     if (
       selectedUser &&
-      !this.users().some((user) => user.userId === selectedUser.userId) // Verhindern, dass der Benutzer doppelt hinzugefügt wird
+      !this.users().some((user) => user.userId === selectedUser.userId)
     ) {
       this.users.update((users) => [
         ...users,
@@ -211,10 +254,8 @@ export class AddUsersToChannelComponent {
           userName: selectedUser.userName,
           photoURL: selectedUser.photoURL,
         },
-      ]); // Das komplette Benutzerobjekt hinzufügen
+      ]);
     }
-
-    // Input zurücksetzen
     this.currentUser.set('');
     if (event.input) {
       event.input.value = '';
@@ -223,7 +264,7 @@ export class AddUsersToChannelComponent {
 
   remove(user: { userId: string; userName: string; photoURL: string }): void {
     this.users.update((users) => {
-      const index = users.findIndex((f) => f.userId === user.userId); // Suchen nach der userId
+      const index = users.findIndex((f) => f.userId === user.userId);
       if (index < 0) {
         return users;
       }
@@ -236,16 +277,13 @@ export class AddUsersToChannelComponent {
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    // Finde den Benutzer, der der Auswahl entspricht
     const selectedUser = this.newAllUserData().find(
       (user) => user.userId === event.option.value.userId
     );
-    // Nur hinzufügen, wenn das Benutzerobjekt existiert und die userId noch nicht in der Liste ist
     if (
       selectedUser &&
-      !this.users().some((user) => user.userId === selectedUser.userId) // Überprüfen, ob der Benutzer bereits existiert
+      !this.users().some((user) => user.userId === selectedUser.userId)
     ) {
-      // Benutzerobjekt hinzufügen, nicht nur die userId
       this.users.update((users) => [
         ...users,
         {
@@ -256,15 +294,13 @@ export class AddUsersToChannelComponent {
       ]);
     }
     this.checkUsersArray();
-
-    // Input zurücksetzen
     this.currentUser.set('');
     event.option.deselect();
   }
 
   createNewChannel() {
     this.bindDialogDataToNewChannelData();
-    this.channelService.createChannel(this.newChannelData).subscribe({
+    this.newChannelDataSubscription =  this.channelService.createChannel(this.newChannelData).subscribe({
       next: (channelId) => {
         this.router.navigate([
           `/main/${this.userData.uid}/channel/${channelId}`,
@@ -276,12 +312,17 @@ export class AddUsersToChannelComponent {
     });
   }
 
-  //ANCHOR - Semir - Es werden nur noch die IDS zusätzlich eingefügt.
+  /**
+   * Binds the dialog data to the new channel data.
+   */
   bindDialogDataToNewChannelData() {
     this.newChannelData.admin.userId = this.userData.uid;
-    this.newChannelData.members = this.users().map((user) => user.userId); // Nur die userIds speichern
+    this.newChannelData.members = this.users().map((user) => user.userId);
   }
 
+  /**
+   * Updates the existing channel with the new users.
+   */
   updateExistingChannel() {
     const newUsers = this.users().map((user) => user.userId);
     newUsers.forEach((userId) => {
@@ -290,6 +331,9 @@ export class AddUsersToChannelComponent {
     });
   }
 
+  /**
+   * Closes the autocomplete panel.
+   */
   closeAutocomplete(): void {
     this.autoTrigger.closePanel();
   }

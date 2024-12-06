@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AvatarDialogComponent } from '../avatar-dialog/avatar-dialog.component';
 import { NotificationService } from '../../services/notification-service/notification.service';
 import { EmailNotificationDialogComponent } from '../email-notification-dialog/email-notification-dialog.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-edit-dialog',
@@ -45,6 +46,7 @@ export class EditDialogComponent {
   notificationService = inject(NotificationService);
   errorMessage: string | null = '';
   isGoogleUser: boolean = false;
+  dialogRefSubscription!: Subscription;
 
   constructor(public dialog: MatDialog) {}
 
@@ -75,10 +77,19 @@ export class EditDialogComponent {
     this.isGoogleUser = this.authService.checkIfGoogleUser();
   }
 
+  /**
+   * Unsubscribes from subscriptions when the component is destroyed.
+   */
+  ngOnDestroy(): void {
+    this.dialogRefSubscription?.unsubscribe();
+  }
+
+  /**
+   * Focuses the name input field when the component is initialized.
+   */
   ngAfterViewChecked() {
-    if (this.editUserForm.get('name')?.enabled) {
+    if (this.editUserForm.get('name')?.enabled)
       this.nameInputElement.nativeElement.focus();
-    }
     if (
       this.editUserForm.get('email')?.enabled &&
       this.editUserForm.get('email')?.value === ''
@@ -88,6 +99,9 @@ export class EditDialogComponent {
     }
   }
 
+  /**
+   * Checks if the full name is valid.
+   */
   fullNameValidator(control: any) {
     const value = control.value || '';
     if (value.trim() === '') {
@@ -96,39 +110,60 @@ export class EditDialogComponent {
     return value.trim().split(/\s+/).length >= 2 ? null : { fullName: true };
   }
 
+  /**
+   * Prevents the user from entering numbers in the name input field.
+   */
   blockNumbers(event: KeyboardEvent) {
     const regex = /[0-9]/;
 
     if (regex.test(event.key)) {
-      event.preventDefault(); // Zahleneingabe blockieren
+      event.preventDefault();
     }
   }
 
+  /**
+   * Closes the dialog.
+   */
   closeDialog() {
     this.dialogRef.close();
   }
 
+  /**
+   * Returns the name control.
+   */
   get nameControl(): FormControl {
     return this.editUserForm.get('name') as FormControl;
   }
 
+  /**
+   * Returns the email control.
+   */
   get emailControl(): FormControl {
     return this.editUserForm.get('email') as FormControl;
   }
 
+  /**
+   * Returns the password control.
+   */
   get passwordControl(): FormControl {
     return this.editUserForm.get('password') as FormControl;
   }
 
+  /**
+   * Formats the display name.
+   */
   formatDisplayName(displayName: string): string {
     return displayName
-      .trim() // Entfernt Leerzeichen am Anfang und Ende
-      .replace(/\s+/g, ' ') // Ersetzt mehrere aufeinanderfolgende Leerzeichen durch ein einzelnes
-      .split(' ') // Teilt den Namen in Wörter auf
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Erster Buchstabe groß, Rest klein
-      .join(' '); // Fügt die Wörter wieder zusammen
+      .trim()
+      .replace(/\s+/g, ' ')
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   }
 
+  /**
+   * Updates the display name of a user in Firestore.
+   */
   saveNewName() {
     const newName = this.formatDisplayName(this.nameControl.value);
     if (newName) {
@@ -141,6 +176,9 @@ export class EditDialogComponent {
     }
   }
 
+  /**
+   * Updates the email of a user in Firestore.
+   */
   async saveNewEmail() {
     const newEmail = this.emailControl.value;
     const password = this.passwordControl.value;
@@ -157,6 +195,9 @@ export class EditDialogComponent {
     }
   }
 
+  /**
+   * Resets the input values and disables the controls.
+   */
   resetInputValues() {
     this.emailControl.setValue('');
     this.passwordControl.setValue('');
@@ -164,17 +205,22 @@ export class EditDialogComponent {
     this.passwordControl.disable();
   }
 
+  /**
+   * Opens the email notification dialog.
+   */
   openEmailNotificationDialog(newEmail: string) {
     const dialogRef = this.dialog.open(EmailNotificationDialogComponent);
     dialogRef.componentInstance.email = newEmail;
   }
 
+  /**
+   * Opens the avatar dialog and updates the user's avatar in Firestore.
+   */
   openEditAvatar(): void {
     const dialogRef = this.dialog.open(AvatarDialogComponent);
     dialogRef.componentInstance.photoURL = this.user.photoURL;
     dialogRef.componentInstance.email = this.user.email;
-
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogRefSubscription = dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.userService.saveAvatar(this.user.uid, result);
         this.user.photoURL = result;

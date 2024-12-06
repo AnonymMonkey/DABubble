@@ -14,6 +14,7 @@ import { ChannelService } from '../../../shared/services/channel-service/channel
 import { Channel } from '../../../shared/models/channel.model';
 import { UserService } from '../../../shared/services/user-service/user.service';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-add-users-to-new-channel-dialog',
@@ -55,25 +56,30 @@ export class AddUsersToNewChannelDialogComponent {
   newChannelData!: Channel;
   currentUserId: string = '';
   router = inject(Router);
+  channelSubscription: Subscription | undefined;
+  routeSubscription: Subscription | undefined;
+  userSubscription: Subscription | undefined;
 
   constructor() {}
 
   ngOnInit() {
     this.newChannelData = new Channel();
-    this.routingService.currentRoute$.subscribe((params) => {
-      this.currentParams = params;
-      this.openedChannelId = '';
-      if (this.currentParams['channelId']) {
-        this.openedChannelId = this.currentParams['channelId'];
-        this.channelService
-          .getChannelById(this.openedChannelId)
-          .subscribe((data) => {
-            this.openedChannelData = data;
-          });
+    this.routeSubscription = this.routingService.currentRoute$.subscribe(
+      (params) => {
+        this.currentParams = params;
+        this.openedChannelId = '';
+        if (this.currentParams['channelId']) {
+          this.openedChannelId = this.currentParams['channelId'];
+          this.channelSubscription = this.channelService
+            .getChannelById(this.openedChannelId)
+            .subscribe((data) => {
+              this.openedChannelData = data;
+            });
+        }
       }
-    });
+    );
 
-    this.userService.allUserData$.subscribe((data) => {
+    this.userSubscription = this.userService.allUserData$.subscribe((data) => {
       data.forEach((user) => {
         this.allUsersData.push(user.uid);
       });
@@ -82,14 +88,26 @@ export class AddUsersToNewChannelDialogComponent {
     this.currentUserId = this.userService.userId;
   }
 
-  checkChoice() {
-    if (this.radioValue != 0) {
-      this.invalid = false;
-    } else {
-      this.invalid = true;
-    }
+  /**
+   * Unsubscribe from the subscriptions when the component is destroyed.
+   */
+  ngOnDestroy(): void {
+    if (this.channelSubscription) this.channelSubscription.unsubscribe();
+    if (this.routeSubscription) this.routeSubscription.unsubscribe();
+    if (this.userSubscription) this.userSubscription.unsubscribe();
   }
 
+  /**
+   * Checks if the radio button is selected
+   */
+  checkChoice() {
+    if (this.radioValue != 0) this.invalid = false;
+    else this.invalid = true;
+  }
+
+  /**
+   * Creates a new channel or updates an existing one.
+   */
   create() {
     if (this.radioValue == 1) {
       this.newChannelData.admin.userId = this.currentUserId;
@@ -104,6 +122,9 @@ export class AddUsersToNewChannelDialogComponent {
     }
   }
 
+  /**
+   * Creates a new channel or updates an existing one.
+   */
   createNewOrUpdateExistingChannel() {
     if (this.channelId === '') {
       this.addUsersToChannel.createNewChannel();
@@ -112,6 +133,9 @@ export class AddUsersToNewChannelDialogComponent {
     }
   }
 
+  /**
+   * Binds the data to the new channel.
+   */
   bindData() {
     if (this.openedChannelData) {
       this.bindOpenedChannelData();
@@ -120,14 +144,23 @@ export class AddUsersToNewChannelDialogComponent {
     }
   }
 
+  /**
+   * Binds the members of the opened channel to the new channel.
+   */
   bindOpenedChannelData() {
     this.newChannelData.members = this.openedChannelData.members;
   }
 
+  /**
+   * Binds all users to the channel.
+   */
   bindAllUsers() {
     this.newChannelData.members = this.allUsersData;
   }
 
+  /**
+   * Creates a new channel.
+   */
   createNewChannel() {
     this.channelService.createChannel(this.newChannelData).subscribe({
       next: (channelId) => {

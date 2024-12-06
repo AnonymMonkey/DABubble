@@ -3,6 +3,7 @@ import { Firestore, doc, docData, collection } from '@angular/fire/firestore';
 import {
   BehaviorSubject,
   Observable,
+  Subscription,
   catchError,
   forkJoin,
   from,
@@ -36,16 +37,19 @@ export class ChannelService {
   private currentChannelSubject = new BehaviorSubject<Channel | undefined>(
     undefined
   );
-  public currentChannel$ = this.currentChannelSubject.asObservable(); // Observable für Komponenten
+  public currentChannel$ = this.currentChannelSubject.asObservable();
   public channelId: string = '';
-  public actualThread: Array<string> = []; // Daten des aktuell ausgewählten Threads
+  public actualThread: Array<string> = [];
   private userService = inject(UserService);
   loading: boolean = true;
   private messageService = inject(MessageService);
-  private channelDataMap = new Map<string, Channel>(); // Zentrale Map für Channels
+  private channelDataMap = new Map<string, Channel>();
   private channelDataMapSubject = new BehaviorSubject<Map<string, Channel>>(
     this.channelDataMap
   );
+  private channelDataMapSubscription: Subscription | undefined;
+  private channelSubscription: Subscription | undefined;
+  private userDataSubscription: Subscription | undefined;
 
   /**
    * Getter for the channelDataMap observable
@@ -71,13 +75,24 @@ export class ChannelService {
   }
 
   /**
+   * Unsubscribes from subscriptions when the component is destroyed.
+   */
+  ngOnDestroy(): void {
+    this.channelDataMapSubscription?.unsubscribe();
+    this.channelSubscription?.unsubscribe();
+    this.userDataSubscription?.unsubscribe();
+  }
+
+  /**
    * Loads all channels and their messages, storing them in a Map and notifying subscribers.
    */
   loadAllChannels(): void {
     const channelCollection = collection(this.firestore, 'channels');
-    collectionData(channelCollection, { idField: 'channelId' }).subscribe({
+    this.channelDataMapSubscription = collectionData(channelCollection, {
+      idField: 'channelId',
+    }).subscribe({
       next: async (data) => {
-        await this.loadAndStoreChannels(data); // Extracted logic into a helper function
+        await this.loadAndStoreChannels(data);
         this.channelDataMapSubject.next(new Map(this.channelDataMap));
       },
       error: (error) => console.error('Error loading channels:', error),
@@ -112,7 +127,7 @@ export class ChannelService {
   private async loadMessages(
     channelId: string
   ): Promise<{ [messageId: string]: ChannelMessage }> {
-    const messagesSnapshot = await this.fetchMessages(channelId); // Extracted logic to a helper function
+    const messagesSnapshot = await this.fetchMessages(channelId);
     return this.mapMessages(messagesSnapshot);
   }
 
@@ -129,11 +144,6 @@ export class ChannelService {
     return await getDocs(messagesCollection);
   }
 
-  /**
-   * Maps message data into an object keyed by message ID.
-   * @param messagesSnapshot The snapshot of the messages from Firestore.
-   * @returns A mapped object of messages.
-   */
   /**
    * Maps the messages snapshot to a dictionary of ChannelMessages.
    * @param {any} messagesSnapshot - The snapshot of the messages from Firestore.
@@ -193,26 +203,32 @@ export class ChannelService {
   listenToChannelChanges(): void {
     const channelCollection = collection(this.firestore, 'channels');
     onSnapshot(channelCollection, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        const channelId = change.doc.id; // Die ID des betroffenen Channels
-        const channelData = change.doc.data(); // Die aktualisierten Daten
-        if (change.type === 'added' || change.type === 'modified') {
-          const updatedChannel = new Channel(
-            channelData['admin'],
-            channelId,
-            channelData['channelName'],
-            channelData['description'],
-            channelData['members'],
-            channelData['messages'],
-            channelData['usersLeft']
-          );
-          this.channelDataMap.set(channelId, updatedChannel);
-        } else if (change.type === 'removed') {
-          this.channelDataMap.delete(channelId);
-        }
-        this.channelDataMapSubject.next(new Map(this.channelDataMap));
-      });
+      snapshot
+        .docChanges()
+        .forEach((change) => this.processChannelChange(change));
     });
+  }
+
+  /**
+   * Processes changes to a channel and updates the channelDataMap.
+   * @param change - The document change event.
+   */
+  private processChannelChange(change: any): void {
+    const channelId = change.doc.id;
+    const channelData = change.doc.data();
+    if (change.type === 'added' || change.type === 'modified') {
+      const updatedChannel = new Channel(
+        channelData['admin'],
+        channelId,
+        channelData['channelName'],
+        channelData['description'],
+        channelData['members'],
+        channelData['messages'],
+        channelData['usersLeft']
+      );
+      this.channelDataMap.set(channelId, updatedChannel);
+    } else if (change.type === 'removed') this.channelDataMap.delete(channelId);
+    this.channelDataMapSubject.next(new Map(this.channelDataMap));
   }
 
   /**
@@ -223,9 +239,9 @@ export class ChannelService {
     if (channelId !== this.channelId) this.loading = true;
     this.channelId = channelId;
     this.messageService.loadMessagesForChannel(channelId);
-    this.getChannelById(channelId).subscribe({
+    this.channelSubscription = this.getChannelById(channelId).subscribe({
       next: (channel) => {
-        this.currentChannelSubject.next(channel); 
+        this.currentChannelSubject.next(channel);
       },
       error: (error) => {
         console.error('Fehler beim Laden des Channels:', error);
@@ -264,7 +280,7 @@ export class ChannelService {
             channelData.usersLeft
           );
         } else {
-          return undefined; // Rückgabe `undefined`, falls keine Daten vorhanden sind
+          return undefined;
         }
       })
     );
@@ -280,11 +296,11 @@ export class ChannelService {
       this.userService.getUserDataByUID(member.userId).pipe(
         catchError((error) => {
           console.error('Benutzer nicht gefunden:', member.userId);
-          return of(null); // Gibt null zurück, falls der Benutzer nicht gefunden wird
+          return of(null);
         })
       )
     );
-    return forkJoin(userRequests); // Wartet, bis alle Benutzerdaten abgerufen wurden
+    return forkJoin(userRequests);
   }
 
   /**
@@ -382,10 +398,9 @@ export class ChannelService {
       );
     });
 
-    // Return an observable that emits an array of void values.
     return from(updateUserObservables).pipe(
-      mergeMap((observable) => observable), // Flatten the array of observables into a single observable.
-      toArray() // Collect all results into an array.
+      mergeMap((observable) => observable),
+      toArray()
     );
   }
 
@@ -473,14 +488,16 @@ export class ChannelService {
     const currentUsersMap = this.usersData.value;
     allUserIds.forEach((userId) => {
       if (!currentUsersMap.has(userId)) {
-        this.userService.getUserDataByUID(userId).subscribe({
-          next: (userData) => {
-            if (userData) {
-              currentUsersMap.set(userId, userData);
-              this.usersData.next(new Map(currentUsersMap)); // Erstelle eine neue Map-Instanz
-            }
-          },
-        });
+        this.userDataSubscription = this.userService
+          .getUserDataByUID(userId)
+          .subscribe({
+            next: (userData) => {
+              if (userData) {
+                currentUsersMap.set(userId, userData);
+                this.usersData.next(new Map(currentUsersMap));
+              }
+            },
+          });
       }
     });
   }

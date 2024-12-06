@@ -33,7 +33,7 @@ import { getFirestore, doc, deleteDoc, getDoc } from 'firebase/firestore';
 })
 export class OwnMessageEditComponent implements OnInit {
   @Input() message: any;
-  @Output() temporaryMessageContent = new EventEmitter<string>(); // EventEmitter für den temporären Text
+  @Output() temporaryMessageContent = new EventEmitter<string>();
   editedMessageContent: string = '';
   isSaving = false;
   private messageService = inject(MessageService);

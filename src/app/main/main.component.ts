@@ -100,9 +100,8 @@ export class MainComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Beispielaufruf beim Reload
   async checkUserStatusOnReload(userId: string): Promise<void> {
-    await this.userService.setOnlineStatus(userId, true, true); // Hier wird onReload auf true gesetzt
+    await this.userService.setOnlineStatus(userId, true, true);
   }
 
   ngOnDestroy(): void {
@@ -110,7 +109,6 @@ export class MainComponent implements OnInit, OnDestroy {
       this.userDataSubscription.unsubscribe();
     }
     if (this.channelSubscription) {
-      // Subscription für channels auch beenden
       this.channelSubscription.unsubscribe();
     }
     if (this.subscription) {

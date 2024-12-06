@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscribable, Subscription } from 'rxjs';
 import { ChannelMessage } from '../../models/channel-message.model';
 import {
   collection,
@@ -31,10 +31,12 @@ export class MessageService {
     null
   );
   actualMessage$ = this.actualMessageSubject.asObservable();
-  private messagesDataMap = new Map<string, Map<string, ChannelMessage>>(); // Map für Nachrichten pro Channel
+  private messagesDataMap = new Map<string, Map<string, ChannelMessage>>();
   private messagesDataMapSubject = new BehaviorSubject<
     Map<string, Map<string, ChannelMessage>>
   >(this.messagesDataMap);
+  private messagesSubscription: Subscription | undefined;
+  private userDataSubscription: Subscription | undefined;
 
   /**
    * Getter for the messagesDataMap$ Observable
@@ -42,6 +44,14 @@ export class MessageService {
    */
   get messagesDataMap$() {
     return this.messagesDataMapSubject.asObservable();
+  }
+
+  /**
+   * Unsubscribes from subscriptions when the component is destroyed.
+   */
+  ngOnDestroy(): void {
+    this.messagesSubscription?.unsubscribe();
+    this.userDataSubscription?.unsubscribe();
   }
 
   /**
@@ -73,53 +83,53 @@ export class MessageService {
       this.firestore,
       `channels/${channelId}/messages`
     );
-    collectionData(messagesCollection, { idField: 'messageId' }).subscribe(
-      (messages) => {
-        const messageMap = new Map<string, ChannelMessage>();
-        messages.forEach((messageData) => {
-          const message = new ChannelMessage(
-            messageData['content'],
-            messageData['userId'],
-            messageData['messageId'],
-            messageData['time'],
-            messageData['attachmentUrls'] || []
-          );
-          message.reactions = (messageData['reactions'] || []).map(
-            (reaction: any) => ({
-              emoji: reaction.emoji,
-              count: reaction.count,
-              userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],
-            })
-          );
-          const threadData = messageData['thread'] || {};
-          message.thread = Object.fromEntries(
-            Object.entries(threadData).map(
-              ([threadId, threadMessageData]: [string, any]) => [
+    this.messagesSubscription = collectionData(messagesCollection, {
+      idField: 'messageId',
+    }).subscribe((messages) => {
+      const messageMap = new Map<string, ChannelMessage>();
+      messages.forEach((messageData) => {
+        const message = new ChannelMessage(
+          messageData['content'],
+          messageData['userId'],
+          messageData['messageId'],
+          messageData['time'],
+          messageData['attachmentUrls'] || []
+        );
+        message.reactions = (messageData['reactions'] || []).map(
+          (reaction: any) => ({
+            emoji: reaction.emoji,
+            count: reaction.count,
+            userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],
+          })
+        );
+        const threadData = messageData['thread'] || {};
+        message.thread = Object.fromEntries(
+          Object.entries(threadData).map(
+            ([threadId, threadMessageData]: [string, any]) => [
+              threadId,
+              new ThreadMessage(
+                threadMessageData.content,
+                threadMessageData.userId,
                 threadId,
-                new ThreadMessage(
-                  threadMessageData.content,
-                  threadMessageData.userId,
-                  threadId,
-                  threadMessageData.reactions || [],
-                  threadMessageData.time,
-                  threadMessageData.attachmentUrls || []
-                ),
-              ]
-            )
-          );
-          messageMap.set(message.messageId, message);
-        });
-        if (
-          !this.areMapsEqual(
-            this.messagesDataMap.get(channelId) || new Map(),
-            messageMap
+                threadMessageData.reactions || [],
+                threadMessageData.time,
+                threadMessageData.attachmentUrls || []
+              ),
+            ]
           )
-        ) {
-          this.messagesDataMap.set(channelId, messageMap);
-          this.messagesDataMapSubject.next(new Map(this.messagesDataMap));
-        }
+        );
+        messageMap.set(message.messageId, message);
+      });
+      if (
+        !this.areMapsEqual(
+          this.messagesDataMap.get(channelId) || new Map(),
+          messageMap
+        )
+      ) {
+        this.messagesDataMap.set(channelId, messageMap);
+        this.messagesDataMapSubject.next(new Map(this.messagesDataMap));
       }
-    );
+    });
   }
 
   /**
@@ -159,29 +169,18 @@ export class MessageService {
     newContent: string
   ): Promise<void> {
     const userId = this.userService.userId;
-
     if (!userId || !privateChatId || !messageId) {
       console.error('Fehlende Benutzer-ID, Private-Chat-ID oder Message-ID.');
       return;
     }
-
-    // Referenz für das Benutzerdokument im Firestore
     const userDocRef = doc(this.firestore, `users/${userId}`);
-
     try {
-      // Abrufen des Benutzerdokuments
       const userDocSnapshot = await getDoc(userDocRef);
-
       if (userDocSnapshot.exists()) {
-        // Aktuelle Daten des `privateChat`-Objekts abrufen
         const privateChatData = userDocSnapshot.data()?.['privateChat'];
         const messages = privateChatData?.[privateChatId]?.messages;
-
         if (messages && messages[messageId]) {
-          // Nachricht aktualisieren
           messages[messageId].content = newContent;
-
-          // Die Änderungen im Benutzerdokument speichern
           await updateDoc(userDocRef, {
             [`privateChat.${privateChatId}.messages.${messageId}.content`]:
               newContent,
@@ -224,14 +223,19 @@ export class MessageService {
    * @param {string} path - The Firestore path to the message.
    * @returns {Promise<void>} A promise that resolves when the reaction is added or changed.
    */
-  async addOrChangeReactionChannelOrThread(emoji: any, path: string): Promise<void> {
+  async addOrChangeReactionChannelOrThread(
+    emoji: any,
+    path: string
+  ): Promise<void> {
     const messageRef = doc(this.firestore, path);
     const currentMessage = this.actualMessageSubject.value;
     this.initializeReactions(currentMessage);
     const currentUser = await this.getCurrentUser();
     if (!currentUser) return;
     const updatedReactions = this.updateReactions(
-      currentMessage, emoji, currentUser
+      currentMessage,
+      emoji,
+      currentUser
     );
     if (!updatedReactions) return;
     await this.updateMessageReactions(messageRef, updatedReactions);
@@ -254,7 +258,7 @@ export class MessageService {
    */
   private async getCurrentUser(): Promise<UserData | null> {
     return new Promise<UserData | null>((resolve) => {
-      this.userService.userData$.subscribe({
+      this.userDataSubscription = this.userService.userData$.subscribe({
         next: (currentUser: UserData) => {
           if (
             !currentUser.uid ||
@@ -288,12 +292,13 @@ export class MessageService {
     currentUser: UserData
   ): any[] | null {
     const existingReaction = currentMessage.reactions.find(
-      (r: { emoji: { shortName: any; }; }) => r.emoji.shortName === emoji.shortName
+      (r: { emoji: { shortName: any } }) =>
+        r.emoji.shortName === emoji.shortName
     );
 
     if (existingReaction) {
       if (existingReaction.userIds.includes(currentUser.uid)) {
-        return null; // User has already reacted with this emoji
+        return null;
       } else {
         existingReaction.count += 1;
         existingReaction.userIds.push(currentUser.uid);

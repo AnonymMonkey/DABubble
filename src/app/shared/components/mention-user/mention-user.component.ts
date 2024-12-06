@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { ChannelService } from '../../services/channel-service/channel.service';
 import { UserService } from '../../services/user-service/user.service';
 import { NgFor, NgIf } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-mention-user',
@@ -15,6 +16,8 @@ export class MentionUserComponent {
 
   currentUserId: string | undefined;
   mentionableUsers: any[] = [];
+  channelSubscription: Subscription | undefined;
+  userSubscription: Subscription | undefined;
 
   constructor(
     public channelService: ChannelService,
@@ -29,11 +32,19 @@ export class MentionUserComponent {
     this.loadMentionableUsers();
   }
 
+  /** 
+   * Clean up subscriptions on component destroy.
+   */
+  ngOnDestroy(): void {
+    this.channelSubscription?.unsubscribe();
+    this.userSubscription?.unsubscribe();
+  }
+
   /**
    * Loads mentionable users for the current channel, excluding the current user.
    */
   loadMentionableUsers(): void {
-    this.channelService.currentChannel$.subscribe({
+    this.channelSubscription = this.channelService.currentChannel$.subscribe({
       next: (channel) => this.processChannelMembers(channel),
       error: (error) => console.error('Fehler beim Abrufen des Kanals:', error),
     });
@@ -84,7 +95,7 @@ export class MentionUserComponent {
    * @param userId The ID of the user to fetch data for.
    */
   private fetchUserData(userId: string): void {
-    this.userService.getUserDataByUID(userId).subscribe({
+    this.userSubscription = this.userService.getUserDataByUID(userId).subscribe({
       next: (userData) => this.addUserToMentionableList(userId, userData),
       error: (error) =>
         console.error('Fehler beim Abrufen der Benutzerdaten:', error),
@@ -119,8 +130,4 @@ export class MentionUserComponent {
     const mentionText: string = '@' + userName;
     this.mentionUser.emit(mentionText);
   }
-  // selectUser(userName: string): void {
-  //   const mentionText: string = `<span class="mention">@${userName}</span>`;
-  //   this.mentionUser.emit(mentionText);
-  // }
 }

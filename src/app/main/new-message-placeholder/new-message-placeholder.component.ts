@@ -23,6 +23,9 @@ export class NewMessagePlaceholderComponent {
   sideNavOpened = true;
   subscription!: Subscription;
 
+  /**
+   * Subscribe to the sideNavOpened$ observable and update the sideNavOpened property.
+   */
   ngOnInit(): void {
     this.subscription = this.behaviorService.sideNavOpened$.subscribe(
       (value) => {
@@ -31,9 +34,10 @@ export class NewMessagePlaceholderComponent {
     );
   }
 
+  /**
+   * Clean up subscriptions on component destroy.
+   */
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    if (this.subscription) this.subscription.unsubscribe();
   }
 }

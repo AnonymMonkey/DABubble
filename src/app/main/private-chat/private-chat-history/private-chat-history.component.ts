@@ -30,7 +30,7 @@ import { UserService } from '../../../shared/services/user-service/user.service'
   styleUrls: ['./private-chat-history.component.scss'],
 })
 export class PrivateChatHistoryComponent {
-  @Input() messages: any[] = []; // Erwartet ein Array von Nachrichten
+  @Input() messages: any[] = []; 
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
   groupedMessages: { date: string; messages: any[] }[] = [];
   scrollAllowed: boolean = true;

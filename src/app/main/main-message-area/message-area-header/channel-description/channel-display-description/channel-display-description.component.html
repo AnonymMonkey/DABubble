@@ -1,12 +1,21 @@
 <div class="description-container">
   <div class="description-container-headline">
     <span>Beschreibung</span>
-    <button (click)="description.toggleEditDescription()" *ngIf="userIsAdmin()">Bearbeiten</button>
+    <button (click)="description.toggleEditDescription()" *ngIf="userIsAdmin()">
+      Bearbeiten
+    </button>
+    <div
+      class="edit-icon-container"
+      (click)="description.toggleEditDescription()"
+      *ngIf="userIsAdmin()"
+    >
+      <mat-icon class="material-symbols-outlined edit-mobile">edit</mat-icon>
+    </div>
   </div>
-  <span>{{ currentChannel?.description }}</span>
+  <span class="description">{{ currentChannel?.description }}</span>
   <div class="blue-line"></div>
   <div class="created-by-container">
     <span>Erstellt von</span>
-    <span>{{ adminUserName }}</span> <!-- Hier wird der Username des Admins angezeigt -->
+    <span>{{ adminUserName }}</span>
   </div>
 </div>

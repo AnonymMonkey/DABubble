@@ -28,6 +28,9 @@ export class ProfileInfoDialogComponent {
   userData!: UserData;
   currentUserData!: UserData;
   subscription!: Subscription;
+  userDataSubscription!: Subscription;
+  privateChatSubscription!: Subscription;
+  currentUserDataSubscription!: Subscription;
   userService = inject(UserService);
   privateChatService = inject(PrivateChatService);
   activeButtonService = inject(ActiveChatButtonService);
@@ -40,7 +43,6 @@ export class ProfileInfoDialogComponent {
     public dialog: MatDialog
   ) {}
 
-  //ANCHOR - Semir - Überprüfung, ob eigenes oder anderes Profil.
   ngOnInit() {
     this.loadCurrentUserData();
     if (this.data) {
@@ -49,31 +51,48 @@ export class ProfileInfoDialogComponent {
         displayName: this.data.userName,
         photoURL: this.data.userPhotoURL,
         email: this.userService.getUserEmail(this.data.userId),
-      } as UserData; // Verwende den Typ UserData
-      if (this.data.userId === this.userService.userId) {
-        this.ownProfile = true;
-      } else {
-        this.ownProfile = false;
-      }
-    } else {
-      this.userService.userData$.subscribe((data) => {
-        this.userData = data; // Empfange die Benutzerdaten
-      });
-    }
+      } as UserData;
+      if (this.data.userId === this.userService.userId) this.ownProfile = true;
+      else this.ownProfile = false;
+    } else
+      this.userDataSubscription = this.userService.userData$.subscribe(
+        (data) => {
+          this.userData = data;
+        }
+      );
   }
 
+  /**
+   * Cleans up subscriptions on component destroy.
+   */
+  ngOnDestroy() {
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+    if (this.currentUserDataSubscription)
+      this.currentUserDataSubscription.unsubscribe();
+    if (this.privateChatSubscription)
+      this.privateChatSubscription.unsubscribe();
+  }
+
+  /**
+   * Loads the current user's data.
+   */
   loadCurrentUserData() {
-    this.userService.userData$.subscribe((data) => {
-      this.currentUserData = data;
-    });
+    this.currentUserDataSubscription = this.userService.userData$.subscribe(
+      (data) => {
+        this.currentUserData = data;
+      }
+    );
   }
 
+  /**
+   * Closes the dialog.
+   */
   closeDialog() {
     this.dialog.closeAll();
   }
 
   openChatWithUser(targetUser: UserData, buttonID: string) {
-    this.privateChatService
+    this.privateChatSubscription = this.privateChatService
       .openOrCreatePrivateChat(this.currentUserData, targetUser)
       .subscribe((chatId) => {
         if (chatId) {
@@ -91,6 +110,9 @@ export class ProfileInfoDialogComponent {
       });
   }
 
+  /**
+   * Opens the edit profile dialog.
+   */
   openEditProfile(): void {
     const dialogRef = this.dialog.open(EditDialogComponent);
     dialogRef.componentInstance.user = this.userData;

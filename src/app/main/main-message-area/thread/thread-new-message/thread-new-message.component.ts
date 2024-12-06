@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
-import { ThreadMessage } from '../../../../shared/models/thread-message.model'; // Importiere ThreadMessage
+import { ThreadMessage } from '../../../../shared/models/thread-message.model'; 
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import {
   collection,
@@ -27,6 +27,7 @@ import { UploadMethodSelectorComponent } from '../../../../shared/components/upl
 import { StorageService } from '../../../../shared/services/storage-service/storage.service';
 import { ChannelMessage } from '../../../../shared/models/channel-message.model';
 import { UserService } from '../../../../shared/services/user-service/user.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-thread-new-message',
@@ -52,6 +53,9 @@ export class ThreadNewMessageComponent implements OnInit {
   newMessageContent: string = '';
   attachmentUrls: string[] = [];
   message?: ChannelMessage | null;
+  threadSubscription: Subscription | undefined;
+  closeAttachmentSubscription: Subscription | undefined;
+  closeUploadMethodSubscription: Subscription | undefined;
   @ViewChild('threadAttachmentSidenav') threadAttachmentSidenav!: MatSidenav;
   @ViewChild('threadAttachmentSidenav', { read: ElementRef })
   attachmentSidenavElement!: ElementRef;
@@ -71,15 +75,24 @@ export class ThreadNewMessageComponent implements OnInit {
    * Initialize the component and subscribe to actual message changes and attachment preview close events.
    */
   ngOnInit(): void {
-    this.threadService.actualMessageSubject.subscribe((message) => {
+    this.threadSubscription = this.threadService.actualMessageSubject.subscribe((message) => {
       this.message = message;
     });
-    this.storageService.onCloseAttachmentPreview().subscribe(() => {
+    this.closeAttachmentSubscription = this.storageService.onCloseAttachmentPreview().subscribe(() => {
       this.closeAttachmentSidenav();
     });
-    this.storageService.onCloseUploadMethodSelector().subscribe(() => {
+    this.closeUploadMethodSubscription = this.storageService.onCloseUploadMethodSelector().subscribe(() => {
       this.closeUploadMethodMenu();
     });
+  }
+
+  /**
+   * Clean up subscriptions on component destroy.
+   */
+  ngOnDestroy(): void {
+    this.threadSubscription?.unsubscribe();
+    this.closeAttachmentSubscription?.unsubscribe();
+    this.closeUploadMethodSubscription?.unsubscribe();
   }
 
   /**
@@ -284,7 +297,7 @@ export class ThreadNewMessageComponent implements OnInit {
    * @param index - The index of the attachment to be removed.
    */
   removeAttachment(index: number) {
-    this.attachmentUrls.splice(index, 1); // URL aus dem Array entfernen
+    this.attachmentUrls.splice(index, 1); 
   }
 
   /**

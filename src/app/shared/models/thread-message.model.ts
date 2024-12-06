@@ -4,13 +4,13 @@ export class ThreadMessage {
   content: string;
   messageId: string;
   time: string;
-  userId: string;  // Nur userId anstelle des gesamten user Objekts
+  userId: string;
   reactions: {
     emoji: string;
     count: number;
     userIds: string[]; 
   }[] = [];
-  attachmentUrls?: string[];  // Array von Anhängen (optional)
+  attachmentUrls?: string[];
 
   constructor(
     content: string,
@@ -18,24 +18,35 @@ export class ThreadMessage {
     chatId: string,
     reactions: { emoji: string; count: number, userIds: string[] }[] = [],
     time: string = new Date().toISOString(),
-    attachmentUrls?: string[]  // optionales Array für Anhänge
+    attachmentUrls?: string[]
   ) {
     this.content = content;
     this.messageId = ThreadMessage.generateUniqueMessageId();
     this.time = time;
-    this.userId = userId;  // Nur userId speichern
+    this.userId = userId;
     this.reactions = reactions;
-    this.attachmentUrls = attachmentUrls;  // Array von Anhängen speichern
+    this.attachmentUrls = attachmentUrls; 
   }
 
-  // Methode zur Generierung einer ID mit Timestamp und zufälliger Zahl
+  /**
+   * Generates a unique message ID.
+   */
   private static generateUniqueMessageId(): string {
     const timestamp = Date.now();
     const randomSuffix = Math.floor(Math.random() * 1000) + 1;
     return `thread_${timestamp}_${randomSuffix}`;
   }
 
-  // Statische Methode, um ein Objekt mit der ID als Schlüssel zu erstellen
+
+  /**
+   * Creates a ThreadMessage object with a unique ID as the key.
+   * @param {string} content - The content of the message.
+   * @param {string} userId - The ID of the user who sent the message.
+   * @param {string} chatId - The ID of the chat where the message was sent.
+   * @param {Object[]} reactions - An array of reaction objects.
+   * @param {string} attachmentUrls - An array of attachment URLs.
+   * @returns {Object} An object with a unique ID as the key and the ThreadMessage object as the value.
+   */
   static createWithIdAsKey(content: string, userId: string, chatId: string, reactions: { emoji: string; count: number; userIds: string[] }[] = [], attachmentUrls?: string[]): { [key: string]: ThreadMessage } {
     const message = new ThreadMessage(content, userId, chatId, reactions, undefined, attachmentUrls);
     return {
@@ -43,31 +54,35 @@ export class ThreadMessage {
     };
   }
 
-  // Firestore-Konverter für ThreadMessage
+  /**
+   * Firebase Firestore data converter for ThreadMessage objects.
+   * @type {FirestoreDataConverter<ThreadMessage>}
+   * @readonly
+   */
   static threadMessageConverter: FirestoreDataConverter<ThreadMessage> = {
     toFirestore(message: ThreadMessage): DocumentData {
       return {
         content: message.content,
         messageId: message.messageId,
         time: message.time,
-        userId: message.userId,  // Nur userId anstelle des gesamten Benutzerobjekts
+        userId: message.userId,
         reactions: message.reactions.map(reaction => ({
           emoji: reaction.emoji,
           count: reaction.count,
           userIds: reaction.userIds
-        })), // Mappt die Reaktionen mit allen drei Feldern
-        attachmentUrls: message.attachmentUrls || []  // Speichert das Array von Anhängen
+        })),
+        attachmentUrls: message.attachmentUrls || [] 
       };
     },
     fromFirestore(snapshot: DocumentSnapshot<DocumentData>): ThreadMessage {
       const data: any = snapshot.data() as DocumentData;
       return new ThreadMessage(
         data.content,
-        data.userId,  // Nur userId anstelle des gesamten Benutzerobjekts
+        data.userId, 
         snapshot.id,
-        data.reactions || [],  // Falls keine Reaktionen vorhanden sind, wird ein leeres Array zurückgegeben
+        data.reactions || [],
         data.time,
-        data.attachmentUrls || []  // Holt das Array von Anhängen (oder ein leeres Array, wenn keine Anhänge vorhanden sind)
+        data.attachmentUrls || []
       );
     },
   };

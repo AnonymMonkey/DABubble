@@ -24,6 +24,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { ActiveChatButtonService } from '../../shared/services/profile-chat-button-service/active-chat-button.service';
 import { SearchBarComponent } from '../../shared/components/search-bar/search-bar.component';
 import { BehaviorService } from '../../shared/services/behavior-service/behavior.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-side-nav',
@@ -56,9 +57,14 @@ export class SideNavComponent {
   router: Router = inject(Router);
   activeButtonService = inject(ActiveChatButtonService);
   behaviorService = inject(BehaviorService);
+  private userDataSubscription: Subscription | undefined;
+  private privateChatSubscription: Subscription | undefined;
 
   constructor(public dialog: MatDialog) {}
 
+  /**
+   * Initializes the component and loads all user data.
+   */
   ngOnInit(): void {
     this.userService.allUserData$.subscribe((data) => {
       this.allUserData = data;
@@ -66,26 +72,47 @@ export class SideNavComponent {
     this.loadOnlineStatus();
   }
 
+  /**
+   * Unsubscribes from the user data subscription when the component is destroyed.
+   */
+  ngOnDestroy(): void {
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+    if (this.privateChatSubscription) this.privateChatSubscription.unsubscribe();
+  }
+
+  /**
+   * Opens the create channel dialog.
+   */
   openCreateChannelDialog(): void {
     this.dialog.open(CreateChannelDialogComponent, {
       panelClass: 'create-channel-dialog',
     });
   }
 
+  /**
+   * Loads the online status of all users.
+   */
   loadOnlineStatus() {
-    this.userService.getAllUsersOnlineStatus().subscribe(
-      (statusArray) => {
-        this.userService.allUsersOnlineStatus$ = statusArray;
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
+    this.userDataSubscription = this.userService
+      .getAllUsersOnlineStatus()
+      .subscribe(
+        (statusArray) => {
+          this.userService.allUsersOnlineStatus$ = statusArray;
+        },
+        (error) => {
+          console.error(error);
+        }
+      );
   }
 
+  /**
+   * Opens a private chat with the specified user.
+   * @param targetUser - The user to open the private chat with.
+   * @param buttonID - The ID of the button to set as active.
+   */
   openChatWithUser(targetUser: UserData, buttonID: string) {
     this.closeNavOnClick();
-    this.privateChatService
+    this.privateChatSubscription = this.privateChatService
       .openOrCreatePrivateChat(this.userData, targetUser)
       .subscribe((chatId) => {
         if (chatId) {
@@ -94,18 +121,25 @@ export class SideNavComponent {
             `/main/${this.userData.uid}/privateChat`,
             chatId,
           ]);
-        } else {
+        } else
           console.error(
             'Fehler beim Öffnen oder Erstellen des privaten Chats.'
           );
-        }
       });
   }
 
+  /**
+   * Checks if the specified button ID is the active button.
+   * @param buttonId - The ID of the button to check.
+   * @returns True if the button is active, false otherwise.
+   */
   isActiveButton(buttonId: string): boolean {
     return this.activeButtonService.activeButtonId === buttonId;
   }
 
+  /**
+   * Closes the navigation drawer if it's in 'over' mode.
+   */
   closeNavOnClick(): void {
     if (this.drawerMode === 'over') {
       this.behaviorService.setValue(false);

@@ -186,3 +186,37 @@ app-attachment-preview {
   justify-content: center;
   padding-left: 20px;
 }
+
+@media only screen and (max-width: 560px) {
+  mat-sidenav {
+    width: 150px;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  section {
+    padding: 5px 5px;
+  }
+  
+  mat-sidenav {
+    width: 120px;
+  }
+
+  app-attachment-preview {
+    padding-left: 5px;
+  }
+}
+
+@media only screen and (max-width: 340px) {
+  mat-sidenav {
+    width: 100px;
+  }
+
+  textarea {
+    height: 60%;
+  }
+
+  .textarea-container {
+    padding: 0px 10px;
+  }
+}

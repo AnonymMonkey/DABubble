@@ -50,7 +50,11 @@ section {
 
     span {
         width: fit-content;
-        max-width: 65vw;
+        max-width: 100%;
+        flex-wrap: wrap;
+        overflow-wrap: break-word;
+        word-break: break-word; /* Alternative: break-all */
+
     }
 
     p:first-of-type {
@@ -58,13 +62,7 @@ section {
         margin: 0;
         display: inline;
     }
-
-    // p:last-of-type {
-    //     font-weight: 400;
-    //     margin: 0;
-    //     display: inline;
-    //     }
-
+    
     a {
         color: var(--purple3-color);
         text-decoration: none;

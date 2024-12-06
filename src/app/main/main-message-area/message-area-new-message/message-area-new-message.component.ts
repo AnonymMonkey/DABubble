@@ -2,7 +2,7 @@ import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { ChannelMessage } from '../../../shared/models/channel-message.model';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule, NgModel } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Firestore, FirestoreDataConverter } from '@angular/fire/firestore';
 import { DocumentData, DocumentSnapshot } from '@angular/fire/firestore';
 import { collection, doc, setDoc } from 'firebase/firestore';
@@ -13,8 +13,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ChannelService } from '../../../shared/services/channel-service/channel.service';
 import { Channel } from '../../../shared/models/channel.model';
 import { ThreadMessage } from '../../../shared/models/thread-message.model';
-import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
-import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { PickerModule } from '@ctrl/ngx-emoji-mart';
+import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MentionUserComponent } from '../../../shared/components/mention-user/mention-user.component';
 import { UploadMethodSelectorComponent } from '../../../shared/components/upload-method-selector/upload-method-selector.component';
 import { NgClass, NgIf } from '@angular/common';
@@ -22,7 +22,6 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { AttachmentPreviewComponent } from '../../../shared/components/attachment-preview/attachment-preview.component';
 import { StorageService } from '../../../shared/services/storage-service/storage.service';
 import { Subscription } from 'rxjs';
-import { EmojiPickerComponent } from '../../../shared/components/emoji-picker/emoji-picker.component';
 
 const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   toFirestore(message: ChannelMessage): DocumentData {
@@ -45,17 +44,17 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   selector: 'app-message-area-new-message',
   standalone: true,
   imports: [
-   FormsModule,
-   MatMenuTrigger,
-   MatMenu,
-   MatIconModule,
-   MatSidenavModule,
-   PickerModule,
-   NgIf,
-   NgClass,
-   MentionUserComponent,
-   UploadMethodSelectorComponent,
-   AttachmentPreviewComponent,
+    FormsModule,
+    MatMenuTrigger,
+    MatMenu,
+    MatIconModule,
+    MatSidenavModule,
+    PickerModule,
+    NgIf,
+    NgClass,
+    MentionUserComponent,
+    UploadMethodSelectorComponent,
+    AttachmentPreviewComponent,
   ],
   templateUrl: './message-area-new-message.component.html',
   styleUrls: ['./message-area-new-message.component.scss'],
@@ -70,8 +69,12 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   currentBorderRadius: string = '30px 30px 30px 30px';
   attachmentUrls: string[] = [];
   userDataSubscription: Subscription = new Subscription();
+  channelSubscription: Subscription = new Subscription();
+  closeAttachmentSubscription: Subscription = new Subscription();
+  closeUploadMethodSubscription: Subscription = new Subscription();
   displayNames: string[] = [];
   mentionOpenedAtTextarea: boolean = false;
+  routeSubscription: Subscription = new Subscription();
   @ViewChild('attachmentSidenav') attachmentSidenav!: MatSidenav;
   @ViewChild('attachmentSidenav', { read: ElementRef })
   attachmentSidenavElement!: ElementRef;
@@ -101,17 +104,15 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
    * Subscribes to route parameters and updates the component's properties.
    */
   subscribeParams() {
-    this.route.paramMap.subscribe(async (params) => {
+    this.routeSubscription = this.route.paramMap.subscribe(async (params) => {
       this.userId = this.userService.userId;
       this.privateChatId = params.get('privateChatId') || undefined;
       this.channelId = params.get('channelId') || undefined;
       if (this.channelId) {
-        this.channelService
+        this.channelSubscription = this.channelService
           .getChannelById(this.channelId)
           .subscribe((channel) => {
-            if (channel) {
-              this.channel = channel;
-            }
+            if (channel) this.channel = channel;
           });
       }
     });
@@ -135,22 +136,30 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
    * Subscribes to the onCloseAttachmentPreview and onCloseUploadMethodSelector observables.
    */
   subscribeCloseMenus() {
-    this.storageService.onCloseAttachmentPreview().subscribe(() => {
-      this.closeAttachmentSidenav();
-    });
+    this.closeAttachmentSubscription = this.storageService
+      .onCloseAttachmentPreview()
+      .subscribe(() => {
+        this.closeAttachmentSidenav();
+      });
 
-    this.storageService.onCloseUploadMethodSelector().subscribe(() => {
-      this.closeUploadMethodMenu();
-    });
+    this.closeUploadMethodSubscription = this.storageService
+      .onCloseUploadMethodSelector()
+      .subscribe(() => {
+        this.closeUploadMethodMenu();
+      });
   }
 
   /**
    * Clean up subscriptions on component destroy.
    */
   ngOnDestroy(): void {
-    if (this.userDataSubscription) {
-      this.userDataSubscription.unsubscribe();
-    }
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+    if (this.channelSubscription) this.channelSubscription.unsubscribe();
+    if (this.routeSubscription) this.routeSubscription.unsubscribe();
+    if (this.closeAttachmentSubscription)
+      this.closeAttachmentSubscription.unsubscribe();
+    if (this.closeUploadMethodSubscription)
+      this.closeUploadMethodSubscription.unsubscribe();
   }
 
   /**
@@ -179,7 +188,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
     const newMessage = await this.generateMessage(messageContent, messageId);
     const attachmentsToSend = [...this.attachmentUrls];
     this.attachmentSidenav.close();
-    this.attachmentUrls = []; // Reset attachment URLs
+    this.attachmentUrls = [];
     this.checkForChannelOrPrivateChat(attachmentsToSend, newMessage, messageId);
   }
 
@@ -384,7 +393,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
    * @param index - The index of the attachment to be removed.
    */
   removeAttachment(index: number) {
-    this.attachmentUrls.splice(index, 1); // URL aus dem Array entfernen
+    this.attachmentUrls.splice(index, 1);
   }
 
   /**

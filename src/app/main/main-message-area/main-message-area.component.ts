@@ -46,6 +46,11 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
   behaviorService = inject(BehaviorService);
   sideNavOpened = true;
   subscription!: Subscription;
+  routeSubscription!: Subscription;
+  channelSubscription!: Subscription;
+  sidenavOpenedsubscription!: Subscription;
+  sidenavClosedsubscription!: Subscription;
+  breakpointObserverSubscription!: Subscription;
   breakpointObserver = inject(BreakpointObserver);
   drawerMode: 'side' | 'over' = 'side';
 
@@ -59,45 +64,69 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
     private userService: UserService
   ) {}
 
+  /**
+   * Initialize the component and subscribe to route parameters and channel data.
+   */
   ngOnInit(): void {
     this.currentUserId = this.userService.userId;
+    this.channelSubscription = this.channelService.channelData$.subscribe(
+      (data) => {
+        this.channelData = data;
+      }
+    );
+    this.subscriptionRoute();
+    this.subscriptionSideNav();
+  }
 
-    // Channel-Daten abonnieren
-    this.channelService.channelData$.subscribe((data) => {
-      this.channelData = data; // Channel-Daten speichern
-    });
-
-    // Überprüfen, ob sich die URL oder die channelId geändert hat
-    this.route.paramMap.subscribe((params) => {
+  /**
+   * Subscribe to route parameters and update the channelId property
+   */
+  subscriptionRoute() {
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const newChannelId = params.get('channelId');
       if (newChannelId !== this.channelId) {
-        this.channelId = newChannelId; // Setze die neue Channel ID
-        this.channelService.setChannel(this.channelId || ''); // Channel setzen
+        this.channelId = newChannelId;
+        this.channelService.setChannel(this.channelId || '');
         this.closeSidenav();
       }
     });
+  }
 
+  /**
+   * Subscribe to the sideNavOpened$ observable and update the sideNavOpened property
+   */
+  subscriptionSideNav() {
     this.subscription = this.behaviorService.sideNavOpened$.subscribe(
       (value) => {
         this.sideNavOpened = value;
       }
     );
-
-    this.breakpointObserver
+    this.breakpointObserverSubscription = this.breakpointObserver
       .observe(['(min-width: 992px)'])
       .subscribe((result) => {
         this.drawerMode = result.matches ? 'side' : 'over';
       });
   }
 
+  /**
+   * Unsubscribe from all subscriptions
+   */
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    if (this.subscription) this.subscription.unsubscribe();
+    if (this.routeSubscription) this.routeSubscription.unsubscribe();
+    if (this.channelSubscription) this.channelSubscription.unsubscribe();
+    if (this.sidenavOpenedsubscription)
+      this.sidenavOpenedsubscription.unsubscribe();
+    if (this.sidenavClosedsubscription)
+      this.sidenavClosedsubscription.unsubscribe();
+    if (this.breakpointObserverSubscription)
+      this.breakpointObserverSubscription.unsubscribe();
   }
 
+  /**
+   * Listen to sidenav events and apply styles
+   */
   ngAfterViewInit() {
-    // Füge box-shadow hinzu, wenn das Sidenav komplett geöffnet ist
     this.sidenav.openedStart.subscribe(() => {
       this.renderer.setStyle(
         this.sidenavElement.nativeElement,
@@ -105,7 +134,6 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
         '0px 2px 2px 0px rgba(0, 0, 0, 0.078)'
       );
     });
-
     this.sidenav.closedStart.subscribe(() => {
       this.renderer.removeStyle(
         this.sidenavElement.nativeElement,
@@ -114,6 +142,9 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
     });
   }
 
+  /**
+   * Open the thread sidenav
+   */
   openSidenav() {
     if (this.sidenav) {
       this.sidenavElement.nativeElement.classList.remove('d-none');
@@ -122,6 +153,9 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
     }
   }
 
+  /**
+   * Close the thread sidenav
+   */
   closeSidenav() {
     if (this.sidenav) {
       this.sidenav.close();

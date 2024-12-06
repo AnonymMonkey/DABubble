@@ -7,7 +7,7 @@ export class Channel {
   channelId: string;
   channelName: string;
   description: string;
-  members: string[] = [];  // Standardwert ist ein leeres Array
+  members: string[] = []; 
   messages: { [messageId: string]: ChannelMessage } = {};
   usersLeft: string[] = [];
 
@@ -16,7 +16,7 @@ export class Channel {
     channelId: string = '',
     channelName: string = '',
     description: string = '',
-    members: string[] = [],  // Standardwert ist ein leeres Array
+    members: string[] = [], 
     messages: { [messageId: string]: ChannelMessage } = {},
     usersLeft: string[] = [],
   ) {

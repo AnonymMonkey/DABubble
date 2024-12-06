@@ -34,11 +34,14 @@ export class PrivateChatComponent implements OnInit {
   behaviorService = inject(BehaviorService);
   sideNavOpened = true;
   subscription!: Subscription;
+  routeSubscription!: Subscription;
 
+  /**
+   * Clean up subscriptions on component destroy.
+   */
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    if (this.subscription) this.subscription.unsubscribe();
+    if (this.routeSubscription) this.routeSubscription.unsubscribe();
   }
 
   constructor(
@@ -56,8 +59,7 @@ export class PrivateChatComponent implements OnInit {
         this.sideNavOpened = value;
       }
     );
-    // Hier wird der switchMap verwendet, um die Route-Parameter zu verarbeiten
-    this.route.paramMap.subscribe((params) => {
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const privateChatId = params.get('privateChatId');
       if (privateChatId) {
         this.privateChatService.setPrivateChatId(privateChatId);
@@ -74,31 +76,25 @@ export class PrivateChatComponent implements OnInit {
             switchMap((userData) => {
               if (userData && userData.privateChat) {
                 const privateChat = userData.privateChat[privateChatId];
-
-                // Überprüfen, ob Nachrichten vorhanden sind
                 this.hasMessages =
                   privateChat?.messages &&
                   Object.keys(privateChat.messages).length > 0;
-
-                // Umwandeln der Nachrichten in ein Array
                 const messagesArray = privateChat?.messages
                   ? Object.values(privateChat.messages)
                   : [];
-
-                // Rückgabe des privateChat-Objekts mit dem Array von Nachrichten
                 return of({ ...privateChat, messages: messagesArray });
               } else {
                 console.warn(
                   'Keine Benutzerdaten oder privateChat-Daten gefunden'
                 );
                 this.hasMessages = false;
-                return of(null); // Gibt ein Observable mit null zurück
+                return of(null);
               }
             }),
             catchError((err) => {
               console.error('Fehler beim Abrufen der Benutzerdaten:', err);
               this.hasMessages = false;
-              return of(null); // Gibt ein Observable mit null zurück
+              return of(null);
             })
           );
         } else {

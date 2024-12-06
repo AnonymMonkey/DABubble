@@ -74,6 +74,6 @@ export class OtherPrivateMessageTemplateComponent {
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
-    return 'Keine Antworten'; // Falls keine Nachrichten vorhanden sind
+    return 'Keine Antworten'; 
   }
 }

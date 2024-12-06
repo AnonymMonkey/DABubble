@@ -16,7 +16,7 @@ import { ChannelNewMemberComponent } from './channel-new-member/channel-new-memb
 import { ChannelMembersListComponent } from './channel-members-list/channel-members-list.component';
 import { ChannelDescriptionComponent } from './channel-description/channel-description.component';
 import { NgFor } from '@angular/common';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-message-area-header',
@@ -41,9 +41,10 @@ export class MessageAreaHeaderComponent implements OnInit {
   @ViewChild('memberListMenuTrigger') memberListMenuTrigger!: MatMenuTrigger;
   @ViewChild('addMemberMenuTrigger') addMemberMenuTrigger!: MatMenuTrigger;
   isMenuOpened: string = '';
-  currentBorderRadius: string = '30px 30px 30px 30px'; // Standardwert
+  currentBorderRadius: string = '30px 30px 30px 30px';
   userService = inject(UserService);
   currentChannel: Channel | undefined;
+  channelSubscription: Subscription | undefined;
 
   constructor(private channelService: ChannelService) {}
 
@@ -52,12 +53,16 @@ export class MessageAreaHeaderComponent implements OnInit {
    */
   ngOnInit(): void {
     setTimeout(() => {
-      this.channelService.currentChannel$.subscribe({
+      this.channelSubscription = this.channelService.currentChannel$.subscribe({
         next: (channel) => {
           this.currentChannel = channel;
         },
       });
     }, 0);
+  }
+
+  ngOnDestroy(): void {
+    if (this.channelSubscription) this.channelSubscription.unsubscribe();
   }
 
   /**
