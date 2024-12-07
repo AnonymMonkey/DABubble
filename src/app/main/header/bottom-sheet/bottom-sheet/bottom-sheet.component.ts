@@ -25,6 +25,6 @@ export class BottomSheetComponent {
 
   logOut(): void {
     this.authService.logout();
-    this.dialog.closeAll();
+    this._bottomSheetRef.dismiss();
   }
 }
