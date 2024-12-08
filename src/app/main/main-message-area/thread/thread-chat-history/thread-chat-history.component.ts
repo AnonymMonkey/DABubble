@@ -52,6 +52,7 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscribeToActualMessage();
     this.subscribeToThreadMessages();
+    this.scrollToBottom();
   }
 
   /**

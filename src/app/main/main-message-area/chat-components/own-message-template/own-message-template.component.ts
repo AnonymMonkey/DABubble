@@ -220,11 +220,25 @@ export class OwnMessageTemplateComponent
    * @param menuType - The type of the menu to toggle the border radius for.
    */
   toggleBorder(menuType: string): void {
-    if (menuType === 'emoji') {
-      this.currentBorderRadius = '30px 30px 30px 30px';
-    } else {
-      this.currentBorderRadius = '0px 30px 30px 30px';
-    }
+    const isMinWidth600px = window.matchMedia('(min-width: 600px)').matches;
+    if (isMinWidth600px) {
+      if (menuType === 'emoji') {
+        this.currentBorderRadius = '30px 30px 30px 30px';
+      } else {
+        this.currentBorderRadius = '0px 30px 30px 30px';
+      }
+      document.documentElement.style.setProperty(
+        '--border-radius',
+        this.currentBorderRadius
+      );
+    } else this.responsiveBorderRadius();
+  }
+
+  /**
+   * Set the border radius for responsive view.
+   */
+  responsiveBorderRadius() {
+    this.currentBorderRadius = '30px';
     document.documentElement.style.setProperty(
       '--border-radius',
       this.currentBorderRadius
