@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  Renderer2,
-  ViewChild,
-} from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -16,7 +9,7 @@ import { ChannelNewMemberComponent } from './channel-new-member/channel-new-memb
 import { ChannelMembersListComponent } from './channel-members-list/channel-members-list.component';
 import { ChannelDescriptionComponent } from './channel-description/channel-description.component';
 import { NgFor } from '@angular/common';
-import { forkJoin, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-message-area-header',
@@ -96,13 +89,32 @@ export class MessageAreaHeaderComponent implements OnInit {
    * @param menuType - The type of the menu to toggle the border radius for.
    */
   toggleBorder(menuType: string): void {
+    if (window.matchMedia('(min-width: 600px)').matches) {
+      const borderRadiusMap: Record<string, string> = {
+        'choose-channel': '0px 30px 30px 30px',
+        'member-list': '30px 0px 30px 30px',
+        'add-member': '30px 0px 30px 30px',
+      };
+      this.currentBorderRadius =
+        borderRadiusMap[menuType] || '0px 30px 30px 30px';
+      document.documentElement.style.setProperty(
+        '--border-radius',
+        this.currentBorderRadius
+      );
+    } else this.responsiveBorderRadius(menuType);
+  }
+
+  /**
+   * Sets the border radius based on the menu type for responsive view.
+   * @param menuType - The type of the menu.
+   */
+  responsiveBorderRadius(menuType: string) {
     const borderRadiusMap: Record<string, string> = {
-      'choose-channel': '0px 30px 30px 30px',
-      'member-list': '30px 0px 30px 30px',
-      'add-member': '30px 0px 30px 30px',
+      'choose-channel': '0px',
+      'member-list': '0px 0px 30px 30px',
+      'add-member': '0px 0px 30px 30px',
     };
-    this.currentBorderRadius =
-      borderRadiusMap[menuType] || '0px 30px 30px 30px';
+    this.currentBorderRadius = borderRadiusMap[menuType] || '0px 0px 30px 30px';
     document.documentElement.style.setProperty(
       '--border-radius',
       this.currentBorderRadius

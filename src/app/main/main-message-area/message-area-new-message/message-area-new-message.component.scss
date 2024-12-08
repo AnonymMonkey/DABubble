@@ -187,6 +187,14 @@ app-attachment-preview {
   padding-left: 20px;
 }
 
+@media only screen and (max-width: 600px) {
+  ::ng-deep {
+    .cdk-overlay-pane {
+      height: fit-content !important;
+    }
+  }
+}
+
 @media only screen and (max-width: 560px) {
   mat-sidenav {
     width: 150px;
@@ -197,7 +205,7 @@ app-attachment-preview {
   section {
     padding: 5px 5px;
   }
-  
+
   mat-sidenav {
     width: 120px;
   }

@@ -67,13 +67,6 @@
     background-color: var(--bg-color) !important;
   }
 
-  // mat-icon,
-  // mat-icon.mat-primary,
-  // mat-icon.mat-accent,
-  // mat-icon.mat-warn {
-  //   color: var(--grey-color);
-  // }
-
   .mat-mdc-chip.mdc-evolution-chip--with-trailing-action
     .mat-mdc-chip-action-label {
     display: flex;
@@ -135,8 +128,10 @@
 
 .dialog-wrapper {
   color: var(--black-color);
-  padding: 40px;
-  width: 710px;
+  width: 434px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 
   .header-wrapper {
     display: flex;
@@ -230,7 +225,6 @@ section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 200px;
 
   mat-icon {
     height: 40px;
@@ -272,12 +266,28 @@ h2 {
       color: var(--purple2-color);
     }
   }
+
+  span {
+    max-width: 450px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .button-container {
   width: 100%;
   display: flex;
+  padding: 0 16px;
   justify-content: flex-end;
+}
+
+button {
+  width: 147px !important;
+  height: 49px !important;
+  align-items: center;
+  display: flex;
+  justify-content: center;
 }
 
 .button-disabled {
@@ -286,4 +296,26 @@ h2 {
 
 .button-enabled:hover {
   cursor: pointer;
+}
+
+app-add-users-to-channel {
+  display: flex;
+  width: 434px;
+}
+
+@media only screen and (max-width: 500px) {
+  .dialog-wrapper {
+    width: 100% !important;
+  }
+
+  app-add-users-to-channel {
+    width: 100% !important;
+  }
+
+  ::ng-deep {
+    .mat-mdc-dialog-content,
+    .mdc-dialog__content {
+      width: 100% !important;
+    }
+  }
 }

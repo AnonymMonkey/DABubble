@@ -50,6 +50,7 @@ export class ChannelService {
   private channelDataMapSubscription: Subscription | undefined;
   private channelSubscription: Subscription | undefined;
   private userDataSubscription: Subscription | undefined;
+  public addMemberMenu: boolean = false;
 
   /**
    * Getter for the channelDataMap observable
