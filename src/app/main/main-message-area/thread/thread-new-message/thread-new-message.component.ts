@@ -240,18 +240,37 @@ export class ThreadNewMessageComponent implements OnInit {
   }
 
   /**
-   * Toggle the border radius based on the menu type.
+   * Toggle the border radius of the textarea based on the menu type.
    * @param menuType - The type of menu (e.g., 'upload', 'emoji', 'mention').
    */
   toggleBorder(menuType: string): void {
-    const borderRadiusMap: Record<string, string> = {
-      upload: '30px 30px 30px 30px',
-      emoji: '30px 30px 30px 30px',
-      mention: '30px 30px 30px 0px',
-      default: '30px 30px 30px 30px',
+    if (window.matchMedia('(min-width: 600px)').matches) {
+      const borderRadiusMap: { [key: string]: string } = {
+        upload: '30px 30px 30px 30px',
+        emoji: '30px 30px 30px 30px',
+        mention: '30px 30px 30px 0px',
+        default: '30px 30px 30px 30px',
+      };
+      this.currentBorderRadius =
+        borderRadiusMap[menuType] || borderRadiusMap['default'];
+      document.documentElement.style.setProperty(
+        '--border-radius',
+        this.currentBorderRadius
+      );
+    } else this.responsiveBorderRadius(menuType);
+  }
+
+  /**
+   * Set the border radius for responsive view.
+   * @param menuType - The type of the menu.
+  */
+  responsiveBorderRadius(menuType: string) {
+    const borderRadiusMap: { [key: string]: string } = {
+      'choose-channel': '30px',
+      'member-list': '30px',
+      'add-member': '30px',
     };
-    this.currentBorderRadius =
-      borderRadiusMap[menuType] || borderRadiusMap['default'];
+    this.currentBorderRadius = borderRadiusMap[menuType] || '30px';
     document.documentElement.style.setProperty(
       '--border-radius',
       this.currentBorderRadius
