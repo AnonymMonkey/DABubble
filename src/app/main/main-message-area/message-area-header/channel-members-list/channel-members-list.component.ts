@@ -76,7 +76,7 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
           seenUserIds.add(userId);
           const userData = userDataMap.get(userId) || {
             displayName: 'Unbekannter Benutzer',
-            photoURL: 'src/assets/img/profile/placeholder-img.webp', 
+            photoURL: 'src/assets/img/profile/placeholder-img.webp',
           };
           this.membersWithData.push({
             userId,
@@ -120,8 +120,10 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
    */
   onAddMemberClick(event: Event): void {
     event.stopPropagation();
+    this.channelService.addMemberMenu = true;
     this.header.closeMenu('member-list');
     this.header.openMenu('add-member');
+    this.toggleBorder('add-member');
     this.toggleBorder('add-member');
   }
 
@@ -130,13 +132,28 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
    * @param menuType - The type of the menu.
    */
   toggleBorder(menuType: string) {
-    switch (menuType) {
-      case 'add-member':
-        this.currentBorderRadius = '30px 0px 30px 30px';
-        break;
-      default:
-        this.currentBorderRadius = '0px 30px 30px 30px';
-    }
+    const isMinWidth600px = window.matchMedia('(min-width: 600px)').matches;
+    if (isMinWidth600px) {
+      switch (menuType) {
+        case 'add-member':
+          this.currentBorderRadius = '30px 0px 30px 30px';
+          break;
+        default:
+          this.currentBorderRadius = '0px 30px 30px 30px';
+      }
+      document.documentElement.style.setProperty(
+        '--border-radius',
+        this.currentBorderRadius
+      );
+    } else this.responsiveBorderRadius();
+  }
+
+  /**
+   * Sets the border radius based on the menu type for responsive view.
+   * @param menuType - The type of the menu.
+   */
+  responsiveBorderRadius() {
+    this.currentBorderRadius = '0px 0px 30px 30px';
     document.documentElement.style.setProperty(
       '--border-radius',
       this.currentBorderRadius

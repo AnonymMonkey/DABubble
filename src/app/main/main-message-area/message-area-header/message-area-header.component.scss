@@ -4,7 +4,7 @@
   }
 
   .mat-mdc-menu-panel {
-    border-radius: var(--border-radius) !important;
+    border-radius: var(--border-radius);
     box-shadow: 0px 6px 10px 0px #00000033 !important;
     padding: 0;
     max-width: unset !important;
@@ -77,11 +77,11 @@ mat-toolbar {
 
   span {
     font-family: var(--font-nunito);
-    white-space: nowrap;       /* Kein Umbruch des Textes */
-    overflow: hidden;          /* Versteckt überflüssigen Text */
-    text-overflow: ellipsis;   /* Fügt "..." hinzu */
-    max-width: 80%;          /* Begrenzung der Breite */
-    display: inline-block;     /* Benötigt für ellipsis */
+    white-space: nowrap; /* Kein Umbruch des Textes */
+    overflow: hidden; /* Versteckt überflüssigen Text */
+    text-overflow: ellipsis; /* Fügt "..." hinzu */
+    max-width: 80%; /* Begrenzung der Breite */
+    display: inline-block; /* Benötigt für ellipsis */
   }
 }
 
@@ -144,14 +144,16 @@ mat-toolbar {
 .button-channel-add-member {
   border: unset;
   background-color: var(--bg-color);
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   padding: 0 !important;
+  align-items: center;
+  justify-content: center;
+  display: flex;
 
-  svg {
+  mat-icon {
     color: var(--black-color);
-    width: 20px;
-    height: 14px;
+    width: 24px;
   }
 
   &:hover,
@@ -160,15 +162,23 @@ mat-toolbar {
     transform: scale(1.002);
     cursor: pointer;
 
-    svg {
+    mat-icon {
       color: var(--purple3-color);
       transform: scale(1.05);
     }
   }
 }
 
+.normalButton {
+  display: flex;
+}
+
+.responsiveButton {
+  display: none;
+}
+
 @media only screen and (max-width: 600px) {
-  .button-channel-member-list{
+  .button-channel-member-list {
     display: none;
   }
 
@@ -179,5 +189,42 @@ mat-toolbar {
   .button-channel-name {
     padding: 5px 10px !important;
     justify-content: center;
+  }
+
+  .normalButton {
+    display: none;
+  }
+
+  .responsiveButton {
+    display: flex;
+  }
+
+  ::ng-deep {
+    .cdk-overlay-connected-position-bounding-box {
+      top: unset !important;
+      right: unset !important;
+      left: unset !important;
+      bottom: unset !important;
+      height: 100% !important;
+      width: 100% !important;
+    }
+
+    .cdk-overlay-pane {
+      width: 100% !important;
+      height: 100% !important;
+      right: unset !important;
+    }
+
+    .mat-mdc-menu-panel {
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: unset;
+    }
+  }
+}
+
+@media only screen and (max-width: 340px) {
+  app-channel-members-list {
+    padding: 10px;
   }
 }

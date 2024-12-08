@@ -125,3 +125,23 @@ h2 {
     transform-origin: right;
   }
 }
+
+@media only screen and (max-width: 400px) {
+  section {
+    padding: 0px;
+  }
+
+  h2 {
+    padding-left: 5px;
+  }
+
+  .member {
+    gap: 10px;
+    padding: 5px 5px;
+  }
+
+  .new-member {
+    gap: 10px;
+    padding: 5px 5px;
+  }
+}

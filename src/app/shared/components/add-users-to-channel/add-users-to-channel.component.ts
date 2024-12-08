@@ -10,7 +10,7 @@ import {
   MatAutocompleteSelectedEvent,
   MatAutocompleteTrigger,
 } from '@angular/material/autocomplete';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass, NgStyle } from '@angular/common';
 import {
   Component,
   computed,
@@ -55,6 +55,7 @@ export class AddUsersToChannelComponent {
   allUserData!: UserData[];
   newChannelData!: Channel;
   @Input() channelId: string = '';
+  @Input() addNewMember: boolean = false;
   isLoading = true;
   @Output() usersEmpty = new EventEmitter<boolean>();
   @Input() closeAutocompleteEmitter!: EventEmitter<void>;
@@ -69,7 +70,6 @@ export class AddUsersToChannelComponent {
     { userId: string; userName: string; photoURL: string }[]
   >([]);
   allUserDataSubscription!: Subscription;
-
 
   constructor(private route: ActivatedRoute) {}
 
@@ -98,7 +98,8 @@ export class AddUsersToChannelComponent {
     if (this.channelSubscription) this.channelSubscription.unsubscribe();
     if (this.userSubscription) this.userSubscription.unsubscribe();
     if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
-    if (this.allUserDataSubscription) this.allUserDataSubscription.unsubscribe();
+    if (this.allUserDataSubscription)
+      this.allUserDataSubscription.unsubscribe();
     if (this.newChannelDataSubscription)
       this.newChannelDataSubscription.unsubscribe();
   }
@@ -151,15 +152,17 @@ export class AddUsersToChannelComponent {
    */
   initializeAllUserData(): void {
     if (!this.channelId) {
-      this.userSubscription = this.userService.allUserData$.subscribe((data) => {
-        this.newAllUserData.set(
-          data.map((element) => ({
-            userId: element.uid,
-            userName: element.displayName,
-            photoURL: element.photoURL,
-          }))
-        );
-      });
+      this.userSubscription = this.userService.allUserData$.subscribe(
+        (data) => {
+          this.newAllUserData.set(
+            data.map((element) => ({
+              userId: element.uid,
+              userName: element.displayName,
+              photoURL: element.photoURL,
+            }))
+          );
+        }
+      );
       this.isLoading = false;
     }
   }
@@ -168,19 +171,21 @@ export class AddUsersToChannelComponent {
    * Filters the available users for the channel.
    */
   filterAvailableUsers(): void {
-    this.allUserDataSubscription = this.userService.allUserData$.subscribe((data) => {
-      this.newAllUserData.set(
-        data
-          .filter(
-            (element) => !this.newChannelData.members.includes(element.uid)
-          )
-          .map((element) => ({
-            userId: element.uid,
-            userName: element.displayName,
-            photoURL: element.photoURL,
-          }))
-      );
-    });
+    this.allUserDataSubscription = this.userService.allUserData$.subscribe(
+      (data) => {
+        this.newAllUserData.set(
+          data
+            .filter(
+              (element) => !this.newChannelData.members.includes(element.uid)
+            )
+            .map((element) => ({
+              userId: element.uid,
+              userName: element.displayName,
+              photoURL: element.photoURL,
+            }))
+        );
+      }
+    );
     this.isLoading = false;
   }
 
@@ -300,16 +305,18 @@ export class AddUsersToChannelComponent {
 
   createNewChannel() {
     this.bindDialogDataToNewChannelData();
-    this.newChannelDataSubscription =  this.channelService.createChannel(this.newChannelData).subscribe({
-      next: (channelId) => {
-        this.router.navigate([
-          `/main/${this.userData.uid}/channel/${channelId}`,
-        ]);
-      },
-      error: (error) => {
-        console.error('Fehler beim Erstellen des Channels:', error);
-      },
-    });
+    this.newChannelDataSubscription = this.channelService
+      .createChannel(this.newChannelData)
+      .subscribe({
+        next: (channelId) => {
+          this.router.navigate([
+            `/main/${this.userData.uid}/channel/${channelId}`,
+          ]);
+        },
+        error: (error) => {
+          console.error('Fehler beim Erstellen des Channels:', error);
+        },
+      });
   }
 
   /**

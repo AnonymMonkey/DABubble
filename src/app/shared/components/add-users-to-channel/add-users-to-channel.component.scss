@@ -1,4 +1,9 @@
 ::ng-deep {
+  .cdk-overlay-pane:has(.mat-mdc-autocomplete-panel) {
+    width: auto !important;
+    // top: var(--current-top) !important;
+  }
+
   .mat-mdc-form-field-subscript-wrapper {
     display: none !important;
   }
@@ -100,6 +105,7 @@ mat-form-field {
 
   mat-chip-grid {
     padding: 2px 10px;
+    min-height: 49px;
     border-radius: 42px;
     border: 1px solid var(--light-purple-color);
     &:hover {
@@ -149,3 +155,12 @@ mat-form-field {
     background-color: var(--online-color);
   }
 }
+
+// @media only screen and (max-width: 600px) {
+//   ::ng-deep {
+//     .cdk-overlay-pane:has(.mat-mdc-autocomplete-panel) {
+//       width: auto !important;
+//       top: auto !important;
+//     }
+//   }
+// }  
