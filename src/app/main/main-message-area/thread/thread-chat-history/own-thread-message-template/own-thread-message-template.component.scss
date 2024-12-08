@@ -119,6 +119,16 @@ img {
   object-position: top;
 }
 
+@media only screen and (max-width: 600px) {
+  ::ng-deep {
+    .mat-mdc-menu-content {
+      align-items: center;
+      justify-content: center;
+      display: flex;
+    }
+  }
+}
+
 @media screen and (max-width: 400px) {
   .message-container-own {
     padding: 10px 5px;

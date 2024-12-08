@@ -79,6 +79,7 @@
 
   span:first-of-type {
     color: var(--purple3-color);
+    min-width: 113px;
 
     &:hover {
       font-weight: 700 !important;
@@ -109,6 +110,10 @@ app-attachment-preview {
   .name-and-time-own {
     gap: 10px;
     max-width: 100%;
+  }
+
+  .thread-own {
+    margin-right: -50px;
   }
 }
 

@@ -136,7 +136,7 @@ img {
   display: flex;
   width: fit-content;
   flex-direction: column;
-  gap : 10px;
+  gap: 10px;
   > p {
     display: flex;
     justify-content: flex-start;
@@ -164,6 +164,7 @@ img {
 
   span:first-of-type {
     color: var(--purple3-color);
+    min-width: 113px;
 
     &:hover {
       font-weight: 700 !important;
@@ -184,6 +185,16 @@ app-attachment-preview {
   justify-content: center;
 }
 
+@media only screen and (max-width: 600px) {
+  ::ng-deep {
+    .mat-mdc-menu-content {
+      align-items: center;
+      justify-content: center;
+      display: flex;
+    }
+  }
+}
+
 @media screen and (max-width: 400px) {
   .name-and-time {
     gap: 10px;
@@ -192,6 +203,10 @@ app-attachment-preview {
   .message-container {
     padding: 10px 5px;
     gap: 10px;
+  }
+
+  .thread {
+    margin-left: -50px;
   }
 }
 

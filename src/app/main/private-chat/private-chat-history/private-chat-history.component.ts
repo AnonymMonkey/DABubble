@@ -84,15 +84,15 @@ export class PrivateChatHistoryComponent {
    */
   private sortGroupedMessages(grouped: { [date: string]: any[] }): any[] {
     return Object.keys(grouped)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
       .map((date) => ({
         date,
         messages: grouped[date].sort(
           (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
         ),
-      }))
-      .reverse();
+      }));
   }
-
+  
   /**
    * Check if a message is sent by the current user.
    * @param userId - The ID of the user who sent the message.

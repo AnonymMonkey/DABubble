@@ -140,7 +140,6 @@ img {
   }
 }
 
-
 .time {
   color: var(--grey-color);
   font-size: 14px;
@@ -203,6 +202,16 @@ app-attachment-preview {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media only screen and (max-width: 600px) {
+  ::ng-deep {
+    .mat-mdc-menu-content {
+      align-items: center;
+      justify-content: center;
+      display: flex;
+    }
+  }
 }
 
 @media screen and (max-width: 400px) {
