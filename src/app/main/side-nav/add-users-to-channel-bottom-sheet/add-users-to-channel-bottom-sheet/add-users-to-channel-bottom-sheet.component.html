@@ -1,1 +1,43 @@
-<p>add-users-to-channel-bottom-sheet works!</p>
+<div class="add-users-bottom-sheet">
+  <img src="assets/img/Rectangle 203.png" (click)="_bottomSheetRef.dismiss()" />
+  <div class="header-wrapper">
+    <h3>Leute hinzufügen</h3>
+    <mat-icon (click)="_bottomSheetRef.dismiss()">close</mat-icon>
+  </div>
+  <mat-dialog-content>
+    <mat-radio-group
+      class="radio-group"
+      [(ngModel)]="radioValue"
+      (ngModelChange)="checkChoice()"
+    >
+      <mat-radio-button [value]="1">
+        <ng-container *ngIf="openedChannelData; else allUsers">
+          Alle Mitglieder von
+          <span [ngStyle]="{ color: 'var(--purple1-color)' }">
+            {{ openedChannelData.channelName }}</span
+          >
+          hinzufügen
+        </ng-container>
+        <ng-template #allUsers>Alle Mitglieder hinzufügen</ng-template>
+      </mat-radio-button>
+      <mat-radio-button [value]="2"
+        >Bestimmte Leute hinzufügen</mat-radio-button
+      >
+    </mat-radio-group>
+    <app-add-users-to-channel
+      *ngIf="radioValue === 2"
+      [channelId]="channelId"
+    ></app-add-users-to-channel>
+  </mat-dialog-content>
+  <mat-dialog-actions [align]="'end'">
+    <button
+      [disabled]="invalid"
+      class="button-primary"
+      mat-button
+      mat-dialog-close
+      (click)="create()"
+    >
+      Erstellen
+    </button>
+  </mat-dialog-actions>
+</div>

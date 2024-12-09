@@ -36,6 +36,10 @@ export class CreateChannelDialogComponent {
       .observe(['(max-width: 600px)'])
       .subscribe((result) => {
         this.mobileVersion = result.matches ? true : false;
+        if (this.mobileVersion && this.isSecondDialogOpen) {
+          this.isSecondDialogOpen = false;
+          this.openAddUsersToChannelBottomSheet();
+        }
       });
   }
 
@@ -65,7 +69,6 @@ export class CreateChannelDialogComponent {
     );
     secondDialogRef.componentInstance.channelName = this.channelName;
     secondDialogRef.componentInstance.description = this.description;
-
     this.secondDialogRefSubscription = secondDialogRef
       .afterClosed()
       .subscribe(() => {
@@ -74,6 +77,9 @@ export class CreateChannelDialogComponent {
       });
   }
 
+  /**
+   * Opens the add users to channel bottom sheet.
+   */
   openAddUsersToChannelBottomSheet() {
     this.bottomSheet.open(AddUsersToChannelBottomSheetComponent, {
       data: {
@@ -83,6 +89,9 @@ export class CreateChannelDialogComponent {
     });
   }
 
+  /**
+   * Opens the add users to channel dialog or the add users to channel bottom sheet.
+   */
   openAddUsersToChannel() {
     if (this.mobileVersion) this.openAddUsersToChannelBottomSheet();
     else this.openAddUsersToChannelDialog();
