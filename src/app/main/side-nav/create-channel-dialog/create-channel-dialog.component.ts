@@ -6,6 +6,9 @@ import { MatIcon } from '@angular/material/icon';
 import { AddUsersToNewChannelDialogComponent } from '../add-users-to-new-channel-dialog/add-users-to-new-channel-dialog.component';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { AddUsersToChannelBottomSheetComponent } from '../add-users-to-channel-bottom-sheet/add-users-to-channel-bottom-sheet/add-users-to-channel-bottom-sheet.component';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-create-channel-dialog',
@@ -20,9 +23,21 @@ export class CreateChannelDialogComponent {
   invalid: boolean = true;
   isSecondDialogOpen: boolean = false;
   secondDialogRefSubscription: Subscription | undefined;
+  bottomSheet = inject(MatBottomSheet);
+  breakpointObserver = inject(BreakpointObserver);
+  breakpointSubscription!: Subscription;
+  mobileVersion: boolean = false;
 
   readonly dialogRef = inject(MatDialogRef<CreateChannelDialogComponent>);
   constructor(public dialog: MatDialog) {}
+
+  ngOnInit(): void {
+    this.breakpointSubscription = this.breakpointObserver
+      .observe(['(max-width: 600px)'])
+      .subscribe((result) => {
+        this.mobileVersion = result.matches ? true : false;
+      });
+  }
 
   /**
    * Checks if the input is empty.
@@ -37,6 +52,7 @@ export class CreateChannelDialogComponent {
    */
   ngOnDestroy(): void {
     this.secondDialogRefSubscription?.unsubscribe();
+    this.breakpointSubscription?.unsubscribe();
   }
 
   /**
@@ -56,5 +72,19 @@ export class CreateChannelDialogComponent {
         this.isSecondDialogOpen = true;
         this.dialogRef.close();
       });
+  }
+
+  openAddUsersToChannelBottomSheet() {
+    this.bottomSheet.open(AddUsersToChannelBottomSheetComponent, {
+      data: {
+        channelName: this.channelName,
+        description: this.description,
+      },
+    });
+  }
+
+  openAddUsersToChannel() {
+    if (this.mobileVersion) this.openAddUsersToChannelBottomSheet();
+    else this.openAddUsersToChannelDialog();
   }
 }
