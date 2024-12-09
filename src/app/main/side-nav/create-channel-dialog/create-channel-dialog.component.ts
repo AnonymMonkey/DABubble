@@ -37,7 +37,6 @@ export class CreateChannelDialogComponent {
       .subscribe((result) => {
         this.mobileVersion = result.matches ? true : false;
         if (this.mobileVersion && this.isSecondDialogOpen) {
-          this.isSecondDialogOpen = false;
           this.openAddUsersToChannelBottomSheet();
         }
       });
@@ -81,11 +80,19 @@ export class CreateChannelDialogComponent {
    * Opens the add users to channel bottom sheet.
    */
   openAddUsersToChannelBottomSheet() {
-    this.bottomSheet.open(AddUsersToChannelBottomSheetComponent, {
-      data: {
-        channelName: this.channelName,
-        description: this.description,
-      },
+    const bottomSheetRef = this.bottomSheet.open(
+      AddUsersToChannelBottomSheetComponent,
+      {
+        data: {
+          channelName: this.channelName,
+          description: this.description,
+        },
+      }
+    );
+
+    bottomSheetRef.afterDismissed().subscribe(() => {
+      this.isSecondDialogOpen = true;
+      this.dialogRef.close();
     });
   }
 

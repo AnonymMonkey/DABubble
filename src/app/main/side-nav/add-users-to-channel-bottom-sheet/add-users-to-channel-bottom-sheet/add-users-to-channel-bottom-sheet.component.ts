@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, Inject, inject, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import {
+  MAT_BOTTOM_SHEET_DATA,
+  MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,8 +48,6 @@ export class AddUsersToChannelBottomSheetComponent {
     );
   radioValue: number = 0;
   invalid: boolean = true;
-  channelName: string = '';
-  description: string = '';
   channelId: string = '';
   openedChannelId: string = '';
   openedChannelData: any;
@@ -61,6 +62,8 @@ export class AddUsersToChannelBottomSheetComponent {
   channelSubscription: Subscription | undefined;
   routeSubscription: Subscription | undefined;
   userSubscription: Subscription | undefined;
+
+  constructor(@Inject(MAT_BOTTOM_SHEET_DATA) public data: any) {}
 
   ngOnInit() {
     this.newChannelData = new Channel();
@@ -111,13 +114,13 @@ export class AddUsersToChannelBottomSheetComponent {
   create() {
     if (this.radioValue == 1) {
       this.newChannelData.admin.userId = this.currentUserId;
-      this.newChannelData.channelName = this.channelName;
-      this.newChannelData.description = this.description;
+      this.newChannelData.channelName = this.data.channelName;
+      this.newChannelData.description = this.data.description;
       this.bindData();
       this.createNewChannel();
     } else {
-      this.addUsersToChannel.newChannelData.channelName = this.channelName;
-      this.addUsersToChannel.newChannelData.description = this.description;
+      this.addUsersToChannel.newChannelData.channelName = this.data.channelName;
+      this.addUsersToChannel.newChannelData.description = this.data.description;
       this.createNewOrUpdateExistingChannel();
     }
   }
@@ -128,8 +131,10 @@ export class AddUsersToChannelBottomSheetComponent {
   createNewOrUpdateExistingChannel() {
     if (this.channelId === '') {
       this.addUsersToChannel.createNewChannel();
+      this._bottomSheetRef.dismiss();
     } else {
       this.addUsersToChannel.updateExistingChannel();
+      this._bottomSheetRef.dismiss();
     }
   }
 
