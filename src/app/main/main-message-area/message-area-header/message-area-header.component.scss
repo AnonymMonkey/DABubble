@@ -200,24 +200,25 @@ mat-toolbar {
   }
 
   ::ng-deep {
-    .cdk-overlay-connected-position-bounding-box {
-      top: unset !important;
-      right: unset !important;
-      left: unset !important;
-      bottom: unset !important;
-      height: 100% !important;
-      width: 100% !important;
-    }
+    // .cdk-overlay-connected-position-bounding-box {
+    //   top: 0 !important;
+    //   right: unset !important;
+    //   left: unset !important;
+    //   bottom: unset !important;
+    //   width: 100% !important;
+    //   height: fit-content !important;
+    // }
 
     .cdk-overlay-pane {
       width: 100% !important;
       height: 100% !important;
       right: unset !important;
+      top: 0;
     }
 
     .mat-mdc-menu-panel {
       width: 100% !important;
-      height: 100% !important;
+      height: fit-content !important;
       border-radius: unset;
     }
   }
