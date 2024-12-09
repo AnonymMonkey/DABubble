@@ -22,7 +22,9 @@
   </ng-template>
 
   <div class="profile" (click)="toggleDropdown()">
-    <p *ngIf="userData">{{ userData.displayName }}</p>
+    <p *ngIf="userData" matTooltip="{{ userData.displayName }}">
+      {{ userData.displayName }}
+    </p>
     <div class="image-with-badge">
       <img *ngIf="userData" src="{{ userData.photoURL }}" alt="" />
       <div class="badge"></div>

@@ -16,10 +16,17 @@ export class ProfileDialogComponent {
   authService = inject(AuthService);
 
   constructor(public dialog: MatDialog) {}
+
+  /**
+   * Opens the profile info dialog
+   */
   openProfileInfo(): void {
     const dialogRef = this.dialog.open(ProfileInfoDialogComponent);
   }
 
+  /**
+   * Logs out the user and closes the dialog
+   */
   logOut(): void {
     this.authService.logout();
     this.dialog.closeAll();

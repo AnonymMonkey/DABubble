@@ -1,25 +1,58 @@
 /* Media Queries */
 /*  */
+@media only screen and (max-width: 1300px) {
+  .headline {
+    h1 {
+      font-size: var(--fontsize-36) !important;
+    }
+  }
+}
+
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (max-width: 1200px) {
+  .headline {
+    flex-direction: column;
+    gap: unset !important;
+
+    mat-icon {
+      justify-content: start !important;
+      width: 100%;
+    }
+
+    .headline {
+      h1 {
+        font-size: var(--fontsize-32) !important;
+      }
+    }
+  }
+
+  mat-card {
+    width: 75% !important;
+    max-width: unset !important;
+  }
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (max-width: 992px) {
+  .headline {
+    flex-direction: column;
+    gap: unset !important;
+
+    mat-icon {
+      width: 100%;
+    }
+  }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (max-width: 768px) {
+  mat-card {
+    width: 100% !important;
+  }
 }
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
-  .headline {
-    h1 {
-      font-size: var(--fontsize-24) !important;
-    }
-  }
-
   h2 {
     font-size: var(--fontsize-20) !important;
   }
@@ -32,14 +65,6 @@
 /* Very small devices (landscape tablets, 450px and down) */
 @media only screen and (max-width: 450px) {
   .headline {
-    flex-direction: column;
-    gap: unset !important;
-
-    mat-icon {
-      justify-content: start !important;
-      width: 100%;
-    }
-
     h1 {
       font-size: var(--fontsize-24) !important;
     }
