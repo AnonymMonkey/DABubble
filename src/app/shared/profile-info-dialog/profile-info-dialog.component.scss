@@ -53,6 +53,13 @@
       justify-content: space-between;
       align-items: center;
 
+      h2 {
+        max-width: 280px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-wrap-mode: nowrap;
+      }
+
       span {
         color: var(--purple3-color);
 

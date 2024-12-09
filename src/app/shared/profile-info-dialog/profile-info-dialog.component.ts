@@ -15,11 +15,18 @@ import { PrivateChatService } from '../services/private-chat-service/private-cha
 import { ActiveChatButtonService } from '../services/profile-chat-button-service/active-chat-button.service';
 import { Router } from '@angular/router';
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-profile-info-dialog',
   standalone: true,
-  imports: [MatIconModule, MatInputModule, MatCardModule, CommonModule],
+  imports: [
+    MatIconModule,
+    MatInputModule,
+    MatCardModule,
+    CommonModule,
+    MatTooltipModule,
+  ],
   templateUrl: './profile-info-dialog.component.html',
   styleUrl: './profile-info-dialog.component.scss',
 })

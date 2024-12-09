@@ -6,7 +6,9 @@
   <img class="profile-image" src="{{ userData.photoURL }}" alt="" />
   <div class="profile-info-name">
     <div class="name-edit">
-      <h2>{{ userData.displayName }}</h2>
+      <h2 matTooltip="{{ userData.displayName }}">
+        {{ userData.displayName }}
+      </h2>
       <span
         class="edit-button"
         [ngStyle]="{ display: ownProfile ? 'block' : 'none' }"
