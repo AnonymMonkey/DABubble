@@ -46,7 +46,8 @@
   width: 710px;
 
   @media screen and (max-width: 992px) {
-    width: 100%;
+    width: 480px;
+    padding: 30px;
   }
 
   .header-wrapper {
