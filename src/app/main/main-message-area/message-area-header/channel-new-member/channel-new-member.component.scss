@@ -304,6 +304,10 @@ app-add-users-to-channel {
 }
 
 @media only screen and (max-width: 500px) {
+  :host {
+    width: 100% !important;
+  }
+
   .dialog-wrapper {
     width: 100% !important;
   }
