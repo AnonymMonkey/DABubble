@@ -398,7 +398,6 @@ export class ChannelService {
         })
       );
     });
-
     return from(updateUserObservables).pipe(
       mergeMap((observable) => observable),
       toArray()

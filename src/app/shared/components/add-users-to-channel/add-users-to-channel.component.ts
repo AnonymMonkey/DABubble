@@ -100,8 +100,6 @@ export class AddUsersToChannelComponent {
     if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
     if (this.allUserDataSubscription)
       this.allUserDataSubscription.unsubscribe();
-    if (this.newChannelDataSubscription)
-      this.newChannelDataSubscription.unsubscribe();
   }
 
   /**
