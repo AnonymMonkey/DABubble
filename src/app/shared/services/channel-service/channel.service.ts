@@ -12,7 +12,6 @@ import {
   of,
   shareReplay,
   switchMap,
-  tap,
   toArray,
 } from 'rxjs';
 import { Channel } from '../../models/channel.model';
@@ -346,21 +345,12 @@ export class ChannelService {
       channelData,
       newChannelRef.id
     );
+
     return this.addChannelToFirestore(newChannelRef, channelObject).pipe(
-      switchMap(() => {
-        return this.updateUsersWithChannel(
-          channelData.members!,
-          newChannelRef.id
-        );
-      }),
-      map(() => {
-        console.log('Returning newChannelRef.id:', newChannelRef.id);
-        return newChannelRef.id;
-      }),
-      catchError((error) => {
-        console.error('Error in createChannel:', error);
-        throw error;
-      })
+      switchMap(() =>
+        this.updateUsersWithChannel(channelData.members!, newChannelRef.id)
+      ),
+      map(() => newChannelRef.id)
     );
   }
 
@@ -400,7 +390,6 @@ export class ChannelService {
     userIds: string[],
     channelId: string
   ): Observable<void[]> {
-    console.log('updateUsersWithChannel called');
     const updateUserObservables = userIds.map((userId) => {
       const userDocRef = doc(this.firestore, `users/${userId}`);
       return from(
@@ -411,10 +400,8 @@ export class ChannelService {
     });
 
     return from(updateUserObservables).pipe(
-      tap(() => console.log('updateDoc called for user')),
       mergeMap((observable) => observable),
-      toArray(),
-      tap(() => console.log('All users updated successfully'))
+      toArray()
     );
   }
 
