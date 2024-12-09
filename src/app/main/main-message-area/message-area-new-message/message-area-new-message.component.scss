@@ -191,6 +191,7 @@ app-attachment-preview {
   ::ng-deep {
     .cdk-overlay-pane {
       height: fit-content;
+      width: fit-content;
     }
   }
 }
