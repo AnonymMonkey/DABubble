@@ -28,6 +28,7 @@
     width: 100%;
     display: flex;
     justify-content: space-around;
+    gap: 20px;
   }
 }
 
@@ -191,6 +192,26 @@ app-channel-members-list {
   .leave-channel-container {
     width: 98%;
   }
+
+  ::ng-deep {
+    .leave-channel-menu {
+      width: 400px !important;
+      max-width: 70% !important;
+      left: 15% !important;
+      top: 30% !important;
+      height: fit-content !important;
+      flex-direction: column !important;
+    }
+
+    .mat-mdc-menu-panel {
+      border-radius: 30px;
+      max-width: 70%;
+    }
+
+    .mat-mdc-menu-content {
+      flex-direction: column;
+    }
+  }
 }
 
 @media only screen and (max-width: 340px) {
@@ -202,6 +223,17 @@ app-channel-members-list {
     max-width: 80%;
     p {
       max-width: 70%;
+    }
+  }
+
+  ::ng-deep {
+    .leave-channel-menu {
+      max-width: 90% !important;
+      left: 5% !important;
+    }
+
+    .mat-mdc-menu-panel {
+      max-width: 90%;
     }
   }
 }
