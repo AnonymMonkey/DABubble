@@ -327,11 +327,16 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Insert a mention into the textarea.
+   * Inserts a mention into the message content, slicing off the '@' character if present.
    * @param mention - The mention to insert.
    */
   insertMention(mention: string): void {
-    this.newMessageContent += mention;
+    if(!this.mentionOpenedAtTextarea) this.newMessageContent += mention;
+    else if(this.mentionOpenedAtTextarea) {
+      const mentionWithOutAt = mention.slice(1);
+      this.newMessageContent += mentionWithOutAt;
+      this.mentionOpenedAtTextarea = false;
+    };
   }
 
   /**
