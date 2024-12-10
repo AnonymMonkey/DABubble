@@ -38,7 +38,7 @@ mat-toolbar {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  max-width: 70%;
+  max-width: 60%;
 }
 
 .button-channel-name {
@@ -66,6 +66,7 @@ mat-toolbar {
 
   mat-icon {
     color: var(--black-color) !important;
+    overflow: unset;
   }
 
   &:hover,
@@ -77,11 +78,11 @@ mat-toolbar {
 
   span {
     font-family: var(--font-nunito);
-    white-space: nowrap; /* Kein Umbruch des Textes */
-    overflow: hidden; /* Versteckt überflüssigen Text */
-    text-overflow: ellipsis; /* Fügt "..." hinzu */
-    max-width: 80%; /* Begrenzung der Breite */
-    display: inline-block; /* Benötigt für ellipsis */
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    max-width: 80%; 
+    display: inline-block; 
   }
 }
 
@@ -169,12 +170,14 @@ mat-toolbar {
   }
 }
 
-.normalButton {
-  display: flex;
-}
-
 .responsiveButton {
   display: none;
+}
+
+@media only screen and (max-width: 1400px) {
+  .channel-name {
+    max-width: 50%;
+  }
 }
 
 @media only screen and (max-width: 600px) {
@@ -183,7 +186,11 @@ mat-toolbar {
   }
 
   .channel-name {
-    max-width: 90%;
+    max-width: 80%;
+
+    span {
+      max-width: 70%;
+    }
   }
 
   .button-channel-name {
@@ -192,7 +199,7 @@ mat-toolbar {
   }
 
   .normalButton {
-    display: none;
+    width: 0px;
   }
 
   .responsiveButton {
@@ -203,14 +210,14 @@ mat-toolbar {
     .cdk-overlay-pane {
       width: 100%;
       height: 100%;
-      right: unset;
-      top: 0;
+      right: 0;
+      // top: 0;
     }
 
     .mat-mdc-menu-panel {
       width: 100% !important;
       height: fit-content !important;
-      border-radius: unset;
+      border-radius: var(--border-radius, 0px) !important;
     }
   }
 }

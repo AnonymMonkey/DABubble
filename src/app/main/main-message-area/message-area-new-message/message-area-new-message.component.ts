@@ -82,6 +82,8 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   uploadMethodMenuTrigger!: MatMenuTrigger;
   @ViewChild('mentionMenuTrigger', { static: false, read: MatMenuTrigger })
   mentionMenuTrigger!: MatMenuTrigger;
+  @ViewChild('emojiMenuTrigger', { static: false, read: MatMenuTrigger })
+  emojiMenuTrigger!: MatMenuTrigger;
 
   constructor(
     private firestore: Firestore,
@@ -324,6 +326,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   addEmoji(event: any) {
     const emoji = event.emoji.native || event.emoji;
     this.newMessageContent += emoji;
+    this.emojiMenuTrigger.closeMenu();
   }
 
   /**

@@ -175,17 +175,21 @@ export class OwnThreadMessageTemplateComponent
   }
 
   /**
-   * Toggles the border radius based on the menu type.
-   * @param menuType - The type of menu to toggle the border for.
+   * Toggle the border radius for the menu.
    */
-  toggleBorder(menuType: string) {
-    switch (menuType) {
-      case 'editMessage':
-        this.currentBorderRadius = '0px 30px 30px 30px';
-        break;
-      default:
-        this.currentBorderRadius = '0px 30px 30px 30px';
-    }
+  toggleBorder(): void {
+    this.currentBorderRadius = '30px 30px 30px 30px';
+      document.documentElement.style.setProperty(
+        '--border-radius',
+        this.currentBorderRadius
+      );
+  }
+
+  /**
+   * Toggle the border radius for the edit and delete message menu.
+   */
+  toggleBorderEditMessage() {
+    this.currentBorderRadius = '0px 30px 30px 30px';
     document.documentElement.style.setProperty(
       '--border-radius',
       this.currentBorderRadius

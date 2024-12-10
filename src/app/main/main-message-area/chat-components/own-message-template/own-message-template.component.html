@@ -30,7 +30,7 @@
         #emojiMenuTrigger="matMenuTrigger"
         (menuOpened)="onMenuOpened(message.messageId)"
         (menuClosed)="onMenuClosed(message.messageId)"
-        (click)="toggleBorder('emoji')"
+        (click)="toggleBorder()"
       >
         <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
       </div>
@@ -53,7 +53,7 @@
             class="edit-message-text"
             (click)="
               messageService.setEditMessageId(message.messageId);
-              toggleBorder('editMessage');
+              toggleBorderEditMessage();
               setEditMessageMenuOpened(true, message.messageId)
             "
           >
@@ -73,7 +73,7 @@
             class="edit-message-text"
             (click)="
               deleteMessage(message);
-              toggleBorder('deleteMessage');
+              toggleBorderEditMessage();
               setEditMessageMenuOpened(true, message.messageId)
             "
           >

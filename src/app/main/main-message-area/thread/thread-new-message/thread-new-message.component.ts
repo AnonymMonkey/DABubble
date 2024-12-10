@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
-import { ThreadMessage } from '../../../../shared/models/thread-message.model'; 
+import { ThreadMessage } from '../../../../shared/models/thread-message.model';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import {
   collection,
@@ -60,6 +60,11 @@ export class ThreadNewMessageComponent implements OnInit {
   @ViewChild('threadAttachmentSidenav', { read: ElementRef })
   attachmentSidenavElement!: ElementRef;
   currentBorderRadius: string = '30px 30px 30px 30px';
+  @ViewChild('mentionMenuThreadTrigger', { static: false, read: MatMenuTrigger })
+  mentionMenuTrigger!: MatMenuTrigger;
+  mentionOpenedAtTextarea: boolean = false;
+  @ViewChild('emojiMenuThreadTrigger', { static: false, read: MatMenuTrigger })
+  emojiMenuThreadTrigger!: MatMenuTrigger;
 
   @ViewChild(MatMenuTrigger) uploadMethodMenuTrigger!: MatMenuTrigger;
 
@@ -75,15 +80,21 @@ export class ThreadNewMessageComponent implements OnInit {
    * Initialize the component and subscribe to actual message changes and attachment preview close events.
    */
   ngOnInit(): void {
-    this.threadSubscription = this.threadService.actualMessageSubject.subscribe((message) => {
-      this.message = message;
-    });
-    this.closeAttachmentSubscription = this.storageService.onCloseAttachmentPreview().subscribe(() => {
-      this.closeAttachmentSidenav();
-    });
-    this.closeUploadMethodSubscription = this.storageService.onCloseUploadMethodSelector().subscribe(() => {
-      this.closeUploadMethodMenu();
-    });
+    this.threadSubscription = this.threadService.actualMessageSubject.subscribe(
+      (message) => {
+        this.message = message;
+      }
+    );
+    this.closeAttachmentSubscription = this.storageService
+      .onCloseAttachmentPreview()
+      .subscribe(() => {
+        this.closeAttachmentSidenav();
+      });
+    this.closeUploadMethodSubscription = this.storageService
+      .onCloseUploadMethodSelector()
+      .subscribe(() => {
+        this.closeUploadMethodMenu();
+      });
   }
 
   /**
@@ -118,7 +129,7 @@ export class ThreadNewMessageComponent implements OnInit {
     }
   }
 
-  /** 
+  /**
    * Checks if the message content is valid.
    * @return {boolean} True if the message content is valid, false otherwise.
    */
@@ -128,7 +139,7 @@ export class ThreadNewMessageComponent implements OnInit {
     );
   }
 
-  /** 
+  /**
    * Retrieves the document reference for a message based on its ID.
    * @param {string} messageId - The ID of the message.
    * @return {Promise<DocumentReference>} The document reference for the message.
@@ -140,7 +151,7 @@ export class ThreadNewMessageComponent implements OnInit {
     );
   }
 
-  /** 
+  /**
    * Checks if a message exists based on its document reference.
    * @param {DocumentReference} messageDocRef - The document reference for the message.
    * @return {Promise<boolean>} True if the message exists, false otherwise.
@@ -150,7 +161,7 @@ export class ThreadNewMessageComponent implements OnInit {
     return snapshot.exists();
   }
 
-  /** 
+  /**
    * Generates a new thread ID.
    * @return {string} The generated thread ID.
    */
@@ -160,7 +171,7 @@ export class ThreadNewMessageComponent implements OnInit {
     return `thread_${timestamp}_${randomId}`;
   }
 
-  /** 
+  /**
    * Creates a new message object.
    * @param {string} newThreadId - The ID of the new thread.
    * @return {ThreadMessage} The new message object.
@@ -176,7 +187,7 @@ export class ThreadNewMessageComponent implements OnInit {
     );
   }
 
-  /** 
+  /**
    * Resets the message state.
    */
   resetMessageState(): void {
@@ -185,7 +196,7 @@ export class ThreadNewMessageComponent implements OnInit {
     this.threadAttachmentSidenav.close();
   }
 
-  /** 
+  /**
    * Adds a message to the thread.
    * @param {string} newThreadId - The ID of the new thread.
    * @param {ThreadMessage} newMessage - The new message object.
@@ -208,7 +219,7 @@ export class ThreadNewMessageComponent implements OnInit {
     });
   }
 
-  /** 
+  /**
    * Updates the thread ID of a message in Firestore.
    * @param {DocumentReference} messageDocRef - The document reference for the message.
    * @param {string} newThreadId - The ID of the new thread.
@@ -225,18 +236,22 @@ export class ThreadNewMessageComponent implements OnInit {
    * @param event - The event containing the selected emoji.
    */
   addEmoji(event: any) {
-    console.log('Emoji selected:', event);
     const emoji = event.emoji.native || event.emoji;
     this.newMessageContent += emoji;
+    this.emojiMenuThreadTrigger.closeMenu();
   }
 
   /**
-   * Insert a mention into the message content.
-   * @param userName - The username to be mentioned.
+   * Inserts a mention into the message content, slicing off the '@' character if present.
+   * @param mention - The mention to insert.
    */
-  insertMention(userName: string): void {
-    const mention = `@${userName} `;
-    this.newMessageContent += mention;
+  insertMention(mention: string): void {
+    if (!this.mentionOpenedAtTextarea) this.newMessageContent += mention;
+    else if (this.mentionOpenedAtTextarea) {
+      const mentionWithOutAt = mention.slice(1);
+      this.newMessageContent += mentionWithOutAt;
+      this.mentionOpenedAtTextarea = false;
+    }
   }
 
   /**
@@ -263,7 +278,7 @@ export class ThreadNewMessageComponent implements OnInit {
   /**
    * Set the border radius for responsive view.
    * @param menuType - The type of the menu.
-  */
+   */
   responsiveBorderRadius(menuType: string) {
     const borderRadiusMap: { [key: string]: string } = {
       'choose-channel': '30px',
@@ -316,7 +331,7 @@ export class ThreadNewMessageComponent implements OnInit {
    * @param index - The index of the attachment to be removed.
    */
   removeAttachment(index: number) {
-    this.attachmentUrls.splice(index, 1); 
+    this.attachmentUrls.splice(index, 1);
   }
 
   /**
@@ -327,5 +342,34 @@ export class ThreadNewMessageComponent implements OnInit {
     this.attachmentUrls = this.attachmentUrls.filter(
       (url) => url !== removedUrl
     );
+  }
+
+  /**
+   * Check if the textarea contains a mention and open the mention menu if it does.
+   * @param event - The textarea event.
+   */
+  checkForMention(event: Event): void {
+    const textareaValue = (event.target as HTMLTextAreaElement).value;
+    if (textareaValue.includes('@')) {
+      this.toggleBorder('mention');
+      this.openMentionMenu();
+    } else this.closeMentionMenu();
+  }
+
+  /**
+   * Open the mention menu.
+   */
+  openMentionMenu(): void {
+    if (this.mentionMenuTrigger) {
+      this.mentionMenuTrigger.openMenu();
+      this.mentionOpenedAtTextarea = true;
+    } else console.error('mentionMenuTrigger is not initialized');
+  }
+
+  /**
+   * Close the mention menu.
+   */
+  closeMentionMenu(): void {
+    if (this.mentionMenuTrigger) this.mentionMenuTrigger.closeMenu();
   }
 }
