@@ -64,10 +64,10 @@
   font-weight: 400 !important;
 
   mat-icon {
-    margin-top: -3px;
     width: 32px;
     height: 32px;
     color: var(--black-color) !important;
+    overflow: unset;
   }
 
   p {
