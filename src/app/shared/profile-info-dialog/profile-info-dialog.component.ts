@@ -50,8 +50,19 @@ export class ProfileInfoDialogComponent {
     public dialog: MatDialog
   ) {}
 
+  /**
+   * Initializes the component and loads the current user's data.
+   */
   ngOnInit() {
     this.loadCurrentUserData();
+    this.compareCurrentUserAndUserData();
+  }
+
+  /**
+   * Compares the current user's data with the provided user data and sets the `ownProfile` flag accordingly.
+   * If the provided user data is not available, it subscribes to the `userData$` observable to get the current user's data.
+   */
+  compareCurrentUserAndUserData() {
     if (this.data) {
       this.userData = {
         uid: this.data.userId,
@@ -98,6 +109,11 @@ export class ProfileInfoDialogComponent {
     this.dialog.closeAll();
   }
 
+  /**
+   * Opens a private chat with the specified user.
+   * @param targetUser - The user to open the private chat with.
+   * @param buttonID - The ID of the button to set as active.
+   */
   openChatWithUser(targetUser: UserData, buttonID: string) {
     this.privateChatSubscription = this.privateChatService
       .openOrCreatePrivateChat(this.currentUserData, targetUser)

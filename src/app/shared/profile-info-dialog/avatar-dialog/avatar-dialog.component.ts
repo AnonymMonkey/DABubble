@@ -26,40 +26,54 @@ export class AvatarDialogComponent {
     'assets/img/profile/steffen.webp',
   ];
 
+  /**
+   * Chooses a new avatar
+   * @param avatar path to the avatar
+   */
   selectAvatar(avatar: string) {
     this.photoURL = avatar;
+    console.log(this.photoURL);
   }
 
+  /**
+   * Closes the dialog
+   */
   closeDialog() {
     this.dialogRef.close(this.photoURL);
   }
 
+  /**
+   * Uploads an avatar
+   * @param event - The event
+   */
   async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
-    console.log(input);
-
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
       if (!file.type.startsWith('image/')) {
         console.error('Nur Bilder können hochgeladen werden.');
         return;
       }
-
       this.isUploading = true;
+      await this.uploadNewAndDeleteOldAvatar(file);
+    }
+  }
 
-      try {
-        const email = this.email;
-        const folderPath = `users/${email}/uploads/`;
-        const path = folderPath + file.name;
-
-        await this.storageService.deletePreviousFile(folderPath);
-        this.photoURL = await this.storageService.uploadFileRawPath(path, file);
-        console.log('Avatar hochgeladen:', this.photoURL);
-      } catch (error) {
-        console.error('Fehler beim Hochladen des Avatars:', error);
-      } finally {
-        this.isUploading = false;
-      }
+  /**
+   * Uploads a new avatar and deletes the old one
+   * @param file - The file to upload
+   */
+  async uploadNewAndDeleteOldAvatar(file: File): Promise<void> {
+    try {
+      const email = this.email;
+      const folderPath = `users/${email}/uploads/`;
+      const path = folderPath + file.name;
+      await this.storageService.deletePreviousFile(folderPath);
+      this.photoURL = await this.storageService.uploadFileRawPath(path, file);
+    } catch (error) {
+      console.error('Fehler beim Hochladen des Avatars:', error);
+    } finally {
+      this.isUploading = false;
     }
   }
 }

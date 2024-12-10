@@ -7,11 +7,9 @@
   </div>
 
   <div class="avatar-container">
-    <!-- Wenn kein Avatar ausgewählt wurde, zeige den Platzhalter an -->
     <ng-container *ngIf="!photoURL; else avatarTemplate">
       <div class="avatar-placeholder">
         <mat-icon>person</mat-icon>
-        <!-- Icon wird angezeigt, wenn kein Avatar ausgewählt ist -->
       </div>
     </ng-container>
 
@@ -27,7 +25,7 @@
       <img
         src="{{ avatar }}"
         alt="Avatar Elias"
-        (click)="selectAvatar('{{ avatar }}')"
+        (click)="selectAvatar(avatar)"
       />
       }
     </div>

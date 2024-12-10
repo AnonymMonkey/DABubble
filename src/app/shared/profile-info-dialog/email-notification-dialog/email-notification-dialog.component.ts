@@ -13,11 +13,13 @@ import { AuthService } from '../../services/auth-service/auth.service';
 export class EmailNotificationDialogComponent {
   readonly dialogRef = inject(MatDialogRef<EmailNotificationDialogComponent>);
   authService = inject(AuthService);
-
   email: string = '';
 
   constructor(public dialog: MatDialog) {}
 
+  /**
+   * Logs out the user.
+   */
   logOut() {
     this.dialog.closeAll();
     this.authService.logout();

@@ -31,6 +31,9 @@ export class CreateChannelDialogComponent {
   readonly dialogRef = inject(MatDialogRef<CreateChannelDialogComponent>);
   constructor(public dialog: MatDialog) {}
 
+  /**
+   * Initializes the component and subscribes to breakpoint changes.
+   */
   ngOnInit(): void {
     this.breakpointSubscription = this.breakpointObserver
       .observe(['(max-width: 600px)'])
@@ -89,7 +92,6 @@ export class CreateChannelDialogComponent {
         },
       }
     );
-
     bottomSheetRef.afterDismissed().subscribe(() => {
       this.isSecondDialogOpen = true;
       this.dialogRef.close();

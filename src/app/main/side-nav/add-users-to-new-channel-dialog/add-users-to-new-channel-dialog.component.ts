@@ -62,30 +62,43 @@ export class AddUsersToNewChannelDialogComponent {
 
   constructor() {}
 
+  /**
+   * Initialize the component and subscribe to route parameters oninit.
+   */
   ngOnInit() {
     this.newChannelData = new Channel();
-    this.routeSubscription = this.routingService.currentRoute$.subscribe(
-      (params) => {
-        this.currentParams = params;
-        this.openedChannelId = '';
-        if (this.currentParams && this.currentParams['channelId']) {
-          this.openedChannelId = this.currentParams['channelId'];
-          this.channelSubscription = this.channelService
-            .getChannelById(this.openedChannelId)
-            .subscribe((data) => {
-              this.openedChannelData = data;
-            });
-        }
-      }
-    );
+    this.routeSubscription = this.subscriptionRoutingService();
+    this.userSubscription = this.subscriptionAllUserData();
+    this.currentUserId = this.userService.userId;
+  }
 
-    this.userSubscription = this.userService.allUserData$.subscribe((data) => {
+  /**
+   * Subscribes to the routing service to get the current route parameters.
+   */
+  subscriptionRoutingService() {
+    return this.routingService.currentRoute$.subscribe((params) => {
+      this.currentParams = params;
+      this.openedChannelId = '';
+      if (this.currentParams && this.currentParams['channelId']) {
+        this.openedChannelId = this.currentParams['channelId'];
+        this.channelSubscription = this.channelService
+          .getChannelById(this.openedChannelId)
+          .subscribe((data) => {
+            this.openedChannelData = data;
+          });
+      }
+    });
+  }
+
+  /**
+   * Subscribes to the user service to get all user data.
+   */
+  subscriptionAllUserData() {
+    return this.userService.allUserData$.subscribe((data) => {
       data.forEach((user) => {
         this.allUsersData.push(user.uid);
       });
     });
-
-    this.currentUserId = this.userService.userId;
   }
 
   /**

@@ -54,6 +54,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    .toolbar-icon {
+      padding: 16px !important;
+      border-radius: 50%;
+    }
     mat-icon {
       &:hover {
         cursor: pointer;
