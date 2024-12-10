@@ -110,9 +110,9 @@ export class MessageAreaHeaderComponent implements OnInit {
    */
   responsiveBorderRadius(menuType: string) {
     const borderRadiusMap: Record<string, string> = {
-      'choose-channel': '0px',
-      'member-list': '0px 0px 30px 30px',
-      'add-member': '0px 0px 30px 30px',
+      'choose-channel': '0px 0px 0px 0px',
+      'member-list': '30px 0px 30px 30px',
+      'add-member': '30px 0px 30px 30px',
     };
     this.currentBorderRadius = borderRadiusMap[menuType] || '0px 0px 30px 30px';
     document.documentElement.style.setProperty(

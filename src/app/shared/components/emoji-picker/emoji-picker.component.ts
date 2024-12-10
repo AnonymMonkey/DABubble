@@ -20,6 +20,7 @@ export class EmojiPickerComponent {
   private channelService = inject(ChannelService);
   private threadService = inject(ThreadService);
   @Output() isChannelReaction = new EventEmitter<boolean>();
+  currentBorderRadius = '30px 30px 30px 30px';
 
   constructor() {}
 
@@ -102,5 +103,16 @@ export class EmojiPickerComponent {
    */
   private getThreadPath(messageId: string): string {
     return `channels/${this.channelService.channelId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${messageId}`;
+  }
+
+   /**
+   * Toggle the border radius for the menu.
+   */
+   toggleBorder(): void {
+    this.currentBorderRadius = '30px 30px 30px 30px';
+      document.documentElement.style.setProperty(
+        '--border-radius',
+        this.currentBorderRadius
+      );
   }
 }

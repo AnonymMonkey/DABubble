@@ -64,6 +64,9 @@ export class AttachmentPreviewComponent {
     }
   }
 
+  /**
+   * Unsubscribe from route parameters when the component is destroyed.
+   */
   ngOnDestroy(): void {
     if (this.routeSubscription) this.routeSubscription.unsubscribe();
   }
@@ -178,9 +181,7 @@ private getUpdatedAttachmentUrls(
 ): string[] | null {
   const attachmentUrls =
     data?.['privateChat'][privateChatId]?.messages?.[messageId]?.attachmentUrls || [];
-
   const updatedUrls = attachmentUrls.filter((url: string) => url !== fileUrl);
-
   return updatedUrls.length !== attachmentUrls.length ? updatedUrls : null;
 }
 
@@ -209,16 +210,13 @@ private async updateUserDocument(
  */
 private async deleteAttachmentFromFirestore(fileUrl: string) {
   if (!this.message) return;
-
   const messageId = this.message.messageId;
-
   if (this.channelId) {
     const docPath = this.getChannelDocPath(messageId);
     await this.removeAttachmentFromFirestore(docPath, fileUrl);
   } else if (this.privateChatId) {
     await this.removePrivateChatAttachments(fileUrl, messageId);
   }
-
   await this.checkAndDeleteMessage();
 }
 

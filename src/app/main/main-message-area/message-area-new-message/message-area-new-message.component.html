@@ -21,6 +21,7 @@
         <mat-icon
           class="material-symbols-outlined"
           [matMenuTriggerFor]="emojiMenu"
+          #emojiMenuTrigger="matMenuTrigger"
           (click)="toggleBorder('emoji')"
           >sentiment_satisfied
         </mat-icon>
@@ -58,6 +59,7 @@
     (closed)="mentionOpenedAtTextarea = false"
   >
     <emoji-mart
+    (click)="$event.stopPropagation()"
       title="Pick your emoji…"
       emoji="point_up"
       set="apple"

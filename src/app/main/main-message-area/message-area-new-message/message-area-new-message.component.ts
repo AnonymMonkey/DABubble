@@ -82,6 +82,8 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   uploadMethodMenuTrigger!: MatMenuTrigger;
   @ViewChild('mentionMenuTrigger', { static: false, read: MatMenuTrigger })
   mentionMenuTrigger!: MatMenuTrigger;
+  @ViewChild('emojiMenuTrigger', { static: false, read: MatMenuTrigger })
+  emojiMenuTrigger!: MatMenuTrigger;
 
   constructor(
     private firestore: Firestore,
@@ -324,14 +326,20 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   addEmoji(event: any) {
     const emoji = event.emoji.native || event.emoji;
     this.newMessageContent += emoji;
+    this.emojiMenuTrigger.closeMenu();
   }
 
   /**
-   * Insert a mention into the textarea.
+   * Inserts a mention into the message content, slicing off the '@' character if present.
    * @param mention - The mention to insert.
    */
   insertMention(mention: string): void {
-    this.newMessageContent += mention;
+    if(!this.mentionOpenedAtTextarea) this.newMessageContent += mention;
+    else if(this.mentionOpenedAtTextarea) {
+      const mentionWithOutAt = mention.slice(1);
+      this.newMessageContent += mentionWithOutAt;
+      this.mentionOpenedAtTextarea = false;
+    };
   }
 
   /**

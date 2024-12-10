@@ -29,7 +29,6 @@ import { StorageService } from '../../../../shared/services/storage-service/stor
   templateUrl: './own-private-message-template.component.html',
   styleUrls: [
     './own-private-message-template.component.scss',
-    './own-private-message-template.component_media.scss',
   ],
 })
 export class OwnPrivateMessageTemplateComponent {

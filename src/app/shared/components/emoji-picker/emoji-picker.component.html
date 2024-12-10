@@ -1,5 +1,5 @@
-    <emoji-mart (click)="$event.stopPropagation()"
-      title="Pick your emoji…"
+    <emoji-mart (click)="$event.stopPropagation(); toggleBorder()"
+      title="Emoji wählen"
       emoji="point_up"
       set="google"
       (emojiClick)="addReaction(message.messageId, $event.emoji, component)"

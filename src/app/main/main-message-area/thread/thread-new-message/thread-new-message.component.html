@@ -3,6 +3,7 @@
     <textarea
       placeholder="Antworten..."
       [(ngModel)]="newMessageContent"
+      (input)="checkForMention($event)"
       (keydown.enter)="sendMessage(); $event.preventDefault()"
     ></textarea>
     <div class="icons-container">
@@ -17,12 +18,14 @@
         <mat-icon
           class="material-symbols-outlined"
           [matMenuTriggerFor]="emojiMenu"
+          #emojiMenuThreadTrigger="matMenuTrigger"
           (click)="toggleBorder('emoji')"
           >sentiment_satisfied</mat-icon
         >
         <mat-icon
           class="material-symbols-outlined"
           [matMenuTriggerFor]="mentionMenu"
+          #mentionMenuThreadTrigger="matMenuTrigger"
           (click)="toggleBorder('mention')"
           >alternate_email</mat-icon
         >
@@ -40,12 +43,14 @@
 
   <mat-menu xPosition="after" #uploadMethodMenu yPosition="above">
     <app-upload-method-selector
-      (uploadSelected)="addDownloadLink($event); openAttachmentSidenav()" [messageId]="message?.messageId"
+      (uploadSelected)="addDownloadLink($event); openAttachmentSidenav()"
+      [messageId]="message?.messageId"
     ></app-upload-method-selector>
   </mat-menu>
 
   <mat-menu xPosition="after" #emojiMenu>
     <emoji-mart
+      (click)="$event.stopPropagation()"
       title="Pick your emoji…"
       emoji="point_up"
       set="apple"

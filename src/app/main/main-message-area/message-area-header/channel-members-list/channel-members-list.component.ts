@@ -23,6 +23,9 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
   private userDataSubscription: Subscription | undefined;
   private channelSubscription: Subscription | undefined;
   currentBorderRadius: string = '30px 30px 30px 30px';
+  private sortedMembersCache: any[] = [];
+  private lastMemberData: any[] = [];
+  private lastCurrentUserId: string | undefined;
 
   constructor(
     public header: MessageAreaHeaderComponent,
@@ -76,7 +79,7 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
           seenUserIds.add(userId);
           const userData = userDataMap.get(userId) || {
             displayName: 'Unbekannter Benutzer',
-            photoURL: 'src/assets/img/profile/placeholder-img.webp',
+            photoURL: '../../../../../assets/img/profile/placeholder-img.webp',
           };
           this.membersWithData.push({
             userId,
@@ -97,22 +100,63 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Sorts the members by the current user and returns the sorted array.
+   * Checks if the members list or the current user ID has changed.
+   * @returns {boolean} - True if the data has changed, otherwise false.
    */
-  get sortedMembers() {
-    if (!this.membersWithData || this.membersWithData.length === 0) return [];
-    const currentUser = this.membersWithData.find(
-      (user) => user.userId === this.currentUserId
+  hasDataChanged(): boolean {
+    return (
+      this.membersWithData !== this.lastMemberData ||
+      this.currentUserId !== this.lastCurrentUserId
     );
-    const otherMembers = this.membersWithData.filter(
-      (user) => user.userId !== this.currentUserId
-    );
-    return currentUser
+  }
+
+  /**
+   * Updates the cache for sorted members if the data has changed.
+   */
+  updateSortedMembersCache(): void {
+    if (!this.hasDataChanged()) return;
+
+    this.lastMemberData = this.membersWithData;
+    this.lastCurrentUserId = this.currentUserId;
+
+    const currentUser = this.findCurrentUser();
+    const otherMembers = this.getOtherMembers();
+
+    this.sortedMembersCache = currentUser
       ? [
           { ...currentUser, userName: `${currentUser.userName} (Du)` },
           ...otherMembers,
         ]
       : otherMembers;
+  }
+
+  /**
+   * Finds the current user in the members list.
+   * @returns {any | undefined} - The current user object or undefined if not found.
+   */
+  findCurrentUser(): any | undefined {
+    return this.membersWithData.find(
+      (user) => user.userId === this.currentUserId
+    );
+  }
+
+  /**
+   * Filters and returns all members except the current user.
+   * @returns {any[]} - An array of other members.
+   */
+  getOtherMembers(): any[] {
+    return this.membersWithData.filter(
+      (user) => user.userId !== this.currentUserId
+    );
+  }
+
+  /**
+   * Returns the sorted list of members, updating the cache if necessary.
+   * @returns {any[]} - The sorted list of members.
+   */
+  get sortedMembers(): any[] {
+    this.updateSortedMembersCache();
+    return this.sortedMembersCache;
   }
 
   /**
