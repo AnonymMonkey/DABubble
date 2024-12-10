@@ -9,6 +9,7 @@
   @media screen and (max-width: 640px) {
     width: 100%;
     padding: 45px 20px;
+    gap: 12px;
   }
 
   .card-header {
@@ -41,6 +42,11 @@
     object-fit: cover;
     object-position: top;
     border-radius: 50%;
+
+    @media screen and (max-width: 640px) {
+      margin: 0 20px;
+      gap: 12px;
+    }
   }
 
   .profile-info-name {
@@ -52,6 +58,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+
+      h2 {
+        max-width: 280px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-wrap-mode: nowrap;
+      }
 
       span {
         color: var(--purple3-color);
@@ -75,15 +88,27 @@
     }
 
     .activity-indicator {
-      color: var(--online-color);
       display: flex;
       align-items: center;
       gap: 10px;
       .badge {
         width: 16px;
         height: 16px;
-        background-color: var(--online-color);
         border-radius: 50%;
+      }
+    }
+
+    .online {
+      color: var(--online-color);
+      .badge {
+        background-color: var(--online-color);
+      }
+    }
+
+    .offline {
+      color: var(--grey-color);
+      .badge {
+        background-color: var(--grey-color);
       }
     }
   }

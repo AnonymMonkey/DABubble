@@ -65,7 +65,6 @@ export class SearchBarComponent {
     this.loadCurrentUserData();
   }
 
-
   /**
    * Clean up subscriptions on component destroy.
    */
@@ -82,9 +81,11 @@ export class SearchBarComponent {
    * Loads all user data from the user service.
    */
   loadAllUserData(): void {
-    this.allUserDataSubscription = this.userService.allUserData$.subscribe((data) => {
-      this.allUserData = data;
-    });
+    this.allUserDataSubscription = this.userService.allUserData$.subscribe(
+      (data) => {
+        this.allUserData = data;
+      }
+    );
   }
 
   /**
@@ -109,48 +110,84 @@ export class SearchBarComponent {
   loadAllChannelsData(): void {
     this.allChannelsData = [];
     this.userData.channels.forEach((channelId) => {
-      const subscription = this.channelService.getChannelById(channelId).subscribe((channelData) => {
-        if (!channelData) return;
-        const existingIndex = this.allChannelsData.findIndex(
-          (c) => c.channelId === channelData.channelId
-        );
-        if (existingIndex > -1) {
-          this.allChannelsData[existingIndex] = channelData;
-        } else {
-          this.allChannelsData.push(channelData);
-        }
-      });
+      const subscription = this.channelService
+        .getChannelById(channelId)
+        .subscribe((channelData) => {
+          if (!channelData) return;
+          const existingIndex = this.allChannelsData.findIndex(
+            (c) => c.channelId === channelData.channelId
+          );
+          if (existingIndex > -1) {
+            this.allChannelsData[existingIndex] = channelData;
+          } else {
+            this.allChannelsData.push(channelData);
+          }
+        });
       this.subscriptions.push(subscription);
     });
   }
 
+  /**
+   * Filters the options based on the input value.
+   * @param input - The input value.
+   * @returns An array of filtered options.
+   */
   private filterOptions(input: string): (Channel | UserData)[] {
     if (input.startsWith('#')) {
-      return this.allChannelsData.filter((channel) =>
-        channel.channelName
-          .toLowerCase()
-          .includes(input.substring(1).toLowerCase())
-      );
+      return this.filterChannels(input);
     } else if (input.startsWith('@')) {
-      return this.allUserData.filter((user) =>
-        user.displayName
-          .toLowerCase()
-          .includes(input.substring(1).toLowerCase())
-      );
+      return this.filterUsers(input);
     } else {
       const combinedOptions = [...this.allChannelsData, ...this.allUserData];
-      return combinedOptions.filter((option) => {
-        if ('channelName' in option) {
-          return option.channelName.toLowerCase().includes(input.toLowerCase());
-        } else if ('displayName' in option || 'email' in option) {
-          return (
-            option.displayName.toLowerCase().includes(input.toLowerCase()) ||
-            option.email.toLowerCase().includes(input.toLowerCase())
-          );
-        }
-        return false;
-      });
+      return this.filterCombinedOptions(combinedOptions, input);
     }
+  }
+
+  /**
+   * Filters channels based on the input value.
+   * @param input - The input value.
+   * @returns An array of filtered channels.
+   */
+  filterChannels(input: string): Channel[] {
+    return this.allChannelsData.filter((channel) =>
+      channel.channelName
+        .toLowerCase()
+        .includes(input.substring(1).toLowerCase())
+    );
+  }
+
+  /**
+   * Filters users based on the input value.
+   * @param input - The input value.
+   * @returns An array of filtered users.
+   */
+  filterUsers(input: string): UserData[] {
+    return this.allUserData.filter((user) =>
+      user.displayName.toLowerCase().includes(input.substring(1).toLowerCase())
+    );
+  }
+
+  /**
+   * Filters combined options based on the input value.
+   * @param combinedOptions - The combined options to filter.
+   * @param input - The input value.
+   * @returns An array of filtered combined options.
+   */
+  filterCombinedOptions(
+    combinedOptions: (Channel | UserData)[],
+    input: string
+  ): (Channel | UserData)[] {
+    return combinedOptions.filter((option) => {
+      if ('channelName' in option) {
+        return option.channelName.toLowerCase().includes(input.toLowerCase());
+      } else if ('displayName' in option || 'email' in option) {
+        return (
+          option.displayName.toLowerCase().includes(input.toLowerCase()) ||
+          option.email.toLowerCase().includes(input.toLowerCase())
+        );
+      }
+      return false;
+    });
   }
 
   /**
@@ -179,22 +216,17 @@ export class SearchBarComponent {
     }
   }
 
+  /**
+   * Handles the selection of an option.
+   * @param option - The selected option.
+   */
   onOptionSelected(option: any): void {
     this.closeSideNavOnMobile();
     if (option && typeof option === 'object') {
       if (option.value.startsWith('#')) {
-        this.router
-          .navigate([`/main/${this.userData.uid}/channel/${option.id}`])
-          .then(() => {
-            this.inputControl.setValue('');
-            this.activeButtonService.setActiveButton('');
-          });
+        this.navigateToChannel(option);
       } else if (option.value.startsWith('@')) {
-        let targetUser: UserData | undefined = this.allUserData.find(
-          (user) => user.uid === option.id
-        );
-        this.openChatWithUser(targetUser!, `${this.userData.uid}_${option.id}`);
-        this.inputControl.setValue('');
+        this.navigateToPrivateChat(option);
       } else {
         console.log('Kein weiterleiten möglich!');
       }
@@ -202,7 +234,36 @@ export class SearchBarComponent {
       console.error('Ungültige Option:', option);
     }
   }
-  
+
+  /**
+   * Navigates to the specified channel.
+   * @param option - The selected option.
+   */
+  navigateToChannel(option: any) {
+    this.router
+      .navigate([`/main/${this.userData.uid}/channel/${option.id}`])
+      .then(() => {
+        this.inputControl.setValue('');
+        this.activeButtonService.setActiveButton('');
+      });
+  }
+
+  /**
+   * Navigates to a private chat with the specified user.
+   * @param option - The selected option.
+   */
+  navigateToPrivateChat(option: any) {
+    let targetUser: UserData | undefined = this.allUserData.find(
+      (user) => user.uid === option.id
+    );
+    this.openChatWithUser(targetUser!, `${this.userData.uid}_${option.id}`);
+    this.inputControl.setValue('');
+  }
+
+  /**
+   * Closes the side navigation on mobile devices by setting the behavior service value to false.
+   * This method is triggered only if the application is in mobile version.
+   */
   closeSideNavOnMobile() {
     if (this.mobileVersion) {
       this.behaviorService.setValue(false);

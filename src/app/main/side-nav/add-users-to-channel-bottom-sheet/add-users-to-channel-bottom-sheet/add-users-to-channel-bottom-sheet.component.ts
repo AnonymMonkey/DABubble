@@ -1,27 +1,31 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, Inject, inject, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { AddUsersToChannelComponent } from '../../../shared/components/add-users-to-channel/add-users-to-channel.component';
-import { RoutingService } from '../../../shared/services/routing-service/routing.service';
-import { ChannelService } from '../../../shared/services/channel-service/channel.service';
-import { Channel } from '../../../shared/models/channel.model';
-import { UserService } from '../../../shared/services/user-service/user.service';
+import {
+  MAT_BOTTOM_SHEET_DATA,
+  MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { AddUsersToChannelComponent } from '../../../../shared/components/add-users-to-channel/add-users-to-channel.component';
+import { RoutingService } from '../../../../shared/services/routing-service/routing.service';
+import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
+import { UserService } from '../../../../shared/services/user-service/user.service';
+import { Channel } from '../../../../shared/models/channel.model';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-add-users-to-new-channel-dialog',
+  selector: 'app-add-users-to-channel-bottom-sheet',
   standalone: true,
   imports: [
-    MatDialogModule,
     MatIconModule,
+    MatDialogModule,
     MatRadioModule,
     CommonModule,
     FormsModule,
@@ -32,19 +36,18 @@ import { Subscription } from 'rxjs';
     ReactiveFormsModule,
     AddUsersToChannelComponent,
   ],
-  templateUrl: './add-users-to-new-channel-dialog.component.html',
-  styleUrl: './add-users-to-new-channel-dialog.component.scss',
+  templateUrl: './add-users-to-channel-bottom-sheet.component.html',
+  styleUrl: './add-users-to-channel-bottom-sheet.component.scss',
 })
-export class AddUsersToNewChannelDialogComponent {
+export class AddUsersToChannelBottomSheetComponent {
   @ViewChild(AddUsersToChannelComponent)
   addUsersToChannel!: AddUsersToChannelComponent;
-  readonly dialogRef = inject(
-    MatDialogRef<AddUsersToNewChannelDialogComponent>
-  );
+  _bottomSheetRef =
+    inject<MatBottomSheetRef<AddUsersToChannelBottomSheetComponent>>(
+      MatBottomSheetRef
+    );
   radioValue: number = 0;
   invalid: boolean = true;
-  channelName: string = '';
-  description: string = '';
   channelId: string = '';
   openedChannelId: string = '';
   openedChannelData: any;
@@ -60,11 +63,8 @@ export class AddUsersToNewChannelDialogComponent {
   routeSubscription: Subscription | undefined;
   userSubscription: Subscription | undefined;
 
-  constructor() {}
+  constructor(@Inject(MAT_BOTTOM_SHEET_DATA) public data: any) {}
 
-  /**
-   * Initialize the component and subscribe to route parameters oninit.
-   */
   ngOnInit() {
     this.newChannelData = new Channel();
     this.routeSubscription = this.subscriptionRoutingService();
@@ -124,13 +124,13 @@ export class AddUsersToNewChannelDialogComponent {
   create() {
     if (this.radioValue == 1) {
       this.newChannelData.admin.userId = this.currentUserId;
-      this.newChannelData.channelName = this.channelName;
-      this.newChannelData.description = this.description;
+      this.newChannelData.channelName = this.data.channelName;
+      this.newChannelData.description = this.data.description;
       this.bindData();
       this.createNewChannel();
     } else {
-      this.addUsersToChannel.newChannelData.channelName = this.channelName;
-      this.addUsersToChannel.newChannelData.description = this.description;
+      this.addUsersToChannel.newChannelData.channelName = this.data.channelName;
+      this.addUsersToChannel.newChannelData.description = this.data.description;
       this.createNewOrUpdateExistingChannel();
     }
   }
@@ -141,8 +141,10 @@ export class AddUsersToNewChannelDialogComponent {
   createNewOrUpdateExistingChannel() {
     if (this.channelId === '') {
       this.addUsersToChannel.createNewChannel();
+      this._bottomSheetRef.dismiss();
     } else {
       this.addUsersToChannel.updateExistingChannel();
+      this._bottomSheetRef.dismiss();
     }
   }
 

@@ -46,7 +46,8 @@ export class MainComponent implements OnInit, OnDestroy {
   mobileVersion: boolean = false;
   sideNavOpened = true;
   behaviorService = inject(BehaviorService);
-  subscription!: Subscription;
+  sideNavBehaviorSubscription!: Subscription;
+  breakpointSubscription!: Subscription;
 
   constructor(private route: ActivatedRoute) {
     this.route.params.subscribe((params) => {
@@ -55,26 +56,43 @@ export class MainComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Initialize the component and load user data.
+   */
   ngOnInit() {
     this.userService.loadAllUserData();
     this.userService.loadUserDataByUID(this.userId);
     this.loadUserData(this.userId);
     this.checkUserStatusOnReload(this.userId);
+    this.breakpointSubscription = this.subscribeBreakpointObserver();
+    this.sideNavBehaviorSubscription = this.subscribeSideNavBehavior();
+  }
 
-    this.breakpointObserver
+  /**
+   * Subscribe to the sideNavOpened$ observable and update the sideNavOpened property.
+   */
+  subscribeSideNavBehavior(): Subscription {
+    return this.behaviorService.sideNavOpened$.subscribe((value) => {
+      this.sideNavOpened = value;
+    });
+  }
+
+  /**
+   * Subscribe to breakpoint changes and update the drawerMode and mobileVersion properties.
+   */
+  subscribeBreakpointObserver(): Subscription {
+    return this.breakpointObserver
       .observe(['(min-width: 992px)'])
       .subscribe((result) => {
         this.drawerMode = result.matches ? 'side' : 'over';
         this.mobileVersion = !result.matches;
       });
-
-    this.subscription = this.behaviorService.sideNavOpened$.subscribe(
-      (value) => {
-        this.sideNavOpened = value;
-      }
-    );
   }
 
+  /**
+   * Load user data for the given user ID.
+   * @param {string} userId - The ID of the user.
+   */
   loadUserData(userId: string): void {
     this.userDataSubscription = this.userService.userDataMap$.subscribe(
       (userDataMap) => {
@@ -87,6 +105,9 @@ export class MainComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Load all channel data for the current user from the channel service.
+   */
   loadAllChannelsData(): void {
     this.channelSubscription = this.channelService.channelDataMap$.subscribe(
       (channels) => {
@@ -102,10 +123,17 @@ export class MainComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Check the online status of the user on reload.
+   * @param {string} userId - The ID of the user.
+   */
   async checkUserStatusOnReload(userId: string): Promise<void> {
     await this.userService.setOnlineStatus(userId, true, true);
   }
 
+  /**
+   * Unsubscribe from all subscriptions.
+   */
   ngOnDestroy(): void {
     if (this.userDataSubscription) {
       this.userDataSubscription.unsubscribe();
@@ -113,15 +141,24 @@ export class MainComponent implements OnInit, OnDestroy {
     if (this.channelSubscription) {
       this.channelSubscription.unsubscribe();
     }
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.sideNavBehaviorSubscription) {
+      this.sideNavBehaviorSubscription.unsubscribe();
+    }
+    if (this.breakpointSubscription) {
+      this.breakpointSubscription.unsubscribe();
     }
   }
 
+  /**
+   * Set the sideNavOpened property and update the sideNavOpened$ observable.
+   */
   setNavBehavior() {
     this.behaviorService.setValue(this.sideNavOpened);
   }
 
+  /**
+   * Close the side navigation on mobile devices.
+   */
   closeSideNavOnMobile() {
     if (this.mobileVersion) {
       this.sideNavOpened = false;

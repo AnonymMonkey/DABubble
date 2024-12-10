@@ -77,7 +77,8 @@ export class SideNavComponent {
    */
   ngOnDestroy(): void {
     if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
-    if (this.privateChatSubscription) this.privateChatSubscription.unsubscribe();
+    if (this.privateChatSubscription)
+      this.privateChatSubscription.unsubscribe();
   }
 
   /**

@@ -1,6 +1,22 @@
 ::ng-deep {
   .mat-mdc-dialog-container .mdc-dialog__surface {
     border-radius: 30px;
+
+    @media (max-width: 599px) {
+      border-radius: 0;
+    }
+  }
+
+  .cdk-global-scrollblock {
+    overflow-y: unset !important;
+  }
+
+  @media (max-width: 599px) {
+    .cdk-overlay-pane.mat-mdc-dialog-panel {
+      max-width: 100% !important;
+      height: 100% !important;
+      margin-top: 2px;
+    }
   }
 }
 
@@ -16,6 +32,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    .toolbar-icon {
+      padding: 16px !important;
+      border-radius: 50%;
+    }
+
     mat-icon {
       &:hover {
         cursor: pointer;
@@ -60,6 +81,10 @@
   .description {
     input {
       padding: var(--padding-16) !important;
+
+      @media screen and (max-width: 450px) {
+        padding: 12px !important;
+      }
     }
   }
 

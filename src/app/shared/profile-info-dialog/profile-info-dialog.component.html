@@ -6,7 +6,9 @@
   <img class="profile-image" src="{{ userData.photoURL }}" alt="" />
   <div class="profile-info-name">
     <div class="name-edit">
-      <h2>{{ userData.displayName }}</h2>
+      <h2 matTooltip="{{ userData.displayName }}">
+        {{ userData.displayName }}
+      </h2>
       <span
         class="edit-button"
         [ngStyle]="{ display: ownProfile ? 'block' : 'none' }"
@@ -16,14 +18,31 @@
       <mat-icon
         class="material-symbols-outlined edit-mobile icon"
         (click)="openEditProfile()"
-        [ngStyle]="{ display: ownProfile ? 'block' : 'none' }"
+        [ngStyle]="{ display: ownProfile ? 'flex' : 'none' }"
         >edit</mat-icon
       >
     </div>
-    <div class="activity-indicator">
-      <div class="badge"></div>
-      <span>Aktiv</span>
-    </div>
+    <ng-container *ngIf="ownProfile; else notOwnProfile">
+      <div class="activity-indicator online">
+        <div class="badge"></div>
+        <span>Aktiv</span>
+      </div>
+    </ng-container>
+
+    <ng-template #notOwnProfile>
+      <div
+        class="activity-indicator"
+        [ngClass]="{
+          online: userService.checkUserOnlineStatus(userData.uid),
+          offline: !userService.checkUserOnlineStatus(userData.uid)
+        }"
+      >
+        <div class="badge"></div>
+        <span>{{
+          userService.checkUserOnlineStatus(userData.uid) ? "Aktiv" : "Inaktiv"
+        }}</span>
+      </div>
+    </ng-template>
   </div>
   <div class="profile-mail-info">
     <mat-icon>mail_outline</mat-icon>

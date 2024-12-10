@@ -15,11 +15,18 @@ import { PrivateChatService } from '../services/private-chat-service/private-cha
 import { ActiveChatButtonService } from '../services/profile-chat-button-service/active-chat-button.service';
 import { Router } from '@angular/router';
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-profile-info-dialog',
   standalone: true,
-  imports: [MatIconModule, MatInputModule, MatCardModule, CommonModule],
+  imports: [
+    MatIconModule,
+    MatInputModule,
+    MatCardModule,
+    CommonModule,
+    MatTooltipModule,
+  ],
   templateUrl: './profile-info-dialog.component.html',
   styleUrl: './profile-info-dialog.component.scss',
 })
@@ -43,8 +50,19 @@ export class ProfileInfoDialogComponent {
     public dialog: MatDialog
   ) {}
 
+  /**
+   * Initializes the component and loads the current user's data.
+   */
   ngOnInit() {
     this.loadCurrentUserData();
+    this.compareCurrentUserAndUserData();
+  }
+
+  /**
+   * Compares the current user's data with the provided user data and sets the `ownProfile` flag accordingly.
+   * If the provided user data is not available, it subscribes to the `userData$` observable to get the current user's data.
+   */
+  compareCurrentUserAndUserData() {
     if (this.data) {
       this.userData = {
         uid: this.data.userId,
@@ -91,6 +109,11 @@ export class ProfileInfoDialogComponent {
     this.dialog.closeAll();
   }
 
+  /**
+   * Opens a private chat with the specified user.
+   * @param targetUser - The user to open the private chat with.
+   * @param buttonID - The ID of the button to set as active.
+   */
   openChatWithUser(targetUser: UserData, buttonID: string) {
     this.privateChatSubscription = this.privateChatService
       .openOrCreatePrivateChat(this.currentUserData, targetUser)

@@ -19,12 +19,18 @@ export class BottomSheetComponent {
   _bottomSheetRef =
     inject<MatBottomSheetRef<BottomSheetComponent>>(MatBottomSheetRef);
 
+  /**
+   * Opens the profile info dialog
+   */
   openProfileInfo(): void {
     const dialogRef = this.dialog.open(ProfileInfoDialogComponent);
   }
 
+  /**
+   * Logs out the user and closes the bottom sheet
+   */
   logOut(): void {
     this.authService.logout();
-    this.dialog.closeAll();
+    this._bottomSheetRef.dismiss();
   }
 }

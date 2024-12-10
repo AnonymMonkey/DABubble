@@ -98,6 +98,9 @@ header {
       font-weight: 700;
       cursor: pointer;
       text-wrap: nowrap;
+      max-width: 280px;
+      text-overflow: ellipsis;
+      overflow: hidden;
 
       @media screen and (max-width: 768px) {
         display: none;

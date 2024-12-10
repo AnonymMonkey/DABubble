@@ -70,6 +70,12 @@ export class AddUsersToChannelComponent {
     { userId: string; userName: string; photoURL: string }[]
   >([]);
   allUserDataSubscription!: Subscription;
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  currentUser = signal<string>('');
+  readonly users = signal<
+    { userId: string; userName: string; photoURL: string }[]
+  >([]);
+  readonly announcer = inject(LiveAnnouncer);
 
   constructor(private route: ActivatedRoute) {}
 
@@ -210,25 +216,14 @@ export class AddUsersToChannelComponent {
     this.usersEmpty.emit(isEmpty);
   }
 
-  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  currentUser = signal<string>('');
-
-  readonly users = signal<
-    { userId: string; userName: string; photoURL: string }[]
-  >([]);
-
+  /**
+   * Computes the filtered users based on the current user input.
+   */
   readonly filteredUsers = computed(() => {
-    if (this.isLoading) {
-      return [];
-    }
-
     const currentUser = this.currentUser().toLowerCase();
-
+    if (this.isLoading) return [];
     return this.newAllUserData().filter((user) => {
-      const isAlreadyInList = this.users().some(
-        (userInList) => userInList.userId === user.userId
-      );
-
+      const isAlreadyInList = this.checkIfAlreadyInList(user);
       if (currentUser) {
         return (
           user.userName.toLowerCase().includes(currentUser) && !isAlreadyInList
@@ -239,7 +234,17 @@ export class AddUsersToChannelComponent {
     });
   });
 
-  readonly announcer = inject(LiveAnnouncer);
+  /**
+   * Checks if the user is already in the users array.
+   * @param user - The user to check.
+   */
+  checkIfAlreadyInList(user: {
+    userId: string;
+    userName: string;
+    photoURL: string;
+  }): boolean {
+    return this.users().some((userInList) => userInList.userId === user.userId);
+  }
 
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
@@ -250,28 +255,43 @@ export class AddUsersToChannelComponent {
       selectedUser &&
       !this.users().some((user) => user.userId === selectedUser.userId)
     ) {
-      this.users.update((users) => [
-        ...users,
-        {
-          userId: selectedUser.userId,
-          userName: selectedUser.userName,
-          photoURL: selectedUser.photoURL,
-        },
-      ]);
+      this.updateUsersList(selectedUser);
     }
     this.currentUser.set('');
-    if (event.input) {
-      event.input.value = '';
+    if (event.chipInput) {
+      event.chipInput.clear();
     }
   }
 
+  /**
+   * Updates the users list with the selected user.
+   * @param selectedUser - The user to add to the list.
+   */
+  updateUsersList(selectedUser: {
+    userId: string;
+    userName: string;
+    photoURL: string;
+  }): void {
+    return this.users.update((users) => [
+      ...users,
+      {
+        userId: selectedUser.userId,
+        userName: selectedUser.userName,
+        photoURL: selectedUser.photoURL,
+      },
+    ]);
+  }
+
+  /**
+   *  Removes the given user from the users array.
+   * @param user - The user to remove.
+   */
   remove(user: { userId: string; userName: string; photoURL: string }): void {
     this.users.update((users) => {
       const index = users.findIndex((f) => f.userId === user.userId);
       if (index < 0) {
         return users;
       }
-
       users.splice(index, 1);
       this.announcer.announce(`Removed ${user.userName}`);
       return [...users];
@@ -279,6 +299,10 @@ export class AddUsersToChannelComponent {
     this.checkUsersArray();
   }
 
+  /**
+   * Selects the given user and adds it to the users array.
+   * @param event - The MatAutocompleteSelectedEvent.
+   */
   selected(event: MatAutocompleteSelectedEvent): void {
     const selectedUser = this.newAllUserData().find(
       (user) => user.userId === event.option.value.userId
@@ -287,20 +311,24 @@ export class AddUsersToChannelComponent {
       selectedUser &&
       !this.users().some((user) => user.userId === selectedUser.userId)
     ) {
-      this.users.update((users) => [
-        ...users,
-        {
-          userId: selectedUser.userId,
-          userName: selectedUser.userName,
-          photoURL: selectedUser.photoURL,
-        },
-      ]);
+      this.updateUsersList(selectedUser);
     }
+    this.resetSelection(event);
+  }
+
+  /**
+   * Resets the current user input and deselects the selected user.
+   * @param event - The MatAutocompleteSelectedEvent.
+   */
+  resetSelection(event: MatAutocompleteSelectedEvent) {
     this.checkUsersArray();
     this.currentUser.set('');
     event.option.deselect();
   }
 
+  /**
+   * Creates a new channel and navigates to the new channel.
+   */
   createNewChannel() {
     this.bindDialogDataToNewChannelData();
     this.newChannelDataSubscription = this.channelService
