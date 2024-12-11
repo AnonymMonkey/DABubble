@@ -78,11 +78,11 @@ mat-toolbar {
 
   span {
     font-family: var(--font-nunito);
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    max-width: 80%; 
-    display: inline-block; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80%;
+    display: inline-block;
   }
 }
 
@@ -207,13 +207,6 @@ mat-toolbar {
   }
 
   ::ng-deep {
-    .cdk-overlay-pane {
-      width: 100%;
-      height: 100%;
-      right: 0;
-      // top: 0;
-    }
-
     .mat-mdc-menu-panel {
       width: 100% !important;
       height: fit-content !important;

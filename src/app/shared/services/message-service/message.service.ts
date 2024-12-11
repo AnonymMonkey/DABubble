@@ -1,14 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, Subscribable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { ChannelMessage } from '../../models/channel-message.model';
-import {
-  collection,
-  deleteDoc,
-  deleteField,
-  doc,
-  getDoc,
-  updateDoc,
-} from 'firebase/firestore';
+import { collection, deleteDoc, updateDoc } from 'firebase/firestore';
+import { deleteField, doc, getDoc } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
 import { collectionData, docData } from 'rxfire/firestore';
 import { UserService } from '../user-service/user.service';
@@ -52,26 +46,6 @@ export class MessageService {
   ngOnDestroy(): void {
     this.messagesSubscription?.unsubscribe();
     this.userDataSubscription?.unsubscribe();
-  }
-
-  /**
-   * Checks if two maps have the same keys and values
-   * @param map1 The first map
-   * @param map2 The second map
-   * @returns True if the maps have the same keys and values
-   */
-  areMapsEqual(
-    map1: Map<string, ChannelMessage>,
-    map2: Map<string, ChannelMessage>
-  ): boolean {
-    if (map1.size !== map2.size) return false;
-    for (let [key, value] of map1) {
-      const otherValue = map2.get(key);
-      if (!otherValue || value.messageId !== otherValue.messageId) {
-        return false;
-      }
-    }
-    return true;
   }
 
   /**
@@ -120,16 +94,92 @@ export class MessageService {
         );
         messageMap.set(message.messageId, message);
       });
-      if (
-        !this.areMapsEqual(
-          this.messagesDataMap.get(channelId) || new Map(),
-          messageMap
-        )
-      ) {
+      const previousMessages = this.messagesDataMap.get(channelId) || new Map();
+      if (!this.areMapsEqual(previousMessages, messageMap)) {
         this.messagesDataMap.set(channelId, messageMap);
         this.messagesDataMapSubject.next(new Map(this.messagesDataMap));
       }
     });
+  }
+
+  private areMapsEqual(
+    map1: Map<string, ChannelMessage>,
+    map2: Map<string, ChannelMessage>
+  ): boolean {
+    if (map1.size !== map2.size) return false;
+    for (const [key, value1] of map1) {
+      const value2 = map2.get(key);
+      if (!value2) return false;
+      if (
+        value1.content !== value2.content ||
+        value1.userId !== value2.userId ||
+        value1.time !== value2.time
+      )
+        return false;
+      if (!this.areReactionsEqual(value1.reactions, value2.reactions))
+        return false;
+      if (!this.areThreadsEqual(value1.thread, value2.thread)) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Checks if two arrays of reactions are equal.
+   * @param reactions1 The first array of reactions.
+   * @param reactions2 The second array of reactions.
+   * @returns True if the arrays are equal, false otherwise.
+   */
+  private areReactionsEqual(
+    reactions1: { emoji: string; count: number; userIds: string[] }[],
+    reactions2: { emoji: string; count: number; userIds: string[] }[]
+  ): boolean {
+    if (reactions1.length !== reactions2.length) return false;
+    for (let i = 0; i < reactions1.length; i++) {
+      const r1 = reactions1[i];
+      const r2 = reactions2[i];
+      if (
+        r1.emoji !== r2.emoji ||
+        r1.count !== r2.count ||
+        !this.areArraysEqual(r1.userIds, r2.userIds)
+      )
+        return false;
+    }
+    return true;
+  }
+
+  private areThreadsEqual(
+    thread1: Record<string, ThreadMessage>,
+    thread2: Record<string, ThreadMessage>
+  ): boolean {
+    const keys1 = Object.keys(thread1);
+    const keys2 = Object.keys(thread2);
+    if (keys1.length !== keys2.length) return false;
+    for (const key of keys1) {
+      if (!keys2.includes(key)) return false;
+      const t1 = thread1[key];
+      const t2 = thread2[key];
+      if (
+        t1.content !== t2.content ||
+        t1.userId !== t2.userId ||
+        t1.time !== t2.time ||
+        !this.areReactionsEqual(t1.reactions, t2.reactions)
+      )
+        return false;
+    }
+    return true;
+  }
+
+  /**
+   * Checks if two arrays are equal.
+   * @param arr1 The first array.
+   * @param arr2 The second array.
+   * @returns True if the arrays are equal, false otherwise.
+   */
+  private areArraysEqual(arr1: string[], arr2: string[]): boolean {
+    return (
+      arr1.length === arr2.length &&
+      arr1.every((value, index) => value === arr2[index])
+    );
   }
 
   /**
@@ -264,16 +314,9 @@ export class MessageService {
             !currentUser.uid ||
             !currentUser.displayName ||
             !currentUser.photoURL
-          ) {
-            console.error('User data is incomplete.');
+          )
             resolve(null);
-          } else {
-            resolve(currentUser);
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching user data:', error);
-          resolve(null);
+          else resolve(currentUser);
         },
       });
     });
@@ -295,22 +338,18 @@ export class MessageService {
       (r: { emoji: { shortName: any } }) =>
         r.emoji.shortName === emoji.shortName
     );
-
     if (existingReaction) {
-      if (existingReaction.userIds.includes(currentUser.uid)) {
-        return null;
-      } else {
+      if (existingReaction.userIds.includes(currentUser.uid)) return null;
+      else {
         existingReaction.count += 1;
         existingReaction.userIds.push(currentUser.uid);
       }
-    } else {
+    } else
       currentMessage.reactions.push({
         emoji: emoji,
         count: 1,
         userIds: [currentUser.uid],
       });
-    }
-
     return currentMessage.reactions;
   }
 

@@ -37,7 +37,7 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
   private threadSubscription: Subscription | undefined;
   private threadMessagesSubscription: Subscription | undefined;
 
-  @ViewChild('messageContainer') messageContainer!: ElementRef;
+  @ViewChild('messageContainerThread') messageContainer!: ElementRef;
   private unsubscribe$ = new Subject<void>();
 
   constructor(
@@ -52,6 +52,9 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscribeToActualMessage();
     this.subscribeToThreadMessages();
+    }
+
+  ngAfterViewChecked(): void {
     this.scrollToBottom();
   }
 
@@ -140,7 +143,7 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
    */
   private scrollToBottom(): void {
     if (this.messageContainer) {
-      this.messageContainer.nativeElement.scrollTop =
+      this.messageContainer.nativeElement.scrollBottom =
         this.messageContainer.nativeElement.scrollHeight;
     }
   }
