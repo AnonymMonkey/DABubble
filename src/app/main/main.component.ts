@@ -82,7 +82,7 @@ export class MainComponent implements OnInit, OnDestroy {
    */
   subscribeBreakpointObserver(): Subscription {
     return this.breakpointObserver
-      .observe(['(min-width: 992px)'])
+      .observe(['(min-width: 1250px)'])
       .subscribe((result) => {
         this.drawerMode = result.matches ? 'side' : 'over';
         this.mobileVersion = !result.matches;

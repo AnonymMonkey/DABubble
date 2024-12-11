@@ -102,7 +102,7 @@ export class MainMessageAreaComponent implements AfterViewInit, OnInit {
       }
     );
     this.breakpointObserverSubscription = this.breakpointObserver
-      .observe(['(min-width: 992px)'])
+      .observe(['(min-width: 1250px)'])
       .subscribe((result) => {
         this.drawerMode = result.matches ? 'side' : 'over';
       });
