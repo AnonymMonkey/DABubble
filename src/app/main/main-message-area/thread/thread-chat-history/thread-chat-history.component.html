@@ -1,33 +1,37 @@
-<div #messageContainer class="message-container">
-  <!-- Oberer Bereich: Zeige nur die aktuelle Nachricht -->
-  <div *ngIf="currentMessage">
-    <ng-container *ngIf="isCurrentUser(currentMessage); else otherUserMessage">
-      <app-own-thread-message-template [message]="currentMessage"></app-own-thread-message-template>
-    </ng-container>
-    <ng-template #otherUserMessage>
-      <app-other-thread-message-template [message]="currentMessage"></app-other-thread-message-template>
-    </ng-template>
-
-    <!-- Informationen zu Antworten -->
-    <div class="reply-info">
-      <span>
-        {{ threadMessages.length }} 
-        {{ threadMessages.length === 1 ? 'Antwort' : 'Antworten' }}
-      </span>
-      <hr class="reply-divider">
-    </div>
-    
-  </div>
-
-  <!-- Unterer Bereich: Liste aller Thread-Nachrichten -->
+<div #messageContainer class="message-container" #messageThreadContainer>
   <div class="thread-messages" *ngIf="currentMessage && threadMessages.length">
     <div *ngFor="let threadMessage of threadMessages">
-      <ng-container *ngIf="isCurrentUserThread(threadMessage); else otherUserThreadMessage">
-        <app-own-thread-message-template [message]="threadMessage"></app-own-thread-message-template>
+      <ng-container
+        *ngIf="isCurrentUserThread(threadMessage); else otherUserThreadMessage"
+      >
+        <app-own-thread-message-template
+          [message]="threadMessage"
+        ></app-own-thread-message-template>
       </ng-container>
       <ng-template #otherUserThreadMessage>
-        <app-other-thread-message-template [message]="threadMessage"></app-other-thread-message-template>
+        <app-other-thread-message-template
+          [message]="threadMessage"
+        ></app-other-thread-message-template>
       </ng-template>
+    </div>
+  </div>
+  <div *ngIf="currentMessage">
+    <ng-container *ngIf="isCurrentUser(currentMessage); else otherUserMessage">
+      <app-own-thread-message-template
+        [message]="currentMessage"
+      ></app-own-thread-message-template>
+    </ng-container>
+    <ng-template #otherUserMessage>
+      <app-other-thread-message-template
+        [message]="currentMessage"
+      ></app-other-thread-message-template>
+    </ng-template>
+    <div class="reply-info">
+      <span>
+        {{ threadMessages.length }}
+        {{ threadMessages.length === 1 ? "Antwort" : "Antworten" }}
+      </span>
+      <hr class="reply-divider" />
     </div>
   </div>
 </div>

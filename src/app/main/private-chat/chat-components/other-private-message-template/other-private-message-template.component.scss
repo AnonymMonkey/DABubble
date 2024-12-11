@@ -130,9 +130,9 @@ img {
 
 .name {
   font-weight: 700 !important;
-  white-space: nowrap; /* Verhindert Zeilenumbrüche */
-  overflow: hidden; /* Blendet überflüssigen Text aus */
-  text-overflow: ellipsis; /* Fügt "..." an, wenn der Text abgeschnitten wird */
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis;
 
   &:hover {
     cursor: pointer;

@@ -20,10 +20,8 @@ import { OtherMessageTemplateComponent } from '../chat-components/other-message-
 import { OwnMessageTemplateComponent } from '../chat-components/own-message-template/own-message-template.component';
 import { DateOfMessageComponent } from '../chat-components/date-of-message/date-of-message.component';
 import { UserService } from '../../../shared/services/user-service/user.service';
-import { ActivatedRoute } from '@angular/router';
 import { MessageService } from '../../../shared/services/message-service/message.service';
 import { ChannelMessage } from '../../../shared/models/channel-message.model';
-import { user } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-message-area-chat-history',

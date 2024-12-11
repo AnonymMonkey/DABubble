@@ -114,6 +114,9 @@ img {
 
 .name {
   font-weight: 700 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     cursor: pointer;

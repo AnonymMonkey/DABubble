@@ -4,7 +4,7 @@ section {
     height: 100%;
     width: 100%;
     gap: 20px;
-    overflow-y: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
 }
   
@@ -17,10 +17,10 @@ app-thread-header {
 app-thread-chat-history {
     display: flex;
     flex-grow: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
     flex-direction: column;
     justify-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
   
 app-message-area-new-message {
