@@ -33,14 +33,6 @@
     padding: 35px;
 
     .headline {
-      flex-direction: column;
-      gap: unset !important;
-
-      mat-icon {
-        justify-content: start !important;
-        width: 100%;
-      }
-
       h1 {
         font-size: var(--fontsize-32) !important;
       }
