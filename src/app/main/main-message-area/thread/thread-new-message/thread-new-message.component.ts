@@ -60,7 +60,10 @@ export class ThreadNewMessageComponent implements OnInit {
   @ViewChild('threadAttachmentSidenav', { read: ElementRef })
   attachmentSidenavElement!: ElementRef;
   currentBorderRadius: string = '30px 30px 30px 30px';
-  @ViewChild('mentionMenuThreadTrigger', { static: false, read: MatMenuTrigger })
+  @ViewChild('mentionMenuThreadTrigger', {
+    static: false,
+    read: MatMenuTrigger,
+  })
   mentionMenuTrigger!: MatMenuTrigger;
   mentionOpenedAtTextarea: boolean = false;
   @ViewChild('emojiMenuThreadTrigger', { static: false, read: MatMenuTrigger })
