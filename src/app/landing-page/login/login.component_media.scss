@@ -146,6 +146,10 @@
       font-size: unset !important;
     }
   }
+
+  .login mat-card {
+    min-height: fit-content !important;
+  }
 }
 
 /* smallest devices (300px and down) */

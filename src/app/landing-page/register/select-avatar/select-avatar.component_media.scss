@@ -97,6 +97,22 @@
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
+  .select-avatar {
+    mat-card {
+      gap: 10px;
+    }
+  }
+
+  .avatar-placeholder {
+    width: 120px !important;
+    height: 120px !important;
+
+    mat-icon {
+      width: 60px !important;
+      height: 60px !important;
+      font-size: 80px !important;
+    }
+  }
 }
 
 /* Very small devices (landscape tablets, 450px and down) */
@@ -109,17 +125,6 @@
 
   .select-avatar-list {
     gap: 8px !important;
-  }
-
-  .avatar-placeholder {
-    width: 120px !important;
-    height: 120px !important;
-
-    mat-icon {
-      width: 60px !important;
-      height: 60px !important;
-      font-size: 80px !important;
-    }
   }
 
   .avatars {
