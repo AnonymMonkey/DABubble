@@ -30,13 +30,7 @@
     ></app-add-users-to-channel>
   </mat-dialog-content>
   <mat-dialog-actions [align]="'end'">
-    <button
-      [disabled]="invalid"
-      class="button-primary"
-      mat-button
-      mat-dialog-close
-      (click)="create()"
-    >
+    <button [disabled]="invalid" class="button-primary" (click)="create()">
       Erstellen
     </button>
   </mat-dialog-actions>

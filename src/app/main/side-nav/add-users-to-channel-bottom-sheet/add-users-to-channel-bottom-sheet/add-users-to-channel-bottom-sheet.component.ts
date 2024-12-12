@@ -139,12 +139,11 @@ export class AddUsersToChannelBottomSheetComponent {
    * Creates a new channel or updates an existing one.
    */
   createNewOrUpdateExistingChannel() {
+    this._bottomSheetRef.dismiss();
     if (this.channelId === '') {
       this.addUsersToChannel.createNewChannel();
-      this._bottomSheetRef.dismiss();
     } else {
       this.addUsersToChannel.updateExistingChannel();
-      this._bottomSheetRef.dismiss();
     }
   }
 
