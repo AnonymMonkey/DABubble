@@ -24,6 +24,15 @@
       font-weight: 600 !important;
       color: var(--purple1-color) !important;
     }
+
+    &:disabled {
+      color: var(--grey-color) !important;
+      pointer-events: none;
+    }
+
+    &:disabled:hover {
+      font-weight: 400 !important;
+    }
   }
 }
 
@@ -47,9 +56,20 @@
     cursor: pointer;
 
     mat-icon {
-      color: var(--purple1-color)!important;
+      color: var(--purple1-color) !important;
     }
   }
+}
+
+.input-error {
+  box-shadow: 0 0 0 1px var(--error-color) !important;
+  &:focus-visible {
+    outline: unset !important;
+  }
+}
+
+.error-message {
+  color: var(--error-color);
 }
 
 mat-icon {

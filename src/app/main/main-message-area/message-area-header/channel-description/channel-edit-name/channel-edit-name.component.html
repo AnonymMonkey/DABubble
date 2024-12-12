@@ -1,14 +1,50 @@
 <section class="edit-channel-name-container">
   <div class="headline">
     <span>Channel-Name</span>
-    <button (click)="saveChannelName(); description.toggleEditName()">Speichern</button>
+    <button
+      [disabled]="editChannelNameForm.invalid"
+      (click)="saveChannelName(); description.toggleEditName()"
+    >
+      Speichern
+    </button>
     <div class="edit-icon-container">
-      <mat-icon class="material-symbols-outlined" (click)="description.toggleEditName()">check_circle</mat-icon>
+      <mat-icon
+        class="material-symbols-outlined"
+        (click)="description.toggleEditName()"
+        >check_circle</mat-icon
+      >
     </div>
   </div>
   <div class="input-secondary">
-    <input [(ngModel)]="newChannelName" placeholder="Channel-Name" (keydown.enter)="saveChannelName(); description.toggleEditName()" />
+    <input
+      #channelNameInput
+      placeholder="z.B Kooperationsprojekte"
+      [formControl]="channelNameControl"
+      [ngClass]="{
+        'input-error': channelNameControl.invalid && channelNameControl.dirty
+      }"
+      placeholder="Channel-Name"
+      (keydown.enter)="saveChannelNameOnEnter()"
+    />
     <mat-icon class="material-symbols-outlined">tag</mat-icon>
   </div>
+  <div class="error-message">
+    <ng-container
+      *ngIf="
+        channelNameControl.hasError('required') && channelNameControl.dirty
+      "
+    >
+      Channel-Name ist erforderlich!
+    </ng-container>
+    <ng-container *ngIf="channelNameControl.hasError('maxlength')">
+      Channel-Name ist zu lang!
+    </ng-container>
+    <ng-container
+      *ngIf="
+        channelNameControl.hasError('nameExists') && channelNameControl.dirty
+      "
+    >
+      Channel-Name existiert bereits!
+    </ng-container>
+  </div>
 </section>
-
