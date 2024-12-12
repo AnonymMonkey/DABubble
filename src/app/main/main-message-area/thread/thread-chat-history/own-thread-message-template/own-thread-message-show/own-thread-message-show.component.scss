@@ -15,7 +15,7 @@
 .name-and-time-own {
   height: 25px;
   display: flex;
-  flex-direction: row-reverse; /* add this */
+  flex-direction: row-reverse;
   gap: 30px;
   position: relative;
 }
@@ -25,6 +25,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 130px;
 
   &:hover {
     cursor: pointer;

@@ -12,9 +12,21 @@ import { AttachmentPreviewComponent } from '../../../../shared/components/attach
 @Component({
   selector: 'app-other-private-message-template',
   standalone: true,
-  imports: [NgClass, NgFor, AttachmentPreviewComponent, DatePipe, EmojiComponent, MatIcon, MatMenu, MatMenuTrigger, EmojiPickerComponent, MessageReactionsComponent, NgIf],
+  imports: [
+    NgClass,
+    NgFor,
+    AttachmentPreviewComponent,
+    DatePipe,
+    EmojiComponent,
+    MatIcon,
+    MatMenu,
+    MatMenuTrigger,
+    EmojiPickerComponent,
+    MessageReactionsComponent,
+    NgIf,
+  ],
   templateUrl: './other-private-message-template.component.html',
-  styleUrls: ['./other-private-message-template.component.scss', './other-private-message-template.component_media.scss',],
+  styleUrls: ['./other-private-message-template.component.scss'],
 })
 export class OtherPrivateMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
@@ -74,6 +86,6 @@ export class OtherPrivateMessageTemplateComponent {
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
-    return 'Keine Antworten'; 
+    return 'Keine Antworten';
   }
 }

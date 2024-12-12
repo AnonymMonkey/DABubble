@@ -198,6 +198,12 @@ app-attachment-preview {
   }
 }
 
+@media screen and (max-width: 500px) {
+  .name {
+    max-width: 120px;
+  }
+}
+
 @media screen and (max-width: 400px) {
   .name-and-time {
     gap: 10px;

@@ -130,8 +130,8 @@ img {
 
 .name {
   font-weight: 700 !important;
-  white-space: nowrap; 
-  overflow: hidden; 
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 
   &:hover {
@@ -161,9 +161,9 @@ img {
     display: flex;
     justify-content: flex-start;
     max-width: 100%;
-    flex-wrap: wrap; /* Ermöglicht den Zeilenumbruch */
-    word-wrap: break-word; /* Bricht lange Wörter */
-    overflow-wrap: break-word; /* Zusätzlicher Schutz für Zeilenumbrüche */
+    flex-wrap: wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     word-break: break-all;
     hyphens: auto;
   }
@@ -211,6 +211,12 @@ app-attachment-preview {
       justify-content: center;
       display: flex;
     }
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .name {
+    max-width: 120px;
   }
 }
 

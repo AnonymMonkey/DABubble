@@ -55,9 +55,9 @@
     display: flex;
     justify-content: flex-end;
     max-width: 100%;
-    flex-wrap: wrap; /* Ermöglicht den Zeilenumbruch */
-    word-wrap: break-word; /* Bricht lange Wörter */
-    overflow-wrap: break-word; /* Zusätzlicher Schutz für Zeilenumbrüche */
+    flex-wrap: wrap;
+    word-wrap: break-word; 
+    overflow-wrap: break-word;
     word-break: break-all;
     hyphens: auto;
   }
@@ -75,7 +75,7 @@
   display: flex;
   gap: 20px;
   align-items: center;
-  justify-content: flex-end; /* add this */
+  justify-content: flex-end; 
 
   span:first-of-type {
     color: var(--purple3-color);
@@ -104,6 +104,12 @@ app-attachment-preview {
   display: none;
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
+}
+
+@media only screen and (max-width: 500px) {
+  .name {
+    max-width: 120px;
+  }
 }
 
 @media screen and (max-width: 400px) {
