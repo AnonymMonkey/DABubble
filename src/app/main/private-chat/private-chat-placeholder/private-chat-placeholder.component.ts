@@ -13,7 +13,6 @@ import { Subscription } from 'rxjs';
   templateUrl: './private-chat-placeholder.component.html',
   styleUrls: [
     './private-chat-placeholder.component.scss',
-    './private-chat-placeholder.component_media.scss',
   ],
 })
 export class PrivateChatPlaceholderComponent implements OnInit {

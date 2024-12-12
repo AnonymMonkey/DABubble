@@ -51,3 +51,13 @@ mat-card-content {
 .mat-mdc-card-content {
   padding: 0 !important;
 }
+
+@media only screen and (max-width: 600px) {
+  app-private-chat-placeholder {
+    max-width: 98vw;
+  }
+
+  app-private-chat-header {
+    max-width: 98vw;
+  }
+}

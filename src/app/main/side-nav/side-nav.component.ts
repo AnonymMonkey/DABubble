@@ -3,11 +3,12 @@ import {
   inject,
   Input,
   signal,
+  ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { CommonModule } from '@angular/common';
@@ -25,6 +26,7 @@ import { ActiveChatButtonService } from '../../shared/services/profile-chat-butt
 import { SearchBarComponent } from '../../shared/components/search-bar/search-bar.component';
 import { BehaviorService } from '../../shared/services/behavior-service/behavior.service';
 import { Subscription } from 'rxjs';
+import { FocusMonitor } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-side-nav',
@@ -60,7 +62,8 @@ export class SideNavComponent {
   private userDataSubscription: Subscription | undefined;
   private privateChatSubscription: Subscription | undefined;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog, private focusMonitor: FocusMonitor) {}
+  // @ViewChild('createChannel') button!: MatButton;
 
   /**
    * Initializes the component and loads all user data.
@@ -70,6 +73,10 @@ export class SideNavComponent {
       this.allUserData = data;
     });
     this.loadOnlineStatus();
+  }
+
+  ngAfterViewInit(): void {
+    // this.focusMonitor.stopMonitoring(this.button._elementRef);
   }
 
   /**
