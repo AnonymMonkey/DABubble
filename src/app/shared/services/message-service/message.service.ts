@@ -152,6 +152,12 @@ export class MessageService {
     return true;
   }
 
+  /**
+   * Checks if two threads are equal.
+   * @param thread1 The first thread.
+   * @param thread2 The second thread.
+   * @returns True if the threads are equal, false otherwise.
+   */
   private areThreadsEqual(
     thread1: Record<string, ThreadMessage>,
     thread2: Record<string, ThreadMessage>
