@@ -84,6 +84,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   mentionMenuTrigger!: MatMenuTrigger;
   @ViewChild('emojiMenuTrigger', { static: false, read: MatMenuTrigger })
   emojiMenuTrigger!: MatMenuTrigger;
+  @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
 
   constructor(
     private firestore: Firestore,
@@ -100,6 +101,10 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
     this.subscribeParams();
     this.subscribeUserData();
     this.subscribeCloseMenus();
+  }
+
+  ngAfterViewInit(): void {
+    this.messageInput.nativeElement.focus();
   }
 
   /**
