@@ -17,7 +17,6 @@ import { AttachmentPreviewComponent } from '../../../../../shared/components/att
   templateUrl: './own-private-message-show.component.html',
   styleUrls: [
     './own-private-message-show.component.scss',
-    './own-private-message-show.component_media.scss',
   ],
 })
 export class OwnPrivateMessageShowComponent {
