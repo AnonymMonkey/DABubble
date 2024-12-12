@@ -16,14 +16,6 @@ export class ErrorService {
   }
 
   /**
-   *  Sends an error to the server.
-   * @param error - The error to send
-   */
-  private sendErrorToServer(error: any): void {
-    console.log('Error sent to server:', error);
-  }
-
-  /**
    * Shows a user notification.
    * @param message - The message to show
    */

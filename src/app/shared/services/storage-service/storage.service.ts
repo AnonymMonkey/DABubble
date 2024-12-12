@@ -110,46 +110,6 @@ export class StorageService {
     }
   }
 
-  /*   async deleteExistingFiles(folderPath: string): Promise<void> {
-    const encodedFolderPath = encodeURIComponent(folderPath);
-    const folderRef = ref(this.storage, encodedFolderPath);
-    try {
-      const listResult = await listAll(folderRef);
-      if (!listResult.items.length) {
-        console.log('Keine Dateien gefunden, die gelöscht werden könnten.');
-        return;
-      }
-      const deletePromises = listResult.items.map((itemRef) =>
-        deleteObject(itemRef)
-      );
-      await Promise.all(deletePromises);
-      console.log('Vorhandene Dateien erfolgreich gelöscht.');
-    } catch (error) {
-      console.error('Fehler beim Löschen vorhandener Dateien:', error);
-    }
-  } */
-
-  /*   async clearTempFiles(email: string): Promise<void> {
-    const tempPath = `temp/${email}/uploads/`;
-    const folderRef = ref(this.storage, tempPath);
-    try {
-      console.log('Pfad ist:' + tempPath);
-      console.log('Ref ist:' + folderRef);
-      const listResult = await listAll(folderRef);
-      if (listResult.items.length === 0) {
-        console.log('Keine temporären Dateien zum Löschen gefunden.');
-        return;
-      }
-      const deletePromises = listResult.items.map((itemRef) =>
-        deleteObject(itemRef)
-      );
-      await Promise.all(deletePromises);
-      console.log('Temporäre Dateien erfolgreich gelöscht.');
-    } catch (error) {
-      console.error('Fehler beim Löschen temporärer Dateien:', error);
-    }
-  } */
-
   /**
    * Deletes a specific file from Firebase Storage based on its URL.
    * @param fileUrl - The URL of the file to be deleted.

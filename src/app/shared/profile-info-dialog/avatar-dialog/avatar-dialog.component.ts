@@ -32,7 +32,6 @@ export class AvatarDialogComponent {
    */
   selectAvatar(avatar: string) {
     this.photoURL = avatar;
-    console.log(this.photoURL);
   }
 
   /**
