@@ -1,7 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { ChannelMessage } from '../../models/channel-message.model';
-import { collection, deleteDoc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  DocumentReference,
+  updateDoc,
+} from 'firebase/firestore';
 import { deleteField, doc, getDoc } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
 import { collectionData, docData } from 'rxfire/firestore';
@@ -61,39 +66,7 @@ export class MessageService {
       idField: 'messageId',
     }).subscribe((messages) => {
       const messageMap = new Map<string, ChannelMessage>();
-      messages.forEach((messageData) => {
-        const message = new ChannelMessage(
-          messageData['content'],
-          messageData['userId'],
-          messageData['messageId'],
-          messageData['time'],
-          messageData['attachmentUrls'] || []
-        );
-        message.reactions = (messageData['reactions'] || []).map(
-          (reaction: any) => ({
-            emoji: reaction.emoji,
-            count: reaction.count,
-            userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],
-          })
-        );
-        const threadData = messageData['thread'] || {};
-        message.thread = Object.fromEntries(
-          Object.entries(threadData).map(
-            ([threadId, threadMessageData]: [string, any]) => [
-              threadId,
-              new ThreadMessage(
-                threadMessageData.content,
-                threadMessageData.userId,
-                threadId,
-                threadMessageData.reactions || [],
-                threadMessageData.time,
-                threadMessageData.attachmentUrls || []
-              ),
-            ]
-          )
-        );
-        messageMap.set(message.messageId, message);
-      });
+      this.setThreadAndMessageData(messages, messageMap);
       const previousMessages = this.messagesDataMap.get(channelId) || new Map();
       if (!this.areMapsEqual(previousMessages, messageMap)) {
         this.messagesDataMap.set(channelId, messageMap);
@@ -102,6 +75,70 @@ export class MessageService {
     });
   }
 
+  /**
+   * Sets the thread and message data for a list of messages.
+   * @param messages The list of messages to set the data for.
+   * @param messageMap The map of messages to set the data for.
+   */
+  setThreadAndMessageData(messages: any[], messageMap: Map<string, ChannelMessage>) {
+    messages.forEach((messageData) => {
+      const message = this.setMessageData(messageData);
+      const threadData = messageData['thread'] || {};
+      message.thread = this.setThreadData(threadData);
+      messageMap.set(message.messageId, message);
+    });
+  }
+
+  /**
+   * Sets the message data for a message.
+   * @param messageData The message data to set for the message.
+   */
+  setMessageData(messageData: any) {
+    const message = new ChannelMessage(
+      messageData['content'],
+      messageData['userId'],
+      messageData['messageId'],
+      messageData['time'],
+      messageData['attachmentUrls'] || []
+    );
+    message.reactions = (messageData['reactions'] || []).map(
+      (reaction: any) => ({
+        emoji: reaction.emoji,
+        count: reaction.count,
+        userIds: Array.isArray(reaction.userIds) ? reaction.userIds : [],
+      })
+    );
+    return message;
+  }
+
+  /**
+   * Sets the thread data for a message.
+   * @param threadData The thread data to set for the message.
+   */
+  setThreadData(threadData: any) {
+    return Object.fromEntries(
+      Object.entries(threadData).map(
+        ([threadId, threadMessageData]: [string, any]) => [
+          threadId,
+          new ThreadMessage(
+            threadMessageData.content,
+            threadMessageData.userId,
+            threadId,
+            threadMessageData.reactions || [],
+            threadMessageData.time,
+            threadMessageData.attachmentUrls || []
+          ),
+        ]
+      )
+    );
+  }
+
+  /**
+   * Checks if two maps of messages are equal.
+   * @param map1 The first map of messages.
+   * @param map2 The second map of messages.
+   * @returns True if the maps are equal, false otherwise.
+   */
   private areMapsEqual(
     map1: Map<string, ChannelMessage>,
     map2: Map<string, ChannelMessage>
@@ -147,6 +184,12 @@ export class MessageService {
     return true;
   }
 
+  /**
+   * Checks if two threads are equal.
+   * @param thread1 The first thread.
+   * @param thread2 The second thread.
+   * @returns True if the threads are equal, false otherwise.
+   */
   private areThreadsEqual(
     thread1: Record<string, ThreadMessage>,
     thread2: Record<string, ThreadMessage>
@@ -220,33 +263,46 @@ export class MessageService {
   ): Promise<void> {
     const userId = this.userService.userId;
     if (!userId || !privateChatId || !messageId) {
-      console.error('Fehlende Benutzer-ID, Private-Chat-ID oder Message-ID.');
       return;
     }
     const userDocRef = doc(this.firestore, `users/${userId}`);
     try {
-      const userDocSnapshot = await getDoc(userDocRef);
-      if (userDocSnapshot.exists()) {
-        const privateChatData = userDocSnapshot.data()?.['privateChat'];
-        const messages = privateChatData?.[privateChatId]?.messages;
-        if (messages && messages[messageId]) {
-          messages[messageId].content = newContent;
-          await updateDoc(userDocRef, {
-            [`privateChat.${privateChatId}.messages.${messageId}.content`]:
-              newContent,
-          });
-        } else {
-          console.log('Nachricht existiert nicht.');
-        }
-      } else {
-        console.log('Benutzerdokument existiert nicht.');
-      }
-    } catch (error) {
-      console.error(
-        'Fehler beim Aktualisieren der Nachricht im Firestore:',
-        error
+      this.updateMessageContentPrivateChatFirestore(
+        privateChatId,
+        messageId,
+        newContent,
+        userDocRef
       );
+    } catch (error) {
       throw error;
+    }
+  }
+
+  /**
+   * Updates the content of a message in a private chat in Firestore.
+   *
+   * @param privateChatId The ID of the private chat.
+   * @param messageId The ID of the message to update.
+   * @param newContent The new content of the message.
+   * @param userDocRef The reference to the user document in Firestore.
+   */
+  async updateMessageContentPrivateChatFirestore(
+    privateChatId: string,
+    messageId: string,
+    newContent: string,
+    userDocRef: DocumentReference
+  ): Promise<void> {
+    const userDocSnapshot = await getDoc(userDocRef);
+    if (userDocSnapshot.exists()) {
+      const privateChatData = userDocSnapshot.data()?.['privateChat'];
+      const messages = privateChatData?.[privateChatId]?.messages;
+      if (messages && messages[messageId]) {
+        messages[messageId].content = newContent;
+        await updateDoc(userDocRef, {
+          [`privateChat.${privateChatId}.messages.${messageId}.content`]:
+            newContent,
+        });
+      }
     }
   }
 
