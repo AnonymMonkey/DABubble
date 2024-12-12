@@ -73,7 +73,7 @@ export class PrivateChatService implements OnDestroy {
           }
         }
       } catch (error) {
-        console.error('Fehler beim Abrufen der Nachricht:', error);
+        console.error('Fehler beim Abrufen des privaten Chats:', error);
       }
     }
   }
@@ -141,7 +141,7 @@ export class PrivateChatService implements OnDestroy {
       }),
       catchError((error) => {
         console.error('Fehler beim Abrufen der privaten Chats:', error);
-        return of([]); 
+        return of([]);
       })
     );
   }
@@ -181,6 +181,13 @@ export class PrivateChatService implements OnDestroy {
     };
   }
 
+  /**
+   * Updates the private chats of the current user and the target user.
+   * @param currentUserRef The reference to the current user document.
+   * @param targetUserRef The reference to the target user document.
+   * @param newChat The new chat data.
+   * @returns An Observable that emits the ID of the updated chat.
+   */
   updateUsersChats(
     currentUserRef: DocumentReference,
     targetUserRef: DocumentReference,
@@ -200,11 +207,17 @@ export class PrivateChatService implements OnDestroy {
           'Fehler beim Aktualisieren der Chats der Benutzer:',
           error
         );
-        return of(''); 
+        return of('');
       })
     );
   }
 
+  /**
+   * Opens or creates a private chat between the current user and the target user.
+   * @param currentUser The current user data.
+   * @param targetUser The target user data.
+   * @returns An Observable that emits the ID of the opened or created private chat.
+   */
   openOrCreatePrivateChat(
     currentUser: UserData,
     targetUser: UserData
@@ -212,7 +225,6 @@ export class PrivateChatService implements OnDestroy {
     const chatId = this.generateChatId(currentUser.uid, targetUser.uid);
     const currentUserRef = doc(this.firestore, 'users', currentUser.uid);
     const targetUserRef = doc(this.firestore, 'users', targetUser.uid);
-
     return combineLatest([
       this.getPrivateChats(currentUserRef),
       this.getPrivateChats(targetUserRef),
@@ -394,7 +406,11 @@ export class PrivateChatService implements OnDestroy {
     const secondUserAlreadyReacted = reaction.userIds.includes(
       secondUserIdForSaving
     );
-    if (reaction.userIds.includes(userId) && secondUserAlreadyReacted && secondUserIdForSaving !== userId) {
+    if (
+      reaction.userIds.includes(userId) &&
+      secondUserAlreadyReacted &&
+      secondUserIdForSaving !== userId
+    ) {
       reaction.count = 2;
     }
   }
