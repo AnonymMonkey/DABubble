@@ -227,8 +227,6 @@ export class SearchBarComponent {
         this.navigateToChannel(option);
       } else if (option.value.startsWith('@')) {
         this.navigateToPrivateChat(option);
-      } else {
-        console.log('Kein weiterleiten möglich!');
       }
     } else {
       console.error('Ungültige Option:', option);

@@ -25,7 +25,7 @@ export class ChannelEditDescriptionComponent implements OnInit {
   constructor(
     public description: ChannelDescriptionComponent,
     private channelService: ChannelService,
-    private userService: UserService 
+    private userService: UserService
   ) {}
 
   /**
@@ -37,11 +37,13 @@ export class ChannelEditDescriptionComponent implements OnInit {
         this.currentChannel = channel;
         this.newDescription = channel?.description || '';
         if (channel?.admin?.userId) {
-          this.userDataSubscription = this.userService.getUserDataByUID(channel.admin.userId).subscribe({
-            next: (userData) => {
-              this.adminUserName = userData?.displayName || 'Unbekannt';
-            },
-          });
+          this.userDataSubscription = this.userService
+            .getUserDataByUID(channel.admin.userId)
+            .subscribe({
+              next: (userData) => {
+                this.adminUserName = userData?.displayName || 'Unbekannt';
+              },
+            });
         }
       },
     });
@@ -65,14 +67,12 @@ export class ChannelEditDescriptionComponent implements OnInit {
       this.currentChannel &&
       this.newDescription !== this.currentChannel.description
     ) {
-      this.channelDescriptionSubscription =  this.channelService
+      this.channelDescriptionSubscription = this.channelService
         .updateChannelDescription(
           this.currentChannel.channelId,
           this.newDescription
         )
-        .subscribe(() => {
-          console.log('Beschreibung aktualisiert');
-        });
+        .subscribe();
     }
   }
 }
