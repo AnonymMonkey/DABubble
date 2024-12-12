@@ -151,6 +151,9 @@ export class ChannelEditNameComponent implements OnInit {
     };
   }
 
+  /**
+   * Saves the channel name and toggles the edit name mode.
+   */
   saveChannelNameOnEnter() {
     if (this.channelNameControl.valid) {
       this.saveChannelName();
