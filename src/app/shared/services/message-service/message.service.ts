@@ -75,6 +75,11 @@ export class MessageService {
     });
   }
 
+  /**
+   * Sets the thread and message data for a list of messages.
+   * @param messages The list of messages to set the data for.
+   * @param messageMap The map of messages to set the data for.
+   */
   setThreadAndMessageData(messages: any[], messageMap: Map<string, ChannelMessage>) {
     messages.forEach((messageData) => {
       const message = this.setMessageData(messageData);
