@@ -12,29 +12,49 @@
     themenbezogen sein #marketing zum Beispiel.
   </p>
   <h4>Channel-Name</h4>
-  <form class="form-field">
-    <mat-icon class="material-symbols-outlined">tag</mat-icon>
-    <input
-      placeholder="z.B Kooperationsprojekte"
-      required
-      [(ngModel)]="channelName"
-      name="channelName"
-      (ngModelChange)="checkInputEmpty()"
-      maxlength="25"
-    />
-  </form>
+  <div class="form-field-with-error">
+    <form class="form-field">
+      <mat-icon class="material-symbols-outlined">tag</mat-icon>
+      <input
+        #channelNameInput
+        placeholder="z.B Kooperationsprojekte"
+        [formControl]="channelNameControl"
+        [ngClass]="{
+          'input-error': channelNameControl.invalid && channelNameControl.dirty
+        }"
+        (keydown.enter)="openAddUsersToChannel()"
+      />
+    </form>
+    <div class="error-message">
+      <ng-container
+        *ngIf="
+          channelNameControl.hasError('required') && channelNameControl.dirty
+        "
+      >
+        Channel-Name ist erforderlich!
+      </ng-container>
+      <ng-container *ngIf="channelNameControl.hasError('maxlength')">
+        Channel-Name ist zu lang!
+      </ng-container>
+      <ng-container *ngIf="channelNameControl.hasError('nameExists')">
+        Channel-Name existiert bereits!
+      </ng-container>
+    </div>
+  </div>
   <h4>Beschreibung <span>(optional)</span></h4>
   <form class="form-field description">
     <input
+      #descriptionInput
       [(ngModel)]="description"
       name="description"
       placeholder="Dein Text hier"
+      (keydown.enter)="openAddUsersToChannel()"
     />
   </form>
   <button
     class="button-primary"
     (click)="openAddUsersToChannel()"
-    [disabled]="invalid"
+    [disabled]="createChannelForm.invalid"
   >
     Weiter
   </button>

@@ -1,7 +1,24 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  Component,
+  ElementRef,
+  Inject,
+  inject,
+  ViewChild,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { AddUsersToNewChannelDialogComponent } from '../add-users-to-new-channel-dialog/add-users-to-new-channel-dialog.component';
 import { CommonModule } from '@angular/common';
@@ -9,32 +26,63 @@ import { Subscription } from 'rxjs';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddUsersToChannelBottomSheetComponent } from '../add-users-to-channel-bottom-sheet/add-users-to-channel-bottom-sheet/add-users-to-channel-bottom-sheet.component';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { Channel } from '../../../shared/models/channel.model';
 
 @Component({
   selector: 'app-create-channel-dialog',
   standalone: true,
-  imports: [MatButtonModule, MatIcon, FormsModule, CommonModule],
+  imports: [
+    MatButtonModule,
+    MatIcon,
+    FormsModule,
+    CommonModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './create-channel-dialog.component.html',
   styleUrl: './create-channel-dialog.component.scss',
 })
 export class CreateChannelDialogComponent {
-  channelName: string = '';
+  @ViewChild('channelNameInput') channelNameInputElement!: ElementRef;
+  @ViewChild('descriptionInput') descriptionInputElement!: ElementRef;
   description: string = '';
-  invalid: boolean = true;
   isSecondDialogOpen: boolean = false;
   secondDialogRefSubscription: Subscription | undefined;
   bottomSheet = inject(MatBottomSheet);
   breakpointObserver = inject(BreakpointObserver);
   breakpointSubscription!: Subscription;
   mobileVersion: boolean = false;
+  createChannelForm!: FormGroup;
+  formbuilder = inject(FormBuilder);
+  allChannelNames: string[] = [];
 
   readonly dialogRef = inject(MatDialogRef<CreateChannelDialogComponent>);
-  constructor(public dialog: MatDialog) {}
+  constructor(
+    public dialog: MatDialog,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {}
 
   /**
    * Initializes the component and subscribes to breakpoint changes.
    */
   ngOnInit(): void {
+    this.breakpointChanges();
+    this.loadAllChannelNames();
+    this.channelForm();
+  }
+
+  /**
+   * Loads all channel names from the data.
+   */
+  loadAllChannelNames() {
+    this.allChannelNames = Array.from(
+      this.data.allChannelsData.values().map((c: Channel) => c.channelName)
+    );
+  }
+
+  /**
+   * Subscribes to breakpoint changes and updates the mobileVersion property.
+   */
+  breakpointChanges() {
     this.breakpointSubscription = this.breakpointObserver
       .observe(['(max-width: 600px)'])
       .subscribe((result) => {
@@ -46,11 +94,39 @@ export class CreateChannelDialogComponent {
   }
 
   /**
-   * Checks if the input is empty.
+   * Creates the channel form.
    */
-  checkInputEmpty() {
-    if (this.channelName.length == 0) this.invalid = true;
-    else this.invalid = false;
+  channelForm() {
+    this.createChannelForm = this.formbuilder.group({
+      channelName: [
+        '',
+        [
+          Validators.required,
+          Validators.maxLength(25),
+          this.nameExistsValidator(this.allChannelNames),
+        ],
+        ,
+      ],
+    });
+  }
+
+  /**
+   * Returns the channel name control.
+   */
+  get channelNameControl(): FormControl {
+    return this.createChannelForm.get('channelName') as FormControl;
+  }
+
+  /**
+   * Custom Validator: proofs if the name already exists
+   */
+  nameExistsValidator(existingNames: string[]) {
+    return (control: FormControl) => {
+      if (existingNames.includes(control.value?.trim())) {
+        return { nameExists: true };
+      }
+      return null;
+    };
   }
 
   /**
@@ -69,7 +145,8 @@ export class CreateChannelDialogComponent {
     const secondDialogRef = this.dialog.open(
       AddUsersToNewChannelDialogComponent
     );
-    secondDialogRef.componentInstance.channelName = this.channelName;
+    secondDialogRef.componentInstance.channelName =
+      this.channelNameControl.value;
     secondDialogRef.componentInstance.description = this.description;
     this.secondDialogRefSubscription = secondDialogRef
       .afterClosed()
@@ -87,7 +164,7 @@ export class CreateChannelDialogComponent {
       AddUsersToChannelBottomSheetComponent,
       {
         data: {
-          channelName: this.channelName,
+          channelName: this.channelNameControl.value,
           description: this.description,
         },
       }

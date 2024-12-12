@@ -86,7 +86,7 @@ export class SideNavComponent {
    */
   openCreateChannelDialog(): void {
     this.dialog.open(CreateChannelDialogComponent, {
-      panelClass: 'create-channel-dialog',
+      data: { allChannelsData: this.allChannelsData },
     });
   }
 
