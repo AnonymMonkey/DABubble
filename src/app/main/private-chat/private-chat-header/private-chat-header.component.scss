@@ -37,7 +37,6 @@ mat-toolbar {
   font-size: 24px;
   gap: 20px;
   padding: 5px 20px !important;
-  max-width: 90%;
 
   span {
     overflow: hidden;
@@ -62,4 +61,16 @@ mat-toolbar {
 .image-with-badge {
   align-items: center;
   display: flex;
+}
+
+@media only screen and (max-width: 500px) {
+  .other-user-button {
+    max-width: 90%;
+  }
+}
+
+@media only screen and (max-width: 350px) {
+  .other-user {
+    max-width: 88vw;
+  }
 }

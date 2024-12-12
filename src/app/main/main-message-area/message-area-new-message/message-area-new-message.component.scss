@@ -1,7 +1,7 @@
 ::ng-deep {
   .mat-mdc-menu-panel {
     overflow: hidden !important;
-    max-width: none;
+    max-width: none !important;
   }
 
   emoji-mart-anchors {
@@ -192,6 +192,10 @@ app-attachment-preview {
     .cdk-overlay-pane {
       height: fit-content;
       width: fit-content;
+    }
+
+    .mat-mdc-menu-panel {
+      border-radius: var(--border-radius);
     }
   }
 }
