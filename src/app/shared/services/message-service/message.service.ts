@@ -1,7 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { ChannelMessage } from '../../models/channel-message.model';
-import { collection, deleteDoc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  DocumentReference,
+  updateDoc,
+} from 'firebase/firestore';
 import { deleteField, doc, getDoc } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
 import { collectionData, docData } from 'rxfire/firestore';
@@ -147,6 +152,12 @@ export class MessageService {
     return true;
   }
 
+  /**
+   * Checks if two threads are equal.
+   * @param thread1 The first thread.
+   * @param thread2 The second thread.
+   * @returns True if the threads are equal, false otherwise.
+   */
   private areThreadsEqual(
     thread1: Record<string, ThreadMessage>,
     thread2: Record<string, ThreadMessage>
@@ -220,33 +231,46 @@ export class MessageService {
   ): Promise<void> {
     const userId = this.userService.userId;
     if (!userId || !privateChatId || !messageId) {
-      console.error('Fehlende Benutzer-ID, Private-Chat-ID oder Message-ID.');
       return;
     }
     const userDocRef = doc(this.firestore, `users/${userId}`);
     try {
-      const userDocSnapshot = await getDoc(userDocRef);
-      if (userDocSnapshot.exists()) {
-        const privateChatData = userDocSnapshot.data()?.['privateChat'];
-        const messages = privateChatData?.[privateChatId]?.messages;
-        if (messages && messages[messageId]) {
-          messages[messageId].content = newContent;
-          await updateDoc(userDocRef, {
-            [`privateChat.${privateChatId}.messages.${messageId}.content`]:
-              newContent,
-          });
-        } else {
-          console.log('Nachricht existiert nicht.');
-        }
-      } else {
-        console.log('Benutzerdokument existiert nicht.');
-      }
-    } catch (error) {
-      console.error(
-        'Fehler beim Aktualisieren der Nachricht im Firestore:',
-        error
+      this.updateMessageContentPrivateChatFirestore(
+        privateChatId,
+        messageId,
+        newContent,
+        userDocRef
       );
+    } catch (error) {
       throw error;
+    }
+  }
+
+  /**
+   * Updates the content of a message in a private chat in Firestore.
+   *
+   * @param privateChatId The ID of the private chat.
+   * @param messageId The ID of the message to update.
+   * @param newContent The new content of the message.
+   * @param userDocRef The reference to the user document in Firestore.
+   */
+  async updateMessageContentPrivateChatFirestore(
+    privateChatId: string,
+    messageId: string,
+    newContent: string,
+    userDocRef: DocumentReference
+  ): Promise<void> {
+    const userDocSnapshot = await getDoc(userDocRef);
+    if (userDocSnapshot.exists()) {
+      const privateChatData = userDocSnapshot.data()?.['privateChat'];
+      const messages = privateChatData?.[privateChatId]?.messages;
+      if (messages && messages[messageId]) {
+        messages[messageId].content = newContent;
+        await updateDoc(userDocRef, {
+          [`privateChat.${privateChatId}.messages.${messageId}.content`]:
+            newContent,
+        });
+      }
     }
   }
 
