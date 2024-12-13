@@ -465,15 +465,18 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
    */
   checkForMention(event: Event): void {
     const textareaValue = (event.target as HTMLTextAreaElement).value;
-    if (textareaValue.includes('@')) {
+    const lastChar = textareaValue.slice(-1);
+    if (lastChar === '@') {
       this.mentionTag = '@';
       this.toggleBorder('mention');
       this.openMentionMenu();
-    } else if (textareaValue.includes('#')) {
+    } else if (lastChar === '#') {
       this.mentionTag = '#';
-      this.toggleBorder('mention');
+      this.toggleBorder('upload');
       this.openMentionMenu();
-    } else this.closeMentionMenu();
+    } else {
+      this.closeMentionMenu();
+    }
   }
 
   /**
