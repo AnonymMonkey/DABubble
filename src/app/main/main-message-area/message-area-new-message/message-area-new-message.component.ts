@@ -17,7 +17,7 @@ import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MentionUserComponent } from '../../../shared/components/mention-user/mention-user.component';
 import { UploadMethodSelectorComponent } from '../../../shared/components/upload-method-selector/upload-method-selector.component';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { AttachmentPreviewComponent } from '../../../shared/components/attachment-preview/attachment-preview.component';
 import { StorageService } from '../../../shared/services/storage-service/storage.service';
@@ -50,7 +50,6 @@ const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
     MatIconModule,
     MatSidenavModule,
     PickerModule,
-    NgIf,
     NgClass,
     MentionUserComponent,
     UploadMethodSelectorComponent,
@@ -65,6 +64,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   channelId?: string;
   privateChatId?: string;
   userId?: string;
+  component: string = '';
   channel: Channel | undefined;
   currentBorderRadius: string = '30px 30px 30px 30px';
   attachmentUrls: string[] = [];
@@ -85,6 +85,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   @ViewChild('emojiMenuTrigger', { static: false, read: MatMenuTrigger })
   emojiMenuTrigger!: MatMenuTrigger;
   @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
+  mentionTag: string = '@';
 
   constructor(
     private firestore: Firestore,
@@ -101,10 +102,26 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
     this.subscribeParams();
     this.subscribeUserData();
     this.subscribeCloseMenus();
+
+    this.route.paramMap.subscribe(() => {
+      this.setFocusOnInput();
+    });
   }
 
+  /**
+   * Sets focus on the message input field after the component is initialized.
+   */
   ngAfterViewInit(): void {
-    this.messageInput.nativeElement.focus();
+    this.setFocusOnInput();
+  }
+
+  /**
+   * Sets focus on the message input field.
+   */
+  private setFocusOnInput(): void {
+    if (this.messageInput?.nativeElement) {
+      this.messageInput.nativeElement.focus();
+    }
   }
 
   /**
@@ -116,11 +133,14 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
       this.privateChatId = params.get('privateChatId') || undefined;
       this.channelId = params.get('channelId') || undefined;
       if (this.channelId) {
+        this.component = 'channel';
         this.channelSubscription = this.channelService
           .getChannelById(this.channelId)
           .subscribe((channel) => {
             if (channel) this.channel = channel;
           });
+      } else if (this.privateChatId) {
+        this.component = 'privateChat';
       }
     });
   }
@@ -227,9 +247,9 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
     newMessage: ChannelMessage,
     messageId: string
   ) {
-    if (this.privateChatId)
+    if (this.privateChatId) {
       await this.sendPrivateChatMessage(newMessage, attachmentsToSend);
-    else if (this.channelId) {
+    } else if (this.channelId) {
       this.channel?.addMessage(messageId, newMessage);
       await this.sendChannelMessage(newMessage, attachmentsToSend);
     } else console.error('Weder privateChatId noch channelId ist definiert.');
@@ -339,12 +359,12 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
    * @param mention - The mention to insert.
    */
   insertMention(mention: string): void {
-    if(!this.mentionOpenedAtTextarea) this.newMessageContent += mention;
-    else if(this.mentionOpenedAtTextarea) {
+    if (!this.mentionOpenedAtTextarea) this.newMessageContent += mention;
+    else if (this.mentionOpenedAtTextarea) {
       const mentionWithOutAt = mention.slice(1);
       this.newMessageContent += mentionWithOutAt;
       this.mentionOpenedAtTextarea = false;
-    };
+    }
   }
 
   /**
@@ -372,7 +392,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   /**
    * Set the border radius for responsive view.
    * @param menuType - The type of the menu.
-  */
+   */
   responsiveBorderRadius(menuType: string) {
     const borderRadiusMap: { [key: string]: string } = {
       'choose-channel': '30px',
@@ -446,6 +466,11 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   checkForMention(event: Event): void {
     const textareaValue = (event.target as HTMLTextAreaElement).value;
     if (textareaValue.includes('@')) {
+      this.mentionTag = '@';
+      this.toggleBorder('mention');
+      this.openMentionMenu();
+    } else if (textareaValue.includes('#')) {
+      this.mentionTag = '#';
       this.toggleBorder('mention');
       this.openMentionMenu();
     } else this.closeMentionMenu();

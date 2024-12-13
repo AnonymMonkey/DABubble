@@ -27,7 +27,6 @@
           >sentiment_satisfied
         </mat-icon>
         <mat-icon
-          *ngIf="privateChatId === undefined"
           class="material-symbols-outlined"
           [matMenuTriggerFor]="mentionMenu"
           #mentionMenuTrigger="matMenuTrigger"
@@ -77,7 +76,7 @@
 
   <!-- Mention Menu -->
   <mat-menu xPosition="after" #mentionMenu="matMenu" yPosition="above">
-    <app-mention-user (mentionUser)="insertMention($event)"></app-mention-user>
+    <app-mention-user (mentionUser)="insertMention($event)" [component]="component" [mentionTag]="mentionTag"></app-mention-user>
   </mat-menu>
 
   <mat-sidenav-container class="example-container">

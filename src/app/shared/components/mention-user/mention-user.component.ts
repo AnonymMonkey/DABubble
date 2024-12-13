@@ -1,23 +1,39 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { ChannelService } from '../../services/channel-service/channel.service';
 import { UserService } from '../../services/user-service/user.service';
-import { NgFor, NgIf } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
+import { BehaviorSubject, Subscription } from 'rxjs';
+import { Channel } from '../../models/channel.model';
+import { UserData } from '../../models/user.model';
 
 @Component({
   selector: 'app-mention-user',
   standalone: true,
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf, KeyValuePipe],
   templateUrl: './mention-user.component.html',
   styleUrl: './mention-user.component.scss',
 })
 export class MentionUserComponent {
   @Output() mentionUser = new EventEmitter<string>();
-
-  currentUserId: string | undefined;
+  @Input() component = '';
+  @Input() mentionTag = '';
+  userData!: UserData;
+  currentUserId!: string;
   mentionableUsers: any[] = [];
+  mentionableChannels = new Map<string, Channel>();
+  private allChannelsSubject = new BehaviorSubject<Map<string, Channel>>(
+    this.mentionableChannels
+  );
+  mentionableChannels$ = this.allChannelsSubject.asObservable();
   channelSubscription: Subscription | undefined;
   userSubscription: Subscription | undefined;
+  userDataSubscription: Subscription | undefined;
 
   constructor(
     public channelService: ChannelService,
@@ -29,15 +45,111 @@ export class MentionUserComponent {
    */
   ngOnInit(): void {
     this.currentUserId = this.userService.userId;
-    this.loadMentionableUsers();
+    if (this.component === 'channel') {
+      if (this.mentionTag === '@') this.loadMentionableUsers();
+      if (this.mentionTag === '#') this.loadUserData(this.currentUserId);
+    }
   }
 
-  /** 
+  /**
+   * Loads all users, excluding the current user, when the component is checked after view initialization.
+   */
+  ngAfterViewChecked(): void {
+    if (this.component === 'privateChat') {
+      if (this.mentionTag === '@') this.loadAllUsers();
+      else if (this.mentionTag === '#') this.loadUserData(this.currentUserId);
+    }
+  }
+
+  /**
+   * Handles changes to the component input.
+   * @param changes - The changes object.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['component']) {
+      if (this.mentionTag === '#') this.loadUserData(this.currentUserId);
+      if (this.component === 'channel' && this.mentionTag === '@')
+        this.loadMentionableUsers();
+      if (this.component === 'privateChat' && this.mentionTag === '@')
+        this.loadAllUsers();
+    }
+    if (changes['mentionTag']) {
+      if (this.mentionTag === '#') this.loadUserData(this.currentUserId);
+      if (this.component === 'channel' && this.mentionTag === '@')
+        this.loadMentionableUsers();
+      if (this.component === 'privateChat' && this.mentionTag === '@')
+        this.loadAllUsers();
+    }
+  }
+
+  /**
    * Clean up subscriptions on component destroy.
    */
   ngOnDestroy(): void {
     this.channelSubscription?.unsubscribe();
     this.userSubscription?.unsubscribe();
+  }
+
+  /**
+   * Load user data for the given user ID.
+   * @param {string} userId - The ID of the user.
+   */
+  loadUserData(userId: string): void {
+    this.userDataSubscription = this.userService.userDataMap$.subscribe(
+      (userDataMap) => {
+        const userData = userDataMap.get(userId);
+        if (userData) {
+          this.userData = userData;
+          this.loadAllChannelsData();
+        }
+      }
+    );
+  }
+
+  /**
+   * Load all channel data for the current user from the channel service.
+   */
+  loadAllChannelsData(): void {
+    this.channelSubscription = this.channelService.channelDataMap$.subscribe(
+      (channels) => {
+        const userChannels = new Map<string, Channel>();
+        this.userData.channels.forEach((channelId) => {
+          const channel = channels.get(channelId);
+          if (channel) {
+            userChannels.set(channelId, channel);
+          }
+        });
+        this.mentionableChannels = userChannels;
+      }
+    );
+  }
+
+  /**
+   * Loads all users, excluding the current user.
+   */
+  loadAllUsers(): void {
+    this.userSubscription = this.userService.allUserData$.subscribe((users) => {
+      this.mentionableUsers = users || [];
+    });
+    this.processAllUsers(this.mentionableUsers);
+  }
+
+  /**
+   * Processes the list of all users to load mentionable users.
+   * Excludes the current user and adds the rest to the mentionable users list.
+   * @param allUsers The list of all users.
+   */
+  private processAllUsers(allUsers: any[]): void {
+    if (allUsers && this.currentUserId) {
+      const usersExcludingCurrentUser = allUsers.filter(
+        (user) => user.userId !== this.currentUserId
+      );
+
+      this.resetMentionableUsers();
+      usersExcludingCurrentUser.forEach((user) => {
+        this.addUserToMentionableList(user.uid, user);
+      });
+    }
   }
 
   /**
@@ -95,11 +207,13 @@ export class MentionUserComponent {
    * @param userId The ID of the user to fetch data for.
    */
   private fetchUserData(userId: string): void {
-    this.userSubscription = this.userService.getUserDataByUID(userId).subscribe({
-      next: (userData) => this.addUserToMentionableList(userId, userData),
-      error: (error) =>
-        console.error('Fehler beim Abrufen der Benutzerdaten:', error),
-    });
+    this.userSubscription = this.userService
+      .getUserDataByUID(userId)
+      .subscribe({
+        next: (userData) => this.addUserToMentionableList(userId, userData),
+        error: (error) =>
+          console.error('Fehler beim Abrufen der Benutzerdaten:', error),
+      });
   }
 
   /**
@@ -127,7 +241,7 @@ export class MentionUserComponent {
    * @param userName The username of the selected user.
    */
   selectUser(userName: string): void {
-    const mentionText: string = '@' + userName;
+    const mentionText: string = this.mentionTag + userName;
     this.mentionUser.emit(mentionText);
   }
 }

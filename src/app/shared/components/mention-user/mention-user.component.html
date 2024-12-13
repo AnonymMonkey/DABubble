@@ -1,5 +1,5 @@
 <section>
-  <div class="members-container">
+  <div class="members-container" *ngIf="mentionTag === '@'">
     <div
       class="member"
       *ngFor="let user of mentionableUsers"
@@ -11,5 +11,18 @@
   </div>
   <div *ngIf="mentionableUsers.length === 0" class="placeholder">
     <p>Keine weiteren Benutzer gefunden</p>
+  </div>
+  <div *ngIf="mentionTag === '#'">
+    <div
+      class="member"
+      *ngFor="let channel of mentionableChannels | keyvalue"
+      (click)="selectUser(channel.value.channelName)"
+    >
+      <span>{{ channel.value.channelName }}</span>
+    </div>
+
+    <div *ngIf="mentionableUsers.length === 0" class="placeholder">
+      <p>Keine weiteren Benutzer gefunden</p>
+    </div>
   </div>
 </section>

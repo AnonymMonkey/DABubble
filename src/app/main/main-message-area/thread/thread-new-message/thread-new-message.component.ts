@@ -68,6 +68,7 @@ export class ThreadNewMessageComponent implements OnInit {
   mentionOpenedAtTextarea: boolean = false;
   @ViewChild('emojiMenuThreadTrigger', { static: false, read: MatMenuTrigger })
   emojiMenuThreadTrigger!: MatMenuTrigger;
+  mentionTag: string = '@';
 
   @ViewChild(MatMenuTrigger) uploadMethodMenuTrigger!: MatMenuTrigger;
 
@@ -348,13 +349,18 @@ export class ThreadNewMessageComponent implements OnInit {
   }
 
   /**
-   * Check if the textarea contains a mention and open the mention menu if it does.
+   * Check if the textarea contains a mention and what mention type. After that, open the mention menu.
    * @param event - The textarea event.
    */
   checkForMention(event: Event): void {
     const textareaValue = (event.target as HTMLTextAreaElement).value;
     if (textareaValue.includes('@')) {
+      this.mentionTag = '@';
       this.toggleBorder('mention');
+      this.openMentionMenu();
+    } else if (textareaValue.includes('#')) {
+      this.mentionTag = '#';
+      this.toggleBorder('upload');
       this.openMentionMenu();
     } else this.closeMentionMenu();
   }

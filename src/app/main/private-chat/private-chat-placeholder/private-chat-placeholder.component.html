@@ -1,21 +1,33 @@
 <section *ngIf="chatUserId && chatUserName">
-    <div class="other-user">
-      <img [src]="chatUserPhotoURL || '../../../../assets/img/profile/default-profile.webp'" alt="Profile Picture" (click)="openProfileInfo()">
-      <span (click)="openProfileInfo()" class="other-user-name">
-        {{ chatUserName }} 
-        <p *ngIf="isChatWithSelf()">(Du)</p>
-      </span>
-    </div>
-  
-    <div *ngIf="!isChatWithSelf()" class="description-container">
-      <span class="description">Diese Unterhaltung findet nur zwischen <a>{{ '@' + chatUserName }}</a> und dir statt.</span>
-    </div>
-  
-    <div *ngIf="isChatWithSelf()" class="description-container">
-      <span class="description">
-        <p>Dieser Raum ist nur für dich da. </p>
-        Mache dir Notizen, liste deine To-dos auf oder bewahre Links und Dateien griffbereit auf. Du kannst hier auch gerne Dinge mit dir selbst besprechen.
-      </span>
-    </div>
-  </section>
-  
+  <div class="other-user">
+    <img
+      [src]="
+        chatUserPhotoURL ||
+        '../../../../assets/img/profile/default-profile.webp'
+      "
+      alt="Profile Picture"
+      (click)="openProfileInfo()"
+    />
+    <span (click)="openProfileInfo()" class="other-user-name">
+      {{ chatUserName }}
+      <p *ngIf="isChatWithSelf()">(Du)</p>
+    </span>
+  </div>
+
+  <div *ngIf="!isChatWithSelf()" class="description-container">
+    <span class="description"
+      >Diese Unterhaltung findet nur zwischen
+      <a (click)="openProfileInfo()">{{ "@" + chatUserName }}</a> und dir
+      statt.</span
+    >
+  </div>
+
+  <div *ngIf="isChatWithSelf()" class="description-container">
+    <span class="description">
+      <p>Dieser Raum ist nur für dich da.</p>
+      Mache dir Notizen, liste deine To-dos auf oder bewahre Links und Dateien
+      griffbereit auf. Du kannst hier auch gerne Dinge mit dir selbst
+      besprechen.
+    </span>
+  </div>
+</section>
