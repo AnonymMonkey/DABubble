@@ -34,6 +34,7 @@ export class MainComponent implements OnInit, OnDestroy {
   userData!: UserData;
   userService = inject(UserService);
   allChannelsData = new Map<string, Channel>();
+  allExistingChannelNames: string[] = [];
   private allChannelsSubject = new BehaviorSubject<Map<string, Channel>>(
     this.allChannelsData
   );
@@ -48,6 +49,7 @@ export class MainComponent implements OnInit, OnDestroy {
   behaviorService = inject(BehaviorService);
   sideNavBehaviorSubscription!: Subscription;
   breakpointSubscription!: Subscription;
+  existingChannelSubscription!: Subscription;
 
   constructor(private route: ActivatedRoute) {
     this.route.params.subscribe((params) => {
@@ -62,6 +64,7 @@ export class MainComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.userService.loadAllUserData();
     this.userService.loadUserDataByUID(this.userId);
+    this.existingChannelNames();
     this.loadUserData(this.userId);
     this.checkUserStatusOnReload(this.userId);
     this.breakpointSubscription = this.subscribeBreakpointObserver();
@@ -123,6 +126,16 @@ export class MainComponent implements OnInit, OnDestroy {
     );
   }
 
+  existingChannelNames() {
+    this.existingChannelSubscription = this.channelService.channelDataMap$
+      .pipe()
+      .subscribe((channels) => {
+        this.allExistingChannelNames = Array.from(channels.values()).map(
+          (channel) => channel.channelName
+        );
+      });
+  }
+
   /**
    * Check the online status of the user on reload.
    * @param {string} userId - The ID of the user.
@@ -146,6 +159,9 @@ export class MainComponent implements OnInit, OnDestroy {
     }
     if (this.breakpointSubscription) {
       this.breakpointSubscription.unsubscribe();
+    }
+    if (this.existingChannelSubscription) {
+      this.existingChannelSubscription.unsubscribe();
     }
   }
 

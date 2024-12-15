@@ -99,20 +99,13 @@ export class ChannelEditNameComponent implements OnInit {
    * Load all channel data for the current user from the channel service.
    */
   loadAllChannelsData(): void {
-    this.channelSubscription = this.channelService.channelDataMap$.subscribe(
-      (channels) => {
-        const userChannels = new Map<string, Channel>();
-        this.userData.channels.forEach((channelId) => {
-          const channel = channels.get(channelId);
-          if (channel) {
-            userChannels.set(channelId, channel);
-          }
-        });
-        this.allChannelNames = Array.from(userChannels.values()).map(
+    this.channelSubscription = this.channelService.channelDataMap$
+      .pipe()
+      .subscribe((channels) => {
+        this.allChannelNames = Array.from(channels.values()).map(
           (channel) => channel.channelName
         );
-      }
-    );
+      });
   }
 
   /**

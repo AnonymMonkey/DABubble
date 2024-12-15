@@ -74,9 +74,7 @@ export class CreateChannelDialogComponent {
    * Loads all channel names from the data.
    */
   loadAllChannelNames() {
-    this.allChannelNames = Array.from(
-      this.data.allChannelsData.values().map((c: Channel) => c.channelName)
-    );
+    this.allChannelNames = this.data.allExistingChannelNames;
   }
 
   /**

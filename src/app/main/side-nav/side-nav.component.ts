@@ -52,6 +52,7 @@ export class SideNavComponent {
   public channelService = inject(ChannelService);
   @Input() userData!: UserData;
   @Input() allChannelsData!: Map<string, Channel>;
+  @Input() allExistingChannelNames!: string[];
   @Input() drawerMode!: string;
   userService = inject(UserService);
   privateChatService = inject(PrivateChatService);
@@ -93,7 +94,7 @@ export class SideNavComponent {
    */
   openCreateChannelDialog(): void {
     this.dialog.open(CreateChannelDialogComponent, {
-      data: { allChannelsData: this.allChannelsData },
+      data: { allExistingChannelNames: this.allExistingChannelNames },
     });
   }
 
