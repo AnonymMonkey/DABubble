@@ -67,42 +67,42 @@
         <mat-icon class="material-symbols-outlined">mail_outline</mat-icon>
         <h3>E-Mail-Adresse</h3>
       </div>
-      <span
+      <ng-container
         *ngIf="
           emailControl.disabled && emailControl.value === '';
           else saveEmailChanges
         "
-        (click)="
-          isGoogleUser ? '' : emailControl.enable(); passwordControl.enable()
-        "
-        [matTooltip]="
-          isGoogleUser
-            ? 'Google Benutzer können ihre E-Mail-Adresse nicht ändern'
-            : ''
-        "
-        [matTooltipDisabled]="!isGoogleUser"
-        [ngStyle]="{ cursor: isGoogleUser ? 'not-allowed' : 'pointer' }"
-        >Bearbeiten</span
       >
+        <span
+          (click)="
+            isGoogleUser ? '' : emailControl.enable(); passwordControl.enable()
+          "
+          [matTooltip]="
+            isGoogleUser
+              ? 'Google Benutzer können ihre E-Mail-Adresse nicht ändern'
+              : ''
+          "
+          [matTooltipDisabled]="!isGoogleUser"
+          [ngStyle]="{ cursor: isGoogleUser ? 'not-allowed' : 'pointer' }"
+          >Bearbeiten</span
+        >
 
-      <mat-icon
-        *ngIf="
-          emailControl.disabled && emailControl.value === '';
-          else saveEmailChanges
-        "
-        (click)="
-          isGoogleUser ? '' : emailControl.enable(); passwordControl.enable()
-        "
-        [matTooltip]="
-          isGoogleUser
-            ? 'Google Benutzer können ihre E-Mail-Adresse nicht ändern'
-            : ''
-        "
-        [matTooltipDisabled]="!isGoogleUser"
-        [ngStyle]="{ cursor: isGoogleUser ? 'not-allowed' : 'pointer' }"
-        class="material-symbols-outlined edit-mobile icon"
-        >edit</mat-icon
-      >
+        <mat-icon
+          (click)="
+            isGoogleUser ? '' : emailControl.enable(); passwordControl.enable()
+          "
+          [matTooltip]="
+            isGoogleUser
+              ? 'Google Benutzer können ihre E-Mail-Adresse nicht ändern'
+              : ''
+          "
+          [matTooltipDisabled]="!isGoogleUser"
+          [ngStyle]="{ cursor: isGoogleUser ? 'not-allowed' : 'pointer' }"
+          class="material-symbols-outlined edit-mobile icon"
+          >edit</mat-icon
+        >
+      </ng-container>
+
       <ng-template #saveEmailChanges>
         <span (click)="saveNewEmail()">Speichern</span>
         <mat-icon
