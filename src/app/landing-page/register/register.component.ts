@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../shared/services/user-service/user.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -34,6 +35,14 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   public errorMessage: string | null = null;
 
+  passwordControlValueChanges: Subscription | undefined;
+
+  passwordHasMinLength = false;
+  passwordHasUppercase = false;
+  passwordHasLowercase = false;
+  passwordHasNumber = false;
+  passwordHasSpecialChar = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -53,12 +62,40 @@ export class RegisterComponent implements OnInit {
         [
           Validators.required,
           Validators.minLength(8),
-          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/),
+          Validators.pattern(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-])/
+          ),
         ],
       ],
       confirmPassword: ['', Validators.required],
       acceptTerms: [false, Validators.requiredTrue],
     });
+
+    this.passwordControlValueChanges =
+      this.getPasswordControl.valueChanges.subscribe(() => {
+        this.updatePasswordRequirements();
+      });
+  }
+
+  /**
+   * unsubscribes from the password control value changes
+   */
+  ngOnDestroy(): void {
+    if (this.passwordControlValueChanges) {
+      this.passwordControlValueChanges.unsubscribe();
+    }
+  }
+
+  /**
+   * updates the password requirements
+   */
+  updatePasswordRequirements() {
+    const password = this.getPasswordControl.value || '';
+    this.passwordHasMinLength = password.length >= 8;
+    this.passwordHasUppercase = /[A-Z]/.test(password);
+    this.passwordHasLowercase = /[a-z]/.test(password);
+    this.passwordHasNumber = /\d/.test(password);
+    this.passwordHasSpecialChar = /[@$!%*?&_\-]/.test(password);
   }
 
   /**
@@ -75,7 +112,7 @@ export class RegisterComponent implements OnInit {
    * checks if the email exists and proceed to select avatar
    */
   async checkEmailExistsAndProceed() {
-    const email = this.emailControl.value;
+    const email = this.getEmailControl.value;
 
     try {
       const emailExists = await this.authService.checkEmailExistsInFirestore(
@@ -123,35 +160,35 @@ export class RegisterComponent implements OnInit {
   /**
    * returns the displayNameControl
    */
-  get displayNameControl(): FormControl {
+  get getDisplayNameControl(): FormControl {
     return this.registerForm.get('displayName') as FormControl;
   }
 
   /**
    * returns the emailControl
    */
-  get emailControl(): FormControl {
+  get getEmailControl(): FormControl {
     return this.registerForm.get('email') as FormControl;
   }
 
   /**
    * returns the passwordControl
    */
-  get passwordControl(): FormControl {
+  get getPasswordControl(): FormControl {
     return this.registerForm.get('password') as FormControl;
   }
 
   /**
    * returns the confirmPasswordControl
    */
-  get confirmPasswordControl(): FormControl {
+  get getConfirmPasswordControl(): FormControl {
     return this.registerForm.get('confirmPassword') as FormControl;
   }
 
   /**
    * returns the acceptTermsControl
    */
-  get acceptTermsControl(): FormControl {
+  get getAcceptTermsControl(): FormControl {
     return this.registerForm.get('acceptTerms') as FormControl;
   }
 
@@ -159,8 +196,8 @@ export class RegisterComponent implements OnInit {
    * checks if the password contains at least one uppercase letter
    * @returns -
    */
-  get passwordHasUppercase(): boolean {
-    const password = this.passwordControl.value;
+  get getPasswordHasUppercase(): boolean {
+    const password = this.getPasswordControl.value;
     return /[A-Z]/.test(password);
   }
 
@@ -168,8 +205,8 @@ export class RegisterComponent implements OnInit {
    * checks if the password contains at least one lowercase letter
    * @returns -
    */
-  get passwordHasLowercase(): boolean {
-    const password = this.passwordControl.value;
+  get getPasswordHasLowercase(): boolean {
+    const password = this.getPasswordControl.value;
     return /[a-z]/.test(password);
   }
 
@@ -177,8 +214,8 @@ export class RegisterComponent implements OnInit {
    * checks if the password contains at least one number
    * @returns -
    */
-  get passwordHasNumber(): boolean {
-    const password = this.passwordControl.value;
+  get getPasswordHasNumber(): boolean {
+    const password = this.getPasswordControl.value;
     return /\d/.test(password);
   }
 
@@ -186,8 +223,8 @@ export class RegisterComponent implements OnInit {
    * checks if the password contains at least one special character
    * @returns -
    */
-  get passwordHasSpecialChar(): boolean {
-    const password = this.passwordControl.value;
+  get getPasswordHasSpecialChar(): boolean {
+    const password = this.getPasswordControl.value;
     return /[@$!%*?&]/.test(password);
   }
 

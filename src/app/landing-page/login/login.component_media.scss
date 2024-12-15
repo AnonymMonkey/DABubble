@@ -1,129 +1,57 @@
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (max-width: 1200px) {
-  .logo {
-    .logo-container {
-      animation: logo-top-left-1200 0.5s ease-in-out 3s 1 forwards !important;
-    }
-  }
-
-  .logo-final {
-    top: 50px !important;
-    left: 50px !important;
-  }
-
-  .info-links {
-    position: absolute !important;
-    bottom: 20px !important;
-    align-items: end !important;
-    gap: unset !important;
-    width: unset !important;
-  }
-
-  .register-link {
-    top: 50px !important;
-    right: 50px !important;
+  .login mat-card {
+    max-width: 75% !important;
   }
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (max-width: 992px) {
-  .logo {
-    .logo-container {
-      animation: logo-top-left-992 0.5s ease-in-out 3s 1 forwards !important;
-
-      img:first-child {
-        height: 134px !important;
-        animation: logo-left 0.3s ease-in-out 0.5s 1 forwards,
-          logo-img-scale-small-992 0.5s ease-in-out 3s 1 forwards !important;
-      }
-
-      .logo-name {
-        font-size: 64px !important;
-        animation: logo-text-scale-small-992 0.5s ease-in-out 3s 1 forwards !important;
-      }
-    }
-  }
-
-  .logo-final {
-    top: 25px !important;
-    left: 25px !important;
-  }
-
-  .login mat-card {
-    padding: 35px;
-  }
-
-  .register-link {
-    top: 25px !important;
-    right: 25px !important;
-  }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (max-width: 768px) {
   .login {
     justify-content: space-evenly !important;
-
-    mat-card {
-      min-height: 70% !important;
-    }
   }
 
   .logo {
     .logo-container {
+      top: unset !important;
+      gap: unset !important;
       animation: logo-top-768 0.5s ease-in-out 3s 1 forwards !important;
 
       img:first-child {
-        height: 70px !important;
-        animation: logo-left-768 0.3s ease-in-out 0.5s 1 forwards,
-          logo-img-scale-small-768 0.5s ease-in-out 3s 1 forwards !important;
+        height: clamp(56px, 10vw, 100px) !important;
+        animation: logo-left-768 0.3s ease-in-out 0.5s 1 forwards !important;
       }
 
       .logo-name {
-        font-size: 56px !important;
-        animation: logo-text-scale-small-768 0.5s ease-in-out 3s 1 forwards !important;
+        font-size: clamp(1.5em, 5vw, 2.5em) !important;
+        margin-left: 32px;
+        animation: margin-left 0.5s ease-in-out 3s 1 forwards !important;
       }
     }
   }
 
   .logo-final {
-    position: unset !important;
-    top: 0 !important;
-    left: 0 !important;
+    position: fixed !important;
+    top: 5vh !important;
+    left: unset !important;
 
     display: flex;
-    justify-content: center;
-    align-items: center !important;
-    width: 100%;
-  }
-
-  .login mat-card {
-    padding: 20px;
   }
 
   .register-link {
     position: unset !important;
-    bottom: 0 !important;
-    right: unset !important;
 
-    display: flex;
     align-items: center !important;
-    justify-content: center !important;
-    width: 100%;
-  }
-
-  .info-links {
-    position: absolute !important;
-    bottom: 25px !important;
-    right: 20px !important;
-    flex-direction: column;
-    align-items: end !important;
     gap: unset !important;
-    width: unset !important;
   }
 
   .login mat-card {
     max-width: unset !important;
+    margin-top: 10vh !important;
   }
 }
 
@@ -133,23 +61,6 @@
 
 /* Very small devices (landscape tablets, 450px and down) */
 @media only screen and (max-width: 450px) {
-  a,
-  p,
-  span {
-    font-size: 14px !important;
-  }
-
-  .logo-container {
-    scale: 0.8;
-
-    .logo-name span {
-      font-size: unset !important;
-    }
-  }
-
-  .login mat-card {
-    min-height: fit-content !important;
-  }
 }
 
 /* smallest devices (300px and down) */
@@ -157,97 +68,34 @@
 }
 
 /* animations */
-/* -- 1200 -- */
-@keyframes logo-top-left-1200 {
-  0% {
-    gap: 74px;
-    transform: translate(0, 0);
-  }
-  100% {
-    gap: 16px;
-    transform: translate(
-      calc(-50vw + 117.5px + 50px),
-      calc(-50vh + 35px + 50px)
-    );
-  }
-}
-
-/* -- 992 -- */
-@keyframes logo-top-left-992 {
-  0% {
-    gap: 74px;
-    transform: translate(0, 0);
-  }
-  100% {
-    gap: 16px;
-    transform: translate(
-      calc(-50vw + 117.5px + 25px),
-      calc(-50vh + 35px + 25px)
-    );
-  }
-}
-
-@keyframes logo-img-scale-small-992 {
-  0% {
-    height: 134px;
-  }
-  100% {
-    height: 70px;
-  }
-}
-
-@keyframes logo-text-scale-small-992 {
-  0% {
-    font-size: 64px;
-    overflow: hidden;
-  }
-  100% {
-    color: var(--black-color);
-    font-size: 34px;
-    overflow: unset;
-  }
-}
-
 /* -- 768 -- */
 @keyframes logo-top-768 {
   0% {
-    gap: 74px;
     transform: translateY(0);
   }
   100% {
-    gap: 16px;
-    transform: translateY(calc(-50vh + 35px + 25px));
-  }
-}
-
-@keyframes logo-img-scale-small-768 {
-  0% {
-    height: 184px;
-  }
-  100% {
-    height: 70px;
-  }
-}
-
-@keyframes logo-text-scale-small-768 {
-  0% {
-    font-size: 56px;
-    overflow: hidden;
-  }
-  100% {
-    color: var(--black-color);
-    font-size: 34px;
-    overflow: unset;
+    transform: translateY(calc(-50vh + 50% + 5vh));
   }
 }
 
 @keyframes logo-left-768 {
   0% {
     left: 50%;
+
     transform: translateX(-50%);
   }
   100% {
-    left: 10%;
+    left: 0%;
+
     transform: translateX(0);
+  }
+}
+
+@keyframes margin-left {
+  0% {
+    margin-left: 32px;
+  }
+  100% {
+    margin-left: 16px;
   }
 }

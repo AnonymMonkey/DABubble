@@ -1,3 +1,10 @@
+p,
+a,
+li,
+ul {
+  font-size: clamp(0.8em, 1.5vw, 1.8em);
+}
+
 .content {
   display: flex;
   justify-content: center;
@@ -13,15 +20,17 @@
     justify-content: start;
     align-items: center;
 
-    gap: var(--gap-30);
-
     height: 100%;
+    gap: clamp(2vh, 3vh, 4vh);
+
     max-width: 50%;
+
+    text-align: center;
+
+    padding: clamp(20px, 5vw, 50px);
 
     overflow: auto;
     overflow-x: hidden;
-
-    padding: 50px;
 
     background-color: var(--text-color);
     border-radius: 30px;

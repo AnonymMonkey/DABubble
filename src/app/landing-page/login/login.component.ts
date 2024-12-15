@@ -38,6 +38,7 @@ export class LoginComponent {
   password = new FormControl('', [Validators.required]);
   errorMessage: string | null = null;
   showAnimation: boolean = true;
+  showCard: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -52,7 +53,10 @@ export class LoginComponent {
 
       setTimeout(() => {
         this.showAnimation = false;
+        this.showCard = true;
       }, 3500);
+    } else {
+      this.showCard = true;
     }
   }
 

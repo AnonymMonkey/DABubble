@@ -1,3 +1,8 @@
+p,
+a {
+  font-size: clamp(0.8em, 1.5vw, 1.8em);
+}
+
 .content {
   display: flex;
   flex-direction: column;
@@ -14,9 +19,13 @@
     justify-content: center;
     align-items: center;
 
-    gap: var(--gap-30);
+    gap: clamp(2vh, 3vh, 4vh);
 
-    padding: 50px;
+    max-width: 50%;
+
+    text-align: center;
+
+    padding: clamp(20px, 5vw, 50px);
 
     background-color: var(--text-color);
     border-radius: 30px;
@@ -32,6 +41,7 @@
         cursor: pointer;
         color: var(--black-color);
         font-size: 24px;
+        scale: 1.5;
 
         &:hover {
           background-color: var(--bg-color);

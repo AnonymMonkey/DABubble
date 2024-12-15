@@ -17,7 +17,7 @@
     </div>
   </div>
 
-  <mat-card (keydown.enter)="login()">
+  <mat-card *ngIf="showCard" (keydown.enter)="login()">
     <h1>Anmeldung</h1>
 
     <p>
@@ -26,8 +26,19 @@
     </p>
 
     <div class="input-primary">
-      <input [formControl]="email" placeholder="beispielname&#64;email.com" />
+      <input
+        [formControl]="email"
+        placeholder="beispielname&#64;email.com"
+        [ngClass]="{ 'input-error': email.invalid && email.touched }"
+      />
       <mat-icon>mail_outline</mat-icon>
+
+      <div *ngIf="email.touched && email.invalid" class="error-message">
+        <ng-container *ngIf="email.hasError('required'); else emailInvalid">
+          E-Mail ist erforderlich.
+        </ng-container>
+        <ng-template #emailInvalid> Ungültige E-Mail-Adresse. </ng-template>
+      </div>
     </div>
 
     <div class="input-primary">
@@ -61,12 +72,12 @@
     </div>
   </mat-card>
 
-  <div class="register-link">
+  <div *ngIf="showCard" class="register-link">
     <p>Neu bei DABubble?</p>
     <a class="link" (click)="navigateToRegister()">Konto erstellen</a>
   </div>
 
-  <div class="info-links">
+  <div *ngIf="showCard" class="info-links">
     <a class="link" (click)="navigateToImprint()">Impressum</a>
     <a class="link" (click)="navigateToPrivacyPolicy()">Datenschutz</a>
   </div>

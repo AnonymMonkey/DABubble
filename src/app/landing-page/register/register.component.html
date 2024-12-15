@@ -31,21 +31,21 @@
     <div class="input-primary">
       <mat-icon>person_outline</mat-icon>
       <input
-        [formControl]="displayNameControl"
+        [formControl]="getDisplayNameControl"
         placeholder="Name und Nachname"
         [ngClass]="{
           'input-error':
-            displayNameControl.invalid && displayNameControl.touched
+            getDisplayNameControl.invalid && getDisplayNameControl.touched
         }"
       />
-      <div *ngIf="displayNameControl.touched" class="error-message">
+      <div *ngIf="getDisplayNameControl.touched" class="error-message">
         <ng-container
-          *ngIf="displayNameControl.hasError('required'); else fullNameCheck"
+          *ngIf="getDisplayNameControl.hasError('required'); else fullNameCheck"
         >
           Name ist erforderlich
         </ng-container>
         <ng-template #fullNameCheck>
-          <ng-container *ngIf="displayNameControl.hasError('fullName')">
+          <ng-container *ngIf="getDisplayNameControl.hasError('fullName')">
             Vor- und Nachname sind erforderlich
           </ng-container>
         </ng-template>
@@ -56,18 +56,18 @@
     <div class="input-primary">
       <mat-icon>mail_outline</mat-icon>
       <input
-        [formControl]="emailControl"
+        [formControl]="getEmailControl"
         placeholder="beispielname&#64;email.com"
         [ngClass]="{
-          'input-error': emailControl.invalid && emailControl.touched
+          'input-error': getEmailControl.invalid && getEmailControl.touched
         }"
       />
       <div
-        *ngIf="emailControl.touched && emailControl.invalid"
+        *ngIf="getEmailControl.touched && getEmailControl.invalid"
         class="error-message"
       >
         <ng-container
-          *ngIf="emailControl.hasError('required'); else emailInvalid"
+          *ngIf="getEmailControl.hasError('required'); else emailInvalid"
         >
           E-Mail ist erforderlich
         </ng-container>
@@ -81,14 +81,15 @@
     <div class="input-primary">
       <mat-icon>lock_outline</mat-icon>
       <input
-        [formControl]="passwordControl"
+        [formControl]="getPasswordControl"
         placeholder="Passwort"
         type="password"
         [ngClass]="{
-          'input-error': passwordControl.invalid && passwordControl.touched
+          'input-error':
+            getPasswordControl.invalid && getPasswordControl.touched
         }"
       />
-      <div *ngIf="passwordControl.touched" class="error-message">
+      <!-- <div *ngIf="passwordControl.touched" class="error-message">
         <ng-container
           *ngIf="passwordControl.hasError('required'); else minlengthCheck"
         >
@@ -117,27 +118,65 @@
           </ng-container>
         </ng-template>
         <ng-template #specialCharCheck>
-          <ng-container *ngIf="!passwordHasSpecialChar">
-            Mindestens 1 Sonderzeichen
+          <ng-container *ngIf="passwordControl.hasError('pattern')">
+            Passwort muss Groß- und Kleinbuchstaben, eine Zahl und ein
+            Sonderzeichen (&#64;$!%*?&_-) enthalten.
           </ng-container>
         </ng-template>
+      </div> -->
+      <div *ngIf="getPasswordControl.value" class="password-requirements">
+        <p *ngIf="!passwordHasMinLength">Mindestens 8 Zeichen</p>
+        <p *ngIf="passwordHasMinLength && !passwordHasUppercase">
+          Mindestens 1 Großbuchstabe
+        </p>
+        <p
+          *ngIf="
+            passwordHasMinLength &&
+            passwordHasUppercase &&
+            !passwordHasLowercase
+          "
+        >
+          Mindestens 1 Kleinbuchstabe
+        </p>
+        <p
+          *ngIf="
+            passwordHasMinLength &&
+            passwordHasUppercase &&
+            passwordHasLowercase &&
+            !passwordHasNumber
+          "
+        >
+          Mindestens 1 Zahl
+        </p>
+        <p
+          *ngIf="
+            passwordHasMinLength &&
+            passwordHasUppercase &&
+            passwordHasLowercase &&
+            passwordHasNumber &&
+            !passwordHasSpecialChar
+          "
+        >
+          Mindestens 1 Sonderzeichen (&#64;$!%*?&_-)
+        </p>
       </div>
     </div>
 
     <!-- Passwort Wiederholen Eingabefeld -->
     <div class="input-primary">
       <input
-        [formControl]="confirmPasswordControl"
+        [formControl]="getConfirmPasswordControl"
         placeholder="Passwort Wiederholen"
         type="password"
         [ngClass]="{
           'input-error':
-            confirmPasswordControl.invalid && confirmPasswordControl.touched
+            getConfirmPasswordControl.invalid &&
+            getConfirmPasswordControl.touched
         }"
       />
-      <div *ngIf="confirmPasswordControl.touched" class="error-message">
+      <div *ngIf="getConfirmPasswordControl.touched" class="error-message">
         <ng-container
-          *ngIf="passwordControl.value !== confirmPasswordControl.value"
+          *ngIf="getPasswordControl.value !== getConfirmPasswordControl.value"
         >
           Passwörter stimmen nicht überein
         </ng-container>
@@ -151,7 +190,7 @@
         <input
           class="checkbox__trigger visuallyhidden"
           type="checkbox"
-          [formControl]="acceptTermsControl"
+          [formControl]="getAcceptTermsControl"
         />
         <span class="checkbox__symbol">
           <svg
@@ -175,7 +214,7 @@
         </p>
       </label>
       <div
-        *ngIf="acceptTermsControl.invalid && acceptTermsControl.touched"
+        *ngIf="getAcceptTermsControl.invalid && getAcceptTermsControl.touched"
         class="error-message"
       >
         Die Zustimmung zur Datenschutzerklärung ist erforderlich.
@@ -188,7 +227,7 @@
         class="button-primary"
         [disabled]="
           !registerForm.valid ||
-          passwordControl.value !== confirmPasswordControl.value
+          getPasswordControl.value !== getConfirmPasswordControl.value
         "
         (click)="checkEmailExistsAndProceed()"
       >

@@ -4,10 +4,6 @@
   height: 100vh;
   background-color: var(--bg-color);
   padding: 25px 20px;
-
-  @media only screen and (max-width: 600px) {
-    padding: 0;
-  }
 }
 
 ::ng-deep app-login,

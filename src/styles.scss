@@ -44,13 +44,15 @@
 /* Track */
 ::-webkit-scrollbar-track {
   box-shadow: inset 0 0 4px var(--grey-color);
-  border-radius: 6px;
+  border-radius: 100% 30px 30px 100%;
+  overflow: hidden;
+  margin: 1vh;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: var(--purple2-color);
-  border-radius: 4px;
+  border-radius: 30px;
 }
 
 /* Handle on hover */
@@ -87,11 +89,11 @@ h6 {
 }
 
 h1 {
-  font-size: var(--fontsize-46) !important;
+  font-size: clamp(1.5em, 3.5vw, 4em);
 }
 
 h2 {
-  font-size: var(--fontsize-32) !important;
+  font-size: var(--fontsize-32);
 }
 
 .d-none {
@@ -116,13 +118,12 @@ button,
   border-radius: 100px !important;
   border-style: none !important;
 
-  padding: 12px 25px !important;
+  padding: 1vh 1vw !important;
 }
 
 .button-primary,
 .button-secondary {
   width: 100% !important;
-  height: 100% !important;
 }
 
 .button-primary {
@@ -183,7 +184,6 @@ mat-icon {
   display: flex;
   align-items: center;
 
-  gap: 16px;
   width: 100%;
 
   border-radius: 100px;
@@ -197,7 +197,7 @@ mat-icon {
   input {
     position: relative;
     z-index: 1;
-    padding: 16px 16px 16px 72px;
+    padding: 1vh 1vw 1vh 72px;
     width: 100%;
     border: none;
     border-radius: 100px;
@@ -279,7 +279,7 @@ mat-icon {
 textarea,
 input {
   font-family: var(--font-nunito) !important;
-  font-size: 16px;
+  font-size: clamp(0.8em, 1.5vw, 1.8em);
 }
 
 /* Media Queries */
@@ -294,9 +294,6 @@ input {
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (max-width: 768px) {
-  h1 {
-    font-size: var(--fontsize-32) !important;
-  }
 }
 
 /* Extra small devices (phones, 600px and down) */
@@ -308,10 +305,6 @@ input {
   button,
   .label-btn {
     padding: 8px 12.5px !important;
-  }
-
-  input {
-    padding: 12px 20px 12px 52px !important;
   }
 }
 

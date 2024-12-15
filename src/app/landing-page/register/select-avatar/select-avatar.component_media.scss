@@ -1,54 +1,18 @@
 @media only screen and (max-width: 1250px) {
-  .headline {
-    h1 {
-      font-size: var(--fontsize-36) !important;
-    }
+  .select-avatar mat-card {
+    max-width: 75% !important;
   }
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (max-width: 1200px) {
-  .logo-container {
-    top: 50px !important;
-    left: 50px !important;
-  }
-
-  .info-links {
-    position: absolute !important;
-    bottom: 20px !important;
-    align-items: end !important;
-    gap: unset !important;
-    width: unset !important;
-  }
 }
 
 @media only screen and (max-width: 1150px) {
-  .headline {
-    h1 {
-      font-size: var(--fontsize-32) !important;
-    }
-  }
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (max-width: 992px) {
-  .logo-container {
-    top: 25px !important;
-    left: 25px !important;
-
-    img:first-child {
-      height: 70px !important;
-    }
-
-    .logo-name {
-      font-size: 34px !important;
-    }
-  }
-
-  .select-avatar mat-card {
-    padding: 35px;
-  }
-
   .headline {
     h1 {
       text-wrap: unset !important;
@@ -60,45 +24,24 @@
 @media only screen and (max-width: 768px) {
   .select-avatar {
     justify-content: space-evenly !important;
-
     mat-card {
-      min-height: 70% !important;
+      max-width: unset !important;
     }
   }
 
   .logo-container {
-    position: unset !important;
-    top: 0 !important;
-    left: 0 !important;
+    position: fixed !important;
+    top: 5vh !important;
+    left: unset !important;
 
     display: flex;
     justify-content: center;
     align-items: center !important;
-    width: 100%;
-
-    img:first-child {
-      height: 70px !important;
-    }
-
-    .logo-name {
-      font-size: 34px !important;
-    }
-  }
-
-  .select-avatar mat-card {
-    padding: 20px;
-    max-width: 100% !important;
   }
 }
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
-  .select-avatar {
-    mat-card {
-      gap: 10px;
-    }
-  }
-
   .avatar-placeholder {
     width: 120px !important;
     height: 120px !important;
@@ -113,12 +56,6 @@
 
 /* Very small devices (landscape tablets, 450px and down) */
 @media only screen and (max-width: 450px) {
-  .headline {
-    h1 {
-      font-size: var(--fontsize-24) !important;
-    }
-  }
-
   .select-avatar-list {
     gap: 8px !important;
   }
@@ -136,20 +73,6 @@
     width: 100%;
     gap: 8px !important;
     margin: 8px 0 !important;
-  }
-
-  a,
-  p,
-  span {
-    font-size: 14px !important;
-  }
-
-  .logo-container {
-    scale: 0.8;
-
-    .logo-name span {
-      font-size: unset !important;
-    }
   }
 }
 
