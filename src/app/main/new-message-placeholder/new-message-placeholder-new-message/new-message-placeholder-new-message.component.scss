@@ -30,6 +30,7 @@ textarea {
   outline: none;
   border: none;
   padding: 20px 10px;
+  font-size: 18px;
 }
 
 textarea[disabled] {
@@ -72,5 +73,11 @@ textarea[disabled] {
     align-items: center;
     justify-content: center;
     border-radius: 30px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  textarea {
+    font-size: 16px;
   }
 }

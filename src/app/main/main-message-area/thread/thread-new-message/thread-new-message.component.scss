@@ -97,6 +97,7 @@ textarea {
   outline: none;
   border: none;
   padding: 20px 10px;
+  font-size: 18px;
 }
 
 .icons-container {
@@ -186,4 +187,10 @@ app-attachment-preview {
   align-items: center;
   justify-content: center;
   padding-left: 20px;
+}
+
+@media only screen and (max-width: 600px) {
+  textarea {
+    font-size: 16px;
+  }
 }

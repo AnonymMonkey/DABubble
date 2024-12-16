@@ -96,6 +96,7 @@ textarea {
   outline: none;
   border: none;
   padding: 20px 10px;
+  font-size: 18px;
 }
 
 .icons-container {
@@ -197,6 +198,10 @@ app-attachment-preview {
     .mat-mdc-menu-panel {
       border-radius: var(--border-radius);
     }
+  }
+
+  textarea {
+    font-size: 16px;
   }
 }
 
