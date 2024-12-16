@@ -93,6 +93,10 @@ export class SideNavComponent {
    * Opens the create channel dialog.
    */
   openCreateChannelDialog(): void {
+    const buttonElement = document.getElementById(
+      'create_channel_button'
+    ) as HTMLButtonElement;
+    buttonElement.blur();
     this.dialog.open(CreateChannelDialogComponent, {
       data: { allExistingChannelNames: this.allExistingChannelNames },
     });

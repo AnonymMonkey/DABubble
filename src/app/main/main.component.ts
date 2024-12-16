@@ -126,6 +126,9 @@ export class MainComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Load all existing channel names for the current user from the channel service.
+   */
   existingChannelNames() {
     this.existingChannelSubscription = this.channelService.channelDataMap$
       .pipe()
