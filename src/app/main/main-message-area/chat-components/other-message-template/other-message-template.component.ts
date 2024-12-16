@@ -82,7 +82,7 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
           this.photoURL = userData.photoURL;
           this.displayName = userData.displayName;
         } else {
-          this.photoURL = 'src/assets/img/profile/placeholder-img.webp';
+          this.photoURL = 'assets/img/profile/placeholder-img.webp';
           this.displayName = 'Gast';
         }
       }

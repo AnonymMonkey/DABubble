@@ -83,7 +83,7 @@ export class OwnMessageTemplateComponent
       (userDataMap) => {
         const userData = userDataMap.get(userId);
         if (userData) this.photoURL = userData.photoURL;
-        else this.photoURL = 'src/assets/img/profile/placeholder-img.webp';
+        else this.photoURL = 'assets/img/profile/placeholder-img.webp';
       }
     );
   }

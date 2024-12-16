@@ -210,7 +210,7 @@ mat-toolbar {
     .mat-mdc-menu-panel {
       width: 100% !important;
       height: fit-content !important;
-      border-radius: var(--border-radius, 0px) !important;
+      border-radius: var(--border-radius, 0px);
     }
   }
 }

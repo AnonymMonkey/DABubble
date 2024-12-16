@@ -173,7 +173,7 @@ export class UserService {
   } {
     return (
       this.getUserDataById(userId) || {
-        photoURL: 'src/assets/img/profile/placeholder-img.webp',
+        photoURL: 'assets/img/profile/placeholder-img.webp',
         displayName: 'Gast',
       }
     );

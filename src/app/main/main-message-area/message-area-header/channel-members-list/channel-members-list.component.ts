@@ -79,7 +79,7 @@ export class ChannelMembersListComponent implements OnInit, OnDestroy {
           seenUserIds.add(userId);
           const userData = userDataMap.get(userId) || {
             displayName: 'Unbekannter Benutzer',
-            photoURL: '../../../../../assets/img/profile/placeholder-img.webp',
+            photoURL: 'assets/img/profile/placeholder-img.webp',
           };
           this.membersWithData.push({
             userId,
