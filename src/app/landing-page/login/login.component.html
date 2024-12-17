@@ -63,7 +63,12 @@
     </div>
 
     <div class="buttons">
-      <button mat-flat-button class="button-primary" (click)="login()">
+      <button
+        mat-flat-button
+        [disabled]="email.invalid || password.invalid"
+        class="button-primary"
+        (click)="login()"
+      >
         Anmelden
       </button>
       <button mat-flat-button class="button-secondary" (click)="guestLogin()">

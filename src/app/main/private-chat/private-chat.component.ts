@@ -27,6 +27,7 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { ThreadPrivateChatComponent } from './thread-private-chat/thread-private-chat.component';
 import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-private-chat',
@@ -61,6 +62,8 @@ export class PrivateChatComponent implements OnInit {
   @ViewChild('sidenavPrivateChat', { read: ElementRef })
   sidenavElement!: ElementRef;
   threadOpened: boolean = false;
+  breakpointObserverSubscription!: Subscription;
+  breakpointObserver = inject(BreakpointObserver);
   drawerMode: 'side' | 'over' = 'side';
 
   /**
@@ -88,7 +91,13 @@ export class PrivateChatComponent implements OnInit {
         this.sideNavOpened = value;
       }
     );
-  
+
+    this.breakpointObserverSubscription = this.breakpointObserver
+      .observe(['(min-width: 1250px)'])
+      .subscribe((result) => {
+        this.drawerMode = result.matches ? 'side' : 'over';
+      });
+
     this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const privateChatId = params.get('privateChatId');
       if (privateChatId) {

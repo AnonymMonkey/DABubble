@@ -15,6 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../shared/services/user-service/user.service';
 import { Subscription } from 'rxjs';
+import { AutofillMonitor } from '@angular/cdk/text-field';
 
 @Component({
   selector: 'app-register',

@@ -90,6 +90,10 @@ a {
       }
     }
 
+    .input-error {
+      outline: solid 1px var(--error-color);
+    }
+
     .next-button {
       width: 50%;
       display: flex;
