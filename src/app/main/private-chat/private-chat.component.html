@@ -19,7 +19,7 @@
             *ngIf="!hasMessages"
           ></app-private-chat-placeholder>
           <app-private-chat-history
-            *ngIf="privateChat.messages?.length > 0"
+            *ngIf="hasMessages"
             [messages]="privateChat.messages"
           ></app-private-chat-history>
         </ng-container>
@@ -33,7 +33,9 @@
     [(opened)]="opened"
     position="end"
   >
-    <app-thread-private-chat [currentUserId]="currentUserId"></app-thread-private-chat>
+    <app-thread-private-chat
+      [currentUserId]="currentUserId"
+    ></app-thread-private-chat>
   </mat-sidenav>
 </mat-sidenav-container>
 <!-- </section> -->

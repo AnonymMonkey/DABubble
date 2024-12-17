@@ -12,6 +12,7 @@ import { ThreadService } from '../../../../shared/services/thread-service/thread
 import { PrivateChatService } from '../../../../shared/services/private-chat-service/private-chat.service';
 import { StorageService } from '../../../../shared/services/storage-service/storage.service';
 import { PrivateChatComponent } from '../../private-chat.component';
+import { ThreadPrivateChatService } from '../../../../shared/services/thread-private-chat/thread-private-chat.service';
 
 @Component({
   selector: 'app-own-private-message-template',
@@ -41,7 +42,7 @@ export class OwnPrivateMessageTemplateComponent {
   public messageService = inject(MessageService);
   private storageService = inject(StorageService);
   editMessageMenuOpened: boolean = false;
-  public threadService = inject(ThreadService);
+  public threadService = inject(ThreadPrivateChatService);
   currentBorderRadius = '0px 30px 30px 30px';
   public privateChatService = inject(PrivateChatService);
   isMenuOpen: boolean = false;

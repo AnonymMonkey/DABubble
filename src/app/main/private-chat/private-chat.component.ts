@@ -82,19 +82,20 @@ export class PrivateChatComponent implements OnInit {
    * Initializes the component by subscribing to route parameters and fetching private chat data.
    */
   ngOnInit(): void {
+    this.hasMessages = false;
     this.subscription = this.behaviorService.sideNavOpened$.subscribe(
       (value) => {
         this.sideNavOpened = value;
       }
     );
-
+  
     this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const privateChatId = params.get('privateChatId');
       if (privateChatId) {
         this.privateChatService.setPrivateChatId(privateChatId);
       }
     });
-
+  
     this.privateChat$ = this.route.paramMap.pipe(
       switchMap((params) => {
         const privateChatId = params.get('privateChatId');
@@ -104,6 +105,7 @@ export class PrivateChatComponent implements OnInit {
             this.firestore,
             `users/${currentUserId}/privateChat/${privateChatId}/messages`
           );
+  
           return new Observable((observer) => {
             const unsubscribe = onSnapshot(
               messagesCollectionRef,
@@ -112,7 +114,6 @@ export class PrivateChatComponent implements OnInit {
                   const messagesArray = querySnapshot.docs.map((doc) =>
                     doc.data()
                   );
-                  console.log('Messages loaded:', messagesArray);
                   this.hasMessages = messagesArray.length > 0;
                   observer.next({
                     privateChatId,
@@ -120,21 +121,26 @@ export class PrivateChatComponent implements OnInit {
                   });
                 } else {
                   this.hasMessages = false;
-                  observer.next(null);
+                  observer.next({
+                    privateChatId,
+                    messages: [],
+                  });
                 }
               }
             );
-
+  
             return () => unsubscribe();
           });
         } else {
           console.error('Keine privateChatId in den Routenparametern gefunden');
           this.hasMessages = false;
-          return of(null);
+          return of({ privateChatId: null, messages: [] }); // Leeres Array zurückgeben
         }
       })
     );
   }
+  
+  
 
   /**
    * Open the thread sidenav
