@@ -1,0 +1,241 @@
+section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    color: black;
+    font-family: var(--font-nunito);
+    white-space: pre-wrap;
+  }
+  
+  .chat-history-daily-container-other-people {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  
+  .chat-history-daily-container-own {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /** add this */
+    justify-content: flex-start;
+  }
+  
+  .date-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 20px 0px 20px;
+  }
+  
+  .first-line,
+  .last-line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: var(--light-purple-color);
+  }
+  
+  .add-emoji-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    padding: 0 30px;
+  }
+  
+  .inner-add-emoji-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--text-color);
+    border: 1px solid var(--light-purple-color);
+    border-radius: 30px 30px 0px 30px;
+    margin-bottom: -10px;
+    z-index: 10;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 2px 10px;
+  
+    div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 30px;
+      transition: background-color 0.3s ease;
+      &:hover {
+        background-color: var(--bg-color);
+      }
+  
+      mat-icon {
+        color: var(--black-color);
+      }
+    }
+  }
+  
+  .inner-add-emoji-container-show {
+    visibility: unset !important;
+    opacity: 1 !important;
+    cursor: pointer;
+  }
+  
+  .message-container {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 10px 30px;
+    gap: 20px;
+  }
+  
+  .message-container-hover {
+    cursor: pointer;
+    background-color: var(--bg-color);
+  
+    .message {
+      background-color: var(--text-color);
+    }
+  
+    .thread span:last-of-type {
+      color: var(--black-color);
+    }
+  }
+  
+  img {
+    width: 70px;
+    height: 70px;
+    border-radius: 100px;
+    object-fit: cover;
+    object-position: top;
+  }
+  
+  .text-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .name-and-time {
+    height: 25px;
+    display: flex;
+    gap: 30px;
+    position: relative;
+  }
+  
+  .name {
+    font-weight: 700 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
+  
+    &:hover {
+      cursor: pointer;
+      color: var(--purple3-color);
+    }
+  }
+  
+  .time {
+    color: var(--grey-color);
+    font-size: 14px;
+    align-self: center;
+    min-width: 64px;
+  }
+  
+  .message {
+    border-radius: 0px 30px 30px 30px;
+    background-color: var(--bg-color);
+    padding: 10px 20px;
+    position: relative;
+    display: flex;
+    width: fit-content;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 290px;
+  
+    > p {
+      display: flex;
+      justify-content: flex-start;
+      max-width: 100%;
+      flex-wrap: wrap; /* Ermöglicht den Zeilenumbruch */
+      word-wrap: break-word; /* Bricht lange Wörter */
+      overflow-wrap: break-word; /* Zusätzlicher Schutz für Zeilenumbrüche */
+      word-break: break-all;
+      hyphens: auto;
+    }
+  }
+  
+  .attachment-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
+  
+  .thread {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  
+    span:first-of-type {
+      color: var(--purple3-color);
+  
+      &:hover {
+        font-weight: 700 !important;
+      }
+    }
+  
+    span:last-of-type {
+      color: var(--grey-color);
+      font-size: 14px;
+    }
+  }
+  
+  app-attachment-preview {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  @media only screen and (max-width: 600px) {
+    ::ng-deep {
+      .mat-mdc-menu-content {
+        align-items: center;
+        justify-content: center;
+        display: flex;
+      }
+    }
+  }
+  
+  @media screen and (max-width: 400px) {
+    .name-and-time {
+      gap: 10px;
+    }
+  
+    .message-container {
+      padding: 10px 5px;
+      gap: 10px;
+    }
+  }
+  
+  @media screen and (max-width: 300px) {
+    img {
+      width: 60px;
+      height: 60px;
+    }
+  
+    .message {
+      padding: 10px 12px;
+    }
+  }
+  

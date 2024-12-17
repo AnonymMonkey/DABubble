@@ -1,0 +1,98 @@
+<section>
+    <div class="add-emoji-container-own">
+      <div
+        class="inner-add-emoji-container"
+        (mouseover)="showEmojiContainer(message.messageId)"
+        (mouseout)="hideEmojiContainer(message.messageId)"
+        [ngClass]="{
+          'inner-add-emoji-container-show':
+            emojiContainerVisible[message.messageId] &&
+            messageService.editMessageId !== message.messageId + '_thread'
+        }"
+        id="add-emoji-container1"
+      >
+        <div
+          [matMenuTriggerFor]="emojiMenu"
+          (menuOpened)="onMenuOpened(message.messageId)"
+          (menuClosed)="onMenuClosed(message.messageId)"
+          (click)="toggleBorder()"
+        >
+          <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
+        </div>
+        <div
+          mat-button
+          [matMenuTriggerFor]="editMessageMenu"
+          (menuOpened)="onMenuOpened(message.messageId)"
+          (menuClosed)="onMenuClosed(message.messageId)"
+        >
+          <mat-icon>more_vert</mat-icon>
+          <mat-menu #editMessageMenu="matMenu">
+            <span
+              class="edit-message-text"
+              (click)="
+                messageService.setEditMessageId(message.messageId + '_thread');
+                toggleBorderEditMessage();
+                setEditMessageMenuOpened(true, message.messageId)
+              "
+            >
+              Nachricht bearbeiten
+            </span>
+          </mat-menu>
+        </div>
+        <div
+          mat-button
+          [matMenuTriggerFor]="deleteMessageMenu"
+          (menuOpened)="onMenuOpened(message.messageId)"
+          (menuClosed)="onMenuClosed(message.messageId)"
+        >
+          <mat-icon class="material-symbols-outlined">delete</mat-icon>
+          <mat-menu #deleteMessageMenu="matMenu">
+            <span
+              class="edit-message-text"
+              (click)="
+                deleteMessage(message);
+                toggleBorderEditMessage();
+                setEditMessageMenuOpened(true, message.messageId)
+              "
+            >
+              Nachricht löschen
+            </span>
+          </mat-menu>
+        </div>
+      </div>
+    </div>
+  
+    <div
+      class="message-container-own"
+      (mouseover)="showEmojiContainer(message.messageId)"
+      (mouseout)="hideEmojiContainer(message.messageId)"
+      [ngClass]="{
+        'message-container-hover':
+          emojiContainerVisible[message.messageId] &&
+          messageService.editMessageId !== message.messageId + '_thread'
+      }"
+    >
+      <img
+        src="{{ photoURL }}"
+        alt="Profile Picture"
+        (click)="userService.openProfileInfo(message?.userId)"
+      />
+      <app-own-thread-private-message-show
+        [message]="message"
+        *ngIf="messageService.editMessageId !== message?.messageId + '_thread'"
+      ></app-own-thread-private-message-show>
+      <app-own-thread-private-message-edit
+        [message]="message"
+        *ngIf="messageService.editMessageId === message?.messageId + '_thread'"
+      ></app-own-thread-private-message-edit>
+    </div>
+  
+    <mat-menu xPosition="after" #emojiMenu>
+      <app-emoji-picker
+        [message]="message"
+        [component]="'channel'"
+      ></app-emoji-picker>
+    </mat-menu>
+  </section>
+
+  

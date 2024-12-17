@@ -64,7 +64,7 @@
     </mat-menu>
   
     <mat-menu xPosition="after" #mentionMenu yPosition="above">
-      <app-mention-user (mentionUser)="insertMention($event)" [component]="'channel'" [mentionTag]="mentionTag"></app-mention-user>
+      <app-mention-user (mentionUser)="insertMention($event)" [component]="'privateChat'" [mentionTag]="mentionTag"></app-mention-user>
     </mat-menu>
   
     <mat-sidenav-container class="example-container">

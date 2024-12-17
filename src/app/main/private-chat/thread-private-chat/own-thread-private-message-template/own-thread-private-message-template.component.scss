@@ -1,0 +1,148 @@
+::ng-deep {
+    :root {
+      --currentBorderRadius: 30px 30px 30px 30px;
+    }
+  
+    .mat-mdc-menu-panel {
+      max-width: none;
+      border-radius: var(--currentBorderRadius);
+    }
+  }
+  
+  :host {
+    display: flex;
+    flex-grow: 1;
+  }
+  
+  section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    font-family: var(--font-nunito);
+    white-space: pre-wrap;
+  
+    mat-icon {
+      color: var(--black-color);
+    }
+  }
+  
+  .first-line,
+  .last-line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: var(--light-purple-color);
+  }
+  
+  .add-emoji-container-own {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /** add this */
+    width: 100%;
+    padding: 0 30px;
+  }
+  
+  .inner-add-emoji-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--text-color);
+    border: 1px solid var(--light-purple-color);
+    border-radius: 30px 30px 0px 30px;
+    margin-bottom: -10px;
+    z-index: 10;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 2px 10px;
+  
+    div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 30px;
+      transition: background-color 0.3s ease;
+      &:hover {
+        background-color: var(--bg-color);
+      }
+      svg:hover {
+        fill: var(--purple3-color);
+      }
+    }
+  }
+  
+  .inner-add-emoji-container-show {
+    visibility: unset !important;
+    opacity: 1 !important;
+    cursor: pointer;
+  }
+  
+  .edit-message-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--black-color);
+    border-radius: 100px;
+    padding: 10px 20px;
+  
+    &:hover {
+      cursor: pointer;
+      background-color: var(--bg-color);
+    }
+  }
+  
+  .message-container-own {
+    width: 100%;
+    display: flex;
+    flex-direction: row-reverse; /* add this */
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 10px 10px;
+    gap: 20px;
+  }
+  
+  .message-container-hover {
+    cursor: pointer;
+    background-color: var(--bg-color);
+  
+    .message {
+      background-color: var(--text-color);
+    }
+  }
+  
+  img {
+    width: 70px;
+    height: 70px;
+    border-radius: 100px;
+    object-fit: cover;
+    object-position: top;
+  }
+  
+  @media only screen and (max-width: 600px) {
+    ::ng-deep {
+      .mat-mdc-menu-content {
+        align-items: center;
+        justify-content: center;
+        display: flex;
+      }
+    }
+  }
+  
+  @media screen and (max-width: 400px) {
+    .message-container-own {
+      padding: 10px 5px;
+      gap: 10px;
+    }
+  }
+  
+  @media screen and (max-width: 300px) {
+    img {
+      width: 60px;
+      height: 60px;
+    }
+  }
+  

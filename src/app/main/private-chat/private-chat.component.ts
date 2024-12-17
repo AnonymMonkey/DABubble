@@ -28,6 +28,7 @@ import { ThreadPrivateChatComponent } from './thread-private-chat/thread-private
 import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { ThreadPrivateChatService } from '../../shared/services/thread-private-chat/thread-private-chat.service';
 
 @Component({
   selector: 'app-private-chat',
@@ -78,7 +79,8 @@ export class PrivateChatComponent implements OnInit {
     private route: ActivatedRoute,
     private userService: UserService,
     private privateChatService: PrivateChatService,
-    private firestore: Firestore
+    private firestore: Firestore,
+    private threadPrivateChatService: ThreadPrivateChatService
   ) {}
 
   /**
@@ -102,6 +104,7 @@ export class PrivateChatComponent implements OnInit {
       const privateChatId = params.get('privateChatId');
       if (privateChatId) {
         this.privateChatService.setPrivateChatId(privateChatId);
+        this.threadPrivateChatService.setPrivateChatId(privateChatId);
       }
     });
   
