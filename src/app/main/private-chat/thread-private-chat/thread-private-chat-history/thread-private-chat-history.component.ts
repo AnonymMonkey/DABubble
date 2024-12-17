@@ -12,6 +12,7 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { ThreadPrivateChatService } from '../../../../shared/services/thread-private-chat/thread-private-chat.service';
 import { OwnThreadPrivateMessageTemplateComponent } from '../own-thread-private-message-template/own-thread-private-message-template.component';
 import { OtherThreadPrivateMessageTemplateComponent } from '../other-thread-private-message-template/other-thread-private-message-template.component';
+import { PrivateChatComponent } from '../../private-chat.component';
 
 @Component({
   selector: 'app-thread-private-chat-history',
@@ -39,7 +40,8 @@ export class ThreadPrivateChatHistoryComponent {
 
   constructor(
     private threadService: ThreadPrivateChatService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private privateChat: PrivateChatComponent
   ) {}
 
   /**
@@ -82,7 +84,7 @@ export class ThreadPrivateChatHistoryComponent {
     }
 
     if (message === null || message === undefined)
-      this.threadService.closeSidenavPrivateChat();
+      this.privateChat.closeSidenav();
   }
 
   /**

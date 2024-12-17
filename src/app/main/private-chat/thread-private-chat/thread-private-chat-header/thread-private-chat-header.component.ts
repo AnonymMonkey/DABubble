@@ -4,6 +4,7 @@ import { PrivateChatComponent } from '../../private-chat.component';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ThreadPrivateChatService } from '../../../../shared/services/thread-private-chat/thread-private-chat.service';
 
 @Component({
   selector: 'app-thread-private-chat-header',
@@ -21,7 +22,8 @@ isMenuOpened: boolean = false;
   chatUserPhotoURL: string | undefined;
   private routeSubscription: Subscription | undefined;
   private userDataSubscription: Subscription | undefined;
-  constructor(public privateChat: PrivateChatComponent, private userService: UserService, private route: ActivatedRoute) {}
+  constructor(public privateChat: PrivateChatComponent, private userService: UserService, private route: ActivatedRoute, private threadPrivateChatService: ThreadPrivateChatService) {}
+
 
 
   /**
@@ -56,6 +58,7 @@ isMenuOpened: boolean = false;
       this.userDataSubscription = this.userService.getUserDataByUID(this.chatUserId).subscribe({
         next: (userData) => {
           this.chatUserName = userData?.displayName;
+          this.threadPrivateChatService.setChatUserName(this.chatUserName);
           this.chatUserPhotoURL = userData?.photoURL;
         },
         error: (error) =>

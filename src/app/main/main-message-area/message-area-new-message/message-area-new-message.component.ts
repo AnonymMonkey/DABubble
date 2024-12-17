@@ -22,6 +22,7 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { AttachmentPreviewComponent } from '../../../shared/components/attachment-preview/attachment-preview.component';
 import { StorageService } from '../../../shared/services/storage-service/storage.service';
 import { Subscription } from 'rxjs';
+import { ThreadPrivateChatService } from '../../../shared/services/thread-private-chat/thread-private-chat.service';
 
 const channelMessageConverter: FirestoreDataConverter<ChannelMessage> = {
   toFirestore(message: ChannelMessage): DocumentData {
@@ -92,8 +93,21 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private route: ActivatedRoute,
     private channelService: ChannelService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private ThreadPrivateChatService: ThreadPrivateChatService
   ) {}
+
+  /**
+   * Gets the placeholder text based on the channelId and privateChatId.
+   */
+  get placeholderText(): string {
+    if (this.channelId) {
+      return `Nachricht an #${this.channel?.channelName ?? 'einen Channel'}`;
+    } else if (this.privateChatId) {
+      return `Nachricht an @${this.ThreadPrivateChatService.chatUserName ?? 'einen Nutzer'}`;
+    }
+    return 'Nachricht eingeben';
+  }
 
   /**
    * Initialize the component and subscribe to route parameters oninit.

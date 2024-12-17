@@ -36,6 +36,7 @@ export class ThreadPrivateChatService {
   private unsubscribeThreadMessages: (() => void) | null = null;
   private destroy$ = new Subject<void>();
   actualMessageSubscription: Subscription | undefined;
+  public chatUserName: string | undefined = undefined;
 
   private routeSubscription: Subscription | undefined;
   public privateChatId: string | null = null;
@@ -260,5 +261,7 @@ export class ThreadPrivateChatService {
     this.destroy$.complete();
   }
 
-  closeSidenavPrivateChat(): void {}
+  setChatUserName(chatUserName: string): void {
+    this.chatUserName = chatUserName;
+  }
 }

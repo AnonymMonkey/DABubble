@@ -2,9 +2,7 @@
   <div class="textarea-container">
     <textarea
       #messageInput
-      [placeholder]="
-        'Nachricht an #' + (channel?.channelName ?? 'einen Channel')
-      "
+      [placeholder]="placeholderText"
       [(ngModel)]="newMessageContent"
       (input)="checkForMention($event)"
       (keydown.enter)="sendMessage(); $event.preventDefault()"
@@ -59,7 +57,7 @@
     (closed)="mentionOpenedAtTextarea = false"
   >
     <emoji-mart
-    (click)="$event.stopPropagation()"
+      (click)="$event.stopPropagation()"
       title="Pick your emoji…"
       emoji="point_up"
       set="apple"
@@ -76,7 +74,11 @@
 
   <!-- Mention Menu -->
   <mat-menu xPosition="after" #mentionMenu="matMenu" yPosition="above">
-    <app-mention-user (mentionUser)="insertMention($event)" [component]="component" [mentionTag]="mentionTag"></app-mention-user>
+    <app-mention-user
+      (mentionUser)="insertMention($event)"
+      [component]="component"
+      [mentionTag]="mentionTag"
+    ></app-mention-user>
   </mat-menu>
 
   <mat-sidenav-container class="example-container">
