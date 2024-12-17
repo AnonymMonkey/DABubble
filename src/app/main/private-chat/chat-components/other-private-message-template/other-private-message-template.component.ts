@@ -10,6 +10,7 @@ import { PrivateChatService } from '../../../../shared/services/private-chat-ser
 import { AttachmentPreviewComponent } from '../../../../shared/components/attachment-preview/attachment-preview.component';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { PrivateChatComponent } from '../../private-chat.component';
+import { ThreadPrivateChatService } from '../../../../shared/services/thread-private-chat/thread-private-chat.service';
 
 @Component({
   selector: 'app-other-private-message-template',
@@ -38,7 +39,7 @@ export class OtherPrivateMessageTemplateComponent {
   isMenuOpen: boolean = false;
   public userService = inject(UserService);
   public privateChatService = inject(PrivateChatService);
-  public threadService = inject(ThreadService);
+  public threadService = inject(ThreadPrivateChatService);
   public privateChat = inject(PrivateChatComponent);
 
   constructor() {}

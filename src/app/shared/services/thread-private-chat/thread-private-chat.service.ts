@@ -1,38 +1,30 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, Subject, Subscription, takeUntil } from 'rxjs';
 import { ChannelMessage } from '../../models/channel-message.model';
-import { Firestore, doc, onSnapshot } from '@angular/fire/firestore';
-import { ChannelService } from '../channel-service/channel.service';
-import { ThreadMessage } from '../../models/thread-message.model';
-import {
-  collection,
-  CollectionReference,
-  getDocs,
-  QuerySnapshot,
-} from 'firebase/firestore';
+import { PrivateChatMessage } from '../../models/private-chat-message.model';
+import { Firestore } from '@angular/fire/firestore';
+import { UserService } from '../user-service/user.service';
+import { collection, CollectionReference, doc, getDocs, onSnapshot, QuerySnapshot } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ThreadService implements OnDestroy {
+export class ThreadPrivateChatService {
   public actualMessageSubject = new BehaviorSubject<ChannelMessage | null>(
     null
   );
   actualMessage$: Observable<ChannelMessage | null> =
     this.actualMessageSubject.asObservable();
-  private threadMessagesSubject = new BehaviorSubject<ThreadMessage[]>([]);
-  threadMessages$: Observable<ThreadMessage[]> =
+  private threadMessagesSubject = new BehaviorSubject<PrivateChatMessage[]>([]);
+  threadMessages$: Observable<PrivateChatMessage[]> =
     this.threadMessagesSubject.asObservable();
   private unsubscribeActualMessage: (() => void) | null = null;
   private unsubscribeThreadMessages: (() => void) | null = null;
   private destroy$ = new Subject<void>();
   actualMessageSubscription: Subscription | undefined;
+  private privateChatId: string | null = null;
 
-  constructor(
-    private firestore: Firestore,
-    private channelService: ChannelService
-  ) {
+  constructor(private firestore: Firestore, private userService: UserService) {
     this.subscribeToActualMessage();
     this.subscribeToThreadMessages();
   }
@@ -41,27 +33,29 @@ export class ThreadService implements OnDestroy {
    * Subscribe to actual message changes
    */
   subscribeToActualMessage(): void {
-    this.actualMessageSubscription = this.actualMessage$.pipe(takeUntil(this.destroy$)).subscribe((message) => {
-      if (
-        this.unsubscribeActualMessage &&
-        this.actualMessageSubject.value?.messageId === message?.messageId
-      )
-        return;
-      this.unsubscribe();
-      if (message) {
-        const messageRef = doc(
-          this.firestore,
-          `channels/${this.channelService.channelId}/messages/${message.messageId}`
-        );
-        this.unsubscribeActualMessage = onSnapshot(messageRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const updatedMessage = snapshot.data() as ChannelMessage;
-            this.actualMessageSubject.next(updatedMessage);
-            this.subscribeToThreadMessages();
-          }
-        });
-      }
-    });
+    this.actualMessageSubscription = this.actualMessage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((message) => {
+        if (
+          this.unsubscribeActualMessage &&
+          this.actualMessageSubject.value?.messageId === message?.messageId
+        )
+          return;
+        this.unsubscribe();
+        if (message) {
+          const messageRef = doc(
+            this.firestore,
+            `users/${this.userService.userId}/privateChat/${this.privateChatId}/messages/${message.messageId}`
+          );
+          this.unsubscribeActualMessage = onSnapshot(messageRef, (snapshot) => {
+            if (snapshot.exists()) {
+              const updatedMessage = snapshot.data() as ChannelMessage;
+              this.actualMessageSubject.next(updatedMessage);
+              this.subscribeToThreadMessages();
+            }
+          });
+        }
+      });
   }
 
   /**
@@ -99,7 +93,7 @@ export class ThreadService implements OnDestroy {
   ): CollectionReference {
     return collection(
       this.firestore,
-      `channels/${this.channelService.channelId}/messages/${messageId}/thread`
+      `users/${this.userService.userId}/privateChat/${this.privateChatId}/messages/${messageId}/thread`
     );
   }
 
@@ -110,9 +104,9 @@ export class ThreadService implements OnDestroy {
    */
   private mapSnapshotToThreadMessages(
     snapshot: QuerySnapshot
-  ): ThreadMessage[] {
+  ): PrivateChatMessage[] {
     return snapshot.docs.map((doc) => {
-      const threadMessage = doc.data() as ThreadMessage;
+      const threadMessage = doc.data() as PrivateChatMessage;
       threadMessage.messageId = doc.id;
       return threadMessage;
     });
@@ -139,12 +133,11 @@ export class ThreadService implements OnDestroy {
    * @returns {CollectionReference | null} The Firestore reference or null.
    */
   private getThreadMessagesRef(): CollectionReference | null {
-    const channelId = this.channelService.channelId;
     const messageId = this.actualMessageSubject.value?.messageId;
-    if (!channelId || !messageId) return null;
+    if (!this.privateChatId || !messageId) return null;
     return collection(
       this.firestore,
-      `channels/${channelId}/messages/${messageId}/thread`
+      `users/${this.userService.userId}/privateChat/${this.privateChatId}/messages/${messageId}/thread`
     );
   }
 
@@ -155,9 +148,9 @@ export class ThreadService implements OnDestroy {
    */
   private async getThreadMessages(
     ref: CollectionReference
-  ): Promise<ThreadMessage[]> {
+  ): Promise<PrivateChatMessage[]> {
     const snapshot = await getDocs(ref);
-    return snapshot.docs.map((doc) => doc.data() as ThreadMessage);
+    return snapshot.docs.map((doc) => doc.data() as PrivateChatMessage);
   }
 
   /**
@@ -167,9 +160,9 @@ export class ThreadService implements OnDestroy {
    * @returns A list of new messages
    */
   getNewMessages(
-    currentMessages: ThreadMessage[],
-    updatedMessages: ThreadMessage[]
-  ): ThreadMessage[] {
+    currentMessages: PrivateChatMessage[],
+    updatedMessages: PrivateChatMessage[]
+  ): PrivateChatMessage[] {
     const currentMessageIds = currentMessages.map((msg) =>
       msg.messageId.toString()
     );
@@ -226,8 +219,11 @@ export class ThreadService implements OnDestroy {
       this.unsubscribeActualMessage();
       this.unsubscribeActualMessage = null;
     }
-    if (this.actualMessageSubscription) this.actualMessageSubscription.unsubscribe();
+    if (this.actualMessageSubscription)
+      this.actualMessageSubscription.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  closeSidenavPrivateChat(): void {}
 }

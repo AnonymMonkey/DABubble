@@ -448,8 +448,22 @@ export class PrivateChatService implements OnDestroy {
   ): Promise<any | null> {
     const privateChats = userData['privateChat'];
     const chatData = privateChats ? privateChats[this.privateChatId!] : null;
-    if (!chatData || !chatData.messages) return null;
-    return chatData.messages[messageId] || null;
+    if (!chatData) return null;
+    const messageRef = doc(
+      this.firestore,
+      `users/${this.userService.userId}/privateChat/${this.privateChatId}/messages/${messageId}`
+    );
+    try {
+      const messageSnapshot = await getDoc(messageRef);
+      if (messageSnapshot.exists()) {
+        return messageSnapshot.data();
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Fehler beim Abrufen der Nachricht:', error);
+      return null;
+    }
   }
 
   /**
@@ -575,26 +589,34 @@ export class PrivateChatService implements OnDestroy {
    * @param {string} userId - The ID of the current user.
    * @returns {Promise<void>} A promise that resolves when the reactions are saved.
    */
+  /**
+   * Saves the reactions to the Firestore messages subcollection for both users.
+   * @param {any} currentMessage - The current message object with reactions.
+   * @param {string} messageId - The ID of the message being updated.
+   * @param {string} userId - The ID of the current user who is adding the reaction.
+   */
   private async saveReactionsToFirestore(
     currentMessage: any,
     messageId: string,
     userId: string
   ): Promise<void> {
     const secondUserIdForSaving = this.getSecondUserIdForSaving(userId);
+
+    // Verweise auf die Dokumente der Benutzer in der privateChat-Subkollektion
     const userDocRef1 = doc(
       this.firestore,
-      `users/${userId}/privateChat/${this.privateChatId}`
+      `users/${userId}/privateChat/${this.privateChatId}/messages/${messageId}`
     );
     const userDocRef2 = doc(
       this.firestore,
-      `users/${secondUserIdForSaving}/privateChat/${this.privateChatId}`
+      `users/${secondUserIdForSaving}/privateChat/${this.privateChatId}/messages/${messageId}`
     );
     await Promise.all([
       updateDoc(userDocRef1, {
-        [`messages.${messageId}.reactions`]: currentMessage.reactions,
+        reactions: currentMessage.reactions,
       }),
       updateDoc(userDocRef2, {
-        [`messages.${messageId}.reactions`]: currentMessage.reactions,
+        reactions: currentMessage.reactions,
       }),
     ]);
   }
