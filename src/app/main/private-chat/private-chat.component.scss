@@ -15,7 +15,8 @@ app-private-chat-header {
   display: flex;
 }
 
-app-private-chat-placeholder {
+app-private-chat-placeholder,
+.loader {
   display: flex;
   flex-grow: 1;
   overflow-y: auto;
@@ -28,6 +29,31 @@ app-message-area-new-message {
   display: flex;
 }
 
+@keyframes rotateSmile {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  text-align: center;
+  flex-direction: column;
+  font-size: 20px;
+  color: black;
+  gap: 16px;
+
+  .smiley {
+    font-size: 3rem;
+    animation: rotateSmile 3s linear infinite;
+  }
+}
 
 @media only screen and (max-width: 600px) {
   app-private-chat-placeholder {

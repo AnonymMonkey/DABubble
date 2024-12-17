@@ -1,9 +1,3 @@
-<!-- <section
-  [ngClass]="{
-    'padding-left-20': sideNavOpened === true,
-    'padding-right-20': threadOpened === true,
-  }"
-> -->
 <mat-sidenav-container class="example-container" autosize>
   <mat-sidenav-content
     [ngClass]="{
@@ -15,11 +9,15 @@
       <mat-card-content>
         <app-private-chat-header></app-private-chat-header>
         <ng-container *ngIf="privateChat$ | async as privateChat">
+          <div class="loader" *ngIf="loading">
+            <div class="smiley">🔄</div>
+            <p>Lade PrivateChat</p>
+          </div>
           <app-private-chat-placeholder
-            *ngIf="!hasMessages"
+            *ngIf="!hasMessages && !loading"
           ></app-private-chat-placeholder>
           <app-private-chat-history
-            *ngIf="hasMessages"
+            *ngIf="hasMessages && !loading"
             [messages]="privateChat.messages"
           ></app-private-chat-history>
         </ng-container>
@@ -38,4 +36,3 @@
     ></app-thread-private-chat>
   </mat-sidenav>
 </mat-sidenav-container>
-<!-- </section> -->
