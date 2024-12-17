@@ -1,12 +1,9 @@
 import {
   Component,
   Input,
-  OnInit,
-  OnChanges,
   SimpleChanges,
   ElementRef,
   ViewChild,
-  OnDestroy,
 } from '@angular/core';
 import { DateOfMessageComponent } from '../../main-message-area/chat-components/date-of-message/date-of-message.component';
 import { NgFor, NgIf } from '@angular/common';
@@ -30,7 +27,7 @@ import { UserService } from '../../../shared/services/user-service/user.service'
   styleUrls: ['./private-chat-history.component.scss'],
 })
 export class PrivateChatHistoryComponent {
-  @Input() messages: any[] = []; 
+  @Input() messages: any[] = [];
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
   groupedMessages: { date: string; messages: any[] }[] = [];
   scrollAllowed: boolean = true;
@@ -92,7 +89,7 @@ export class PrivateChatHistoryComponent {
         ),
       }));
   }
-  
+
   /**
    * Check if a message is sent by the current user.
    * @param userId - The ID of the user who sent the message.

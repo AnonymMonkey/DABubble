@@ -1,21 +1,39 @@
-<section
+<!-- <section
   [ngClass]="{
-    'padding-left-20': sideNavOpened === true
+    'padding-left-20': sideNavOpened === true,
+    'padding-right-20': threadOpened === true,
   }"
->
-  <mat-card appearance="outlined" class="mat-card-container">
-    <mat-card-content>
-      <app-private-chat-header></app-private-chat-header>
-      <ng-container *ngIf="privateChat$ | async as privateChat">
-        <app-private-chat-placeholder
-          *ngIf="!hasMessages"
-        ></app-private-chat-placeholder>
-        <app-private-chat-history
-          *ngIf="hasMessages"
-          [messages]="privateChat.messages"
-        ></app-private-chat-history>
-      </ng-container>
-      <app-message-area-new-message></app-message-area-new-message>
-    </mat-card-content>
-  </mat-card>
-</section>
+> -->
+<mat-sidenav-container class="example-container" autosize>
+  <mat-sidenav-content
+    [ngClass]="{
+      'padding-right-20': threadOpened === true,
+      'padding-left-20': sideNavOpened === true
+    }"
+  >
+    <mat-card appearance="outlined" class="mat-card-container">
+      <mat-card-content>
+        <app-private-chat-header></app-private-chat-header>
+        <ng-container *ngIf="privateChat$ | async as privateChat">
+          <app-private-chat-placeholder
+            *ngIf="!hasMessages"
+          ></app-private-chat-placeholder>
+          <app-private-chat-history
+            *ngIf="privateChat.messages?.length > 0"
+            [messages]="privateChat.messages"
+          ></app-private-chat-history>
+        </ng-container>
+        <app-message-area-new-message></app-message-area-new-message>
+      </mat-card-content>
+    </mat-card>
+  </mat-sidenav-content>
+  <mat-sidenav
+    #sidenavPrivateChat
+    [mode]="drawerMode"
+    [(opened)]="opened"
+    position="end"
+  >
+    <app-thread-private-chat [currentUserId]="currentUserId"></app-thread-private-chat>
+  </mat-sidenav>
+</mat-sidenav-container>
+<!-- </section> -->

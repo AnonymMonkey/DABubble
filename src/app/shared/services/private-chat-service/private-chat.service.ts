@@ -9,7 +9,15 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { combineLatest, from, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { PrivateChat } from '../../models/private-chat.model';
-import { arrayUnion, getDoc, updateDoc } from 'firebase/firestore';
+import {
+  arrayUnion,
+  collection,
+  CollectionReference,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  updateDoc,
+} from 'firebase/firestore';
 import { UserData } from '../../models/user.model';
 import { UserService } from '../user-service/user.service';
 import { ThreadMessage } from '../../models/thread-message.model';
@@ -129,15 +137,35 @@ export class PrivateChatService implements OnDestroy {
    * @param userRef The reference to the user document.
    * @returns An Observable that emits an array of private chat data.
    */
-  getPrivateChats(userRef: DocumentReference): Observable<any[]> {
-    return from(getDoc(userRef)).pipe(
-      map((userDoc) => {
-        const data = userDoc.data();
-        const privateChats = data?.['privateChat'];
-        if (privateChats && typeof privateChats === 'object') {
-          return Object.values(privateChats);
-        }
-        return [];
+  // getPrivateChats(userRef: DocumentReference): Observable<any[]> {
+  //   return from(getDoc(userRef)).pipe(
+  //     map((userDoc) => {
+  //       const data = userDoc.data();
+  //       const privateChats = data?.['privateChat'];
+  //       if (privateChats && typeof privateChats === 'object') {
+  //         return Object.values(privateChats);
+  //       }
+  //       return [];
+  //     }),
+  //     catchError((error) => {
+  //       console.error('Fehler beim Abrufen der privaten Chats:', error);
+  //       return of([]);
+  //     })
+  //   );
+  // }
+
+  /**
+   * Ruft alle privaten Chats aus der Unterkollektion 'privateChats' eines Benutzers ab.
+   * @param {string} userId - Die ID des Benutzers.
+   * @returns {Observable<any[]>} - Ein Observable, das die Liste der privaten Chats enthält.
+   */
+  getPrivateChats(privateChatsRef: CollectionReference): Observable<any[]> {
+    return from(getDocs(privateChatsRef)).pipe(
+      map((querySnapshot) => {
+        return querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
       }),
       catchError((error) => {
         console.error('Fehler beim Abrufen der privaten Chats:', error);
@@ -218,16 +246,58 @@ export class PrivateChatService implements OnDestroy {
    * @param targetUser The target user data.
    * @returns An Observable that emits the ID of the opened or created private chat.
    */
+  // openOrCreatePrivateChat(
+  //   currentUser: UserData,
+  //   targetUser: UserData
+  // ): Observable<string> {
+  //   const chatId = this.generateChatId(currentUser.uid, targetUser.uid);
+  //   const currentUserRef = doc(this.firestore, 'users', currentUser.uid);
+  //   const targetUserRef = doc(this.firestore, 'users', targetUser.uid);
+  //   return combineLatest([
+  //     this.getPrivateChats(currentUserRef),
+  //     this.getPrivateChats(targetUserRef),
+  //   ]).pipe(
+  //     switchMap(([currentUserChats, targetUserChats]) => {
+  //       const existingChatCurrentUser = this.findExistingChat(
+  //         currentUserChats,
+  //         chatId
+  //       );
+  //       const existingChatTargetUser = this.findExistingChat(
+  //         targetUserChats,
+  //         chatId
+  //       );
+
+  //       if (existingChatCurrentUser || existingChatTargetUser) {
+  //         return of(chatId);
+  //       } else {
+  //         const newChat = this.createNewChatEntry(
+  //           currentUser,
+  //           targetUser,
+  //           chatId
+  //         );
+  //         return this.updateUsersChats(currentUserRef, targetUserRef, newChat);
+  //       }
+  //     })
+  //   );
+  // }
+
   openOrCreatePrivateChat(
     currentUser: UserData,
     targetUser: UserData
   ): Observable<string> {
     const chatId = this.generateChatId(currentUser.uid, targetUser.uid);
-    const currentUserRef = doc(this.firestore, 'users', currentUser.uid);
-    const targetUserRef = doc(this.firestore, 'users', targetUser.uid);
+    const currentUserChatsRef: CollectionReference = collection(
+      this.firestore,
+      `users/${currentUser.uid}/privateChat`
+    );
+    const targetUserChatsRef: CollectionReference = collection(
+      this.firestore,
+      `users/${targetUser.uid}/privateChat`
+    );
+
     return combineLatest([
-      this.getPrivateChats(currentUserRef),
-      this.getPrivateChats(targetUserRef),
+      this.getPrivateChats(currentUserChatsRef),
+      this.getPrivateChats(targetUserChatsRef),
     ]).pipe(
       switchMap(([currentUserChats, targetUserChats]) => {
         const existingChatCurrentUser = this.findExistingChat(
@@ -238,7 +308,6 @@ export class PrivateChatService implements OnDestroy {
           targetUserChats,
           chatId
         );
-
         if (existingChatCurrentUser || existingChatTargetUser) {
           return of(chatId);
         } else {
@@ -247,8 +316,49 @@ export class PrivateChatService implements OnDestroy {
             targetUser,
             chatId
           );
-          return this.updateUsersChats(currentUserRef, targetUserRef, newChat);
+          return this.createChatInSubcollection(
+            currentUser.uid,
+            targetUser.uid,
+            newChat
+          );
         }
+      })
+    );
+  }
+
+  /**
+   * Creates a new chat in the subcollection of the current user and the target user.
+   * @param currentUserId The ID of the current user.
+   * @param targetUserId The ID of the target user.
+   * @param chatData The data for the new chat.
+   * @returns An Observable that emits the ID of the created chat.
+   */
+  createChatInSubcollection(
+    currentUserId: string,
+    targetUserId: string,
+    chatData: any
+  ): Observable<string> {
+    const chatId = Object.keys(chatData)[0]; // Hole die chatId aus dem Objekt
+    const currentUserChatRef = doc(
+      this.firestore,
+      `users/${currentUserId}/privateChat/${chatId}`
+    );
+    const targetUserChatRef = doc(
+      this.firestore,
+      `users/${targetUserId}/privateChat/${chatId}`
+    );
+    const chatDetails = chatData[chatId]; // Hole die Details für den Chat
+
+    return from(
+      Promise.all([
+        setDoc(currentUserChatRef, chatDetails),
+        setDoc(targetUserChatRef, chatDetails),
+      ])
+    ).pipe(
+      map(() => chatId), // Verwende den chatId direkt
+      catchError((error) => {
+        console.error('Fehler beim Erstellen des Chats:', error);
+        throw error;
       })
     );
   }
@@ -303,12 +413,27 @@ export class PrivateChatService implements OnDestroy {
    * @param {string} userId - The ID of the current user.
    * @returns {Promise<any>} A promise that resolves with the user data or null if not found.
    */
-  private async getUserDataForPrivateChat(userId: string): Promise<any | null> {
+  private getUserDataForPrivateChat(userId: string): Observable<any | null> {
     const userDocRef = doc(this.firestore, `users/${userId}`);
-    const userDoc = await getDoc(userDocRef);
-    const userData = userDoc.data();
-    if (!userData) return null;
-    return userData;
+    const privateChatSubcollectionRef = collection(userDocRef, 'privateChat');
+    return new Observable((observer) => {
+      const unsubscribe = onSnapshot(
+        privateChatSubcollectionRef,
+        (querySnapshot) => {
+          if (!querySnapshot.empty) {
+            const userData = querySnapshot.docs.map((doc) => doc.data());
+            observer.next(userData);
+          } else {
+            observer.next(null);
+          }
+        },
+        (error) => {
+          console.error('Fehler beim Abrufen der Daten:', error);
+          observer.next(null);
+        }
+      );
+      return () => unsubscribe();
+    });
   }
 
   /**
@@ -317,11 +442,14 @@ export class PrivateChatService implements OnDestroy {
    * @param {string} messageId - The ID of the message.
    * @returns {any | null} The message data or null if not found.
    */
-  private getMessageData(userData: any, messageId: string): any | null {
+  private async getMessageData(
+    userData: any,
+    messageId: string
+  ): Promise<any | null> {
     const privateChats = userData['privateChat'];
-    const chatData = privateChats[this.privateChatId!];
-    if (!chatData) return null;
-    return chatData.messages ? chatData.messages[messageId] : null;
+    const chatData = privateChats ? privateChats[this.privateChatId!] : null;
+    if (!chatData || !chatData.messages) return null;
+    return chatData.messages[messageId] || null;
   }
 
   /**
@@ -336,6 +464,9 @@ export class PrivateChatService implements OnDestroy {
     emoji: { shortName: string; [key: string]: any },
     userId: string
   ): any | null {
+    if (!Array.isArray(currentMessage.reactions)) {
+      currentMessage.reactions = [];
+    }
     let reaction = this.findExistingReaction(currentMessage, emoji);
     if (!reaction) {
       reaction = this.createNewReaction(emoji);
@@ -450,16 +581,20 @@ export class PrivateChatService implements OnDestroy {
     userId: string
   ): Promise<void> {
     const secondUserIdForSaving = this.getSecondUserIdForSaving(userId);
-    const userDocRef1 = doc(this.firestore, `users/${userId}`);
-    const userDocRef2 = doc(this.firestore, `users/${secondUserIdForSaving}`);
+    const userDocRef1 = doc(
+      this.firestore,
+      `users/${userId}/privateChat/${this.privateChatId}`
+    );
+    const userDocRef2 = doc(
+      this.firestore,
+      `users/${secondUserIdForSaving}/privateChat/${this.privateChatId}`
+    );
     await Promise.all([
       updateDoc(userDocRef1, {
-        [`privateChat.${this.privateChatId}.messages.${messageId}.reactions`]:
-          currentMessage.reactions,
+        [`messages.${messageId}.reactions`]: currentMessage.reactions,
       }),
       updateDoc(userDocRef2, {
-        [`privateChat.${this.privateChatId}.messages.${messageId}.reactions`]:
-          currentMessage.reactions,
+        [`messages.${messageId}.reactions`]: currentMessage.reactions,
       }),
     ]);
   }

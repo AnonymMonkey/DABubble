@@ -306,13 +306,40 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
     const userDocRef = doc(this.firestore, `users/${this.userId}`);
     const userSnapshot = await getDoc(userDocRef);
     if (!userSnapshot.exists()) return;
+
     const newMessageId =
       MessageAreaNewMessageComponent.generatePrivateMessageId();
-    this.updatePrivateChat(userDocRef, newMessageId, newMessage, attachments);
+
+    // Referenz zu den privateChat-Dokumenten der Benutzer
+    const userPrivateChatRef = doc(
+      this.firestore,
+      `users/${this.userId}/privateChat/${this.privateChatId}`
+    );
+
+    // Hier wird die Nachricht in der 'messages' Subkollektion gespeichert
+    const userMessagesCollectionRef = collection(
+      this.firestore,
+      `users/${this.userId}/privateChat/${this.privateChatId}/messages`
+    );
+    await this.addMessageToSubcollection(
+      userMessagesCollectionRef,
+      newMessageId,
+      newMessage,
+      attachments
+    );
+
     const otherUserId = isSelfMessage ? userId2 : userId1;
-    const otherUserDocRef = doc(this.firestore, `users/${otherUserId}`);
-    await this.updatePrivateChat(
-      otherUserDocRef,
+    const otherUserPrivateChatRef = doc(
+      this.firestore,
+      `users/${otherUserId}/privateChat/${this.privateChatId}`
+    );
+
+    const otherUserMessagesCollectionRef = collection(
+      this.firestore,
+      `users/${otherUserId}/privateChat/${this.privateChatId}/messages`
+    );
+    await this.addMessageToSubcollection(
+      otherUserMessagesCollectionRef,
       newMessageId,
       newMessage,
       attachments
@@ -320,28 +347,29 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Updates the private chat messages for a user.
-   * @param {DocumentReference<DocumentData>} userDocRef - The reference to the user document.
-   * @param {string} newMessageId - The ID of the new message.
-   * @param {ThreadMessage} newMessage - The new message object.
-   * @param {string[]} attachments - An array of attachment URLs.
+   * Speichert die Nachricht in der 'messages' Subkollektion eines Benutzers.
    */
-  async updatePrivateChat(
-    userDocRef: DocumentReference<DocumentData>,
+  async addMessageToSubcollection(
+    messagesCollectionRef: CollectionReference<DocumentData>,
     newMessageId: string,
     newMessage: ThreadMessage,
     attachments: string[]
-  ) {
-    await updateDoc(userDocRef, {
-      [`privateChat.${this.privateChatId}.messages.${newMessageId}`]: {
+  ): Promise<void> {
+    try {
+      const newMessageDocRef = doc(messagesCollectionRef, newMessageId);
+      await setDoc(newMessageDocRef, {
         content: newMessage.content,
         messageId: newMessageId,
         reactions: newMessage.reactions,
         time: newMessage.time,
         userId: this.userId,
         attachmentUrls: attachments,
-      },
-    });
+      });
+
+      console.log('Message saved successfully to subcollection');
+    } catch (error) {
+      console.error('Error saving message to subcollection:', error);
+    }
   }
 
   /**

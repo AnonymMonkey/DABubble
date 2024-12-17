@@ -1,25 +1,12 @@
 ::ng-deep {
   :root {
-    --currentBorderRadius: 0px 30px 30px 30px;
+    --currentBorderRadius: 30px 30px 30px 30px;
   }
 
   .mat-mdc-menu-panel {
     max-width: none;
     border-radius: var(--currentBorderRadius);
   }
-}
-
-:host {
-  display: flex;
-  flex-grow: 1;
-  height: 100%;
-}
-
-section {
-  flex-grow: 1;
-  align-items: flex-start;
-  justify-content: flex-start;
-  display: flex;
 }
 
 app-private-chat-header {
@@ -41,12 +28,25 @@ app-message-area-new-message {
   display: flex;
 }
 
+
+@media only screen and (max-width: 600px) {
+  app-private-chat-placeholder {
+    max-width: 98vw;
+  }
+}
+
+:host {
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+}
+
 .mat-card-container {
   width: 100%;
   height: 100%;
   background-color: var(--text-color);
   border-radius: 30px;
-  box-shadow: none !important;
+  box-shadow: 0px 2px 2px 0px #00000014;
 
   @media only screen and (max-width: 600px) {
     border-radius: 0;
@@ -60,11 +60,43 @@ mat-card-content {
 }
 
 .mat-mdc-card-content {
-  padding: 0 !important;
+  padding: 0;
+
+  &:first-child,
+  &:last-child {
+    padding: 0;
+  }
 }
 
-@media only screen and (max-width: 600px) {
-  app-private-chat-placeholder {
-    max-width: 98vw;
+mat-sidenav-container {
+  right: auto;
+  left: 0px;
+  width: 100%;
+  background-color: transparent;
+}
+
+mat-sidenav {
+  width: 400px;
+  border-radius: 30px !important;
+  background-color: var(--text-color);
+  box-shadow: unset !important;
+
+  @media screen and (max-width: 1250px) {
+    box-shadow: -10px 0px 20px 0px var(--light-purple-color) !important;
+  }
+
+  @media only screen and (max-width: 600px) {
+    border-radius: 0 !important;
+    width: 100%;
+  }
+}
+
+mat-sidenav-content {
+  height: 100%;
+  box-shadow: unset !important;
+  border-radius: 30px;
+
+  @media only screen and (max-width: 600px) {
+    border-radius: 0;
   }
 }

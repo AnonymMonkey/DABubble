@@ -11,6 +11,7 @@ import {
   getDocs,
   QuerySnapshot,
 } from 'firebase/firestore';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -28,13 +29,27 @@ export class ThreadService implements OnDestroy {
   private unsubscribeThreadMessages: (() => void) | null = null;
   private destroy$ = new Subject<void>();
   actualMessageSubscription: Subscription | undefined;
+  channelId: string = '';
+  privateChatId: string = '';
 
   constructor(
     private firestore: Firestore,
-    private channelService: ChannelService
+    private channelService: ChannelService,
+    private route: ActivatedRoute
   ) {
-    this.subscribeToActualMessage();
-    this.subscribeToThreadMessages();
+    this.route.params.subscribe(params => {
+      this.channelId = params['channelId'];
+      this.privateChatId = params['privateChatId'];
+      if (this.channelId) {
+        this.subscribeToActualMessage();
+        this.subscribeToThreadMessages();
+        console.log('channelId', this.channelId);
+      } else if (this.privateChatId) {
+        console.log('privateChatId', this.privateChatId);
+        // this.subscribeToActualMessage();
+        // this.subscribeToThreadMessages();
+      }
+    });
   }
 
   /**
@@ -186,7 +201,8 @@ export class ThreadService implements OnDestroy {
     const currentMessage = this.actualMessageSubject.value;
     if (!currentMessage || !this.deepEqual(currentMessage, message)) {
       this.actualMessageSubject.next(message);
-      this.subscribeToThreadMessages();
+      if (this.channelId) this.subscribeToThreadMessages();
+      if (this.privateChatId) return
     }
   }
 

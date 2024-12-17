@@ -11,6 +11,7 @@ import { MatIcon } from '@angular/material/icon';
 import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { PrivateChatService } from '../../../../shared/services/private-chat-service/private-chat.service';
 import { StorageService } from '../../../../shared/services/storage-service/storage.service';
+import { PrivateChatComponent } from '../../private-chat.component';
 
 @Component({
   selector: 'app-own-private-message-template',
@@ -44,6 +45,7 @@ export class OwnPrivateMessageTemplateComponent {
   currentBorderRadius = '0px 30px 30px 30px';
   public privateChatService = inject(PrivateChatService);
   isMenuOpen: boolean = false;
+  public privateChat = inject(PrivateChatComponent);
 
   constructor() {}
 

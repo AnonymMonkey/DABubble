@@ -200,9 +200,9 @@ export class OwnPrivateMessageEditComponent implements OnInit {
     messageId: string
   ) {
     try {
-      const userDocRef = doc(this.firestore, `users/${userId}`);
+      const userDocRef = doc(this.firestore, `users/${userId}/privateChat/${privateChatId}`);
       await updateDoc(userDocRef, {
-        [`privateChat.${privateChatId}.messages.${messageId}.content`]:
+        [`messages.${messageId}.content`]:
           this.editedMessageContent,
       });
     } catch (error) {

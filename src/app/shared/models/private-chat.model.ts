@@ -4,6 +4,7 @@ export class PrivateChat {
   chatId: string;
   messages: ThreadMessage[];
   user: string[];
+  thread: { [threadId: string]: ThreadMessage };
 
 
   constructor(
@@ -13,5 +14,6 @@ export class PrivateChat {
     this.chatId = chatId;
     this.messages = [];
     this.user = user;
+    this.thread = {};
   }
 }
