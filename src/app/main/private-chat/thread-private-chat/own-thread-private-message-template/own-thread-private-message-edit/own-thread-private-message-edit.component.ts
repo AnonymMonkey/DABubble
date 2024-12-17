@@ -86,22 +86,47 @@ export class OwnThreadPrivateMessageEditComponent {
   async changeMessage(): Promise<void> {
     this.isSaving = true;
     this.temporaryMessageContent.emit(this.editedMessageContent);
-    if (this.editedMessageContent === this.message.content)
+    if (this.editedMessageContent === this.message.content) {
       return this.clearInput(false);
-
+    }
     const originalContent = this.message.content;
     this.message.content = this.editedMessageContent;
     this.clearInput(false);
-
-    const { channelPath, threadPath } = this.buildPaths();
-    const path = this.isThreadMessage() ? threadPath : channelPath;
-
-    await this.handleMessageUpdateOrDelete(
-      path,
-      this.editedMessageContent,
-      originalContent
+    const userId = this.userService.userId;
+    const otherUserId =
+      this.threadService.privateChatId?.split('_')[0] === userId
+        ? this.threadService.privateChatId?.split('_')[1]
+        : this.threadService.privateChatId?.split('_')[0];
+    const { privateChatPath: userChatPath, threadPath: userThreadPath } =
+      this.buildPaths(userId, this.threadService.privateChatId ?? '');
+    const {
+      privateChatPath: otherUserChatPath,
+      threadPath: otherUserThreadPath,
+    } = this.buildPaths(
+      otherUserId ?? '',
+      this.threadService.privateChatId ?? ''
     );
-
+    const userPath = this.isThreadMessage() ? userThreadPath : userChatPath;
+    const otherUserPath = this.isThreadMessage()
+      ? otherUserThreadPath
+      : otherUserChatPath;
+    try {
+      await Promise.all([
+        this.handleMessageUpdateOrDelete(
+          userPath,
+          this.editedMessageContent,
+          originalContent
+        ),
+        this.handleMessageUpdateOrDelete(
+          otherUserPath,
+          this.editedMessageContent,
+          originalContent
+        ),
+      ]);
+    } catch (error) {
+      console.error('Error updating message for both users:', error);
+      this.message.content = originalContent;
+    }
     this.isSaving = false;
     this.temporaryMessageContent.emit('');
   }
@@ -142,10 +167,13 @@ export class OwnThreadPrivateMessageEditComponent {
    * Builds paths for updating or deleting a message, depending on whether it's in a thread or a channel.
    * @returns {Object} - Returns an object containing `channelPath` and `threadPath`.
    */
-  private buildPaths(): { channelPath: string; threadPath: string } {
-    const channelPath = `channels/${this.channelService.channelId}/messages/${this.message.messageId}`;
-    const threadPath = `channels/${this.channelService.channelId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${this.message.messageId}`;
-    return { channelPath, threadPath };
+  private buildPaths(
+    userId: string,
+    privateChatId: string
+  ): { privateChatPath: string; threadPath: string } {
+    const privateChatPath = `users/${userId}/privateChat/${privateChatId}/messages/${this.message.messageId}`;
+    const threadPath = `users/${userId}/privateChat/${privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${this.message.messageId}`;
+    return { privateChatPath, threadPath };
   }
 
   /**

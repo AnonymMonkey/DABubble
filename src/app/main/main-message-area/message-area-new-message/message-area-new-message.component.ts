@@ -365,8 +365,6 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
         userId: this.userId,
         attachmentUrls: attachments,
       });
-
-      console.log('Message saved successfully to subcollection');
     } catch (error) {
       console.error('Error saving message to subcollection:', error);
     }

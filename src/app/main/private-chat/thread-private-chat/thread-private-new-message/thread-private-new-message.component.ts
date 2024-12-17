@@ -131,8 +131,6 @@ export class ThreadPrivateChatNewMessageComponent {
           currentMessage.messageId,
           otherUserId
         );
-
-        // Prüfen, ob die Nachricht existiert
         const messageExistsCurrentUser = await this.messageExists(
           messageDocRefCurrentUser
         );
@@ -171,6 +169,11 @@ export class ThreadPrivateChatNewMessageComponent {
     }
   }
 
+  /**
+   * Retrieves the document reference for a message from another user's perspective.
+   * @param {string} messageId - The ID of the message.
+   * @param {string} otherUserId - The ID of the other user.
+   */
   getOtherUserMessageDocRef(messageId: string, otherUserId: string) {
     return doc(
       this.firestore,

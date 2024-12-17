@@ -189,20 +189,25 @@ export class OwnThreadPrivateMessageTemplateComponent {
   }
 
   /**
-   * Deletes a message based on its message ID.
+   * Deletes a message based on its message ID in both the private chat and thread.
    * @param message - The message to delete.
    */
   deleteMessage(message: any) {
-    const channelPath = `channels/${this.channelService.channelId}/messages/${message.messageId}`;
-    const threadPath = `channels/${this.channelService.channelId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${message.messageId}`;
+    const privateChatPath = `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${message.messageId}`;
+    const threadPath = `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${message.messageId}`;
+    const otherUserId = this.threadService.privateChatId?.split('_')[0] === this.userService.userId ? this.threadService.privateChatId?.split('_')[1] : this.threadService.privateChatId?.split('_')[0];
+    const otherUserChatPath = `users/${otherUserId}/privateChat/${this.threadService.privateChatId}/messages/${message.messageId}`;
+    const otherUserThreadPath = `users/${otherUserId}/privateChat/${this.threadService.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${message.messageId}`;
     if (message.attachmentUrls && message.attachmentUrls.length > 0)
       for (const url of message.attachmentUrls) {
         this.storageService.deleteSpecificFile(url);
       }
-    if (this.message.messageId.startsWith('thread_'))
+    if (this.message.messageId.startsWith('thread_')) {
       this.messageService.deleteMessageInThreadOrChannel(threadPath);
-    else if (this.message.messageId.startsWith('msg_')) {
-      this.messageService.deleteMessageInThreadOrChannel(channelPath);
+      this.messageService.deleteMessageInThreadOrChannel(otherUserThreadPath);
+    } else if (this.message.messageId.startsWith('msg_')) {
+      this.messageService.deleteMessageInThreadOrChannel(privateChatPath);
+      this.messageService.deleteMessageInThreadOrChannel(otherUserChatPath);
       this.privateChat.closeSidenav();
     }
   }

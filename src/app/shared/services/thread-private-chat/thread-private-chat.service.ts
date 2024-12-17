@@ -38,7 +38,7 @@ export class ThreadPrivateChatService {
   actualMessageSubscription: Subscription | undefined;
 
   private routeSubscription: Subscription | undefined;
-  private privateChatId: string | null = null;
+  public privateChatId: string | null = null;
 
   constructor(
     private firestore: Firestore,
