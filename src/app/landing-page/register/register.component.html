@@ -33,6 +33,7 @@
       <input
         [formControl]="getDisplayNameControl"
         placeholder="Name und Nachname"
+        autocomplete="off"
         [ngClass]="{
           'input-error':
             getDisplayNameControl.invalid && getDisplayNameControl.touched
@@ -58,6 +59,7 @@
       <input
         [formControl]="getEmailControl"
         placeholder="beispielname&#64;email.com"
+        autocomplete="off"
         [ngClass]="{
           'input-error': getEmailControl.invalid && getEmailControl.touched
         }"
@@ -83,6 +85,7 @@
       <input
         [formControl]="getPasswordControl"
         placeholder="Passwort"
+        autocomplete="off"
         type="password"
         [ngClass]="{
           'input-error':
@@ -132,6 +135,7 @@
       <input
         [formControl]="getConfirmPasswordControl"
         placeholder="Passwort Wiederholen"
+        autocomplete="off"
         type="password"
         [ngClass]="{
           'input-error':
