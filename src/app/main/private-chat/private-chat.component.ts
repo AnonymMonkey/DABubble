@@ -29,6 +29,7 @@ import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ThreadPrivateChatService } from '../../shared/services/thread-private-chat/thread-private-chat.service';
+import { set } from 'firebase/database';
 
 @Component({
   selector: 'app-private-chat',
@@ -66,6 +67,8 @@ export class PrivateChatComponent implements OnInit {
   breakpointObserverSubscription!: Subscription;
   breakpointObserver = inject(BreakpointObserver);
   drawerMode: 'side' | 'over' = 'side';
+
+  public loading = true;
 
   /**
    * Clean up subscriptions on component destroy.
@@ -105,9 +108,13 @@ export class PrivateChatComponent implements OnInit {
       if (privateChatId) {
         this.privateChatService.setPrivateChatId(privateChatId);
         this.threadPrivateChatService.setPrivateChatId(privateChatId);
+        this.loading = true;
+        setTimeout(() => {
+          this.loading = false;
+        }, 1000);
       }
     });
-  
+
     this.privateChat$ = this.route.paramMap.pipe(
       switchMap((params) => {
         const privateChatId = params.get('privateChatId');
@@ -117,7 +124,7 @@ export class PrivateChatComponent implements OnInit {
             this.firestore,
             `users/${currentUserId}/privateChat/${privateChatId}/messages`
           );
-  
+
           return new Observable((observer) => {
             const unsubscribe = onSnapshot(
               messagesCollectionRef,
@@ -140,7 +147,7 @@ export class PrivateChatComponent implements OnInit {
                 }
               }
             );
-  
+
             return () => unsubscribe();
           });
         } else {
@@ -151,8 +158,6 @@ export class PrivateChatComponent implements OnInit {
       })
     );
   }
-  
-  
 
   /**
    * Open the thread sidenav

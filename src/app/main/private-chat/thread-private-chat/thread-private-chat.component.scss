@@ -14,7 +14,7 @@ app-thread-private-chat-header {
     display: flex;
 }
   
-app-thread-private-chat-history {
+app-thread-private-chat-history, div {
     display: flex;
     flex-grow: 1;
     flex-direction: column;
