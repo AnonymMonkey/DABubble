@@ -8,6 +8,8 @@ import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker
 import { MessageReactionsComponent } from '../../../../shared/components/message-reactions/message-reactions.component';
 import { PrivateChatService } from '../../../../shared/services/private-chat-service/private-chat.service';
 import { AttachmentPreviewComponent } from '../../../../shared/components/attachment-preview/attachment-preview.component';
+import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
+import { PrivateChatComponent } from '../../private-chat.component';
 
 @Component({
   selector: 'app-other-private-message-template',
@@ -36,6 +38,8 @@ export class OtherPrivateMessageTemplateComponent {
   isMenuOpen: boolean = false;
   public userService = inject(UserService);
   public privateChatService = inject(PrivateChatService);
+  public threadService = inject(ThreadService);
+  public privateChat = inject(PrivateChatComponent);
 
   constructor() {}
 

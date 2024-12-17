@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatCard, MatCardModule } from '@angular/material/card';
 import { PrivateChatHeaderComponent } from './private-chat-header/private-chat-header.component';
@@ -7,9 +13,20 @@ import { MessageAreaNewMessageComponent } from '../main-message-area/message-are
 import { AsyncPipe, CommonModule, NgIf } from '@angular/common';
 import { UserService } from '../../shared/services/user-service/user.service';
 import { PrivateChatHistoryComponent } from './private-chat-history/private-chat-history.component';
-import { catchError, Observable, of, Subscription, switchMap } from 'rxjs';
+import {
+  catchError,
+  from,
+  Observable,
+  of,
+  Subscription,
+  switchMap,
+} from 'rxjs';
 import { PrivateChatService } from '../../shared/services/private-chat-service/private-chat.service';
 import { BehaviorService } from '../../shared/services/behavior-service/behavior.service';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { ThreadPrivateChatComponent } from './thread-private-chat/thread-private-chat.component';
+import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { Firestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-private-chat',
@@ -26,6 +43,9 @@ import { BehaviorService } from '../../shared/services/behavior-service/behavior
     MessageAreaNewMessageComponent,
     AsyncPipe,
     CommonModule,
+    MatSidenav,
+    MatSidenavModule,
+    ThreadPrivateChatComponent,
   ],
 })
 export class PrivateChatComponent implements OnInit {
@@ -33,8 +53,15 @@ export class PrivateChatComponent implements OnInit {
   hasMessages: boolean = false;
   behaviorService = inject(BehaviorService);
   sideNavOpened = true;
+  opened: boolean = false;
+  currentUserId = this.userService.userId;
   subscription!: Subscription;
   routeSubscription!: Subscription;
+  @ViewChild('sidenavPrivateChat') sidenav!: MatSidenav;
+  @ViewChild('sidenavPrivateChat', { read: ElementRef })
+  sidenavElement!: ElementRef;
+  threadOpened: boolean = false;
+  drawerMode: 'side' | 'over' = 'side';
 
   /**
    * Clean up subscriptions on component destroy.
@@ -47,7 +74,8 @@ export class PrivateChatComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private userService: UserService,
-    private privateChatService: PrivateChatService
+    private privateChatService: PrivateChatService,
+    private firestore: Firestore
   ) {}
 
   /**
@@ -59,6 +87,7 @@ export class PrivateChatComponent implements OnInit {
         this.sideNavOpened = value;
       }
     );
+
     this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const privateChatId = params.get('privateChatId');
       if (privateChatId) {
@@ -70,39 +99,65 @@ export class PrivateChatComponent implements OnInit {
       switchMap((params) => {
         const privateChatId = params.get('privateChatId');
         const currentUserId = this.userService.userId;
-
         if (privateChatId) {
-          return this.userService.getUserDataByUID(currentUserId).pipe(
-            switchMap((userData) => {
-              if (userData && userData.privateChat) {
-                const privateChat = userData.privateChat[privateChatId];
-                this.hasMessages =
-                  privateChat?.messages &&
-                  Object.keys(privateChat.messages).length > 0;
-                const messagesArray = privateChat?.messages
-                  ? Object.values(privateChat.messages)
-                  : [];
-                return of({ ...privateChat, messages: messagesArray });
-              } else {
-                console.warn(
-                  'Keine Benutzerdaten oder privateChat-Daten gefunden'
-                );
-                this.hasMessages = false;
-                return of(null);
-              }
-            }),
-            catchError((err) => {
-              console.error('Fehler beim Abrufen der Benutzerdaten:', err);
-              this.hasMessages = false;
-              return of(null);
-            })
+          const messagesCollectionRef = collection(
+            this.firestore,
+            `users/${currentUserId}/privateChat/${privateChatId}/messages`
           );
+          return new Observable((observer) => {
+            const unsubscribe = onSnapshot(
+              messagesCollectionRef,
+              (querySnapshot) => {
+                if (!querySnapshot.empty) {
+                  const messagesArray = querySnapshot.docs.map((doc) =>
+                    doc.data()
+                  );
+                  console.log('Messages loaded:', messagesArray);
+                  this.hasMessages = messagesArray.length > 0;
+                  observer.next({
+                    privateChatId,
+                    messages: messagesArray,
+                  });
+                } else {
+                  this.hasMessages = false;
+                  observer.next(null);
+                }
+              }
+            );
+
+            return () => unsubscribe();
+          });
         } else {
-          console.error('Kein privateChatId in den Routenparametern gefunden');
+          console.error('Keine privateChatId in den Routenparametern gefunden');
           this.hasMessages = false;
           return of(null);
         }
       })
     );
+  }
+
+  /**
+   * Open the thread sidenav
+   */
+  openSidenav() {
+    if (this.sidenav) {
+      this.sidenavElement.nativeElement.classList.remove('d-none');
+      this.sidenav.open();
+      this.threadOpened = true;
+    }
+  }
+
+  /**
+   * Close the thread sidenav
+   */
+  closeSidenav() {
+    if (this.sidenav) {
+      this.sidenav.close();
+      this.threadOpened = false;
+      setTimeout(
+        () => this.sidenavElement.nativeElement.classList.add('d-none'),
+        300
+      );
+    }
   }
 }

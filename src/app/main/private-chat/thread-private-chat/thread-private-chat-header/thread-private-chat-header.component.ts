@@ -1,34 +1,28 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
+import { PrivateChatComponent } from '../../private-chat.component';
+import { UserService } from '../../../../shared/services/user-service/user.service';
 import { ActivatedRoute } from '@angular/router';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { ProfileInfoDialogComponent } from '../../../shared/profile-info-dialog/profile-info-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { UserService } from '../../../shared/services/user-service/user.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-private-chat-header',
+  selector: 'app-thread-private-chat-header',
   standalone: true,
-  imports: [MatToolbarModule, MatMenuModule],
-  templateUrl: './private-chat-header.component.html',
-  styleUrls: ['./private-chat-header.component.scss'],
+  imports: [MatIcon],
+  templateUrl: './thread-private-chat-header.component.html',
+  styleUrl: './thread-private-chat-header.component.scss'
 })
-export class PrivateChatHeaderComponent implements OnInit {
-  isMenuOpened: boolean = false;
+export class ThreadPrivateChatHeaderComponent {
+
+isMenuOpened: boolean = false;
   currentUserId: string = '';
   public chatUserId: string | undefined = '';
   chatUserName: string | undefined;
   chatUserPhotoURL: string | undefined;
   private routeSubscription: Subscription | undefined;
   private userDataSubscription: Subscription | undefined;
-  private dialogSubscription: Subscription | undefined;
+  constructor(public privateChat: PrivateChatComponent, private userService: UserService, private route: ActivatedRoute) {}
 
-  constructor(
-    public dialog: MatDialog,
-    private route: ActivatedRoute,
-    public userService: UserService
-  ) {}
 
   /**
    * Initialize the component and subscribe to route parameters oninit.
@@ -52,9 +46,7 @@ export class PrivateChatHeaderComponent implements OnInit {
   ngOnDestroy(): void {
     if (this.routeSubscription) this.routeSubscription.unsubscribe();
     if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
-    if (this.dialogSubscription) this.dialogSubscription.unsubscribe();
   }
-
 
   /**
    * Load the chat user data from the user service.
@@ -70,30 +62,5 @@ export class PrivateChatHeaderComponent implements OnInit {
           console.error('Fehler beim Abrufen der Benutzerdaten:', error),
       });
     }
-  }
-
-  /**
-   * Open the profile info dialog.
-   */
-  openProfileInfo(): void {
-    this.isMenuOpened = true;
-    const dialogRef = this.dialog.open(ProfileInfoDialogComponent, {
-      data: {
-        userId: this.chatUserId,
-        userName: this.chatUserName,
-        userPhotoURL: this.chatUserPhotoURL,
-      },
-    });
-    this.dialogSubscription = dialogRef.afterClosed().subscribe(() => {
-      this.isMenuOpened = false;
-    });
-  }
-
-  /**
-   * Check if the chat is with the current user.
-   * @returns True if the chat is with the current user, false otherwise.
-   */
-  isChatWithSelf(): boolean {
-    return this.currentUserId === this.chatUserId;
   }
 }

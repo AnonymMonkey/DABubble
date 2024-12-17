@@ -37,6 +37,13 @@
       </div>
       <div
         (click)="
+          privateChat.openSidenav(); threadService.setActualMessage(message)
+        "
+      >
+        <mat-icon class="material-symbols-outlined">comment</mat-icon>
+      </div>
+      <div
+        (click)="
           privateChatService.setActualMessage(message.messageId);
           setEditMessageMenuOpened(true);
           showEmojiContainer(2)
@@ -70,10 +77,7 @@
         <mat-menu #deleteMessageMenu="matMenu">
           <span
             class="edit-message-text"
-            (click)="
-              deleteMessage(message);
-              setEditMessageMenuOpened(true)
-            "
+            (click)="deleteMessage(message); setEditMessageMenuOpened(true)"
           >
             Nachricht löschen
           </span>

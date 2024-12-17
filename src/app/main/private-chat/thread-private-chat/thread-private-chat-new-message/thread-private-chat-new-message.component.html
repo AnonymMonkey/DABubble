@@ -1,0 +1,81 @@
+<section>
+    <div class="textarea-container">
+      <textarea
+        placeholder="Antworten..."
+        [(ngModel)]="newMessageContent"
+        (input)="checkForMention($event)"
+        (keydown.enter)="sendMessage(); $event.preventDefault()"
+      ></textarea>
+      <div class="icons-container">
+        <div class="left-icons">
+          <mat-icon
+            class="material-symbols-outlined"
+            [matMenuTriggerFor]="uploadMethodMenu"
+            (click)="toggleBorder('upload')"
+            >add</mat-icon
+          >
+          <div class="grey-line"></div>
+          <mat-icon
+            class="material-symbols-outlined"
+            [matMenuTriggerFor]="emojiMenu"
+            #emojiMenuThreadTrigger="matMenuTrigger"
+            (click)="toggleBorder('emoji')"
+            >sentiment_satisfied</mat-icon
+          >
+          <mat-icon
+            class="material-symbols-outlined"
+            [matMenuTriggerFor]="mentionMenu"
+            #mentionMenuThreadTrigger="matMenuTrigger"
+            (click)="toggleBorder('mention')"
+            >alternate_email</mat-icon
+          >
+        </div>
+        <mat-icon
+          (click)="sendMessage()"
+          [ngClass]="{
+            'send-icon':
+              newMessageContent.trim() !== '' || attachmentUrls.length > 0
+          }"
+          >send</mat-icon
+        >
+      </div>
+    </div>
+  
+    <mat-menu xPosition="after" #uploadMethodMenu yPosition="above">
+      <app-upload-method-selector
+        (uploadSelected)="addDownloadLink($event); openAttachmentSidenav()"
+        [messageId]="message?.messageId"
+      ></app-upload-method-selector>
+    </mat-menu>
+  
+    <mat-menu xPosition="after" #emojiMenu>
+      <emoji-mart
+        (click)="$event.stopPropagation()"
+        title="Pick your emoji…"
+        emoji="point_up"
+        set="apple"
+        (emojiClick)="addEmoji($event)"
+        [totalFrequentLines]="2"
+        [i18n]="{
+          search: 'Suche Emojis',
+          categories: { search: 'Suchergebnisse', recent: 'Neueste' }
+        }"
+      ></emoji-mart>
+    </mat-menu>
+  
+    <mat-menu xPosition="after" #mentionMenu yPosition="above">
+      <app-mention-user (mentionUser)="insertMention($event)" [component]="'channel'" [mentionTag]="mentionTag"></app-mention-user>
+    </mat-menu>
+  
+    <mat-sidenav-container class="example-container">
+      <mat-sidenav #threadAttachmentSidenav mode="side" position="end"
+        ><app-attachment-preview
+          [actualAttachmentUrls]="attachmentUrls"
+          [messageId]="message?.messageId"
+          (attachmentRemoved)="onAttachmentRemoved($event)"
+        ></app-attachment-preview>
+      </mat-sidenav>
+      <mat-sidenav-content></mat-sidenav-content>
+    </mat-sidenav-container>
+  </section>
+  

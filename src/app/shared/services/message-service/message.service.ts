@@ -80,7 +80,10 @@ export class MessageService {
    * @param messages The list of messages to set the data for.
    * @param messageMap The map of messages to set the data for.
    */
-  setThreadAndMessageData(messages: any[], messageMap: Map<string, ChannelMessage>) {
+  setThreadAndMessageData(
+    messages: any[],
+    messageMap: Map<string, ChannelMessage>
+  ) {
     messages.forEach((messageData) => {
       const message = this.setMessageData(messageData);
       const threadData = messageData['thread'] || {};
@@ -453,9 +456,12 @@ export class MessageService {
     privateChatId: string,
     messageId: string
   ): Promise<void> {
-    const userDocRef = doc(this.firestore, `users/${userId}`);
+    const userDocRef = doc(
+      this.firestore,
+      `users/${userId}/privateChat/${privateChatId}`
+    );
     await updateDoc(userDocRef, {
-      [`privateChat.${privateChatId}.messages.${messageId}`]: deleteField(),
+      [`messages.${messageId}`]: deleteField(),
     });
   }
 

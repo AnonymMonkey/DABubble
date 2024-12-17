@@ -34,6 +34,13 @@
       >
         <mat-icon class="material-symbols-outlined">add_reaction</mat-icon>
       </div>
+      <div
+        (click)="
+          privateChat.openSidenav(); threadService.setActualMessage(message)
+        "
+      >
+        <mat-icon class="material-symbols-outlined">comment</mat-icon>
+      </div>
     </div>
   </div>
 
@@ -82,6 +89,24 @@
         [component]="'privateChat'"
         *ngIf="message.reactions.length > 0"
       ></app-message-reactions>
+      <!-- <div
+        class="thread"
+        [ngClass]="{ 'd-none': !threadMessages?.length }"
+        *ngIf="threadMessages$ | async as threadMessages"
+      >
+        <span
+          (click)="
+            privateChat.openSidenav();
+            threadService.setActualMessage(message)
+          "
+        >
+          {{ (threadMessages$ | async)?.length }}
+          {{
+            (threadMessages$ | async)?.length === 1 ? "Antwort" : "Antworten"
+          }}
+        </span>
+        <span>Letzte Antwort: {{ getLastReplyTime(threadMessages) }}</span>
+      </div> -->
     </div>
   </div>
 
