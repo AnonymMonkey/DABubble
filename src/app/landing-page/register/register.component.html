@@ -89,41 +89,6 @@
             getPasswordControl.invalid && getPasswordControl.touched
         }"
       />
-      <!-- <div *ngIf="passwordControl.touched" class="error-message">
-        <ng-container
-          *ngIf="passwordControl.hasError('required'); else minlengthCheck"
-        >
-          Passwort ist erforderlich
-        </ng-container>
-        <ng-template #minlengthCheck>
-          <ng-container
-            *ngIf="passwordControl.hasError('minlength'); else uppercaseCheck"
-          >
-            Mindestens 8 Zeichen
-          </ng-container>
-        </ng-template>
-        <ng-template #uppercaseCheck>
-          <ng-container *ngIf="!passwordHasUppercase; else lowercaseCheck">
-            Mindestens 1 Großbuchstabe
-          </ng-container>
-        </ng-template>
-        <ng-template #lowercaseCheck>
-          <ng-container *ngIf="!passwordHasLowercase; else numberCheck">
-            Mindestens 1 Kleinbuchstabe
-          </ng-container>
-        </ng-template>
-        <ng-template #numberCheck>
-          <ng-container *ngIf="!passwordHasNumber; else specialCharCheck">
-            Mindestens 1 Zahl
-          </ng-container>
-        </ng-template>
-        <ng-template #specialCharCheck>
-          <ng-container *ngIf="passwordControl.hasError('pattern')">
-            Passwort muss Groß- und Kleinbuchstaben, eine Zahl und ein
-            Sonderzeichen (&#64;$!%*?&_-) enthalten.
-          </ng-container>
-        </ng-template>
-      </div> -->
       <div *ngIf="getPasswordControl.value" class="password-requirements">
         <p *ngIf="!passwordHasMinLength">Mindestens 8 Zeichen</p>
         <p *ngIf="passwordHasMinLength && !passwordHasUppercase">
@@ -207,7 +172,7 @@
         </span>
         <p class="checkbox__textwrapper">
           Ich stimme der
-          <a href="#" class="link" (click)="navigateToPrivacyPolicy()"
+          <a class="link" (click)="navigateToPrivacyPolicy()"
             >Datenschutzerklärung</a
           >
           zu.
