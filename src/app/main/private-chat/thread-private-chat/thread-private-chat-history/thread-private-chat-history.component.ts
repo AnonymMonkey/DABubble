@@ -1,21 +1,28 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  ViewChild,
+} from '@angular/core';
 import { ChannelMessage } from '../../../../shared/models/channel-message.model';
 import { ThreadMessage } from '../../../../shared/models/thread-message.model';
 import { distinctUntilChanged, Subject, Subscription, takeUntil } from 'rxjs';
-import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { OtherThreadMessageTemplateComponent } from '../../../main-message-area/thread/thread-chat-history/other-thread-message-template/other-thread-message-template.component';
-import { OwnThreadMessageTemplateComponent } from '../../../main-message-area/thread/thread-chat-history/own-thread-message-template/own-thread-message-template.component';
 import { ThreadPrivateChatService } from '../../../../shared/services/thread-private-chat/thread-private-chat.service';
+import { OwnThreadPrivateMessageTemplateComponent } from '../own-thread-private-message-template/own-thread-private-message-template.component';
+import { OtherThreadPrivateMessageTemplateComponent } from '../other-thread-private-message-template/other-thread-private-message-template.component';
 
 @Component({
   selector: 'app-thread-private-chat-history',
   standalone: true,
-  imports: [NgIf,
+  imports: [
+    NgIf,
     NgFor,
     CommonModule,
-    OtherThreadMessageTemplateComponent,
-    ],
+    OwnThreadPrivateMessageTemplateComponent,
+    OtherThreadPrivateMessageTemplateComponent,
+  ],
   templateUrl: './thread-private-chat-history.component.html',
   styleUrl: './thread-private-chat-history.component.scss',
 })
@@ -32,7 +39,7 @@ export class ThreadPrivateChatHistoryComponent {
 
   constructor(
     private threadService: ThreadPrivateChatService,
-    private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef
   ) {}
 
   /**

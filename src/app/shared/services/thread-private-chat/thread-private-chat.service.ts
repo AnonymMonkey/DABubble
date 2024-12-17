@@ -1,19 +1,33 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, Subscription, takeUntil } from 'rxjs';
-import { ChannelMessage } from '../../models/channel-message.model';
+import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  Subscription,
+  takeUntil,
+} from 'rxjs';
 import { PrivateChatMessage } from '../../models/private-chat-message.model';
 import { Firestore } from '@angular/fire/firestore';
 import { UserService } from '../user-service/user.service';
-import { collection, CollectionReference, doc, getDocs, onSnapshot, QuerySnapshot } from 'firebase/firestore';
+import {
+  collection,
+  CollectionReference,
+  doc,
+  getDocs,
+  onSnapshot,
+  QuerySnapshot,
+} from 'firebase/firestore';
+import { ActivatedRoute } from '@angular/router';
+import { PrivateChatComponent } from '../../../main/private-chat/private-chat.component';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThreadPrivateChatService {
-  public actualMessageSubject = new BehaviorSubject<ChannelMessage | null>(
+  public actualMessageSubject = new BehaviorSubject<PrivateChatMessage | null>(
     null
   );
-  actualMessage$: Observable<ChannelMessage | null> =
+  actualMessage$: Observable<PrivateChatMessage | null> =
     this.actualMessageSubject.asObservable();
   private threadMessagesSubject = new BehaviorSubject<PrivateChatMessage[]>([]);
   threadMessages$: Observable<PrivateChatMessage[]> =
@@ -22,9 +36,21 @@ export class ThreadPrivateChatService {
   private unsubscribeThreadMessages: (() => void) | null = null;
   private destroy$ = new Subject<void>();
   actualMessageSubscription: Subscription | undefined;
+
+  private routeSubscription: Subscription | undefined;
   private privateChatId: string | null = null;
 
-  constructor(private firestore: Firestore, private userService: UserService) {
+  constructor(
+    private firestore: Firestore,
+    private userService: UserService,
+    private route: ActivatedRoute
+  ) {
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
+      const privateChatId = params.get('privateChatId');
+      if (privateChatId) {
+        this.privateChatId = privateChatId;
+      }
+    });
     this.subscribeToActualMessage();
     this.subscribeToThreadMessages();
   }
@@ -49,7 +75,7 @@ export class ThreadPrivateChatService {
           );
           this.unsubscribeActualMessage = onSnapshot(messageRef, (snapshot) => {
             if (snapshot.exists()) {
-              const updatedMessage = snapshot.data() as ChannelMessage;
+              const updatedMessage = snapshot.data() as PrivateChatMessage;
               this.actualMessageSubject.next(updatedMessage);
               this.subscribeToThreadMessages();
             }
@@ -175,12 +201,20 @@ export class ThreadPrivateChatService {
    * Sets the actual message in the thread.
    * @param message - The message to set as the actual message
    */
-  setActualMessage(message: ChannelMessage): void {
+  setActualMessage(message: PrivateChatMessage): void {
     const currentMessage = this.actualMessageSubject.value;
     if (!currentMessage || !this.deepEqual(currentMessage, message)) {
       this.actualMessageSubject.next(message);
       this.subscribeToThreadMessages();
     }
+  }
+
+  /**
+   * Sets the private chat ID.
+   * @param privateChatId - The ID of the private chat
+   */
+  setPrivateChatId(privateChatId: string): void {
+    this.privateChatId = privateChatId;
   }
 
   /**
@@ -219,6 +253,7 @@ export class ThreadPrivateChatService {
       this.unsubscribeActualMessage();
       this.unsubscribeActualMessage = null;
     }
+    if (this.routeSubscription) this.routeSubscription.unsubscribe();
     if (this.actualMessageSubscription)
       this.actualMessageSubscription.unsubscribe();
     this.destroy$.next();

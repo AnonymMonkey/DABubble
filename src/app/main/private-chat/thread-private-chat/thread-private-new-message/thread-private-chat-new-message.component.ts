@@ -4,9 +4,7 @@ import { Subscription } from 'rxjs';
 import { PrivateChatMessage } from '../../../../shared/models/private-chat-message.model';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
-import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { Firestore } from '@angular/fire/firestore';
-import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import { StorageService } from '../../../../shared/services/storage-service/storage.service';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +23,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { ActivatedRoute } from '@angular/router';
+import { ThreadPrivateChatService } from '../../../../shared/services/thread-private-chat/thread-private-chat.service';
 
 @Component({
   selector: 'app-thread-private-chat-new-message',
@@ -42,8 +41,8 @@ import { ActivatedRoute } from '@angular/router';
     UploadMethodSelectorComponent,
     MatSidenavModule,
   ],
-  templateUrl: './thread-private-chat-new-message.component.html',
-  styleUrl: './thread-private-chat-new-message.component.scss',
+  templateUrl: './thread-private-new-message.component.html',
+  styleUrl: './thread-private-new-message.component.scss',
 })
 export class ThreadPrivateChatNewMessageComponent {
   newMessageContent: string = '';
@@ -71,7 +70,7 @@ export class ThreadPrivateChatNewMessageComponent {
   @ViewChild(MatMenuTrigger) uploadMethodMenuTrigger!: MatMenuTrigger;
 
   constructor(
-    private threadService: ThreadService,
+    private threadService: ThreadPrivateChatService,
     private firestore: Firestore,
     private storageService: StorageService,
     private userService: UserService,
@@ -119,28 +118,65 @@ export class ThreadPrivateChatNewMessageComponent {
     if (this.isMessageValid()) {
       const currentMessage = this.threadService.actualMessageSubject.value;
       if (!currentMessage) return;
-  
+
       try {
-        const messageDocRef = await this.getMessageDocRef(
+        const otherUserId =
+          this.privateChatId!.split('_')[0] === this.userService.userId
+            ? this.privateChatId!.split('_')[1]
+            : this.privateChatId!.split('_')[0];
+        const messageDocRefCurrentUser = await this.getMessageDocRef(
           currentMessage.messageId
         );
-          if (!(await this.messageExists(messageDocRef))) {
-          console.error('Message document does not exist:', currentMessage.messageId);
+        const messageDocRefOtherUser = await this.getOtherUserMessageDocRef(
+          currentMessage.messageId,
+          otherUserId
+        );
+
+        // Prüfen, ob die Nachricht existiert
+        const messageExistsCurrentUser = await this.messageExists(
+          messageDocRefCurrentUser
+        );
+        const messageExistsOtherUser = await this.messageExists(
+          messageDocRefOtherUser
+        );
+
+        if (!messageExistsCurrentUser || !messageExistsOtherUser) {
+          console.error(
+            'Message document does not exist for one of the users:',
+            currentMessage.messageId
+          );
           return;
         }
-  
         const newThreadId = this.generateNewThreadId();
         const newMessage = this.createNewMessage(newThreadId);
         this.resetMessageState();
-        await this.addMessageToThread(newThreadId, newMessage);
-        await this.updateThreadId(messageDocRef, newThreadId);
-  
+        await Promise.all([
+          this.addMessageToThread(
+            newThreadId,
+            newMessage,
+            this.userService.userId
+          ),
+          this.addMessageToThread(newThreadId, newMessage, otherUserId),
+        ]);
+        await Promise.all([
+          this.updateThreadId(messageDocRefCurrentUser, newThreadId),
+          this.updateThreadId(messageDocRefOtherUser, newThreadId),
+        ]);
       } catch (error) {
-        console.error('Error saving message to Firestore:', error);
+        console.error(
+          'Error saving message to Firestore for both users:',
+          error
+        );
       }
     }
   }
-  
+
+  getOtherUserMessageDocRef(messageId: string, otherUserId: string) {
+    return doc(
+      this.firestore,
+      `users/${otherUserId}/privateChat/${this.privateChatId}/messages/${messageId}`
+    );
+  }
 
   /**
    * Checks if the message content is valid.
@@ -216,11 +252,12 @@ export class ThreadPrivateChatNewMessageComponent {
    */
   async addMessageToThread(
     newThreadId: string,
-    newMessage: ThreadMessage
+    newMessage: ThreadMessage,
+    userId: string
   ): Promise<void> {
     const threadCollectionRef = collection(
       this.firestore,
-      `users/${this.userService.userId}/privateChat/${this.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread`
+      `users/${userId}/privateChat/${this.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread`
     );
     const threadDocRef = doc(threadCollectionRef, newThreadId);
     await setDoc(threadDocRef, {
