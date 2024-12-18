@@ -53,7 +53,11 @@ export class PrivateChatService implements OnDestroy {
   private destroy$ = new Subject<void>();
   public privateChatId: string | null = null;
 
-  constructor(private firestore: Firestore, private userService: UserService, private threadService: ThreadPrivateChatService) {}
+  constructor(
+    private firestore: Firestore,
+    private userService: UserService,
+    private threadService: ThreadPrivateChatService
+  ) {}
 
   /**
    * Sets the private chat ID.
@@ -132,7 +136,6 @@ export class PrivateChatService implements OnDestroy {
       })
     );
   }
-
 
   /**
    * Ruft alle privaten Chats aus der Unterkollektion 'privateChats' eines Benutzers ab.
@@ -239,7 +242,6 @@ export class PrivateChatService implements OnDestroy {
       this.firestore,
       `users/${targetUser.uid}/privateChat`
     );
-
     return combineLatest([
       this.getPrivateChats(currentUserChatsRef),
       this.getPrivateChats(targetUserChatsRef),
@@ -344,15 +346,20 @@ export class PrivateChatService implements OnDestroy {
       try {
         const userData = await this.getUserDataForPrivateChat(userId);
         if (!userData) return;
-        const currentMessage = this.getMessageData(userData, messageId);
-        if (!currentMessage) return;
+        const currentMessage = this.getMessageData(
+          userId,
+          this.privateChatId,
+          messageId
+        );
+        let convertedCurrentMessage = await this.convertCurrentMessage(currentMessage);
+        if (!convertedCurrentMessage) return;
         const reaction = this.addOrUpdateReaction(
-          currentMessage,
+          convertedCurrentMessage,
           emoji,
           userId
         );
         if (!reaction) return;
-        await this.saveReactionsToFirestore(currentMessage, messageId, userId);
+        await this.saveReactionsToFirestore(convertedCurrentMessage, messageId, userId);
       } catch (error) {
         console.error('Error adding or updating reaction:', error);
       }
@@ -361,20 +368,33 @@ export class PrivateChatService implements OnDestroy {
     }
   }
 
-  async addOrChangeReactionPrivateThread(messageId: string, emoji: any): Promise<void> {
+  /**
+   * Adds or changes a reaction to a message in a private thread.
+   * @param {string} messageId - The ID of the message to react to.
+   * @param {object} emoji - The emoji used as a reaction.
+   * @returns {Promise<void>} A promise that resolves when the reaction is added or changed.
+   */
+  async addOrChangeReactionPrivateThread(
+    messageId: string,
+    emoji: any
+  ): Promise<void> {
     const userId = this.userService.userId;
     try {
       const userData = await this.getUserDataForPrivateChat(userId);
       if (!userData) return;
-      const currentMessage = this.getMessageDataThread(userData, messageId);
-      if (!currentMessage) return;
-      const reaction = this.addOrUpdateReaction(
-        currentMessage,
-        emoji,
+      const currentMessage = this.getMessageDataThread(
+        userId,
+        this.privateChatId!,
+        messageId);
+      let convertedCurrentMessage = await this.convertCurrentMessage(currentMessage);
+      if (!convertedCurrentMessage) return;
+      const reaction = this.addOrUpdateReaction(convertedCurrentMessage, emoji, userId);
+      if (!reaction) return;
+      await this.saveReactionsToFirestoreThread(
+        convertedCurrentMessage,
+        messageId,
         userId
       );
-      if (!reaction) return;
-      await this.saveReactionsToFirestoreThread(currentMessage, messageId, userId);
     } catch (error) {
       console.error('Error adding or updating reaction:', error);
     }
@@ -386,84 +406,68 @@ export class PrivateChatService implements OnDestroy {
    * @param {string} messageId - The ID of the message.
    * @returns {any | null} The message data or null if not found.
    */
-  private async getMessageDataThread(
-    userData: any,
+  async getMessageDataThread(
+    userId: string,
+    privateChatId: string,
     messageId: string
   ): Promise<any | null> {
-    const privateChats = userData['privateChat'];
-    const chatData = privateChats ? privateChats[this.privateChatId!] : null;
-    if (!chatData) return null;
-    const messageRef = doc(
-      this.firestore,
-      `users/${this.userService.userId}/privateChat/${this.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}thread/${messageId}`
-    );
     try {
-      const messageSnapshot = await getDoc(messageRef);
-      if (messageSnapshot.exists()) {
-        return messageSnapshot.data();
+      const messageDocRef = doc(
+        this.firestore,
+        `users/${userId}/privateChat/${privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${messageId}`
+      );
+      const messageDocSnap = await getDoc(messageDocRef);
+      if (messageDocSnap.exists()) {
+        return messageDocSnap.data();
       } else {
+        console.error('Message not found.');
         return null;
       }
     } catch (error) {
-      console.error('Fehler beim Abrufen der Nachricht:', error);
+      console.error('Error fetching message data:', error);
       return null;
     }
   }
 
   /**
-   * Retrieves the user data for the current user in the private chat.
-   * @param {string} userId - The ID of the current user.
-   * @returns {Promise<any>} A promise that resolves with the user data or null if not found.
+   * Retrieves the user data for a given user ID.
+   * @param {string} userId - The ID of the user.
+   * @returns {Promise<any | null>} A promise that resolves to the user data or null if not found.
    */
-  private getUserDataForPrivateChat(userId: string): Observable<any | null> {
+  private async getUserDataForPrivateChat(userId: string): Promise<any | null> {
     const userDocRef = doc(this.firestore, `users/${userId}`);
-    const privateChatSubcollectionRef = collection(userDocRef, 'privateChat');
-    return new Observable((observer) => {
-      const unsubscribe = onSnapshot(
-        privateChatSubcollectionRef,
-        (querySnapshot) => {
-          if (!querySnapshot.empty) {
-            const userData = querySnapshot.docs.map((doc) => doc.data());
-            observer.next(userData);
-          } else {
-            observer.next(null);
-          }
-        },
-        (error) => {
-          console.error('Fehler beim Abrufen der Daten:', error);
-          observer.next(null);
-        }
-      );
-      return () => unsubscribe();
-    });
+    const userDoc = await getDoc(userDocRef);
+    const userData = userDoc.data();
+    if (!userData) return null;
+    return userData;
   }
 
   /**
    * Retrieves the message data from the private chat.
-   * @param {any} userData - The user data.
+   * @param {string} userId - The ID of the current user.
+   * @param {string} privateChatId - The ID of the private chat.
    * @param {string} messageId - The ID of the message.
    * @returns {any | null} The message data or null if not found.
    */
-  private async getMessageData(
-    userData: any,
+  async getMessageData(
+    userId: string,
+    privateChatId: string,
     messageId: string
   ): Promise<any | null> {
-    const privateChats = userData['privateChat'];
-    const chatData = privateChats ? privateChats[this.privateChatId!] : null;
-    if (!chatData) return null;
-    const messageRef = doc(
-      this.firestore,
-      `users/${this.userService.userId}/privateChat/${this.privateChatId}/messages/${messageId}`
-    );
     try {
-      const messageSnapshot = await getDoc(messageRef);
-      if (messageSnapshot.exists()) {
-        return messageSnapshot.data();
+      const messageDocRef = doc(
+        this.firestore,
+        `users/${userId}/privateChat/${privateChatId}/messages/${messageId}`
+      );
+      const messageDocSnap = await getDoc(messageDocRef);
+      if (messageDocSnap.exists()) {
+        return messageDocSnap.data();
       } else {
+        console.error('Message not found.');
         return null;
       }
     } catch (error) {
-      console.error('Fehler beim Abrufen der Nachricht:', error);
+      console.error('Error fetching message data:', error);
       return null;
     }
   }
@@ -475,39 +479,32 @@ export class PrivateChatService implements OnDestroy {
    * @param {string} userId - The ID of the current user.
    * @returns {any | null} The updated reaction or null if no change was made.
    */
-  private addOrUpdateReaction(
+  private async addOrUpdateReaction(
     currentMessage: any,
     emoji: { shortName: string; [key: string]: any },
     userId: string
-  ): any | null {
-    // if (!Array.isArray(currentMessage.reactions)) {
-    //   currentMessage.reactions = [];
-    // }
-    // let reaction = this.findExistingReaction(currentMessage, emoji);
-    // if (!reaction) {
-    //   reaction = this.createNewReaction(emoji);
-    //   currentMessage.reactions.push(reaction);
-    // }
-    // this.updateUserReaction(reaction, userId);
-    // this.adjustReactionCountIfBothUsersReacted(reaction, userId);
-    // return reaction;
-    const existingReaction = currentMessage.reactions.find(
-      (r: { emoji: { shortName: any } }) =>
-        r.emoji.shortName === emoji.shortName
-    );
-    if (existingReaction) {
-      if (existingReaction.userIds.includes(userId)) return null;
-      else {
-        existingReaction.count += 1;
-        existingReaction.userIds.push(userId);
-      }
-    } else
-      currentMessage.reactions.push({
-        emoji: emoji,
-        count: 1,
-        userIds: [userId],
-      });
-    return currentMessage.reactions;
+  ) {
+    if (!Array.isArray(currentMessage.reactions)) {
+      currentMessage.reactions = [];
+    }
+    let reaction = this.findExistingReaction(currentMessage, emoji);
+    if (!reaction) {
+      reaction = this.createNewReaction(emoji);
+      currentMessage.reactions.push(reaction);
+    }
+    this.updateUserReaction(reaction, userId);
+    this.adjustReactionCountIfBothUsersReacted(reaction, userId);
+    return reaction;
+  }
+
+
+  async convertCurrentMessage(currentMessage: Promise<any>) {
+    try {
+      const messageData = await currentMessage;
+      return messageData;
+    } catch (error) {
+      console.error('Error converting current message:', error);
+    }
   }
 
   /**
@@ -631,13 +628,13 @@ export class PrivateChatService implements OnDestroy {
     ]);
   }
 
-   /**
+  /**
    * Saves the reactions to the Firestore messages subcollection for both users.
    * @param {any} currentMessage - The current message object with reactions.
    * @param {string} messageId - The ID of the message being updated.
    * @param {string} userId - The ID of the current user who is adding the reaction.
    */
-   private async saveReactionsToFirestoreThread(
+  private async saveReactionsToFirestoreThread(
     currentMessage: any,
     messageId: string,
     userId: string

@@ -134,6 +134,7 @@ export class OwnPrivateMessageTemplateComponent {
    * @param message - The message to delete.
    */
   async deleteMessage(message: any) {
+    this.privateChat.closeSidenav();
     const privateChatId = this.privateChatService.privateChatId;
     if (message.attachmentUrls && message.attachmentUrls.length > 0) {
       for (const url of message.attachmentUrls) {

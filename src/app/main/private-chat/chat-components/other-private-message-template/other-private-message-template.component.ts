@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, SimpleChanges } from '@angular/core';
 import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
@@ -49,10 +49,30 @@ export class OtherPrivateMessageTemplateComponent {
 
   constructor(private firestore: Firestore) {}
 
+  /**
+   * Initializes the component and loads user data for the message author.
+   */
   ngOnInit(): void {
     if (this.message) this.loadThreadMessages(this.message.messageId);
   }
 
+  /**
+   * Loads thread messages when the message changes.
+   * @param changes - The changes object.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      changes['message'] &&
+      changes['message'].currentValue?.messageId !==
+        changes['message'].previousValue?.messageId
+    )
+      this.loadThreadMessages(this.message.messageId);
+  }
+
+  /**
+   * Loads thread messages for a given message ID.
+   * @param messageId - The ID of the message to load thread messages for.
+   */
   loadThreadMessages(messageId: string): void {
     const threadRef = collection(
       this.firestore,

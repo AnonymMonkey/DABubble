@@ -1,4 +1,4 @@
-<section class="text-container">
+<section class="text-container" *ngIf="message$ | async as message">
     <div class="name-and-time-own">
       <span class="name" (click)="userService.openProfileInfo(message?.userId)">{{
         displayName || "Lädt..."

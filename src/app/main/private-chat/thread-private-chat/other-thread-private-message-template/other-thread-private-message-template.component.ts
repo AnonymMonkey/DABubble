@@ -1,13 +1,17 @@
-import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, inject, Input } from '@angular/core';
+import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { Component, inject, Input, SimpleChanges } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AttachmentPreviewComponent } from '../../../../shared/components/attachment-preview/attachment-preview.component';
 import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker/emoji-picker.component';
 import { MessageReactionsComponent } from '../../../../shared/components/message-reactions/message-reactions.component';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { PrivateChatService } from '../../../../shared/services/private-chat-service/private-chat.service';
+import { collection, doc, DocumentReference } from 'firebase/firestore';
+import { collectionData, docData } from 'rxfire/firestore';
+import { Firestore } from '@angular/fire/firestore';
+import { ThreadPrivateChatService } from '../../../../shared/services/thread-private-chat/thread-private-chat.service';
 
 @Component({
   selector: 'app-other-thread-private-message-template',
@@ -23,6 +27,7 @@ import { PrivateChatService } from '../../../../shared/services/private-chat-ser
     EmojiPickerComponent,
     MessageReactionsComponent,
     NgIf,
+    AsyncPipe,
   ],
   templateUrl: './other-thread-private-message-template.component.html',
   styleUrl: './other-thread-private-message-template.component.scss',
@@ -30,7 +35,7 @@ import { PrivateChatService } from '../../../../shared/services/private-chat-ser
 export class OtherThreadPrivateMessageTemplateComponent {
   isEmojiContainerVisible: number = 0;
   @Input() message: any = '';
-
+  private messageSubscription: Subscription | undefined;
   public userService = inject(UserService);
   public privateChatService = inject(PrivateChatService);
   isMenuOpen: boolean = false;
@@ -38,13 +43,62 @@ export class OtherThreadPrivateMessageTemplateComponent {
   displayName: string = '';
   photoURL: string = '';
 
-  constructor() {}
+  public message$: Observable<any> | undefined;
+  public threadMessages$: Observable<any[]> | undefined;
+
+  constructor(
+    private firestore: Firestore,
+    private threadService: ThreadPrivateChatService
+  ) {}
 
   /**
    * Loads user data for the message's user ID when the component is initialized.
    */
   ngOnInit() {
     if (this.message) this.loadUserData(this.message.userId);
+  }
+
+  /**
+   * Loads thread messages when the message changes.
+   * @param changes - The changes object.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['message'] && changes['message'].currentValue) {
+      const currentMessageId = changes['message'].currentValue.messageId;
+      const previousMessageId = changes['message'].previousValue?.messageId;
+      if (currentMessageId !== previousMessageId) {
+        this.loadThreadMessages(currentMessageId);
+        this.subscribeNewMessage(currentMessageId);
+      }
+    }
+  }
+
+  /**
+   * Subscribes to new message data for a given message ID.
+   * @param messageId - The ID of the message to subscribe to.
+   */
+  subscribeNewMessage(messageId: string): void {
+    if (this.messageSubscription) {
+      this.messageSubscription.unsubscribe();
+    }
+    const messageRef: DocumentReference = doc(
+      this.firestore,
+      `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${messageId}`
+    );
+    this.message$ = docData(messageRef, { idField: 'id' });
+    this.messageSubscription = this.message$.subscribe((message) => {});
+  }
+
+  /**
+   * Loads thread messages for a given message ID.
+   * @param messageId - The ID of the message to load thread messages for.
+   */
+  loadThreadMessages(messageId: string): void {
+    const threadRef = collection(
+      this.firestore,
+      `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${messageId}/thread`
+    );
+    this.threadMessages$ = collectionData(threadRef, { idField: 'id' });
   }
 
   /**
@@ -71,6 +125,9 @@ export class OtherThreadPrivateMessageTemplateComponent {
    */
   ngOnDestroy(): void {
     if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
+    if (this.messageSubscription) {
+      this.messageSubscription.unsubscribe();
+    }
   }
 
   /**

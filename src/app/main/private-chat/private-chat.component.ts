@@ -14,8 +14,6 @@ import { AsyncPipe, CommonModule, NgIf } from '@angular/common';
 import { UserService } from '../../shared/services/user-service/user.service';
 import { PrivateChatHistoryComponent } from './private-chat-history/private-chat-history.component';
 import {
-  catchError,
-  from,
   Observable,
   of,
   Subscription,
@@ -25,11 +23,10 @@ import { PrivateChatService } from '../../shared/services/private-chat-service/p
 import { BehaviorService } from '../../shared/services/behavior-service/behavior.service';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { ThreadPrivateChatComponent } from './thread-private-chat/thread-private-chat.component';
-import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ThreadPrivateChatService } from '../../shared/services/thread-private-chat/thread-private-chat.service';
-import { set } from 'firebase/database';
 
 @Component({
   selector: 'app-private-chat',

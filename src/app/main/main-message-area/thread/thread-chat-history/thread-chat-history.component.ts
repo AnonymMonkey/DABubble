@@ -84,7 +84,6 @@ export class ThreadChatHistoryComponent implements OnInit, OnDestroy {
       this.currentMessage = message;
       this.scrollToBottom();
     }
-
     if (message === null || message === undefined)
       this.mainMessageArea.closeSidenav();
   }
