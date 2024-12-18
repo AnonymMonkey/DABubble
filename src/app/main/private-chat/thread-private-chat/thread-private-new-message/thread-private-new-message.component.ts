@@ -156,10 +156,6 @@ export class ThreadPrivateChatNewMessageComponent {
           ),
           this.addMessageToThread(newThreadId, newMessage, otherUserId),
         ]);
-        await Promise.all([
-          this.updateThreadId(messageDocRefCurrentUser, newThreadId),
-          this.updateThreadId(messageDocRefOtherUser, newThreadId),
-        ]);
       } catch (error) {
         console.error(
           'Error saving message to Firestore for both users:',
@@ -267,7 +263,7 @@ export class ThreadPrivateChatNewMessageComponent {
       content: newMessage.content,
       userId: newMessage.userId,
       time: newMessage.time,
-      messageId: newMessage.messageId,
+      messageId: newThreadId,
       attachmentUrls: newMessage.attachmentUrls,
     });
   }

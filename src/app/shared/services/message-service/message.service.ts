@@ -12,6 +12,7 @@ import { collectionData, docData } from 'rxfire/firestore';
 import { UserService } from '../user-service/user.service';
 import { UserData } from '../../models/user.model';
 import { ThreadMessage } from '../../models/thread-message.model';
+import { ThreadPrivateChatService } from '../thread-private-chat/thread-private-chat.service';
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +37,7 @@ export class MessageService {
   private messagesSubscription: Subscription | undefined;
   private userDataSubscription: Subscription | undefined;
 
-  constructor() {}
+  constructor(private threadService: ThreadPrivateChatService) {}
 
   /**
    * Getter for the messagesDataMap$ Observable
@@ -389,6 +390,19 @@ export class MessageService {
     }
   }
 
+  async deleteMessagePrivateThread(privateChatId: string,  threadId: string): Promise<void> {
+    try {
+      const [user1Id, user2Id] = privateChatId.split('_');
+      await Promise.all([
+        this.deleteMessageFromUserPrivateThread(user1Id, privateChatId, threadId),
+        this.deleteMessageFromUserPrivateThread(user2Id, privateChatId, threadId),
+      ]);
+    } catch (error) {
+      console.error('Error deleting message for both users:', error);
+      throw error;
+    }
+  }
+
   /**
    * Deletes the message from a specific user's private chat.
    * @param {string} userId - The ID of the user.
@@ -410,6 +424,25 @@ export class MessageService {
     } catch (error) {
       console.error(
         `Fehler beim Löschen der Nachricht ${messageId} für Benutzer ${userId}:`,
+        error
+      );
+    }
+  }
+
+  private async deleteMessageFromUserPrivateThread(
+    userId: string,
+    privateChatId: string,
+    threadId: string
+  ): Promise<void> {
+    try {
+      const messageDocRef = doc(
+        this.firestore,
+        `users/${userId}/privateChat/${privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${threadId}`
+      );
+      await deleteDoc(messageDocRef);
+    } catch (error) {
+      console.error(
+        `Fehler beim Löschen der Nachricht ${threadId} für Benutzer ${userId}:`,
         error
       );
     }

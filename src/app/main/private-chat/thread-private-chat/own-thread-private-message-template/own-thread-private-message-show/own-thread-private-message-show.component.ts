@@ -30,6 +30,7 @@ export class OwnThreadPrivateMessageShowComponent {
   private userDataSubscription: Subscription | undefined;
   private messageSubscription: Subscription | undefined;
   private firestore = inject(Firestore);
+  public threadMessage: boolean = false;
   public message$: Observable<any> | undefined;
   get threadKeys(): string[] {
     return Object.keys(this.message?.thread || {});
@@ -66,11 +67,20 @@ export class OwnThreadPrivateMessageShowComponent {
     if (this.messageSubscription) {
       this.messageSubscription.unsubscribe();
     }
-    const messageRef: DocumentReference = doc(
-      this.firestore,
-      `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${messageId}`
-    );
-    this.message$ = docData(messageRef, { idField: 'id' });
+    let messageRef: DocumentReference;
+    if (this.message.messageId.startsWith('thread_')) {
+      messageRef = doc(
+        this.firestore,
+        `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${messageId}`
+      );
+    }
+    if (this.message.messageId.startsWith('msg_')) {
+      messageRef = doc(
+        this.firestore,
+        `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${messageId}`
+      );
+    }
+    this.message$ = docData(messageRef!, { idField: 'id' });
     this.messageSubscription = this.message$.subscribe((message) => {});
   }
 

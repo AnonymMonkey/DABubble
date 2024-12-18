@@ -4,7 +4,7 @@ import { MatIcon } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
 import { StorageService } from '../../services/storage-service/storage.service';
-import { Firestore } from '@angular/fire/firestore';
+import { DocumentReference, Firestore } from '@angular/fire/firestore';
 import { doc, getDoc, updateDoc } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
 import { UserService } from '../../services/user-service/user.service';
@@ -155,27 +155,36 @@ export class AttachmentPreviewComponent {
     fileUrl: string
   ) {
     try {
-      const userDocRef = doc(this.firestore, `users/${userId}`);
-      const userDocSnapshot = await getDoc(userDocRef);
-      if (userDocSnapshot.exists()) {
+      let messageDocRef: DocumentReference;
+      if (messageId.startsWith('thread_')) {
+        messageDocRef = doc(
+          this.firestore,
+          `users/${userId}/privateChat/${privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${messageId}`
+        );
+      } else {
+        messageDocRef = doc(
+          this.firestore,
+          `users/${userId}/channel/${this.channelId}/messages/${messageId}`
+        );
+      }
+
+      const messageDocSnapshot = await getDoc(messageDocRef);
+
+      if (messageDocSnapshot.exists()) {
         const updatedUrls = this.getUpdatedAttachmentUrls(
-          userDocSnapshot.data(),
-          privateChatId,
-          messageId,
+          messageDocSnapshot.data(),
           fileUrl
         );
+
         if (updatedUrls) {
-          await this.updateUserDocument(
-            userDocRef,
-            privateChatId,
-            messageId,
-            updatedUrls
-          );
+          await updateDoc(messageDocRef, {
+            attachments: updatedUrls,
+          });
         }
       }
     } catch (error) {
       console.error(
-        `Error removing attachment URL from user document (${userId}):`,
+        `Error removing attachment URL from message document (${messageId}):`,
         error
       );
     }
@@ -191,13 +200,9 @@ export class AttachmentPreviewComponent {
    */
   private getUpdatedAttachmentUrls(
     data: any,
-    privateChatId: string,
-    messageId: string,
     fileUrl: string
   ): string[] | null {
-    const attachmentUrls =
-      data?.['privateChat'][privateChatId]?.messages?.[messageId]
-        ?.attachmentUrls || [];
+    const attachmentUrls = data?.attachmentUrls || []; // Direkter Zugriff auf die URLs im Nachrichtendokument
     const updatedUrls = attachmentUrls.filter((url: string) => url !== fileUrl);
     return updatedUrls.length !== attachmentUrls.length ? updatedUrls : null;
   }
@@ -397,8 +402,16 @@ export class AttachmentPreviewComponent {
    * Handles the deletion of a message in a private chat.
    */
   private async handlePrivateChatMessageDeletion(): Promise<void> {
-    if (this.privateChatId && this.message?.messageId) {
+    if (this.privateChatId && this.message?.messageId.startsWith('msg_')) {
       await this.messageService.deleteMessage(
+        this.privateChatId,
+        this.message.messageId
+      );
+    } else if (
+      this.privateChatId &&
+      this.message?.messageId.startsWith('thread_')
+    ) {
+      await this.messageService.deleteMessagePrivateThread(
         this.privateChatId,
         this.message.messageId
       );

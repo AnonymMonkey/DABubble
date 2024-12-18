@@ -104,7 +104,9 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
     if (this.channelId) {
       return `Nachricht an #${this.channel?.channelName ?? 'einen Channel'}`;
     } else if (this.privateChatId) {
-      return `Nachricht an @${this.ThreadPrivateChatService.chatUserName ?? 'einen Nutzer'}`;
+      return `Nachricht an @${
+        this.ThreadPrivateChatService.chatUserName ?? 'einen Nutzer'
+      }`;
     }
     return 'Nachricht eingeben';
   }
@@ -323,14 +325,10 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
 
     const newMessageId =
       MessageAreaNewMessageComponent.generatePrivateMessageId();
-
-    // Referenz zu den privateChat-Dokumenten der Benutzer
     const userPrivateChatRef = doc(
       this.firestore,
       `users/${this.userId}/privateChat/${this.privateChatId}`
     );
-
-    // Hier wird die Nachricht in der 'messages' Subkollektion gespeichert
     const userMessagesCollectionRef = collection(
       this.firestore,
       `users/${this.userId}/privateChat/${this.privateChatId}/messages`

@@ -14,6 +14,7 @@ section {
   color: black;
   font-family: var(--font-nunito);
   white-space: pre-wrap;
+  overflow-x: hidden;
 
   mat-icon {
     color: var(--black-color);

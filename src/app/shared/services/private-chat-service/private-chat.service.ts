@@ -285,7 +285,7 @@ export class PrivateChatService implements OnDestroy {
     targetUserId: string,
     chatData: any
   ): Observable<string> {
-    const chatId = Object.keys(chatData)[0]; // Hole die chatId aus dem Objekt
+    const chatId = Object.keys(chatData)[0];
     const currentUserChatRef = doc(
       this.firestore,
       `users/${currentUserId}/privateChat/${chatId}`
@@ -294,7 +294,7 @@ export class PrivateChatService implements OnDestroy {
       this.firestore,
       `users/${targetUserId}/privateChat/${chatId}`
     );
-    const chatDetails = chatData[chatId]; // Hole die Details für den Chat
+    const chatDetails = chatData[chatId];
 
     return from(
       Promise.all([
