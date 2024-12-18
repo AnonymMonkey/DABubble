@@ -67,7 +67,7 @@
       <span class="message">
         <p>{{ message?.content }}</p>
         <div
-          *ngIf="message?.attachmentUrls?.length > 0"
+          *ngIf="message?.attachmentUrls?.length > 0 && attachment"
           class="attachment-container"
         >
           <a

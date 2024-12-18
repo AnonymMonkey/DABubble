@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { MainMessageAreaComponent } from '../../main-message-area.component';
 import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
@@ -46,6 +46,7 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
   public loading: boolean = false;
   photoURL: string = '';
   displayName: string = '';
+  public attachment: boolean = false;
   private userDataSubscription: Subscription | undefined;
   @ViewChild('emojiMenuTrigger') emojiMenuTrigger!: MatMenuTrigger;
 
@@ -69,6 +70,65 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
       );
     if (this.message) this.loadUserData(this.message.userId);
   }
+
+  /**
+     * Loads thread messages when the message changes.
+     * @param changes - The changes object.
+     */
+    ngOnChanges(changes: SimpleChanges): void {
+      if (
+        changes['message'] &&
+        changes['message'].currentValue?.messageId !==
+          changes['message'].previousValue?.messageId
+      ) {
+        this.loadThreadMessages(
+          this.channelService.channelId,
+          this.message.messageId
+        );
+      }
+      this.checkAttachmentUrls(changes);
+    }
+  
+    /**
+     * Checks if the attachment URLs have changed and updates the attachment state accordingly.
+     * @param changes - The changes object.
+     */
+    checkAttachmentUrls(changes: SimpleChanges): void {
+      if (
+        changes['message'] &&
+        !this.areArraysEqual(
+          changes['message'].currentValue?.attachmentUrls,
+          changes['message'].previousValue?.attachmentUrls
+        )
+      ) {
+        this.handleAttachmentUrlsChange(
+          changes['message'].currentValue?.attachmentUrls
+        );
+      }
+    }
+  
+    /**
+     * Checks if two arrays are equal.
+     * @param array1 - The first array to compare.
+     * @param array2 - The second array to compare.
+     * @returns True if the arrays are equal, otherwise false.
+     */
+    private areArraysEqual(
+      array1: string[] = [],
+      array2: string[] = []
+    ): boolean {
+      if (array1.length !== array2.length) return false;
+      return array1.every((item, index) => item === array2[index]);
+    }
+  
+    /**
+     * Handles changes in the attachment URLs and updates the attachment state accordingly.
+     * @param updatedUrls - The updated attachment URLs.
+     */
+    private handleAttachmentUrlsChange(updatedUrls: string[] | undefined): void {
+      if (updatedUrls!.length > 0) this.attachment = true;
+      else this.attachment = false;
+    }
 
   /**
    * Loads user data for the given user ID.

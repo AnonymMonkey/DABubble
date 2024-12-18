@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  Input,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, inject, Input, OnInit, SimpleChanges } from '@angular/core';
 import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
 import { NgIf, DatePipe, NgFor } from '@angular/common';
 import { ThreadService } from '../../../../../shared/services/thread-service/thread.service';
@@ -43,6 +37,7 @@ export class OwnMessageShowComponent implements OnInit {
   private threadMessagesSubscription: Subscription | undefined;
   public threadInfo: Map<string, { count: number; lastReplyDate: string }> =
     new Map();
+  public attachment: boolean = false;
 
   constructor() {}
 
@@ -62,11 +57,54 @@ export class OwnMessageShowComponent implements OnInit {
       changes['message'] &&
       changes['message'].currentValue?.messageId !==
         changes['message'].previousValue?.messageId
-    )
+    ) {
       this.loadThreadMessages(
         this.channelService.channelId,
         this.message.messageId
       );
+    }
+    this.checkAttachmentUrls(changes);
+  }
+
+  /**
+   * Checks if the attachment URLs have changed and updates the attachment state accordingly.
+   * @param changes - The changes object.
+   */
+  checkAttachmentUrls(changes: SimpleChanges): void {
+    if (
+      changes['message'] &&
+      !this.areArraysEqual(
+        changes['message'].currentValue?.attachmentUrls,
+        changes['message'].previousValue?.attachmentUrls
+      )
+    ) {
+      this.handleAttachmentUrlsChange(
+        changes['message'].currentValue?.attachmentUrls
+      );
+    }
+  }
+
+  /**
+   * Checks if two arrays are equal.
+   * @param array1 - The first array to compare.
+   * @param array2 - The second array to compare.
+   * @returns True if the arrays are equal, otherwise false.
+   */
+  private areArraysEqual(
+    array1: string[] = [],
+    array2: string[] = []
+  ): boolean {
+    if (array1.length !== array2.length) return false;
+    return array1.every((item, index) => item === array2[index]);
+  }
+
+  /**
+   * Handles changes in the attachment URLs and updates the attachment state accordingly.
+   * @param updatedUrls - The updated attachment URLs.
+   */
+  private handleAttachmentUrlsChange(updatedUrls: string[] | undefined): void {
+    if (updatedUrls!.length > 0) this.attachment = true;
+    else this.attachment = false;
   }
 
   /**
