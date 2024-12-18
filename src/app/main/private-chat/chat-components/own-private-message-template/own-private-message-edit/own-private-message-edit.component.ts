@@ -13,9 +13,10 @@ import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { PrivateChatService } from '../../../../../shared/services/private-chat-service/private-chat.service';
 import { Firestore } from '@angular/fire/firestore';
-import { deleteField, doc, updateDoc } from 'firebase/firestore';
+import { deleteDoc, deleteField, doc, updateDoc } from 'firebase/firestore';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
+import { PrivateChatComponent } from '../../../private-chat.component';
 
 @Component({
   selector: 'app-own-private-message-edit',
@@ -43,6 +44,8 @@ export class OwnPrivateMessageEditComponent implements OnInit {
   private privateChatService = inject(PrivateChatService);
   private firestore = inject(Firestore);
   currentBorderRadius = '30px 30px 30px 30px';
+
+  constructor(private privateChat: PrivateChatComponent) {}
 
   /**
    * Initializes the component and subscribes to message updates on initialization.
@@ -82,6 +85,17 @@ export class OwnPrivateMessageEditComponent implements OnInit {
   async changeMessage() {
     this.isSaving = true;
     this.temporaryMessageContent.emit(this.editedMessageContent);
+    await this.deleteOrResetMessage();
+    const originalContent = this.message.content;
+    this.message.content = this.editedMessageContent;
+    this.clearInput(false);
+    this.finishSavingProcess(originalContent);
+  }
+
+  /**
+   * Deletes or resets the message based on the edited content.
+   */
+  async deleteOrResetMessage() {
     if (
       !this.editedMessageContent.trim() &&
       !this.containsUrls(this.editedMessageContent)
@@ -89,14 +103,17 @@ export class OwnPrivateMessageEditComponent implements OnInit {
       await this.deleteMessage();
       return;
     }
-
     if (this.editedMessageContent === this.message.content) {
       this.clearInput(false);
       return;
     }
-    const originalContent = this.message.content;
-    this.message.content = this.editedMessageContent;
-    this.clearInput(false);
+  }
+
+  /**
+   * Finishes the saving process by updating the message content in the user documents.
+   * @param originalContent - The original content of the message.
+   */
+  async finishSavingProcess(originalContent: string) {
     try {
       const messageId = this.message.messageId;
       const privateChatId = this.privateChatService.privateChatId;
@@ -105,15 +122,11 @@ export class OwnPrivateMessageEditComponent implements OnInit {
         return;
       }
       const [firstUserId, secondUserId] = privateChatId.split('_');
-      await this.updateMessageInUserDocs(firstUserId, privateChatId, messageId);
+      await this.updateMessageInUserDocs(firstUserId, privateChatId, messageId, this.editedMessageContent);
       await this.updateMessageInUserDocs(
         secondUserId,
         privateChatId,
-        messageId
-      );
-      await this.messageService.updateMessageContentPrivateChat(
-        privateChatId as string,
-        messageId,
+        messageId, 
         this.editedMessageContent
       );
     } catch (error) {
@@ -141,6 +154,7 @@ export class OwnPrivateMessageEditComponent implements OnInit {
    */
   async deleteMessage() {
     try {
+      this.privateChat.closeSidenav();
       const messageId = this.message.messageId;
       const privateChatId = this.privateChatService.privateChatId;
       const [firstUserId, secondUserId] = privateChatId!.split('_');
@@ -170,19 +184,21 @@ export class OwnPrivateMessageEditComponent implements OnInit {
    * @param privateChatId - The ID of the private chat.
    * @param messageId - The ID of the message.
    */
+
   async deleteMessageFromUserDocs(
     userId: string,
     privateChatId: string,
     messageId: string
   ) {
     try {
-      const userDocRef = doc(this.firestore, `users/${userId}`);
-      await updateDoc(userDocRef, {
-        [`privateChat.${privateChatId}.messages.${messageId}`]: deleteField(),
-      });
+      const messageDocRef = doc(
+        this.firestore,
+        `users/${userId}/privateChat/${privateChatId}/messages/${messageId}`
+      );
+      await deleteDoc(messageDocRef);
     } catch (error) {
       console.error(
-        `Fehler beim Löschen der Nachricht für Benutzer ${userId}:`,
+        `Fehler beim Löschen der Nachricht ${messageId} für Benutzer ${userId}:`,
         error
       );
     }
@@ -193,21 +209,25 @@ export class OwnPrivateMessageEditComponent implements OnInit {
    * @param userId - The ID of the user.
    * @param privateChatId - The ID of the private chat.
    * @param messageId - The ID of the message.
+   * @param updatedContent - The updated content of the message.
    */
   async updateMessageInUserDocs(
     userId: string,
     privateChatId: string,
-    messageId: string
+    messageId: string,
+    updatedContent: string
   ) {
     try {
-      const userDocRef = doc(this.firestore, `users/${userId}/privateChat/${privateChatId}`);
-      await updateDoc(userDocRef, {
-        [`messages.${messageId}.content`]:
-          this.editedMessageContent,
+      const messageDocRef = doc(
+        this.firestore,
+        `users/${userId}/privateChat/${privateChatId}/messages/${messageId}`
+      );
+      await updateDoc(messageDocRef, {
+        content: updatedContent,
       });
     } catch (error) {
       console.error(
-        `Fehler beim Aktualisieren der Nachricht für Benutzer ${userId}:`,
+        `Fehler beim Aktualisieren der Nachricht ${messageId} für Benutzer ${userId}:`,
         error
       );
     }

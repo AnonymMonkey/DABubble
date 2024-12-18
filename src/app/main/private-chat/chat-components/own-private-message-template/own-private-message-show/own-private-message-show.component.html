@@ -26,4 +26,21 @@
     [component]="'privateChat'"
     *ngIf="message.reactions.length > 0"
   ></app-message-reactions>
+  <div class="thread-own" *ngIf="threadInfo.has(message?.messageId)">
+    <span
+      (click)="
+        privateChat.openSidenav(); threadService.setActualMessage(message)
+      "
+    >
+      {{ threadInfo.get(message?.messageId)?.count }}
+      {{
+        threadInfo.get(message?.messageId)?.count === 1
+          ? "Antwort"
+          : "Antworten"
+      }}
+    </span>
+    <span>
+      Letzte Antwort: {{ threadInfo.get(message?.messageId)?.lastReplyDate }}
+    </span>
+  </div>
 </section>

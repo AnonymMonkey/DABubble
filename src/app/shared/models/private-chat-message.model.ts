@@ -9,9 +9,9 @@ export class PrivateChatMessage {
     userIds: string[]; 
   }[] = [];
   time: string;
-  userId: string;
-  thread: { [threadId: string]: ThreadMessage };
-  attachmentUrls: string[] = [];
+  userId?: string;
+  thread?: { [threadId: string]: ThreadMessage };
+  attachmentUrls?: string[] = [];
 
   constructor(
     content: string,

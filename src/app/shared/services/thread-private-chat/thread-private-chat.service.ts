@@ -18,7 +18,6 @@ import {
   QuerySnapshot,
 } from 'firebase/firestore';
 import { ActivatedRoute } from '@angular/router';
-import { PrivateChatComponent } from '../../../main/private-chat/private-chat.component';
 
 @Injectable({
   providedIn: 'root',

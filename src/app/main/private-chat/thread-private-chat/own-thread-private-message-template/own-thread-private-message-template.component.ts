@@ -9,7 +9,6 @@ import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { MessageService } from '../../../../shared/services/message-service/message.service';
 import { ThreadPrivateChatService } from '../../../../shared/services/thread-private-chat/thread-private-chat.service';
-import { ChannelService } from '../../../../shared/services/channel-service/channel.service';
 import { StorageService } from '../../../../shared/services/storage-service/storage.service';
 import { PrivateChatComponent } from '../../private-chat.component';
 
@@ -37,9 +36,8 @@ export class OwnThreadPrivateMessageTemplateComponent {
   public messageService = inject(MessageService);
   editMessageMenuOpened: boolean = false;
   public threadService = inject(ThreadPrivateChatService);
-  private channelService = inject(ChannelService);
   private storageService = inject(StorageService);
-  currentBorderRadius = '30px 30px 30px 30px';
+  currentBorderRadius = '0px 30px 30px 30px';
   emojiContainerVisible: { [messageId: string]: boolean } = {};
   menuOpenStatus: { [messageId: string]: boolean } = {};
   private userDataSubscription: Subscription | undefined;
@@ -102,7 +100,11 @@ export class OwnThreadPrivateMessageTemplateComponent {
    * @param changes - The changes to the message input.
    */
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['message'] && !changes['message'].firstChange)
+    if (
+      changes['message'] &&
+      changes['message'].currentValue?.messageId !==
+        changes['message'].previousValue?.messageId
+    )
       this.handleMessageChange(changes['message'].currentValue);
   }
 
@@ -195,7 +197,11 @@ export class OwnThreadPrivateMessageTemplateComponent {
   deleteMessage(message: any) {
     const privateChatPath = `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${message.messageId}`;
     const threadPath = `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${message.messageId}`;
-    const otherUserId = this.threadService.privateChatId?.split('_')[0] === this.userService.userId ? this.threadService.privateChatId?.split('_')[1] : this.threadService.privateChatId?.split('_')[0];
+    const otherUserId =
+      this.threadService.privateChatId?.split('_')[0] ===
+      this.userService.userId
+        ? this.threadService.privateChatId?.split('_')[1]
+        : this.threadService.privateChatId?.split('_')[0];
     const otherUserChatPath = `users/${otherUserId}/privateChat/${this.threadService.privateChatId}/messages/${message.messageId}`;
     const otherUserThreadPath = `users/${otherUserId}/privateChat/${this.threadService.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${message.messageId}`;
     if (message.attachmentUrls && message.attachmentUrls.length > 0)

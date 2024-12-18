@@ -86,7 +86,7 @@ export class ThreadPrivateChatHistoryComponent {
     if (message === null || message === undefined)
       this.privateChat.closeSidenav();
   }
-
+  
   /**
    * Subscribe to thread messages changes and handle them.
    */

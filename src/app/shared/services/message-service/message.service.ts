@@ -4,10 +4,9 @@ import { ChannelMessage } from '../../models/channel-message.model';
 import {
   collection,
   deleteDoc,
-  DocumentReference,
   updateDoc,
 } from 'firebase/firestore';
-import { deleteField, doc, getDoc } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
 import { collectionData, docData } from 'rxfire/firestore';
 import { UserService } from '../user-service/user.service';
@@ -36,6 +35,8 @@ export class MessageService {
   >(this.messagesDataMap);
   private messagesSubscription: Subscription | undefined;
   private userDataSubscription: Subscription | undefined;
+
+  constructor() {}
 
   /**
    * Getter for the messagesDataMap$ Observable
@@ -254,62 +255,6 @@ export class MessageService {
   }
 
   /**
-   * Updates the content of a message in a private chat.
-   * @param privateChatId The ID of the private chat.
-   * @param messageId The ID of the message to update.
-   * @param newContent The new content of the message.
-   */
-  async updateMessageContentPrivateChat(
-    privateChatId: string,
-    messageId: string,
-    newContent: string
-  ): Promise<void> {
-    const userId = this.userService.userId;
-    if (!userId || !privateChatId || !messageId) {
-      return;
-    }
-    const userDocRef = doc(this.firestore, `users/${userId}`);
-    try {
-      this.updateMessageContentPrivateChatFirestore(
-        privateChatId,
-        messageId,
-        newContent,
-        userDocRef
-      );
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Updates the content of a message in a private chat in Firestore.
-   *
-   * @param privateChatId The ID of the private chat.
-   * @param messageId The ID of the message to update.
-   * @param newContent The new content of the message.
-   * @param userDocRef The reference to the user document in Firestore.
-   */
-  async updateMessageContentPrivateChatFirestore(
-    privateChatId: string,
-    messageId: string,
-    newContent: string,
-    userDocRef: DocumentReference
-  ): Promise<void> {
-    const userDocSnapshot = await getDoc(userDocRef);
-    if (userDocSnapshot.exists()) {
-      const privateChatData = userDocSnapshot.data()?.['privateChat'];
-      const messages = privateChatData?.[privateChatId]?.messages;
-      if (messages && messages[messageId]) {
-        messages[messageId].content = newContent;
-        await updateDoc(userDocRef, {
-          [`privateChat.${privateChatId}.messages.${messageId}.content`]:
-            newContent,
-        });
-      }
-    }
-  }
-
-  /**
    * Sets the ID of the message to be edited.
    */
   setEditMessageId(messageId: string | null) {
@@ -456,13 +401,18 @@ export class MessageService {
     privateChatId: string,
     messageId: string
   ): Promise<void> {
-    const userDocRef = doc(
-      this.firestore,
-      `users/${userId}/privateChat/${privateChatId}`
-    );
-    await updateDoc(userDocRef, {
-      [`messages.${messageId}`]: deleteField(),
-    });
+    try {
+      const messageDocRef = doc(
+        this.firestore,
+        `users/${userId}/privateChat/${privateChatId}/messages/${messageId}`
+      );
+      await deleteDoc(messageDocRef);
+    } catch (error) {
+      console.error(
+        `Fehler beim Löschen der Nachricht ${messageId} für Benutzer ${userId}:`,
+        error
+      );
+    }
   }
 
   /**

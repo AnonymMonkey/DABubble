@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { UserService } from '../../services/user-service/user.service';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
