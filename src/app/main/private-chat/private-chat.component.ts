@@ -112,6 +112,7 @@ export class PrivateChatComponent implements OnInit {
         setTimeout(() => {
           this.loading = false;
         }, 1000);
+        this.closeSidenav();
       }
     });
 

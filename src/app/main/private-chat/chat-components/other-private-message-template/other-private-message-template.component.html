@@ -89,7 +89,7 @@
         [component]="'privateChat'"
         *ngIf="message.reactions.length > 0"
       ></app-message-reactions>
-      <!-- <div
+      <div
         class="thread"
         [ngClass]="{ 'd-none': !threadMessages?.length }"
         *ngIf="threadMessages$ | async as threadMessages"
@@ -106,7 +106,7 @@
           }}
         </span>
         <span>Letzte Antwort: {{ getLastReplyTime(threadMessages) }}</span>
-      </div> -->
+      </div>
     </div>
   </div>
 

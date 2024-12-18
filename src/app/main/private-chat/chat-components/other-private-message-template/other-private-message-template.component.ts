@@ -1,5 +1,5 @@
 import { Component, inject, Input } from '@angular/core';
-import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { EmojiComponent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import { MatIcon } from '@angular/material/icon';
@@ -8,9 +8,12 @@ import { EmojiPickerComponent } from '../../../../shared/components/emoji-picker
 import { MessageReactionsComponent } from '../../../../shared/components/message-reactions/message-reactions.component';
 import { PrivateChatService } from '../../../../shared/services/private-chat-service/private-chat.service';
 import { AttachmentPreviewComponent } from '../../../../shared/components/attachment-preview/attachment-preview.component';
-import { ThreadService } from '../../../../shared/services/thread-service/thread.service';
 import { PrivateChatComponent } from '../../private-chat.component';
 import { ThreadPrivateChatService } from '../../../../shared/services/thread-private-chat/thread-private-chat.service';
+import { Observable } from 'rxjs';
+import { Firestore } from '@angular/fire/firestore';
+import { collection } from 'firebase/firestore';
+import { collectionData } from 'rxfire/firestore';
 
 @Component({
   selector: 'app-other-private-message-template',
@@ -27,6 +30,7 @@ import { ThreadPrivateChatService } from '../../../../shared/services/thread-pri
     EmojiPickerComponent,
     MessageReactionsComponent,
     NgIf,
+    AsyncPipe,
   ],
   templateUrl: './other-private-message-template.component.html',
   styleUrls: ['./other-private-message-template.component.scss'],
@@ -41,8 +45,21 @@ export class OtherPrivateMessageTemplateComponent {
   public privateChatService = inject(PrivateChatService);
   public threadService = inject(ThreadPrivateChatService);
   public privateChat = inject(PrivateChatComponent);
+  public threadMessages$: Observable<any[]> | undefined;
 
-  constructor() {}
+  constructor(private firestore: Firestore) {}
+
+  ngOnInit(): void {
+    if (this.message) this.loadThreadMessages(this.message.messageId);
+  }
+
+  loadThreadMessages(messageId: string): void {
+    const threadRef = collection(
+      this.firestore,
+      `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${messageId}/thread`
+    );
+    this.threadMessages$ = collectionData(threadRef, { idField: 'id' });
+  }
 
   /**
    * A method to show the emoji container.

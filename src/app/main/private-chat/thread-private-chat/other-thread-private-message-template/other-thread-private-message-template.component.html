@@ -61,7 +61,7 @@
         </span>
         <app-message-reactions
           [message]="message"
-          [component]="'channel'"
+          [component]="'privateChat'"
           *ngIf="message?.reactions?.length > 0"
         ></app-message-reactions>
       </div>
@@ -70,7 +70,7 @@
     <mat-menu xPosition="after" #emojiMenu>
       <app-emoji-picker
         [message]="message"
-        [component]="'channel'"
+        [component]="'privateChat'"
       ></app-emoji-picker>
     </mat-menu>
   </section>

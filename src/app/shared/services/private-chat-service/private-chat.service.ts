@@ -21,6 +21,7 @@ import {
 import { UserData } from '../../models/user.model';
 import { UserService } from '../user-service/user.service';
 import { ThreadMessage } from '../../models/thread-message.model';
+import { ThreadPrivateChatService } from '../thread-private-chat/thread-private-chat.service';
 
 /**
  * Converter to convert PrivateChat objects to Firestore data and back.
@@ -52,7 +53,7 @@ export class PrivateChatService implements OnDestroy {
   private destroy$ = new Subject<void>();
   public privateChatId: string | null = null;
 
-  constructor(private firestore: Firestore, private userService: UserService) {}
+  constructor(private firestore: Firestore, private userService: UserService, private threadService: ThreadPrivateChatService) {}
 
   /**
    * Sets the private chat ID.
@@ -132,27 +133,6 @@ export class PrivateChatService implements OnDestroy {
     );
   }
 
-  /**
-   * Returns an Observable that emits an array of private chat data for the given user.
-   * @param userRef The reference to the user document.
-   * @returns An Observable that emits an array of private chat data.
-   */
-  // getPrivateChats(userRef: DocumentReference): Observable<any[]> {
-  //   return from(getDoc(userRef)).pipe(
-  //     map((userDoc) => {
-  //       const data = userDoc.data();
-  //       const privateChats = data?.['privateChat'];
-  //       if (privateChats && typeof privateChats === 'object') {
-  //         return Object.values(privateChats);
-  //       }
-  //       return [];
-  //     }),
-  //     catchError((error) => {
-  //       console.error('Fehler beim Abrufen der privaten Chats:', error);
-  //       return of([]);
-  //     })
-  //   );
-  // }
 
   /**
    * Ruft alle privaten Chats aus der Unterkollektion 'privateChats' eines Benutzers ab.
@@ -242,45 +222,10 @@ export class PrivateChatService implements OnDestroy {
 
   /**
    * Opens or creates a private chat between the current user and the target user.
-   * @param currentUser The current user data.
-   * @param targetUser The target user data.
-   * @returns An Observable that emits the ID of the opened or created private chat.
+   * @param currentUser The current user.
+   * @param targetUser The target user.
+   * @returns An Observable that emits the ID of the opened or created chat.
    */
-  // openOrCreatePrivateChat(
-  //   currentUser: UserData,
-  //   targetUser: UserData
-  // ): Observable<string> {
-  //   const chatId = this.generateChatId(currentUser.uid, targetUser.uid);
-  //   const currentUserRef = doc(this.firestore, 'users', currentUser.uid);
-  //   const targetUserRef = doc(this.firestore, 'users', targetUser.uid);
-  //   return combineLatest([
-  //     this.getPrivateChats(currentUserRef),
-  //     this.getPrivateChats(targetUserRef),
-  //   ]).pipe(
-  //     switchMap(([currentUserChats, targetUserChats]) => {
-  //       const existingChatCurrentUser = this.findExistingChat(
-  //         currentUserChats,
-  //         chatId
-  //       );
-  //       const existingChatTargetUser = this.findExistingChat(
-  //         targetUserChats,
-  //         chatId
-  //       );
-
-  //       if (existingChatCurrentUser || existingChatTargetUser) {
-  //         return of(chatId);
-  //       } else {
-  //         const newChat = this.createNewChatEntry(
-  //           currentUser,
-  //           targetUser,
-  //           chatId
-  //         );
-  //         return this.updateUsersChats(currentUserRef, targetUserRef, newChat);
-  //       }
-  //     })
-  //   );
-  // }
-
   openOrCreatePrivateChat(
     currentUser: UserData,
     targetUser: UserData
@@ -394,17 +339,74 @@ export class PrivateChatService implements OnDestroy {
     emoji: { shortName: string; [key: string]: any }
   ): Promise<void> {
     if (!this.privateChatId || !messageId) return;
+    if (messageId.includes('msg_')) {
+      const userId = this.userService.userId;
+      try {
+        const userData = await this.getUserDataForPrivateChat(userId);
+        if (!userData) return;
+        const currentMessage = this.getMessageData(userData, messageId);
+        if (!currentMessage) return;
+        const reaction = this.addOrUpdateReaction(
+          currentMessage,
+          emoji,
+          userId
+        );
+        if (!reaction) return;
+        await this.saveReactionsToFirestore(currentMessage, messageId, userId);
+      } catch (error) {
+        console.error('Error adding or updating reaction:', error);
+      }
+    } else if (messageId.includes('thread_')) {
+      this.addOrChangeReactionPrivateThread(messageId, emoji);
+    }
+  }
+
+  async addOrChangeReactionPrivateThread(messageId: string, emoji: any): Promise<void> {
     const userId = this.userService.userId;
     try {
       const userData = await this.getUserDataForPrivateChat(userId);
       if (!userData) return;
-      const currentMessage = this.getMessageData(userData, messageId);
+      const currentMessage = this.getMessageDataThread(userData, messageId);
       if (!currentMessage) return;
-      const reaction = this.addOrUpdateReaction(currentMessage, emoji, userId);
+      const reaction = this.addOrUpdateReaction(
+        currentMessage,
+        emoji,
+        userId
+      );
       if (!reaction) return;
-      await this.saveReactionsToFirestore(currentMessage, messageId, userId);
+      await this.saveReactionsToFirestoreThread(currentMessage, messageId, userId);
     } catch (error) {
       console.error('Error adding or updating reaction:', error);
+    }
+  }
+
+  /**
+   * Retrieves the message data from the private chat.
+   * @param {any} userData - The user data.
+   * @param {string} messageId - The ID of the message.
+   * @returns {any | null} The message data or null if not found.
+   */
+  private async getMessageDataThread(
+    userData: any,
+    messageId: string
+  ): Promise<any | null> {
+    const privateChats = userData['privateChat'];
+    const chatData = privateChats ? privateChats[this.privateChatId!] : null;
+    if (!chatData) return null;
+    const messageRef = doc(
+      this.firestore,
+      `users/${this.userService.userId}/privateChat/${this.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}thread/${messageId}`
+    );
+    try {
+      const messageSnapshot = await getDoc(messageRef);
+      if (messageSnapshot.exists()) {
+        return messageSnapshot.data();
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Fehler beim Abrufen der Nachricht:', error);
+      return null;
     }
   }
 
@@ -478,17 +480,34 @@ export class PrivateChatService implements OnDestroy {
     emoji: { shortName: string; [key: string]: any },
     userId: string
   ): any | null {
-    if (!Array.isArray(currentMessage.reactions)) {
-      currentMessage.reactions = [];
-    }
-    let reaction = this.findExistingReaction(currentMessage, emoji);
-    if (!reaction) {
-      reaction = this.createNewReaction(emoji);
-      currentMessage.reactions.push(reaction);
-    }
-    this.updateUserReaction(reaction, userId);
-    this.adjustReactionCountIfBothUsersReacted(reaction, userId);
-    return reaction;
+    // if (!Array.isArray(currentMessage.reactions)) {
+    //   currentMessage.reactions = [];
+    // }
+    // let reaction = this.findExistingReaction(currentMessage, emoji);
+    // if (!reaction) {
+    //   reaction = this.createNewReaction(emoji);
+    //   currentMessage.reactions.push(reaction);
+    // }
+    // this.updateUserReaction(reaction, userId);
+    // this.adjustReactionCountIfBothUsersReacted(reaction, userId);
+    // return reaction;
+    const existingReaction = currentMessage.reactions.find(
+      (r: { emoji: { shortName: any } }) =>
+        r.emoji.shortName === emoji.shortName
+    );
+    if (existingReaction) {
+      if (existingReaction.userIds.includes(userId)) return null;
+      else {
+        existingReaction.count += 1;
+        existingReaction.userIds.push(userId);
+      }
+    } else
+      currentMessage.reactions.push({
+        emoji: emoji,
+        count: 1,
+        userIds: [userId],
+      });
+    return currentMessage.reactions;
   }
 
   /**
@@ -583,13 +602,6 @@ export class PrivateChatService implements OnDestroy {
   }
 
   /**
-   * Saves the updated reactions to Firestore for both users in the private chat.
-   * @param {any} currentMessage - The current message with updated reactions.
-   * @param {string} messageId - The ID of the message.
-   * @param {string} userId - The ID of the current user.
-   * @returns {Promise<void>} A promise that resolves when the reactions are saved.
-   */
-  /**
    * Saves the reactions to the Firestore messages subcollection for both users.
    * @param {any} currentMessage - The current message object with reactions.
    * @param {string} messageId - The ID of the message being updated.
@@ -601,8 +613,6 @@ export class PrivateChatService implements OnDestroy {
     userId: string
   ): Promise<void> {
     const secondUserIdForSaving = this.getSecondUserIdForSaving(userId);
-
-    // Verweise auf die Dokumente der Benutzer in der privateChat-Subkollektion
     const userDocRef1 = doc(
       this.firestore,
       `users/${userId}/privateChat/${this.privateChatId}/messages/${messageId}`
@@ -610,6 +620,36 @@ export class PrivateChatService implements OnDestroy {
     const userDocRef2 = doc(
       this.firestore,
       `users/${secondUserIdForSaving}/privateChat/${this.privateChatId}/messages/${messageId}`
+    );
+    await Promise.all([
+      updateDoc(userDocRef1, {
+        reactions: currentMessage.reactions,
+      }),
+      updateDoc(userDocRef2, {
+        reactions: currentMessage.reactions,
+      }),
+    ]);
+  }
+
+   /**
+   * Saves the reactions to the Firestore messages subcollection for both users.
+   * @param {any} currentMessage - The current message object with reactions.
+   * @param {string} messageId - The ID of the message being updated.
+   * @param {string} userId - The ID of the current user who is adding the reaction.
+   */
+   private async saveReactionsToFirestoreThread(
+    currentMessage: any,
+    messageId: string,
+    userId: string
+  ): Promise<void> {
+    const secondUserIdForSaving = this.getSecondUserIdForSaving(userId);
+    const userDocRef1 = doc(
+      this.firestore,
+      `users/${userId}/privateChat/${this.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${messageId}`
+    );
+    const userDocRef2 = doc(
+      this.firestore,
+      `users/${secondUserIdForSaving}/privateChat/${this.privateChatId}/messages/${this.threadService.actualMessageSubject.value?.messageId}/thread/${messageId}`
     );
     await Promise.all([
       updateDoc(userDocRef1, {

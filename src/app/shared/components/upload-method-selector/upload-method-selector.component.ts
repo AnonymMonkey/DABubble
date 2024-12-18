@@ -4,7 +4,6 @@ import { getStorage, ref, uploadBytes } from '@angular/fire/storage';
 import { getDownloadURL } from 'firebase/storage';
 import { StorageService } from '../../services/storage-service/storage.service';
 import { ErrorService } from '../../services/error-service/error.service';
-import { NotificationService } from '../../services/notification-service/notification.service';
 
 @Component({
   selector: 'app-upload-method-selector',
@@ -21,7 +20,6 @@ export class UploadMethodSelectorComponent {
   constructor(
     private storageService: StorageService,
     private errorService: ErrorService,
-    private notificationService: NotificationService
   ) {}
 
   /**
@@ -137,12 +135,14 @@ export class UploadMethodSelectorComponent {
     const channelId = this.route.snapshot.paramMap.get('channelId');
     const privateChatId = this.route.snapshot.paramMap.get('privateChatId');
     const messageId = this.messageId;
-    if (messageId) {
+    if (messageId && !privateChatId) {
       return `channels/${channelId}/messages/${messageId}/uploads/`;
     } else if (channelId) {
       return `channels/${channelId}/uploads/`;
-    } else if (privateChatId) {
+    } else if (privateChatId && !messageId) {
       return `privateChats/${privateChatId}/uploads/`;
+    } else if (messageId && privateChatId) {
+      return `privateChats/${privateChatId}/messages/${messageId}/uploads/`;
     }
     return 'uploads/';
   }
