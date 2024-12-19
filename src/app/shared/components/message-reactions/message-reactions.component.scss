@@ -12,9 +12,9 @@
     font-size: 16px !important;
   }
   .mat-tooltip ngx-emoji {
-    font-size: 50px; /* Größe des Emojis anpassen */
+    font-size: 50px;
     display: block;
-    margin-bottom: 10px; /* Etwas Abstand zwischen dem Emoji und den Benutzernamen */
+    margin-bottom: 10px; 
     text-align: center;
   }
 
@@ -38,14 +38,14 @@
     border-radius: 20px;
     padding: 0px 10px;
     gap: 5px;
-    position: relative; /* Wichtig, damit die hover-line relativ zu diesem Element positioniert wird */
+    position: relative; 
   }
 }
 
 .added-emoji {
   &:hover {
     .hover-line {
-      display: flex !important; /* Zeigt die hover-line beim Hover an */
+      display: flex !important;
     }
   }
 }
@@ -54,37 +54,45 @@
   color: white;
   z-index: 201;
   position: absolute;
-  bottom: 25px; /* Stellt die vertikale Positionierung über das Emoji sicher */
-  left: 25px; /* Stellt sicher, dass es genau über dem Emoji ausgerichtet ist */
+  bottom: 25px; 
+  left: 25px;
   display: none;
   flex-direction: column;
   align-items: center;
   background-color: var(--purple3-color);
   border-radius: 30px 30px 30px 0px;
   padding: 20px 10px;
-  width: fit-content;
+  width: max-content;
+  justify-content: center;
+  overflow: visible !important;
 
   > div {
-    width: max-content;
+    width: 100%; 
     font-weight: 700;
     font-size: 18px;
     display: flex;
+    flex-wrap: wrap; 
     align-items: center;
+    justify-content: center;
 
     > div {
-      margin-left: -5px;
+      word-wrap: break-word; 
+      align-items: center;
+      display: flex;
     }
   }
 
   span {
-    width: max-content;
+    width: 100%; 
     font-weight: 400;
     font-size: 16px;
+    word-wrap: break-word; 
   }
 }
 
+
 .show {
-  display: flex !important; /* Wird angewendet, wenn das Element angezeigt werden soll */
+  display: flex !important;
 }
 
 .add-reaction {

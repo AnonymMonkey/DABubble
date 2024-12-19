@@ -37,8 +37,14 @@ export class OtherThreadMessageTemplateComponent implements OnInit, OnDestroy {
   private userDataSubscription: Subscription | undefined;
   displayName: string = '';
   photoURL: string = '';
+  removedUrls: Set<string> = new Set();
 
-  constructor() {}
+  constructor() {
+    const savedRemovedUrls = localStorage.getItem('removedUrls');
+    if (savedRemovedUrls) {
+      this.removedUrls = new Set(JSON.parse(savedRemovedUrls));
+    }
+  }
 
   /**
    * Loads user data for the message's user ID when the component is initialized.
@@ -70,7 +76,7 @@ export class OtherThreadMessageTemplateComponent implements OnInit, OnDestroy {
    * Clean up subscriptions on component destroy.
    */
   ngOnDestroy(): void {
-    if (this.userDataSubscription) this.userDataSubscription.unsubscribe(); 
+    if (this.userDataSubscription) this.userDataSubscription.unsubscribe();
   }
 
   /**
@@ -126,6 +132,30 @@ export class OtherThreadMessageTemplateComponent implements OnInit, OnDestroy {
       };
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
-    return 'Keine Antworten'; 
+    return 'Keine Antworten';
+  }
+
+  /**
+   * Removes an attachment from the message.
+   * @param removedUrl - The URL of the attachment to be removed.
+   */
+  onAttachmentRemoved(removedUrl: string): void {
+    this.message.attachmentUrls = this.message.attachmentUrls.filter(
+      (url: string) => url !== removedUrl
+    );
+    this.removedUrls.add(removedUrl);
+    localStorage.setItem(
+      'removedUrls',
+      JSON.stringify(Array.from(this.removedUrls))
+    );
+  }
+
+  /**
+   * Checks if an attachment has been removed.
+   * @param attachmentUrl - The URL of the attachment to check.
+   * @returns True if the attachment has been removed, false otherwise.
+   */
+  isAttachmentRemoved(attachmentUrl: string): boolean {
+    return this.removedUrls.has(attachmentUrl);
   }
 }

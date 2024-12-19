@@ -46,8 +46,14 @@ export class OtherPrivateMessageTemplateComponent {
   public threadService = inject(ThreadPrivateChatService);
   public privateChat = inject(PrivateChatComponent);
   public threadMessages$: Observable<any[]> | undefined;
+  removedUrls: Set<string> = new Set();
 
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore) {
+    const savedRemovedUrls = localStorage.getItem('removedUrls');
+    if (savedRemovedUrls) {
+      this.removedUrls = new Set(JSON.parse(savedRemovedUrls));
+    }
+  }
 
   /**
    * Initializes the component and loads user data for the message author.
@@ -129,5 +135,29 @@ export class OtherPrivateMessageTemplateComponent {
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
     return 'Keine Antworten';
+  }
+
+  /**
+   * Removes an attachment from the message.
+   * @param removedUrl - The URL of the attachment to be removed.
+   */
+  onAttachmentRemoved(removedUrl: string): void {
+    this.message.attachmentUrls = this.message.attachmentUrls.filter(
+      (url: string) => url !== removedUrl
+    );
+    this.removedUrls.add(removedUrl);
+    localStorage.setItem(
+      'removedUrls',
+      JSON.stringify(Array.from(this.removedUrls))
+    );
+  }
+
+  /**
+   * Checks if an attachment has been removed.
+   * @param attachmentUrl - The URL of the attachment to check.
+   * @returns True if the attachment has been removed, false otherwise.
+   */
+  isAttachmentRemoved(attachmentUrl: string): boolean {
+    return this.removedUrls.has(attachmentUrl);
   }
 }

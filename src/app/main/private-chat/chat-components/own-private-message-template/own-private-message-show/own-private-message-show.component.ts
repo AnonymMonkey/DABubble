@@ -21,9 +21,7 @@ import { ThreadPrivateChatService } from '../../../../../shared/services/thread-
     AttachmentPreviewComponent,
   ],
   templateUrl: './own-private-message-show.component.html',
-  styleUrls: [
-    './own-private-message-show.component.scss',
-  ],
+  styleUrls: ['./own-private-message-show.component.scss'],
 })
 export class OwnPrivateMessageShowComponent {
   @Input() message: any;
@@ -39,8 +37,14 @@ export class OwnPrivateMessageShowComponent {
   private threadMessagesSubscription: Subscription | undefined;
   public threadInfo: Map<string, { count: number; lastReplyDate: string }> =
     new Map();
+  removedUrls: Set<string> = new Set();
 
-  constructor() {}
+  constructor() {
+    const savedRemovedUrls = localStorage.getItem('removedUrls');
+    if (savedRemovedUrls) {
+      this.removedUrls = new Set(JSON.parse(savedRemovedUrls));
+    }
+  }
 
   /**
    * Initializes the component and loads user data for the message author.
@@ -59,9 +63,7 @@ export class OwnPrivateMessageShowComponent {
       changes['message'].currentValue?.messageId !==
         changes['message'].previousValue?.messageId
     )
-      this.loadThreadMessages(
-        this.message.messageId
-      );
+      this.loadThreadMessages(this.message.messageId);
   }
 
   /**
@@ -113,9 +115,7 @@ export class OwnPrivateMessageShowComponent {
    * @param messageId - The ID of the message.
    * @returns A Firestore collection reference.
    */
-  private getThreadReference(
-    messageId: string
-  ): CollectionReference {
+  private getThreadReference(messageId: string): CollectionReference {
     return collection(
       this.firestore,
       `users/${this.userService.userId}/privateChat/${this.threadService.privateChatId}/messages/${messageId}/thread`
@@ -179,5 +179,29 @@ export class OwnPrivateMessageShowComponent {
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
     return 'Keine Antworten';
+  }
+
+  /**
+   * Removes an attachment from the message.
+   * @param removedUrl - The URL of the attachment to be removed.
+   */
+  onAttachmentRemoved(removedUrl: string): void {
+    this.message.attachmentUrls = this.message.attachmentUrls.filter(
+      (url: string) => url !== removedUrl
+    );
+    this.removedUrls.add(removedUrl);
+    localStorage.setItem(
+      'removedUrls',
+      JSON.stringify(Array.from(this.removedUrls))
+    );
+  }
+
+  /**
+   * Checks if an attachment has been removed.
+   * @param attachmentUrl - The URL of the attachment to check.
+   * @returns True if the attachment has been removed, false otherwise.
+   */
+  isAttachmentRemoved(attachmentUrl: string): boolean {
+    return this.removedUrls.has(attachmentUrl);
   }
 }

@@ -322,13 +322,8 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
     const userDocRef = doc(this.firestore, `users/${this.userId}`);
     const userSnapshot = await getDoc(userDocRef);
     if (!userSnapshot.exists()) return;
-
     const newMessageId =
       MessageAreaNewMessageComponent.generatePrivateMessageId();
-    const userPrivateChatRef = doc(
-      this.firestore,
-      `users/${this.userId}/privateChat/${this.privateChatId}`
-    );
     const userMessagesCollectionRef = collection(
       this.firestore,
       `users/${this.userId}/privateChat/${this.privateChatId}/messages`
@@ -339,13 +334,7 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
       newMessage,
       attachments
     );
-
     const otherUserId = isSelfMessage ? userId2 : userId1;
-    const otherUserPrivateChatRef = doc(
-      this.firestore,
-      `users/${otherUserId}/privateChat/${this.privateChatId}`
-    );
-
     const otherUserMessagesCollectionRef = collection(
       this.firestore,
       `users/${otherUserId}/privateChat/${this.privateChatId}/messages`
@@ -410,7 +399,6 @@ export class MessageAreaNewMessageComponent implements OnInit, OnDestroy {
    * @param menuType - The type of menu (e.g., 'upload', 'emoji', 'mention').
    */
   toggleBorder(menuType: string): void {
-    // Überprüfe, ob die Bildschirmbreite größer oder gleich 600px ist
     if (window.matchMedia('(min-width: 600px)').matches) {
       const borderRadiusMap: { [key: string]: string } = {
         upload: '30px 30px 30px 30px',

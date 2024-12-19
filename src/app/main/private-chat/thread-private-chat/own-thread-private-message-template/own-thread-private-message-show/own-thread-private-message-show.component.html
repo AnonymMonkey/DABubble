@@ -19,6 +19,8 @@
           [actualAttachmentUrls]="[attachmentUrl]"
           [message]="message"
           [messageId]="message.messageId"
+          *ngIf="attachmentUrl && !isAttachmentRemoved(attachmentUrl)"
+          (attachmentRemoved)="onAttachmentRemoved($event)"
         >
         </app-attachment-preview>
       </a>

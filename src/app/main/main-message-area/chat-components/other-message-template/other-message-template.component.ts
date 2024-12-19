@@ -48,6 +48,7 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
   displayName: string = '';
   private userDataSubscription: Subscription | undefined;
   @ViewChild('emojiMenuTrigger') emojiMenuTrigger!: MatMenuTrigger;
+  removedUrls: Set<string> = new Set();
 
   constructor(
     public mainMessageArea: MainMessageAreaComponent,
@@ -56,7 +57,12 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
     private firestore: Firestore,
     private messageService: MessageService,
     public userService: UserService
-  ) {}
+  ) {
+    const savedRemovedUrls = localStorage.getItem('removedUrls');
+    if (savedRemovedUrls) {
+      this.removedUrls = new Set(JSON.parse(savedRemovedUrls));
+    }
+  }
 
   /**
    * Initializes the component by loading thread messages and user data.
@@ -197,5 +203,29 @@ export class OtherMessageTemplateComponent implements OnInit, OnDestroy {
    */
   handleChannelReaction(isReaction: boolean): void {
     if (isReaction) this.emojiMenuTrigger.closeMenu();
+  }
+
+  /**
+   * Removes an attachment from the message.
+   * @param removedUrl - The URL of the attachment to be removed.
+   */
+  onAttachmentRemoved(removedUrl: string): void {
+    this.message.attachmentUrls = this.message.attachmentUrls.filter(
+      (url: string) => url !== removedUrl
+    );
+    this.removedUrls.add(removedUrl);
+    localStorage.setItem(
+      'removedUrls',
+      JSON.stringify(Array.from(this.removedUrls))
+    )
+  }
+
+  /**
+   * Checks if an attachment has been removed.
+   * @param attachmentUrl - The URL of the attachment to check.
+   * @returns True if the attachment has been removed, false otherwise.
+   */
+  isAttachmentRemoved(attachmentUrl: string): boolean {
+    return this.removedUrls.has(attachmentUrl);
   }
 }

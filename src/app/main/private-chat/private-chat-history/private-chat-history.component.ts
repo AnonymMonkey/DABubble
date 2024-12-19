@@ -75,10 +75,10 @@ export class PrivateChatHistoryComponent {
   }
 
   /**
-   * Sorts grouped messages and reverses their order.
-   * @param grouped - The grouped messages object.
-   * @returns A sorted array of message groups.
-   */
+ * Sorts grouped messages and orders them by ascending date.
+ * @param grouped - The grouped messages object.
+ * @returns A sorted array of message groups.
+ */
   private sortGroupedMessages(grouped: { [date: string]: any[] }): any[] {
     return Object.keys(grouped)
       .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
@@ -87,8 +87,13 @@ export class PrivateChatHistoryComponent {
         messages: grouped[date].sort(
           (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
         ),
-      }));
+      }))
+      .reverse();
   }
+  
+  
+  
+
 
   /**
    * Check if a message is sent by the current user.

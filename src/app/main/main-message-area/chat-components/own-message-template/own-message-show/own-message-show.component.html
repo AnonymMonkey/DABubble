@@ -16,8 +16,10 @@
         [href]="attachmentUrl"
       >
         <app-attachment-preview
+          *ngIf="attachmentUrl && !isAttachmentRemoved(attachmentUrl)"
           [actualAttachmentUrls]="[attachmentUrl]"
           [message]="message"
+          (attachmentRemoved)="onAttachmentRemoved($event)"
         >
         </app-attachment-preview>
       </a>
@@ -37,7 +39,11 @@
       "
     >
       {{ threadInfo.get(message?.messageId)?.count }}
-      {{ threadInfo.get(message?.messageId)?.count === 1 ? "Antwort" : "Antworten" }}
+      {{
+        threadInfo.get(message?.messageId)?.count === 1
+          ? "Antwort"
+          : "Antworten"
+      }}
     </span>
     <span>
       Letzte Antwort: {{ threadInfo.get(message?.messageId)?.lastReplyDate }}

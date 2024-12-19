@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  Input,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, inject, Input, OnInit, SimpleChanges } from '@angular/core';
 import { ChannelService } from '../../../../../shared/services/channel-service/channel.service';
 import { NgIf, DatePipe, NgFor } from '@angular/common';
 import { ThreadService } from '../../../../../shared/services/thread-service/thread.service';
@@ -43,8 +37,14 @@ export class OwnMessageShowComponent implements OnInit {
   private threadMessagesSubscription: Subscription | undefined;
   public threadInfo: Map<string, { count: number; lastReplyDate: string }> =
     new Map();
+  removedUrls: Set<string> = new Set();
 
-  constructor() {}
+  constructor() {
+    const savedRemovedUrls = localStorage.getItem('removedUrls');
+    if (savedRemovedUrls) {
+      this.removedUrls = new Set(JSON.parse(savedRemovedUrls));
+    }
+  }
 
   /**
    * Initializes the component and loads user data for the message author.
@@ -185,5 +185,29 @@ export class OwnMessageShowComponent implements OnInit {
       return date.toLocaleTimeString([], options) + ' Uhr';
     }
     return 'Keine Antworten';
+  }
+
+  /**
+   * Removes an attachment from the message.
+   * @param removedUrl - The URL of the attachment to be removed.
+   */
+  onAttachmentRemoved(removedUrl: string): void {
+    this.message.attachmentUrls = this.message.attachmentUrls.filter(
+      (url: string) => url !== removedUrl
+    );
+    this.removedUrls.add(removedUrl);
+    localStorage.setItem(
+      'removedUrls',
+      JSON.stringify(Array.from(this.removedUrls))
+    );
+  }
+
+  /**
+   * Checks if an attachment has been removed.
+   * @param attachmentUrl - The URL of the attachment to check.
+   * @returns True if the attachment has been removed, false otherwise.
+   */
+  isAttachmentRemoved(attachmentUrl: string): boolean {
+    return this.removedUrls.has(attachmentUrl);
   }
 }

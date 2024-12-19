@@ -77,6 +77,8 @@
             [href]="attachmentUrl"
           >
             <app-attachment-preview
+              *ngIf="attachmentUrl && !isAttachmentRemoved(attachmentUrl)"
+              (attachmentRemoved)="onAttachmentRemoved($event)"
               [actualAttachmentUrls]="[attachmentUrl]"
               [message]="message"
             >
@@ -96,8 +98,7 @@
       >
         <span
           (click)="
-            privateChat.openSidenav();
-            threadService.setActualMessage(message)
+            privateChat.openSidenav(); threadService.setActualMessage(message)
           "
         >
           {{ (threadMessages$ | async)?.length }}
