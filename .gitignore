@@ -45,3 +45,37 @@ Thumbs.db
 .firebase
 *-debug.log
 .runtimeconfig.json
+
+# Angular spezifische Build- und Cache-Dateien
+.angular/cache
+.angular/config.json
+
+# Lokale Umgebungsdateien
+/src/environments/environment*.ts
+
+# Logs & Debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build-Artefakte
+/.serverless
+/.firebase/
+firebase-debug.log
+
+# Jest & Cypress (falls verwendet)
+.jest/
+.jest-cache/
+.cypress/
+
+# SonarQube (falls Code-Qualitätsprüfung)
+.sonar/
+
+# Lokale Secrets (falls vorhanden)
+.env
+.env.local
+.env.*.local
+
+# MacOS & Linux Systemdateien
+*.swp

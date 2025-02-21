@@ -23,4 +23,11 @@ export class PrivacyPolicyComponent {
   navigateToLogin() {
     this.routingService.navigateToLogin();
   }
+
+    /**
+   * Navigates to the imprint page
+   */
+    navigateToImprint() {
+      this.routingService.navigateToImprint();
+    }
 }
